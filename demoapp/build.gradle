@@ -1,0 +1,58 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion compile_sdk_version
+    buildToolsVersion build_tools_version
+
+    defaultConfig {
+        applicationId "me.uport.sdk.demoapp"
+        minSdkVersion min_sdk_version
+        targetSdkVersion target_sdk_version
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    dexOptions {
+        jumboMode true
+    }
+}
+
+dependencies {
+    implementation(
+            project(":sdk"),
+            project(":fuelingservice"),
+
+            // project(":did"),
+            // "me.uport.sdk:sdk:$uport_sdk_version",
+
+
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
+            "com.android.support:appcompat-v7:$support_lib_version",
+
+            "com.android.support.constraint:constraint-layout:1.0.2"
+    )
+
+    testImplementation(
+            "junit:junit:$junit_version",
+    )
+    androidTestImplementation(
+            "com.android.support.test:runner:$test_runner_version",
+            "com.android.support.test.espresso:espresso-core:$espresso_version"
+    )
+
+}
+
+repositories {
+    mavenLocal()
+}

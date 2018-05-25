@@ -1,0 +1,8 @@
+include ':demoapp'
+include ':did'
+include ':identity'
+include ':sdk'
+include ':jsonrpc'
+include ':core'
+include ':jwt'
+include ':fuelingservice'

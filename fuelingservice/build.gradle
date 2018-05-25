@@ -1,0 +1,58 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: "maven"
+
+android {
+    compileSdkVersion compile_sdk_version
+
+    defaultConfig {
+        minSdkVersion min_sdk_version
+        targetSdkVersion target_sdk_version
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+
+    implementation(
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version",
+            "com.google.firebase:firebase-iid:$play_services_version",
+
+            "com.squareup.okhttp3:okhttp:$okhttp_version",
+            "com.squareup.okhttp3:logging-interceptor:$okhttp_version",
+
+            project(":core")
+    )
+
+    testImplementation(
+            "junit:junit:$junit_version",
+    )
+
+    androidTestImplementation(
+            "com.android.support.test:runner:$test_runner_version",
+    )
+
+
+}
+repositories {
+    mavenCentral()
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

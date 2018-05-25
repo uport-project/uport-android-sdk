@@ -1,0 +1,85 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+
+    ext {
+
+        kotlin_version = '1.2.41'
+        android_tools_version = "3.1.2"
+
+        build_tools_version = "27.0.3"
+
+        min_sdk_version = 23 //the uport-android-signer lib as of v0.0.1 requires minSDK 23
+        compile_sdk_version = 27
+        target_sdk_version = compile_sdk_version
+
+        test_runner_version = "1.0.1"
+        support_lib_version = "27.0.2"
+        play_services_version = "15.0.0"
+        espresso_version = "3.0.1"
+        junit_version = "4.12"
+        mockito_version = "2.12.0"
+
+        coroutines_version = "0.22.5"
+        moshi_version = "1.6.0"
+        okhttp_version = "3.10.0"
+
+        bivrost_version = "v0.6.2"
+        kmnid_version = "0.1"
+        kethereum_version = "0.40"
+        khex_version = "0.5"
+
+        uport_signer_version = "0.0.1"
+        uport_sdk_version = "0.0.1"
+    }
+
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$android_tools_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+        mavenLocal()
+    }
+}
+
+subprojects { subproject ->
+    afterEvaluate {
+        if (subproject.plugins.hasPlugin('maven')) {
+
+            group "me.uport.sdk"
+            version uport_sdk_version
+
+            uploadArchives {
+                repositories {
+                    mavenDeployer {
+                        if (project.hasProperty("MAVEN_REPOSITORY")) {
+                            //nop
+                        } else {
+                            repository(url: mavenLocal().url)
+                        }
+                    }
+                }
+            }
+
+        }
+
+        if (subproject.plugins.hasPlugin("com.android.application") || subproject.plugins.hasPlugin("com.android.library") ) {
+            subproject.android.packagingOptions.exclude("META-INF/main.kotlin_module")
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

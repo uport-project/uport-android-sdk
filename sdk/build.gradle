@@ -1,0 +1,60 @@
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        maven { url "https://jitpack.io" }
+    }
+
+    dependencies {
+        classpath ("com.github.gnosis.bivrost-kotlin:bivrost-gradle-plugin:$bivrost_version")
+    }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "bivrost"
+apply plugin: "maven"
+
+android {
+    compileSdkVersion compile_sdk_version
+
+    defaultConfig {
+        minSdkVersion min_sdk_version
+        targetSdkVersion target_sdk_version
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation "com.github.gnosis.bivrost-kotlin:bivrost-solidity-types:$bivrost_version"
+    implementation "com.github.uport-project:uport-android-signer:$uport_signer_version"
+    api project(":identity")
+    api project(":core")
+
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
+    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
+    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
+    androidTestImplementation project(path: ':fuelingservice')
+
+    testImplementation "junit:junit:$junit_version"
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
