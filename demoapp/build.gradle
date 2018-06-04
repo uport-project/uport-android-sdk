@@ -28,14 +28,21 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            substitute module("com.github.uport-project.uport-android-sdk:sdk:v$uport_sdk_version") with project(':sdk')
+            substitute module("com.github.uport-project.uport-android-sdk:fuelingservice:v$uport_sdk_version") with project(':fuelingservice')
+        }
+    }
+}
+
 dependencies {
     implementation(
-            project(":sdk"),
-            project(":fuelingservice"),
 
             // project(":did"),
-            // "me.uport.sdk:sdk:$uport_sdk_version",
-
+            "com.github.uport-project.uport-android-sdk:sdk:v$uport_sdk_version",
+            "com.github.uport-project.uport-android-sdk:fuelingservice:v$uport_sdk_version",
 
             "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
             "com.android.support:appcompat-v7:$support_lib_version",

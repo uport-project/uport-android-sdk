@@ -37,6 +37,9 @@ data class Account(
         val signerType: SignerType = SignerType.MetaIdentityManager
 ) {
 
+    val address : String
+        get() = getMnid()
+
     fun getMnid() = MNID.encode(network, proxyAddress)
 
     fun toJson(pretty: Boolean = false): String = adapter.indent(if (pretty) "  " else "").toJson(this)

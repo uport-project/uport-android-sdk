@@ -1,13 +1,16 @@
-package me.uport.sdk
+package me.uport.sdk.extensions
 
 import android.content.Context
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.Networks
 import me.uport.sdk.identity.Account
 import me.uport.sdk.jsonrpc.JsonRPC
+import me.uport.sdk.jsonrpc.experimental.getAccountBalance
 import me.uport.sdk.jsonrpc.experimental.getTransactionByHash
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
@@ -15,6 +18,20 @@ import org.kethereum.model.Address
 import org.kethereum.model.createTransactionWithDefaults
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
+
+
+fun Account.getBalance(callback : (err : Exception?, balance : BigInteger) -> Unit) {
+    val network = Networks.get(this.network)
+    val rpc = JsonRPC(network.rpcUrl)
+    rpc.getAccountBalance(this.deviceAddress, callback)
+}
+
+suspend fun Account.getBalance(): BigInteger {
+    val network = Networks.get(this.network)
+    val rpc = JsonRPC(network.rpcUrl)
+    return rpc.getAccountBalance(this.deviceAddress)
+}
+
 
 /**
  * Send [value] amount of WEI ( 1e-18 ETH ) from Account to [destinationAddress]
@@ -52,7 +69,7 @@ suspend fun Account.send(context: Context, contractAddress: String, data: ByteAr
 }
 
 /**
- * Send [value] amount of WEI ( 1e-18 ETH ) from Account to [destinationAddress]
+ * Send [value] amount of WEI ( 1e-18 ETH ) from Account to the address [to]
  */
 fun Account.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = async {
     try {
