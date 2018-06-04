@@ -3,6 +3,8 @@ package me.uport.sdk.core
 import okhttp3.*
 import java.io.IOException
 
+val okClient by lazy { OkHttpClient() }
+
 /**
  * HTTP posts a payload and returns the raw response
  *
@@ -20,7 +22,7 @@ fun urlPostSync(url: String, jsonBody: String): String {
             .addHeader("Content-Type", "application/json")
             .post(body)
             .build()
-    val response = OkHttpClient().newCall(request).execute()
+    val response = okClient.newCall(request).execute()
     return response.body()?.string() ?: ""
 }
 
@@ -44,7 +46,7 @@ fun urlPost(url: String, jsonBody: String, authToken: String? = null, callback: 
         post(body)
     }.build()
 
-    OkHttpClient().newCall(request).enqueue(object : Callback {
+    okClient.newCall(request).enqueue(object : Callback {
         override fun onResponse(call: Call?, response: Response?) {
             if (response?.isSuccessful == true) {
                 val payload = response.body()?.use {
@@ -67,7 +69,7 @@ fun urlGetSync(url: String): String {
     val request = Request.Builder()
             .url(url)
             .build()
-    val response = OkHttpClient().newCall(request).execute()
+    val response = okClient.newCall(request).execute()
     return response.body()?.string() ?: ""
 }
 
@@ -80,7 +82,7 @@ fun urlGet(url: String, authToken: String? = null, callback: (err: Exception?, p
         }
     }.build()
 
-    OkHttpClient().newCall(request).enqueue(object : Callback {
+    okClient.newCall(request).enqueue(object : Callback {
         override fun onResponse(call: Call?, response: Response?) {
             if (response?.isSuccessful == true) {
                 val payload = response.body()?.use {
