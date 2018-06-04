@@ -22,7 +22,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.0.1"
+def uport_sdk_version = "v0.0.2"
 dependencies {
     ...
     // core SDK
