@@ -13,6 +13,7 @@ import me.uport.sdk.identity.Account
 import me.uport.sdk.identity.AccountCreator
 import me.uport.sdk.identity.AccountCreatorCallback
 import me.uport.sdk.identity.IFuelTokenProvider
+import kotlin.coroutines.experimental.suspendCoroutine
 
 object Uport {
 
@@ -60,6 +61,24 @@ object Uport {
      */
     fun createAccount(network: EthNetwork, completion: AccountCreatorCallback) {
         return createAccount(network.network_id, completion)
+    }
+
+    /**
+     * Creates an account (the [defaultAccount]) in a coroutine context
+     * For v1 of this SDK, there's only one account supported.
+     * If an account has already been created, that one will be returned.
+     * If the process has already been started before, it will continue where it left off.
+     * The created account is saved as [defaultAccount] before returning with a result
+     *
+     */
+    suspend fun createAccount(network: EthNetwork) : Account = suspendCoroutine { cont ->
+        this.createAccount(network) { err, acc ->
+            if (err != null) {
+                cont.resumeWithException(err)
+            } else {
+                cont.resume(acc)
+            }
+        }
     }
 
     /**
