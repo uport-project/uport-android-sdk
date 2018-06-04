@@ -3,12 +3,10 @@ package me.uport.sdk.demoapp
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.Uport
-import me.uport.sdk.Uport.defaultAccount
 import me.uport.sdk.core.Networks
-import me.uport.sdk.demoapp.R.id.progressBar
+import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,18 +15,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if (Uport.defaultAccount == null) {
-            progressBar.visibility = View.VISIBLE
-            launch(UI) {
-                try {
-                    val acc = Uport.createAccount(Networks.rinkeby)
-                } catch (ex: Exception) {
-                    defaultAccount.text = "ERROR: $ex."
-                }
+            defaultAccountView.text = "creating account, please wait"
+            progressBarView.visibility = View.VISIBLE
 
-                progressBar.visibility = View.INVISIBLE
+            Uport.createAccount(Networks.rinkeby) { err, acc ->
+                progressBarView.visibility = View.INVISIBLE
+
+                if (err == null) {
+                    defaultAccountView.text = acc.toJson(true)
+                } else {
+                    defaultAccountView.text = "ERROR: $err."
+                }
             }
         } else {
-            defaultAccount.text = Uport.defaultAccount?.toJson(true) ?: "creating account, please wait"
+            defaultAccountView.text = Uport.defaultAccount?.toJson(true)
         }
 
     }

@@ -52,7 +52,7 @@ override fun onCreate() {
 
 ```
 
-##### defaultAccount
+#### defaultAccount
 
 This preview version of the SDK allows creation of a single account
 that can be accessed by the nullable `defaultAccount` field in the `Uport` object.
@@ -73,7 +73,7 @@ val balanceInWei = Uport.defaultAccount?.getBalance()
 
 ```
 
-##### accountCreation
+#### Account Creation
 
 ```kotlin
 
@@ -89,7 +89,7 @@ if (Uport.defaultAccount == null) {
 In case the app gets killed during the account creation process, the `createAccount` method will try to resume the process where it left off.
 It can be instructed to start from scratch, but that may cost additional fuel.
 
-##### ethereum interaction
+#### Ethereum interaction
 
 uPort SDK lets you create, sign, and submit Ethereum transactions on behalf of your users.
 
