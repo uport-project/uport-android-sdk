@@ -8,6 +8,7 @@ import me.uport.sdk.moshi
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.Transaction
 import org.kethereum.model.createTransactionWithDefaults
+import java.math.BigInteger
 
 class ProgressPersistence(context: Context) {
 
@@ -31,7 +32,7 @@ class ProgressPersistence(context: Context) {
     /**
      * Wrapper for intermediate states of account creation
      */
-    internal class PersistentBundle(
+    internal data class PersistentBundle(
             @Json(name = "unsigned")
             val unsigned: Transaction = Transaction(),
 
@@ -40,6 +41,9 @@ class ProgressPersistence(context: Context) {
 
             @Json(name = "txHash")
             val txHash: String = "",
+
+            @Json(name = "blockHash")
+            val blockHash: String = "",
 
             @Json(name = "ordinal")
             val ordinal: Int = 0
@@ -61,9 +65,7 @@ class ProgressPersistence(context: Context) {
         }
     }
 
-    internal fun save(
-            state: PendingTransactionState,
-            temp: PersistentBundle = PersistentBundle(),
+    internal fun save(temp: PersistentBundle = PersistentBundle(),
             label: String) {
 
         prefs.edit()
