@@ -11,6 +11,8 @@ android {
         targetSdkVersion target_sdk_version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -27,8 +29,10 @@ dependencies {
 
     implementation "com.github.gnosis.bivrost-kotlin:bivrost-solidity-types:$bivrost_version"
     implementation "com.github.uport-project:uport-android-signer:$uport_signer_version"
+
     api project(":identity")
     api project(":core")
+    api project(":jsonrpc")
 
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 

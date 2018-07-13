@@ -29,12 +29,9 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 //    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
-    api "com.github.walleth.kethereum:model:$kethereum_version"
-    api "com.github.walleth.kethereum:crypto:$kethereum_version"
-    api "com.github.walleth.kethereum:rlp:$kethereum_version"
-    api "com.github.walleth.kethereum:functions:$kethereum_version"
-    api "com.github.walleth.kethereum:extensions:$kethereum_version"
-    api "com.github.walleth:khex:$khex_version"
+    implementation "com.github.walleth.kethereum:model:$kethereum_version"
+    implementation "com.github.walleth.kethereum:rlp:$kethereum_version"
+    implementation "com.github.walleth.kethereum:functions:$kethereum_version"
 
     implementation project(":core")
 

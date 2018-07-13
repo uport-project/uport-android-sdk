@@ -16,10 +16,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        multiDexEnabled true
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -29,18 +26,16 @@ android {
         }
     }
 
-    dexOptions {
-        jumboMode true
-    }
-
 }
 
 dependencies {
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
-    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
+//    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
 
-    api project(":jsonrpc")
+    implementation "com.github.walleth.kethereum:extensions:$kethereum_version"
+
+    implementation project(":jsonrpc")
     implementation project(":core")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

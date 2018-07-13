@@ -5,6 +5,7 @@ import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.getJoseEncoded
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.core.toBase64UrlSafe
@@ -54,7 +55,7 @@ class JWTTools {
         val messageToSign = "$headerEncodedString.$payloadEncodedString".toBase64()
 
         UportHDSigner().signJwtBundle(context, address, derivationPath, messageToSign, prompt, { err, signature ->
-            val encodedJwt = "$headerEncodedString.$payloadEncodedString.$signature"
+            val encodedJwt = "$headerEncodedString.$payloadEncodedString.${signature.getJoseEncoded()}"
             callback(err, encodedJwt)
         })
     }
