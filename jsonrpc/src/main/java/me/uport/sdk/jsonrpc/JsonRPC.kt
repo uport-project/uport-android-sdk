@@ -14,6 +14,48 @@ import java.math.BigInteger
 
 class JsonRPC(private val rpcUrl: String) {
 
+
+//=============================
+// eth_call
+//=============================
+
+    /**
+     * performs an eth_call
+     * the result is returned as raw string and jas to be parsed into a Json that can make sense of the expected result
+     */
+    fun ethCall(address: String, data: String, callback: (err: Exception?, rawResult: String) -> Unit) {
+        val payloadRequest = JsonRpcBaseRequest(
+                method = "eth_call",
+                params = listOf(
+                        mapOf("to" to address,
+                                "data" to data),
+                        "latest")
+        ).toJson()
+
+        urlPost(rpcUrl, payloadRequest, null, callback)
+    }
+
+
+//=============================
+// eth_getLogs
+//=============================
+
+    /**
+     * performs an eth_call
+     * the result is returned as raw string and jas to be parsed into a Json that can make sense of the expected result
+     */
+    fun getLogs(address: String, topics : Any, fromBlock: BigInteger, toBlock : BigInteger, callback: (err: Exception?, rawResult: String) -> Unit) {
+//        val payloadRequest = JsonRpcBaseRequest(
+//                method = "eth_call",
+//                params = listOf(
+//                        mapOf("to" to address,
+//                                "data" to data),
+//                        "latest")
+//        ).toJson()
+//
+//        urlPost(rpcUrl, payloadRequest, null, callback)
+    }
+
 //=============================
 // eth_gasPrice
 //=============================
