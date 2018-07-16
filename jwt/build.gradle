@@ -12,10 +12,9 @@ android {
         versionCode 1
         versionName "1.0"
 
-        multiDexEnabled true
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -25,10 +24,6 @@ android {
         }
     }
 
-    dexOptions {
-        jumboMode true
-    }
-
 }
 
 dependencies {
@@ -36,13 +31,11 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     implementation "com.github.uport-project:uport-android-signer:$uport_signer_version"
 
-    api "com.github.walleth:kethereum:$kethereum_version"
-
     implementation project(":did")
     implementation project(":core")
 
     testImplementation "junit:junit:$junit_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+//    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 
     androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"

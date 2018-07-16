@@ -91,21 +91,21 @@ class AccountCreator(
                         oldBundle.deviceAddress,
                         oldBundle.recoveryAddress,
                         networkId,
-                        oldBundle.fuelToken,
-                        { err, identityInfo ->
-                            if (err != null) {
-                                return@requestIdentityCreation fail(err, callback)
-                            }
-                            val bundle = oldBundle.copy(txHash = identityInfo.txHash ?: "")
-                            progress.save(AccountCreationState.PROXY_CREATION_SENT, bundle)
+                        oldBundle.fuelToken
+                ) { err, identityInfo ->
+                    if (err != null) {
+                        return@requestIdentityCreation fail(err, callback)
+                    }
+                    val bundle = oldBundle.copy(txHash = identityInfo.txHash ?: "")
+                    progress.save(AccountCreationState.PROXY_CREATION_SENT, bundle)
 
-                            return@requestIdentityCreation createAccount(networkId, false, callback)
-                        })
+                    return@requestIdentityCreation createAccount(networkId, false, callback)
+                }
 
             }
 
             AccountCreationState.PROXY_CREATION_SENT -> {
-                Thread({
+                Thread {
                     var pollingDelay = POLLING_INTERVAL
                     while (state != AccountCreationState.COMPLETE) {
 
@@ -140,7 +140,7 @@ class AccountCreator(
                         //FIXME: use saner polling model.. coroutines maybe?
                         Thread.sleep(pollingDelay)
                     }
-                }).start()
+                }.start()
             }
             AccountCreationState.COMPLETE -> {
                 return callback(null, oldBundle.partialAccount)
