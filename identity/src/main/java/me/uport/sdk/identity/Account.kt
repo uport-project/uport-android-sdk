@@ -22,7 +22,7 @@ data class Account(
         val network: String,
 
         @Json(name = "proxy")
-        val proxyAddress: String,
+        val publicAddress: String,
 
         @Json(name = "manager")
         val identityManagerAddress: String,
@@ -40,7 +40,7 @@ data class Account(
     val address : String
         get() = getMnid()
 
-    fun getMnid() = MNID.encode(network, proxyAddress)
+    fun getMnid() = MNID.encode(network, publicAddress)
 
     fun toJson(pretty: Boolean = false): String = adapter.indent(if (pretty) "  " else "").toJson(this)
 

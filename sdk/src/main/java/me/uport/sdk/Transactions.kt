@@ -48,11 +48,11 @@ class Transactions(
                 nonce = rpcRelay.getTransactionCount(account.deviceAddress)
             }
             MetaIdentityManager -> {
-                from = Address(account.proxyAddress)
+                from = Address(account.publicAddress)
                 nonce = TxRelayHelper(network).resolveMetaNonce(account.deviceAddress)
             }
             Proxy, IdentityManager -> {
-                from = Address(account.proxyAddress)
+                from = Address(account.publicAddress)
             }
         }
 
@@ -91,7 +91,7 @@ class Transactions(
 
         val txHash = if (signerType == MetaIdentityManager) {
 
-            val metaSigner = MetaIdentitySigner(relaySigner, account.proxyAddress, account.identityManagerAddress)
+            val metaSigner = MetaIdentitySigner(relaySigner, account.publicAddress, account.identityManagerAddress)
             val signedEncodedTx = metaSigner.signRawTx(unsigned)
 
             relayMetaTransaction(signedEncodedTx)
