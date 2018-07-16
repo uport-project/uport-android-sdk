@@ -94,15 +94,15 @@ class DIDResolver {
      */
     fun getProfileDocument(mnid: String, callback: (err: Exception?, ddo: DDO) -> Unit) {
 
-        Thread({
+        Thread {
             //safe to call networks
             val ddo = getProfileDocumentSync(mnid)
 
             //return to UI thread
-            Handler(Looper.getMainLooper()).post({
+            Handler(Looper.getMainLooper()).post {
                 callback(null, ddo!!)
-            })
-        }).run()
+            }
+        }.run()
 
     }
 

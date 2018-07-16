@@ -104,7 +104,7 @@ object Uport {
         val creator = AccountCreator(config.applicationContext, config.fuelTokenProvider)
         return creator.createAccount(networkId) { err, acc ->
             if (err != null) {
-                Handler(getMainLooper()).post({ completion(err, acc) })
+                Handler(getMainLooper()).post { completion(err, acc) }
                 @Suppress("LABEL_NAME_CLASH")
                 return@createAccount
             }
@@ -112,7 +112,7 @@ object Uport {
             val serialized = acc.toJson()
             prefs.edit().putString(DEFAULT_ACCOUNT, serialized).apply()
 
-            Handler(getMainLooper()).post({ completion(err, acc) })
+            Handler(getMainLooper()).post { completion(err, acc) }
         }
     }
 

@@ -54,10 +54,10 @@ class JWTTools {
         //XXX: This is the crux of the bad behavior. signJwtBundle expects a Base64 string as payload and it was receiving plain text
         val messageToSign = "$headerEncodedString.$payloadEncodedString".toBase64()
 
-        UportHDSigner().signJwtBundle(context, address, derivationPath, messageToSign, prompt, { err, signature ->
+        UportHDSigner().signJwtBundle(context, address, derivationPath, messageToSign, prompt) { err, signature ->
             val encodedJwt = "$headerEncodedString.$payloadEncodedString.${signature.getJoseEncoded()}"
             callback(err, encodedJwt)
-        })
+        }
     }
 
     /**
@@ -98,7 +98,7 @@ class JWTTools {
 
     fun verify(token: String, callback: (err: Exception?, payload: JwtPayload?) -> Unit) {
         val (_, payload, signatureBytes) = decode(token)
-        DIDResolver().getProfileDocument(payload.iss, { err, ddo ->
+        DIDResolver().getProfileDocument(payload.iss) { err, ddo ->
             if (err !== null)
                 return@getProfileDocument callback(err, null)
 
@@ -117,7 +117,7 @@ class JWTTools {
                     return@getProfileDocument callback(err, payload)
             }
             return@getProfileDocument callback(InvalidSignatureException("Signature invalid: Public Key Mismatch"), null)
-        })
+        }
     }
 
     /***
