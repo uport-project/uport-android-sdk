@@ -14,7 +14,7 @@ typealias AccountCreatorCallback = (err: Exception?, acc: Account) -> Unit
 
 class MetaIdentityAccountCreator(
         private val context: Context,
-        private val fuelTokenProvider: IFuelTokenProvider) {
+        private val fuelTokenProvider: IFuelTokenProvider) : AccountCreator {
 
     private val progress: ProgressPersistence = ProgressPersistence(context)
 
@@ -28,7 +28,7 @@ class MetaIdentityAccountCreator(
      *
      * To force the creation of a new identity, use [forceRestart]
      */
-    fun createAccount(networkId: String, forceRestart: Boolean = false, callback: AccountCreatorCallback) {
+    override fun createAccount(networkId: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
 
         var (state, oldBundle) = if (forceRestart) {
             (AccountCreationState.NONE to PersistentBundle())
