@@ -10,7 +10,7 @@ import me.uport.sdk.identity.endpoints.UnnuIdentityInfo
 import me.uport.sdk.identity.endpoints.lookupIdentityInfo
 import me.uport.sdk.identity.endpoints.requestIdentityCreation
 
-typealias AccountCreatorCallback = (err: Exception?, acc: Account) -> Unit
+
 
 class MetaIdentityAccountCreator(
         private val context: Context,
