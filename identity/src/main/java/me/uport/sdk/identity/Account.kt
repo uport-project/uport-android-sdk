@@ -34,7 +34,7 @@ data class Account(
         val fuelToken: String,
 
         @Json(name = "signerType")
-        val signerType: SignerType = SignerType.MetaIdentityManager
+        val signerType: SignerType = SignerType.KeyPair
 ) {
 
     val address : String
