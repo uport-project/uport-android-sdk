@@ -2,7 +2,6 @@ package me.uport.sdk.demoapp
 
 import android.app.Application
 import me.uport.sdk.Uport
-import me.uport.sdk.fuelingservice.FuelTokenProvider
 
 class DemoApplication : Application() {
 
@@ -11,8 +10,6 @@ class DemoApplication : Application() {
 
         val config = Uport.Configuration()
                 .setApplicationContext(this)
-                .setFuelTokenProvider(
-                        FuelTokenProvider(this, "2p1yWKU8Ucd4vuHmYmc3fvcvTkYL11KXdjH"))
 
         Uport.initialize(config)
     }
