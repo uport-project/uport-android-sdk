@@ -10,7 +10,7 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.identity.Account
-import me.uport.sdk.identity.AccountCreator
+import me.uport.sdk.identity.MetaIdentityAccountCreator
 import me.uport.sdk.identity.AccountCreatorCallback
 import me.uport.sdk.identity.IFuelTokenProvider
 import kotlin.coroutines.experimental.suspendCoroutine
@@ -101,7 +101,7 @@ object Uport {
             return
         }
 
-        val creator = AccountCreator(config.applicationContext, config.fuelTokenProvider)
+        val creator = MetaIdentityAccountCreator(config.applicationContext, config.fuelTokenProvider)
         return creator.createAccount(networkId) { err, acc ->
             if (err != null) {
                 Handler(getMainLooper()).post { completion(err, acc) }

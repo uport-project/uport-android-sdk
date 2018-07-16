@@ -12,7 +12,7 @@ import me.uport.sdk.identity.endpoints.requestIdentityCreation
 
 typealias AccountCreatorCallback = (err: Exception?, acc: Account) -> Unit
 
-class AccountCreator(
+class MetaIdentityAccountCreator(
         private val context: Context,
         private val fuelTokenProvider: IFuelTokenProvider) {
 
