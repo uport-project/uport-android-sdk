@@ -10,9 +10,9 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.identity.Account
-import me.uport.sdk.identity.AccountCreator
 import me.uport.sdk.identity.AccountCreatorCallback
 import me.uport.sdk.identity.IFuelTokenProvider
+import me.uport.sdk.identity.KPAccountCreator
 import kotlin.coroutines.experimental.suspendCoroutine
 
 object Uport {
@@ -71,7 +71,7 @@ object Uport {
      * The created account is saved as [defaultAccount] before returning with a result
      *
      */
-    suspend fun createAccount(network: EthNetwork) : Account = suspendCoroutine { cont ->
+    suspend fun createAccount(network: EthNetwork): Account = suspendCoroutine { cont ->
         this.createAccount(network) { err, acc ->
             if (err != null) {
                 cont.resumeWithException(err)
@@ -97,11 +97,11 @@ object Uport {
 
         //single account limitation should disappear in future versions
         if (defaultAccount != null) {
-            launch(UI) { completion(null, defaultAccount!!)}
+            launch(UI) { completion(null, defaultAccount!!) }
             return
         }
 
-        val creator = AccountCreator(config.applicationContext, config.fuelTokenProvider)
+        val creator = KPAccountCreator(config.applicationContext)
         return creator.createAccount(networkId) { err, acc ->
             if (err != null) {
                 Handler(getMainLooper()).post { completion(err, acc) }
