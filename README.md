@@ -10,6 +10,8 @@ Expect breaking changes!
 
 This SDK is currently being distributed using [jitpack](https://jitpack.io/)
 
+[![](https://jitpack.io/v/uport-project/uport-android-sdk.svg)](https://jitpack.io/#uport-project/uport-android-sdk)
+
 In your main `build.gradle` file, add:
 
 ```groovy
