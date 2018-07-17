@@ -30,7 +30,7 @@ buildscript {
         khex_version = "0.5"
 
         uport_signer_version = "0.2.0"
-        uport_sdk_version = "0.0.2"
+        uport_sdk_version = "0.1.0"
     }
 
     repositories {

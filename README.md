@@ -3,7 +3,8 @@
 Identity for your Android dApps.
 
 This is a preview version of the uPort android SDK.
-Many intended features are still missing, stay tuned.
+Many intended features are still missing, ant the ones already present are under heavy development.
+Expect breaking changes!
 
 ### Installation
 
@@ -22,13 +23,11 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.0.2"
+def uport_sdk_version = "v0.1.0"
 dependencies {
     ...
     // core SDK
     implementation "com.github.uport-project.uport-android-sdk:sdk:$uport_sdk_version"
-    // required for meta transaction fueling
-    implementation "com.github.uport-project.uport-android-sdk:fuelingservice:$uport_sdk_version"
 }
 ```
 
@@ -45,7 +44,6 @@ override fun onCreate() {
     
     val config = Uport.Configuration()
                     .setApplicationContext(this)
-                    .setFuelTokenProvider( FuelTokenProvider(this, "<your dApp MNID>"))
     
     Uport.initialize(config)
 }
@@ -60,7 +58,7 @@ that can be accessed by the nullable `defaultAccount` field in the `Uport` objec
 ```kotlin
 
 Uport.defaultAccount?.address // Returns the mnid address of the default account
-Uport.defaultAccount?.proxyAddress // Returns the hex address of the default account
+Uport.defaultAccount?.publicAddress // Returns the hex address of the default account
 Uport.defaultAccount?.network // Returns the network id of the default account
 
 //returns the ETH balance of the deviceAddress (measured in wei)
@@ -131,3 +129,19 @@ Private key management is done using [uport-android-signer](https://github.com/u
 
 Currently there is a transient dependency on [spongycastle](https://rtyley.github.io/spongycastle/)
 but that may be removed when pure kotlin implementations of the required cryptographic primitives become available. 
+
+
+### Changelog
+
+* 0.1.0
+    * default account type is `KeyPair`
+    * updated kethereum to 0.53 , some APIs have changed to extension functions
+    * updated uport-android-signer - allows minSDK to be 21
+    * renamed `Uport.defaultAccount?.proxyAddress` to `publicAddress`
+    
+* 0.0.2
+    * add coroutine support for account creation
+    * add getAddress to Account objects
+    
+* 0.0.1
+    * initial release
