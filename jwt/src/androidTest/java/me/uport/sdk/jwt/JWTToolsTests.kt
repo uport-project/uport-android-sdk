@@ -30,20 +30,20 @@ class JWTToolsTests {
     @Test
     fun testVerifyToken() {
         val latch = CountDownLatch(2)
-        JWTTools().verify(validShareReqToken1, { err, actualPayload ->
+        JWTTools().verify(validShareReqToken1) { err, actualPayload ->
             assertNull(err)
             assertEquals(expectedShareReqPayload1, actualPayload)
             Log.d("herehere", "verify1")
             latch.countDown()
-        })
+        }
 
 
-        JWTTools().verify(incomingJwt, { err, actualPayload ->
+        JWTTools().verify(incomingJwt) { err, actualPayload ->
             assertNull(err)
             assertEquals(incomingJwtPayload, actualPayload)
             Log.d("herehere", "verify2")
             latch.countDown()
-        })
+        }
 
         latch.await()
     }
@@ -101,10 +101,10 @@ class JWTToolsTests {
     private fun ensureSeedIsImported(phrase: String) {
         //ensure seed is imported
         val latch = CountDownLatch(1)
-        UportHDSigner().importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, phrase, { err, _, _ ->
+        UportHDSigner().importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, phrase) { err, _, _ ->
             assertNull(err)
             latch.countDown()
-        })
+        }
         latch.await()
     }
 

@@ -32,16 +32,16 @@ class JWTDecodeTest {
 
     @Test
     fun splitEmptyToken() {
-        assertFails("Token must have 3 parts: Header, Payload, and Signature",  {
+        assertFails("Token must have 3 parts: Header, Payload, and Signature") {
             splitToken("")
-        })
+        }
     }
 
     @Test
     fun splitIncompleteToken() {
-        assertFails("Token must have 3 parts: Header, Payload, and signature", {
+        assertFails("Token must have 3 parts: Header, Payload, and signature") {
             splitToken(invalidTokenOnlyHeader)
-        })
+        }
     }
 
     @Test
@@ -63,28 +63,28 @@ class JWTDecodeTest {
 
     @Test
     fun decodesIncompleteToken() {
-        assertFailsWith<InvalidJWTException>("JWT Payload cannot be empty", {
+        assertFailsWith<InvalidJWTException>("JWT Payload cannot be empty") {
             JWTTools().decode((invalidTokenEmptyPayload))
-        })
+        }
 
-        assertFailsWith<InvalidJWTException>("JWT Headder cannot be empty", {
+        assertFailsWith<InvalidJWTException>("JWT Headder cannot be empty") {
             JWTTools().decode((invalidTokenEmptyHeader))
-        })
+        }
     }
 
     @Test
     fun decodesRandomStuff() {
-        assertFailsWith<InvalidJWTException>("Invalid JSON format", {
+        assertFailsWith<InvalidJWTException>("Invalid JSON format") {
             JWTTools().decode("blahhh.blahhh.blahhh")
-        })
+        }
 
-        assertFailsWith<InvalidJWTException>("Invalid JSON format", {
+        assertFailsWith<InvalidJWTException>("Invalid JSON format") {
             JWTTools().decode("$validTokenHeader.blahhh.blahhh")
-        })
+        }
 
-        assertFailsWith<InvalidJWTException>("Invalid JSON format", {
+        assertFailsWith<InvalidJWTException>("Invalid JSON format") {
             JWTTools().decode("blahhh.$validShareReqTokenPayload.blahhh")
-        })
+        }
 
     }
 

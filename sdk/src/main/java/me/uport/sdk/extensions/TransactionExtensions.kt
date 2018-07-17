@@ -40,7 +40,7 @@ suspend fun Account.send(context: Context, destinationAddress: String, value: Bi
     val rawTransaction = createTransactionWithDefaults(
             value = value,
             to = Address(destinationAddress),
-            from = Address(this.proxyAddress)
+            from = Address(this.publicAddress)
     )
 
     return Transactions(this)
@@ -57,7 +57,7 @@ suspend fun Account.send(context: Context, contractAddress: String, data: ByteAr
     val rawTransaction = createTransactionWithDefaults(
             input = data.toList(),
             to = Address(contractAddress),
-            from = Address(this.proxyAddress),
+            from = Address(this.publicAddress),
             value = BigInteger.ZERO
     )
 

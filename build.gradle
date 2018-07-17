@@ -4,17 +4,17 @@ buildscript {
 
     ext {
 
-        kotlin_version = '1.2.41'
-        android_tools_version = "3.1.2"
+        kotlin_version = '1.2.51'
+        android_tools_version = "3.2.0-beta02"
 
         build_tools_version = "27.0.3"
 
-        min_sdk_version = 23 //the uport-android-signer lib as of v0.0.1 requires minSDK 23
+        min_sdk_version = 19
         compile_sdk_version = 27
         target_sdk_version = compile_sdk_version
 
         test_runner_version = "1.0.1"
-        support_lib_version = "27.0.2"
+        support_lib_version = "27.1.1"
         play_services_version = "15.0.0"
         espresso_version = "3.0.1"
         junit_version = "4.12"
@@ -25,22 +25,24 @@ buildscript {
         okhttp_version = "3.10.0"
 
         bivrost_version = "v0.6.2"
-        kmnid_version = "0.1"
-        kethereum_version = "0.40"
+        kmnid_version = "0.2.1"
+        kethereum_version = "0.53"
         khex_version = "0.5"
 
-        uport_signer_version = "0.1.1"
-        uport_sdk_version = "0.0.2"
+        uport_signer_version = "0.2.0"
+        uport_sdk_version = "0.1.0"
     }
 
     repositories {
         google()
         jcenter()
+        maven { url "https://jitpack.io" }
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$android_tools_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.github.gnosis.bivrost-kotlin:bivrost-gradle-plugin:$bivrost_version"
     }
 }
 

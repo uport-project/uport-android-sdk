@@ -48,11 +48,11 @@ class Transactions(
                 nonce = rpcRelay.getTransactionCount(account.deviceAddress)
             }
             MetaIdentityManager -> {
-                from = Address(account.proxyAddress)
+                from = Address(account.publicAddress)
                 nonce = TxRelayHelper(network).resolveMetaNonce(account.deviceAddress)
             }
             Proxy, IdentityManager -> {
-                from = Address(account.proxyAddress)
+                from = Address(account.publicAddress)
             }
         }
 
@@ -89,25 +89,32 @@ class Transactions(
 
         val relaySigner = TxRelaySigner(signer, network)
 
-        val txHash = if (signerType == MetaIdentityManager) {
+        val txHash = when (signerType) {
+            MetaIdentityManager -> {
 
-            val metaSigner = MetaIdentitySigner(relaySigner, account.proxyAddress, account.identityManagerAddress)
-            val signedEncodedTx = metaSigner.signRawTx(unsigned)
+                val metaSigner = MetaIdentitySigner(relaySigner, account.publicAddress, account.identityManagerAddress)
+                val signedEncodedTx = metaSigner.signRawTx(unsigned)
 
-            relayMetaTransaction(signedEncodedTx)
+                relayMetaTransaction(signedEncodedTx)
 
-        } else {
-
-            val signedEncodedTx = relaySigner.signRawTx(unsigned)
-
-            if (signerType != KeyPair) {
-                //fuel the device key?
-                val refuelTxHash = maybeRefuel(signedEncodedTx)
-                network.waitForTransactionToMine(refuelTxHash)
             }
+            KeyPair -> {
+                val signedEncodedTx = signer.signRawTx(unsigned)
+                relayRawTransaction(signedEncodedTx)
+            }
+            else -> {
 
-            //relay directly to RPC node
-            relayRawTransaction(signedEncodedTx)
+                val signedEncodedTx = relaySigner.signRawTx(unsigned)
+
+                if (signerType != KeyPair) {
+                    //fuel the device key?
+                    val refuelTxHash = maybeRefuel(signedEncodedTx)
+                    network.waitForTransactionToMine(refuelTxHash)
+                }
+
+                //relay directly to RPC node
+                relayRawTransaction(signedEncodedTx)
+            }
         }
         return txHash
     }
