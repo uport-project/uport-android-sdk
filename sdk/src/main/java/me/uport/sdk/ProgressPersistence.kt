@@ -73,11 +73,15 @@ class ProgressPersistence(context: Context) {
                 .apply()
     }
 
-    internal fun restore(
-            label: String ): PersistentBundle {
+    internal fun restore(label: String): Pair<PendingTransactionState, PersistentBundle> {
         val serialized = prefs.getString(label, "")
+        val ordinal = PersistentBundle.fromJson(serialized).ordinal
+        val state = PendingTransactionState.values()[ordinal]
+        return (state to PersistentBundle.fromJson(serialized))
+    }
 
-        return PersistentBundle.fromJson(serialized)
+    internal fun contains(label: String): Boolean {
+        return prefs.contains(label)
     }
 
     companion object {
