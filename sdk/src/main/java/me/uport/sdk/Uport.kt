@@ -54,8 +54,8 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    fun createAccount(network: EthNetwork, completion: AccountCreatorCallback) {
-        return createAccount(network.network_id, completion)
+    fun createAccount(network: EthNetwork, seedPhrase: String? = null, completion: AccountCreatorCallback) {
+        return createAccount(network.network_id, seedPhrase, completion)
     }
 
     /**
@@ -66,8 +66,8 @@ object Uport {
      * The created account is saved as [defaultAccount] before returning with a result
      *
      */
-    suspend fun createAccount(network: EthNetwork): Account = suspendCoroutine { cont ->
-        this.createAccount(network) { err, acc ->
+    suspend fun createAccount(network: EthNetwork, seedPhrase: String? = null): Account = suspendCoroutine { cont ->
+        this.createAccount(network, seedPhrase) { err, acc ->
             if (err != null) {
                 cont.resumeWithException(err)
             } else {
@@ -85,12 +85,12 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    private fun createAccount(networkId: String, completion: AccountCreatorCallback) {
+    private fun createAccount(networkId: String, seedPhrase: String?, completion: AccountCreatorCallback) {
         if (!initialized) {
             throw UportNotInitializedException()
         }
 
-        //single account limitation should disappear in future versions
+        //FIXME: single account limitation should disappear in future versions
         if (defaultAccount != null) {
             launch(UI) { completion(null, defaultAccount!!) }
             return
@@ -99,7 +99,11 @@ object Uport {
         launch {
             try {
                 val creator = KPAccountCreator(config.applicationContext)
-                val acc = creator.createAccount(networkId)
+                val acc = if (seedPhrase.isNullOrBlank()) {
+                    creator.createAccount(networkId)
+                } else {
+                    creator.importAccount(networkId, seedPhrase!!)
+                }
                 prefs.edit().putString(DEFAULT_ACCOUNT, acc.toJson()).apply()
                 defaultAccount = defaultAccount ?: acc
 
