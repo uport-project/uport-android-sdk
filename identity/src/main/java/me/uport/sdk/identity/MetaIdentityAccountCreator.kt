@@ -11,7 +11,6 @@ import me.uport.sdk.identity.endpoints.lookupIdentityInfo
 import me.uport.sdk.identity.endpoints.requestIdentityCreation
 
 
-
 class MetaIdentityAccountCreator(
         private val context: Context,
         private val fuelTokenProvider: IFuelTokenProvider) : AccountCreator {
@@ -28,7 +27,7 @@ class MetaIdentityAccountCreator(
      *
      * To force the creation of a new identity, use [forceRestart]
      */
-    override fun createAccount(networkId: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
+    private fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean, callback: AccountCreatorCallback) {
 
         var (state, oldBundle) = if (forceRestart) {
             (AccountCreationState.NONE to PersistentBundle())
@@ -41,13 +40,24 @@ class MetaIdentityAccountCreator(
         when (state) {
 
             AccountCreationState.NONE -> {
-                signer.createHDSeed(context, KeyProtection.Level.SIMPLE) { err, rootAddress, _ ->
-                    if (err != null) {
-                        return@createHDSeed fail(err, callback)
+                if (phrase.isNullOrEmpty()) {
+                    signer.createHDSeed(context, KeyProtection.Level.SIMPLE) { err, rootAddress, _ ->
+                        if (err != null) {
+                            return@createHDSeed fail(err, callback)
+                        }
+                        val bundle = oldBundle.copy(rootAddress = rootAddress)
+                        progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
+                        return@createHDSeed createAccount(networkId, false, callback)
                     }
-                    val bundle = oldBundle.copy(rootAddress = rootAddress)
-                    progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
-                    return@createHDSeed createAccount(networkId, false, callback)
+                } else {
+                    signer.importHDSeed(context, KeyProtection.Level.SIMPLE, phrase!!) { err, rootAddress, _ ->
+                        if (err != null) {
+                            return@importHDSeed fail(err, callback)
+                        }
+                        val bundle = oldBundle.copy(rootAddress = rootAddress)
+                        progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
+                        return@importHDSeed createAccount(networkId, false, callback)
+                    }
                 }
             }
 
@@ -148,6 +158,14 @@ class MetaIdentityAccountCreator(
             else ->
                 return callback(RuntimeException("Exhausted account creation options, ${state.name}"), Account.blank)
         }
+    }
+
+    override fun createAccount(networkId: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
+        createOrImportAccount(networkId, null, forceRestart, callback)
+    }
+
+    override fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
+        createOrImportAccount(networkId, seedPhrase, forceRestart, callback)
     }
 
     private fun fail(err: Exception, callback: AccountCreatorCallback) {

@@ -39,8 +39,8 @@ dependencies {
     implementation project(":did")
     implementation project(":core")
 
-//    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
-//    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
+    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
+    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
     testImplementation "junit:junit:$junit_version"
 
 
