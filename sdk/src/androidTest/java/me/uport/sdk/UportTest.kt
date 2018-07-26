@@ -47,4 +47,22 @@ class UportTest {
         latch.await(15, TimeUnit.SECONDS)
     }
 
+    @Test
+    fun account_can_be_imported() {
+        val tested = Uport
+        val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
+
+        tested.defaultAccount = null
+
+        runBlocking {
+            val account = tested.createAccount(Networks.rinkeby, referenceSeedPhrase)
+            assertNotNull(account)
+            assertNotEquals(Account.blank, account)
+            assertEquals("2opxPamUQoLarQHAoVDKo2nDNmfQLNCZif4", account.address)
+            assertEquals("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6", account.publicAddress)
+            assertEquals("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6", account.deviceAddress)
+            assertEquals("0x794adde0672914159c1b77dd06d047904fe96ac8", account.handle)
+        }
+    }
+
 }
