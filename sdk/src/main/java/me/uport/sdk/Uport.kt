@@ -111,6 +111,7 @@ object Uport {
 
             val serialized = acc.toJson()
             prefs.edit().putString(DEFAULT_ACCOUNT, serialized).apply()
+            defaultAccount = defaultAccount ?: acc
 
             Handler(getMainLooper()).post { completion(err, acc) }
         }
