@@ -4,15 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.os.Handler
-import android.os.Looper.getMainLooper
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.identity.Account
-import me.uport.sdk.identity.AccountCreatorCallback
-import me.uport.sdk.identity.IFuelTokenProvider
-import me.uport.sdk.identity.KPAccountCreator
+import me.uport.sdk.identity.*
 import kotlin.coroutines.experimental.suspendCoroutine
 
 object Uport {
@@ -90,7 +85,7 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    fun createAccount(networkId: String, completion: AccountCreatorCallback) {
+    private fun createAccount(networkId: String, completion: AccountCreatorCallback) {
         if (!initialized) {
             throw UportNotInitializedException()
         }
@@ -101,19 +96,17 @@ object Uport {
             return
         }
 
-        val creator = KPAccountCreator(config.applicationContext)
-        return creator.createAccount(networkId) { err, acc ->
-            if (err != null) {
-                Handler(getMainLooper()).post { completion(err, acc) }
-                @Suppress("LABEL_NAME_CLASH")
-                return@createAccount
+        launch {
+            try {
+                val creator = KPAccountCreator(config.applicationContext)
+                val acc = creator.createAccount(networkId)
+                prefs.edit().putString(DEFAULT_ACCOUNT, acc.toJson()).apply()
+                defaultAccount = defaultAccount ?: acc
+
+                launch(UI) { completion(null, acc) }
+            } catch (err: Exception) {
+                launch(UI) { completion(err, Account.blank) }
             }
-
-            val serialized = acc.toJson()
-            prefs.edit().putString(DEFAULT_ACCOUNT, serialized).apply()
-            defaultAccount = defaultAccount ?: acc
-
-            Handler(getMainLooper()).post { completion(err, acc) }
         }
     }
 
