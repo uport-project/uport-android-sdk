@@ -25,7 +25,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.1.0"
+def uport_sdk_version = "v0.1.1"
 dependencies {
     ...
     // core SDK
@@ -35,8 +35,6 @@ dependencies {
 
 ### Usage
 
-This preview version requires that the SDK be configured with a functional `IFuelTokenProvider`
-There is a `FuelTokenProvider` implementation provided in the `fuelingservice` library
 
 ##### Configure uPort in your Application class
 
@@ -134,6 +132,10 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 
 ### Changelog
+
+* 0.1.1
+    * add option to import seeds phrases as account
+    * bugfix: default account is updated on first creation 
 
 * 0.1.0
     * default account type is `KeyPair`
