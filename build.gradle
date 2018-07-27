@@ -5,7 +5,7 @@ buildscript {
     ext {
 
         kotlin_version = '1.2.51'
-        android_tools_version = "3.2.0-beta02"
+        android_tools_version = "3.3.0-alpha03"
 
         build_tools_version = "27.0.3"
 
@@ -18,7 +18,8 @@ buildscript {
         play_services_version = "15.0.0"
         espresso_version = "3.0.1"
         junit_version = "4.12"
-        mockito_version = "2.12.0"
+        mockito_version = "2.18.3"
+        mockito_kotlin_version = "1.5.0"
 
         coroutines_version = "0.22.5"
         moshi_version = "1.6.0"
@@ -30,7 +31,7 @@ buildscript {
         khex_version = "0.5"
 
         uport_signer_version = "0.2.0"
-        uport_sdk_version = "0.1.0"
+        uport_sdk_version = "0.1.1"
     }
 
     repositories {

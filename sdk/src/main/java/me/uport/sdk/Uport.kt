@@ -4,15 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.os.Handler
-import android.os.Looper.getMainLooper
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.identity.Account
-import me.uport.sdk.identity.AccountCreatorCallback
-import me.uport.sdk.identity.IFuelTokenProvider
-import me.uport.sdk.identity.KPAccountCreator
+import me.uport.sdk.identity.*
 import kotlin.coroutines.experimental.suspendCoroutine
 
 object Uport {
@@ -59,8 +54,8 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    fun createAccount(network: EthNetwork, completion: AccountCreatorCallback) {
-        return createAccount(network.network_id, completion)
+    fun createAccount(network: EthNetwork, seedPhrase: String? = null, completion: AccountCreatorCallback) {
+        return createAccount(network.network_id, seedPhrase, completion)
     }
 
     /**
@@ -71,8 +66,8 @@ object Uport {
      * The created account is saved as [defaultAccount] before returning with a result
      *
      */
-    suspend fun createAccount(network: EthNetwork): Account = suspendCoroutine { cont ->
-        this.createAccount(network) { err, acc ->
+    suspend fun createAccount(network: EthNetwork, seedPhrase: String? = null): Account = suspendCoroutine { cont ->
+        this.createAccount(network, seedPhrase) { err, acc ->
             if (err != null) {
                 cont.resumeWithException(err)
             } else {
@@ -90,29 +85,32 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    fun createAccount(networkId: String, completion: AccountCreatorCallback) {
+    private fun createAccount(networkId: String, seedPhrase: String?, completion: AccountCreatorCallback) {
         if (!initialized) {
             throw UportNotInitializedException()
         }
 
-        //single account limitation should disappear in future versions
+        //FIXME: single account limitation should disappear in future versions
         if (defaultAccount != null) {
             launch(UI) { completion(null, defaultAccount!!) }
             return
         }
 
-        val creator = KPAccountCreator(config.applicationContext)
-        return creator.createAccount(networkId) { err, acc ->
-            if (err != null) {
-                Handler(getMainLooper()).post { completion(err, acc) }
-                @Suppress("LABEL_NAME_CLASH")
-                return@createAccount
+        launch {
+            try {
+                val creator = KPAccountCreator(config.applicationContext)
+                val acc = if (seedPhrase.isNullOrBlank()) {
+                    creator.createAccount(networkId)
+                } else {
+                    creator.importAccount(networkId, seedPhrase!!)
+                }
+                prefs.edit().putString(DEFAULT_ACCOUNT, acc.toJson()).apply()
+                defaultAccount = defaultAccount ?: acc
+
+                launch(UI) { completion(null, acc) }
+            } catch (err: Exception) {
+                launch(UI) { completion(err, Account.blank) }
             }
-
-            val serialized = acc.toJson()
-            prefs.edit().putString(DEFAULT_ACCOUNT, serialized).apply()
-
-            Handler(getMainLooper()).post { completion(err, acc) }
         }
     }
 
