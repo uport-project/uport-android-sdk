@@ -92,14 +92,14 @@ class Transactions(
             progress.restore(txLabel)
         }
 
-        if (state === ProgressPersistence.PendingTransactionState.NONE) {
+        if (state == ProgressPersistence.PendingTransactionState.NONE) {
             val unsigned = buildTransaction(request, signerType)
-            oldBundle = oldBundle.copy(unsigned = unsigned, ordinal = ProgressPersistence.PendingTransactionState.TRANSACTION_BUILT.ordinal)
             state = ProgressPersistence.PendingTransactionState.TRANSACTION_BUILT
+            oldBundle = oldBundle.copy(unsigned = unsigned, ordinal = state.ordinal)
             progress.save(oldBundle, txLabel)
         }
 
-        if (state === ProgressPersistence.PendingTransactionState.TRANSACTION_BUILT) {
+        if (state == ProgressPersistence.PendingTransactionState.TRANSACTION_BUILT) {
             val signedEncodedTx: ByteArray
             val relaySigner = TxRelaySigner(signer, network)
             val txHash = when (signerType) {
@@ -129,14 +129,15 @@ class Transactions(
                     relayRawTransaction(signedEncodedTx)
                 }
             }
-            oldBundle = oldBundle.copy(signed = signedEncodedTx, txHash = txHash, ordinal = ProgressPersistence.PendingTransactionState.TRANSACTION_SENT.ordinal)
             state = ProgressPersistence.PendingTransactionState.TRANSACTION_SENT
+            oldBundle = oldBundle.copy(signed = signedEncodedTx, txHash = txHash, ordinal = state.ordinal)
             progress.save(oldBundle, txLabel)
         }
 
-        if (state === ProgressPersistence.PendingTransactionState.TRANSACTION_SENT) {
+        if (state == ProgressPersistence.PendingTransactionState.TRANSACTION_SENT) {
             val blockHash = network.waitForTransactionToMine(oldBundle.txHash)
-            oldBundle = oldBundle.copy(blockHash = blockHash, ordinal = ProgressPersistence.PendingTransactionState.TRANSACTION_CONFIRMED.ordinal)
+            state = ProgressPersistence.PendingTransactionState.TRANSACTION_CONFIRMED
+            oldBundle = oldBundle.copy(blockHash = blockHash, ordinal = state.ordinal)
             progress.save(oldBundle, txLabel)
             return blockHash
         }

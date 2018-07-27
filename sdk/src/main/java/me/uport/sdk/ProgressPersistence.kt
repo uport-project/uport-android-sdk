@@ -19,7 +19,7 @@ class ProgressPersistence(context: Context) {
     }
 
     /**
-     * XXX: This should hold the state of the uport-account creation process.
+     * XXX: This should hold the state of ethereum transactions
      */
     enum class PendingTransactionState {
         NONE,
@@ -30,7 +30,7 @@ class ProgressPersistence(context: Context) {
     }
 
     /**
-     * Wrapper for intermediate states of account creation
+     * Wrapper for intermediate states of transaction lifecycle
      */
     internal data class PersistentBundle(
             @Json(name = "unsigned")
