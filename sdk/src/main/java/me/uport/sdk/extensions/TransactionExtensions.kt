@@ -20,7 +20,7 @@ import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
 
-fun Account.getBalance(callback : (err : Exception?, balance : BigInteger) -> Unit) {
+fun Account.getBalance(callback: (err: Exception?, balance: BigInteger) -> Unit) {
     val network = Networks.get(this.network)
     val rpc = JsonRPC(network.rpcUrl)
     rpc.getAccountBalance(this.deviceAddress, callback)
@@ -43,7 +43,7 @@ suspend fun Account.send(context: Context, destinationAddress: String, value: Bi
             from = Address(this.publicAddress)
     )
 
-    return Transactions(this)
+    return Transactions(context, this)
             .sendTransaction(
                     this.getSigner(context),
                     rawTransaction,
@@ -61,7 +61,7 @@ suspend fun Account.send(context: Context, contractAddress: String, data: ByteAr
             value = BigInteger.ZERO
     )
 
-    return Transactions(this)
+    return Transactions(context, this)
             .sendTransaction(
                     this.getSigner(context),
                     rawTransaction,
