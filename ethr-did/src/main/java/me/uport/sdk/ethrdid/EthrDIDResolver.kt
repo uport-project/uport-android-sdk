@@ -1,8 +1,8 @@
 package me.uport.sdk.ethrdid
 
+import me.uport.sdk.core.Networks
 import me.uport.sdk.core.experimental.urlPost
 import me.uport.sdk.jsonrpc.EthCall
-import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import org.kethereum.extensions.hexToBigInteger
 import pm.gnosis.model.Solidity
@@ -10,9 +10,9 @@ import pm.gnosis.model.Solidity
 
 class EthrDIDResolver {
 
-    //TODO: configure registry coordinates
-    val rpcUrl = ""
-    val registryAddress = "0x"
+    //TODO: replace hardcoded coordinates with configuration
+    val rpcUrl = Networks.rinkeby.rpcUrl
+    val registryAddress = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b"
 
 
     suspend fun lastChanged(identity : String) : String {
