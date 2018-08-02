@@ -16,7 +16,7 @@ open class JsonRpcBaseRequest(
         @Json(name = "id")
         val id: Int = 1,
 
-        @Json(name="jsonrpc")
+        @Json(name = "jsonrpc")
         val jsonrpc: String = "2.0") {
 
     fun toJson(): String = jsonAdapter.toJson(this) ?: ""
@@ -49,7 +49,11 @@ open class JsonRpcBaseResponse(
     }
 }
 
-class JsonRpcError(val code: Int, val message: String)
+class JsonRpcError(val code: Int, val message: String) {
+    fun toException() = JsonRpcException(code, message)
+}
+
+class JsonRpcException(val code: Int, override val message: String) : Exception(message)
 
 val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()!!
 

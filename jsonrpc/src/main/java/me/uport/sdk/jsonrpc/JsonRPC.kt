@@ -44,7 +44,7 @@ class JsonRPC(private val rpcUrl: String) {
      * performs an eth_call
      * the result is returned as raw string and jas to be parsed into a Json that can make sense of the expected result
      */
-    fun getLogs(address: String, topics : Any, fromBlock: BigInteger, toBlock : BigInteger, callback: (err: Exception?, rawResult: String) -> Unit) {
+    fun getLogs(address: String, topics: Any, fromBlock: BigInteger, toBlock: BigInteger, callback: (err: Exception?, rawResult: String) -> Unit) {
 //        val payloadRequest = JsonRpcBaseRequest(
 //                method = "eth_call",
 //                params = listOf(
@@ -87,6 +87,8 @@ class JsonRPC(private val rpcUrl: String) {
     /**
      * Calls back with the number of transactions made from the given address.
      * The number is usable as `nonce` (since nonce is zero indexed)
+     *
+     * FIXME: account for pending transactions
      */
     fun getTransactionCount(address: String, callback: (err: Exception?, count: BigInteger) -> Unit) {
         val payloadRequest = JsonRpcBaseRequest(
@@ -297,8 +299,12 @@ class JsonRPC(private val rpcUrl: String) {
             }
 
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-            val txHash = parsedResponse.result.toString()
-            return@urlPost callback(null, txHash)
+            if (parsedResponse.error != null) {
+                return@urlPost callback(parsedResponse.error.toException(), "")
+            } else {
+                val txHash = parsedResponse.result.toString()
+                return@urlPost callback(null, txHash)
+            }
         }
     }
 
