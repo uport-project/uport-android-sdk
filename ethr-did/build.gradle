@@ -54,6 +54,8 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 
     testImplementation "junit:junit:$junit_version"
+    testImplementation "org.mockito:mockito-inline:$mockito_version"
+    testImplementation "com.nhaarman:mockito-kotlin:$mockito_kotlin_version"
     testImplementation project(":sdk")
 }
 

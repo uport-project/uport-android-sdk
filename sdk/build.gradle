@@ -43,6 +43,7 @@ dependencies {
     androidTestImplementation project(path: ':fuelingservice')
 
     testImplementation "junit:junit:$junit_version"
+
 }
 
 kotlin {

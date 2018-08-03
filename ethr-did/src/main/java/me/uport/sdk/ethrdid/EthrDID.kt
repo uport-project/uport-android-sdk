@@ -1,6 +1,5 @@
 package me.uport.sdk.ethrdid
 
-import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Signer
 import me.uport.sdk.core.signRawTx
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -20,12 +19,11 @@ import java.math.BigInteger
 
 class EthrDID(
         private val address: String,
-        network: EthNetwork,
+        private val rpc: JsonRPC,
         private val registry: String,
         var signer: Signer
 ) {
 
-    private val rpc = JsonRPC(network.rpcUrl)
     private val owner: String? = null
 
 
