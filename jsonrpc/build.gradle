@@ -26,7 +26,7 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    api "com.squareup.moshi:moshi-kotlin:$moshi_version"
 //    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     implementation "com.github.walleth.kethereum:model:$kethereum_version"

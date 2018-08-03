@@ -6,6 +6,16 @@ import org.kethereum.model.Transaction
 import java.math.BigInteger
 import kotlin.coroutines.experimental.suspendCoroutine
 
+suspend fun JsonRPC.ethCall(address: String, data: String): String = suspendCoroutine { cont ->
+    this.ethCall(address, data) { err, count ->
+        if (err != null) {
+            cont.resumeWithException(err)
+        } else {
+            cont.resume(count)
+        }
+    }
+}
+
 suspend fun JsonRPC.getGasPrice(): BigInteger = suspendCoroutine { cont ->
     this.getGasPrice { err, count ->
         if (err != null) {
@@ -56,7 +66,7 @@ suspend fun JsonRPC.getTransactionByHash(txHash: String): JsonRPC.TransactionInf
     }
 }
 
-suspend fun JsonRPC.sendRawTransaction(transaction : Transaction, signature: SignatureData): String = suspendCoroutine { cont ->
+suspend fun JsonRPC.sendRawTransaction(transaction: Transaction, signature: SignatureData): String = suspendCoroutine { cont ->
     this.sendRawTransaction(transaction, signature) { err, txHash ->
         if (err != null) {
             cont.resumeWithException(err)
@@ -66,7 +76,7 @@ suspend fun JsonRPC.sendRawTransaction(transaction : Transaction, signature: Sig
     }
 }
 
-suspend fun JsonRPC.sendRawTransaction(signedTx : String): String = suspendCoroutine { cont ->
+suspend fun JsonRPC.sendRawTransaction(signedTx: String): String = suspendCoroutine { cont ->
     this.sendRawTransaction(signedTx) { err, txHash ->
         if (err != null) {
             cont.resumeWithException(err)

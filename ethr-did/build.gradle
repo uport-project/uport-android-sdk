@@ -51,7 +51,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation "com.github.gnosis.bivrost-kotlin:bivrost-solidity-types:$bivrost_version"
 //    implementation "com.github.uport-project:kmnid:$kmnid_version"
-//    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 
     testImplementation "junit:junit:$junit_version"
     testImplementation project(":sdk")
