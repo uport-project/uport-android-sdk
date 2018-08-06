@@ -2,7 +2,7 @@
 
 package me.uport.sdk.ethrdid
 
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.DEFAULT_GAS_PRICE
 import me.uport.sdk.jsonrpc.JsonRPC

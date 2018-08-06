@@ -19,10 +19,10 @@ buildscript {
         play_services_version = "15.0.0"
         espresso_version = "3.0.1"
         junit_version = "4.12"
-        mockito_version = "2.18.3"
-        mockito_kotlin_version = "1.5.0"
+        mockito_version = "2.19.0"
+        mockito_kotlin_version = "2.0.0-RC1"
 
-        coroutines_version = "0.24.0"
+        coroutines_version = "0.23.4" // v0.24.0 has a bug with runBlocking in JUnit tests
         moshi_version = "1.6.0"
         okhttp_version = "3.10.0"
 
