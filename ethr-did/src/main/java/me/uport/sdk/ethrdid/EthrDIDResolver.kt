@@ -1,24 +1,25 @@
 package me.uport.sdk.ethrdid
 
-import me.uport.sdk.core.Networks
-import me.uport.sdk.core.experimental.urlPost
-import me.uport.sdk.jsonrpc.EthCall
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.jsonrpc.experimental.ethCall
 import org.kethereum.extensions.hexToBigInteger
 import pm.gnosis.model.Solidity
 
 
-class EthrDIDResolver {
+class EthrDIDResolver(
+        val rpc : JsonRPC
+)
+{
 
     //TODO: replace hardcoded coordinates with configuration
-    val rpcUrl = Networks.rinkeby.rpcUrl
     val registryAddress = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b"
 
 
     suspend fun lastChanged(identity : String) : String {
         val encodedCall = EthereumDIDRegistry.Changed.encode(Solidity.Address(identity.hexToBigInteger()))
-        val jsonRpcPayload = EthCall(registryAddress, encodedCall).toJsonRpc()
-        val jrpcResponse = urlPost(rpcUrl, jsonRpcPayload)
+        val jrpcResponse = rpc.ethCall(registryAddress, encodedCall)
+        //TODO: throw jrpc error
         return JsonRpcBaseResponse.fromJson(jrpcResponse).result.toString()
     }
 
