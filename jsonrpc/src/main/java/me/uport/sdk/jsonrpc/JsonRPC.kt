@@ -5,9 +5,11 @@ package me.uport.sdk.jsonrpc
 import com.squareup.moshi.Json
 import me.uport.sdk.core.urlPost
 import org.kethereum.extensions.hexToBigInteger
+import org.kethereum.extensions.toHexStringNoPrefix
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
+import org.walleth.khex.prepend0xPrefix
 import org.walleth.khex.toHexString
 import java.math.BigInteger
 
@@ -40,8 +42,20 @@ class JsonRPC(private val rpcUrl: String) {
 // eth_getLogs
 //=============================
 
-    fun getLogs(address: String, topics: Any, fromBlock: BigInteger, toBlock: BigInteger, callback: (err: Exception?, rawResult: String) -> Unit) {
+    fun getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger, callback: (err: Exception?, rawResult: String) -> Unit) {
+        val payloadRequest = JsonRpcBaseRequest(
+                method = "eth_getLogs",
+                params = listOf(
+                        mapOf(
+                                "fromBlock" to fromBlock.toHexStringNoPrefix().prepend0xPrefix(),
+                                "toBlock" to toBlock.toHexStringNoPrefix().prepend0xPrefix(),
+                                "address" to address,
+                                "topics" to topics
+                        )
+                )
+        ).toJson()
 
+        urlPost(rpcUrl, payloadRequest, null, callback)
     }
 
 //=============================

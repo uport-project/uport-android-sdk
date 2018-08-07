@@ -55,5 +55,7 @@ class JsonRpcError(val code: Int, val message: String) {
 
 class JsonRpcException(val code: Int, override val message: String) : Exception(message)
 
-val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()!!
+val moshi = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .build()!!
 

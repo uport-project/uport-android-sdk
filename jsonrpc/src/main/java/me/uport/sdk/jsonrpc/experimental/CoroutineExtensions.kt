@@ -7,21 +7,31 @@ import java.math.BigInteger
 import kotlin.coroutines.experimental.suspendCoroutine
 
 suspend fun JsonRPC.ethCall(address: String, data: String): String = suspendCoroutine { cont ->
-    this.ethCall(address, data) { err, count ->
+    this.ethCall(address, data) { err, jrpcResult ->
         if (err != null) {
             cont.resumeWithException(err)
         } else {
-            cont.resume(count)
+            cont.resume(jrpcResult)
+        }
+    }
+}
+
+suspend fun JsonRPC.getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger): String = suspendCoroutine { cont ->
+    this.getLogs(address, topics, fromBlock, toBlock) { err, rawResult ->
+        if (err != null) {
+            cont.resumeWithException(err)
+        } else {
+            cont.resume(rawResult)
         }
     }
 }
 
 suspend fun JsonRPC.getGasPrice(): BigInteger = suspendCoroutine { cont ->
-    this.getGasPrice { err, count ->
+    this.getGasPrice { err, price ->
         if (err != null) {
             cont.resumeWithException(err)
         } else {
-            cont.resume(count)
+            cont.resume(price)
         }
     }
 }
@@ -37,11 +47,11 @@ suspend fun JsonRPC.getTransactionCount(address: String): BigInteger = suspendCo
 }
 
 suspend fun JsonRPC.getAccountBalance(address: String): BigInteger = suspendCoroutine { cont ->
-    this.getAccountBalance(address) { err, count ->
+    this.getAccountBalance(address) { err, balance ->
         if (err != null) {
             cont.resumeWithException(err)
         } else {
-            cont.resume(count)
+            cont.resume(balance)
         }
     }
 }
@@ -57,11 +67,11 @@ suspend fun JsonRPC.getTransactionReceipt(txHash: String): JsonRPC.TransactionRe
 }
 
 suspend fun JsonRPC.getTransactionByHash(txHash: String): JsonRPC.TransactionInformation = suspendCoroutine { cont ->
-    this.getTransactionByHash(txHash) { err, receipt ->
+    this.getTransactionByHash(txHash) { err, info ->
         if (err != null) {
             cont.resumeWithException(err)
         } else {
-            cont.resume(receipt)
+            cont.resume(info)
         }
     }
 }
