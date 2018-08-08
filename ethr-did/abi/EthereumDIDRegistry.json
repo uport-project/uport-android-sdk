@@ -1,5 +1,5 @@
 {
-  "contract_name": "EthereumDIDRegistry",
+  "contractName": "EthereumDIDRegistry",
   "abi": [
     {
       "constant": true,

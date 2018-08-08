@@ -26,7 +26,7 @@ buildscript {
         moshi_version = "1.6.0"
         okhttp_version = "3.10.0"
 
-        bivrost_version = "v0.6.2"
+        bivrost_version = "master-SNAPSHOT"//"v0.6.2"
         kmnid_version = "0.2.1"
         kethereum_version = "0.53"
         khex_version = "0.5"

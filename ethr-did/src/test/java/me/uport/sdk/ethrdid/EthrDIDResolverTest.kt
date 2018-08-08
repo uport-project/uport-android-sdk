@@ -32,7 +32,6 @@ class EthrDIDResolverTest {
     }
 
 
-
     @Test
     fun `real address with activity has logs`() = runBlocking {
         val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
@@ -44,6 +43,11 @@ class EthrDIDResolverTest {
         println(parsedResponse.result)
         assertNull(parsedResponse.error)
         assertNotNull(parsedResponse.result)
+    }
+
+    @Test
+    fun `can parse owner changed logs`() {
+//        EthereumDIDRegistry.Events.DIDOwnerChanged.decode()
     }
 
 }
