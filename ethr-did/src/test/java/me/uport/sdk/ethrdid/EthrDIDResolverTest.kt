@@ -46,8 +46,21 @@ class EthrDIDResolverTest {
     }
 
     @Test
-    fun `can parse owner changed logs`() {
-//        EthereumDIDRegistry.Events.DIDOwnerChanged.decode()
+    fun `can parse owner changed logs`() = runBlocking {
+        val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
+        val realAddress = "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"
+        val resolver = EthrDIDResolver(rpc)
+        val lastChanged = resolver.lastChanged(realAddress).hexToBigInteger()
+        val logResponse = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.toBytes32String()), lastChanged, lastChanged)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(logResponse)
+        val element: Map<String, Any?> = ((parsedResponse.result as List<Map<String, Any>>))[0]
+        val topics: List<String> = element["topics"] as List<String>
+        val data: String = element["data"] as String
+        val args: EthereumDIDRegistry.Events.DIDOwnerChanged.Arguments = EthereumDIDRegistry.Events.DIDOwnerChanged.decode(topics, data)
+        println(args)
+        val previousBlock = args.previouschange
+        println(previousBlock)
+
     }
 
 }
