@@ -4,7 +4,6 @@ import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.toBytes32String
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import me.uport.sdk.jsonrpc.experimental.getLogs
 import org.junit.Assert.*
 import org.junit.Test
@@ -39,10 +38,8 @@ class EthrDIDResolverTest {
         val resolver = EthrDIDResolver(rpc)
         val lastChanged = resolver.lastChanged(realAddress).hexToBigInteger()
         val logResponse = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.toBytes32String()), lastChanged, lastChanged)
-        val parsedResponse = JsonRpcBaseResponse.fromJson(logResponse)
-        println(parsedResponse.result)
-        assertNull(parsedResponse.error)
-        assertNotNull(parsedResponse.result)
+        assertNotNull(logResponse)
+        assertTrue(logResponse.isNotEmpty())
     }
 
     @Test
@@ -51,15 +48,16 @@ class EthrDIDResolverTest {
         val realAddress = "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"
         val resolver = EthrDIDResolver(rpc)
         val lastChanged = resolver.lastChanged(realAddress).hexToBigInteger()
-        val logResponse = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.toBytes32String()), lastChanged, lastChanged)
-        val parsedResponse = JsonRpcBaseResponse.fromJson(logResponse)
-        val element: Map<String, Any?> = ((parsedResponse.result as List<Map<String, Any>>))[0]
-        val topics: List<String> = element["topics"] as List<String>
-        val data: String = element["data"] as String
-        val args: EthereumDIDRegistry.Events.DIDOwnerChanged.Arguments = EthereumDIDRegistry.Events.DIDOwnerChanged.decode(topics, data)
-        println(args)
-        val previousBlock = args.previouschange
-        println(previousBlock)
+        val logs = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.toBytes32String()), lastChanged, lastChanged)
+        println(logs)
+//
+//        val element: Map<String, Any?> = ((parsedResponse.result as List<Map<String, Any>>))[0]
+//        val topics: List<String> = element["topics"] as List<String>
+//        val data: String = element["data"] as String
+//        val args: EthereumDIDRegistry.Events.DIDOwnerChanged.Arguments = EthereumDIDRegistry.Events.DIDOwnerChanged.decode(topics, data)
+//        println(args)
+//        val previousBlock = args.previouschange
+//        println(previousBlock)
 
     }
 

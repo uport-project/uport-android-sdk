@@ -3,6 +3,8 @@
 package me.uport.sdk.jsonrpc
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Types
 import me.uport.sdk.core.urlPost
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
@@ -11,6 +13,7 @@ import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
 import org.walleth.khex.prepend0xPrefix
 import org.walleth.khex.toHexString
+import java.lang.reflect.ParameterizedType
 import java.math.BigInteger
 
 
@@ -42,7 +45,7 @@ class JsonRPC(private val rpcUrl: String) {
 // eth_getLogs
 //=============================
 
-    fun getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger, callback: (err: Exception?, rawResult: String) -> Unit) {
+    fun getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger, callback: (err: Exception?, logs: List<JsonRpcLogItem>) -> Unit) {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_getLogs",
                 params = listOf(
@@ -55,7 +58,22 @@ class JsonRPC(private val rpcUrl: String) {
                 )
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest, null, callback)
+        urlPost(rpcUrl, payloadRequest, null) { err, rawResult ->
+            if (err != null) {
+                return@urlPost callback(err, emptyList())
+            }
+            val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+            if (parsedResponse.error != null) {
+                return@urlPost callback(parsedResponse.error.toException(), emptyList())
+            }
+            val logItemsRaw = parsedResponse.result.toString()
+            val type: ParameterizedType = Types.newParameterizedType(List::class.java, JsonRpcLogItem::class.java)
+            val jsonAdapter: JsonAdapter<List<JsonRpcLogItem>> = moshi.adapter(type)
+            val logs = jsonAdapter.lenient().fromJson(logItemsRaw) ?: emptyList()
+            return@urlPost callback(null, logs)
+
+
+        }
     }
 
 //=============================
@@ -76,6 +94,9 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, BigInteger.ZERO)
             }
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+            if (parsedResponse.error != null) {
+                return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
+            }
             val priceInWei = parsedResponse.result.toString().hexToBigInteger()
             return@urlPost callback(null, priceInWei)
         }
@@ -103,6 +124,9 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, BigInteger.ZERO)
             }
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+            if (parsedResponse.error != null) {
+                return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
+            }
             val count = parsedResponse.result.toString().hexToBigInteger()
             return@urlPost callback(null, count)
         }
@@ -128,6 +152,9 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, BigInteger.ZERO)
             }
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+            if (parsedResponse.error != null) {
+                return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
+            }
             val balanceInWei = parsedResponse.result.toString().hexToBigInteger()
             return@urlPost callback(null, balanceInWei)
         }
@@ -169,10 +196,8 @@ class JsonRPC(private val rpcUrl: String) {
             @Json(name = "contractAddress")
             val contractAddress: String? = null,
 
-            //TODO: better encapsulate logs
-            @Suppress("ArrayInDataClass")
             @Json(name = "logs")
-            val logs: Array<Any?>? = null,
+            val logs: List<JsonRpcLogItem?>? = null,
 
             @Json(name = "logsBloom")
             val logsBloom: String? = "",
@@ -192,6 +217,9 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, TransactionReceipt())
             }
             val parsedResponse = JsonRpcReceiptResponse.fromJson(rawResult)
+            if (parsedResponse?.error != null) {
+                return@urlPost callback(parsedResponse.error.toException(), TransactionReceipt(transactionHash = txHash))
+            }
 
             if (parsedResponse?.result != null) {
                 return@urlPost callback(null, parsedResponse.result)

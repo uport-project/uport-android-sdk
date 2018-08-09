@@ -11,6 +11,7 @@ import org.kethereum.extensions.toHexStringNoPrefix
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
+
 @Keep
 open class JsonRpcBaseRequest(
         @Json(name = "method")
@@ -62,7 +63,7 @@ class JsonRpcError(val code: Int, val message: String) {
 
 class JsonRpcException(val code: Int, override val message: String) : Exception(message)
 
-class JsonRpcLogItem(
+data class JsonRpcLogItem(
         val address: String,
         val topics: List<String>,
         val data: String,
@@ -80,7 +81,7 @@ class JsonRPCSerializers {
     fun fromJson(hexString: String): BigInteger = hexString.maybeHexToBigInteger()
 
     @ToJson
-    fun toJson(number : BigInteger) : String = number.toHexStringNoPrefix().prepend0xPrefix()
+    fun toJson(number: BigInteger): String = number.toHexStringNoPrefix().prepend0xPrefix()
 }
 
 

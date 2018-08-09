@@ -1,6 +1,7 @@
 package me.uport.sdk.jsonrpc.experimental
 
 import me.uport.sdk.jsonrpc.JsonRPC
+import me.uport.sdk.jsonrpc.JsonRpcLogItem
 import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
 import java.math.BigInteger
@@ -16,12 +17,12 @@ suspend fun JsonRPC.ethCall(address: String, data: String): String = suspendCoro
     }
 }
 
-suspend fun JsonRPC.getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger): String = suspendCoroutine { cont ->
-    this.getLogs(address, topics, fromBlock, toBlock) { err, rawResult ->
+suspend fun JsonRPC.getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger): List<JsonRpcLogItem> = suspendCoroutine { cont ->
+    this.getLogs(address, topics, fromBlock, toBlock) { err, logs ->
         if (err != null) {
             cont.resumeWithException(err)
         } else {
-            cont.resume(rawResult)
+            cont.resume(logs)
         }
     }
 }
