@@ -1,9 +1,15 @@
 package me.uport.sdk.jsonrpc
 
 import android.support.annotation.Keep
+import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.ToJson
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import org.kethereum.extensions.maybeHexToBigInteger
+import org.kethereum.extensions.toHexStringNoPrefix
+import org.walleth.khex.prepend0xPrefix
+import java.math.BigInteger
 
 @Keep
 open class JsonRpcBaseRequest(
@@ -56,7 +62,30 @@ class JsonRpcError(val code: Int, val message: String) {
 
 class JsonRpcException(val code: Int, override val message: String) : Exception(message)
 
+class JsonRpcLogItem(
+        val address: String,
+        val topics: List<String>,
+        val data: String,
+        val blockNumber: BigInteger,
+        val transactionHash: String,
+        val transactionIndex: BigInteger,
+        val blockHash: String,
+        val logIndex: BigInteger,
+        val removed: Boolean
+
+)
+
+class JsonRPCSerializers {
+    @FromJson
+    fun fromJson(hexString: String): BigInteger = hexString.maybeHexToBigInteger()
+
+    @ToJson
+    fun toJson(number : BigInteger) : String = number.toHexStringNoPrefix().prepend0xPrefix()
+}
+
+
 val moshi = Moshi.Builder()
+        .add(JsonRPCSerializers())
         .add(KotlinJsonAdapterFactory())
         .build()!!
 

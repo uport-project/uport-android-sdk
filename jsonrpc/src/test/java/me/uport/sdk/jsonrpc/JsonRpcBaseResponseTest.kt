@@ -4,6 +4,7 @@ import org.intellij.lang.annotations.Language
 
 import org.junit.Assert.*
 import org.junit.Test
+import java.math.BigInteger
 
 class JsonRpcBaseResponseTest {
 
@@ -27,6 +28,14 @@ class JsonRpcBaseResponseTest {
 
     @Test
     fun `can deserialize log item json`() {
-        fail("needs implementation")
+        val adapter = moshi.adapter<JsonRpcLogItem>(JsonRpcLogItem::class.java)
+        val item = adapter.fromJson(logItemJson)
+
+        assertNotNull(item)
+        item!!
+
+        assertEquals("0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", item.address)
+        assertEquals(2, item.topics.size)
+        assertEquals(BigInteger.ONE, item.transactionIndex)
     }
 }
