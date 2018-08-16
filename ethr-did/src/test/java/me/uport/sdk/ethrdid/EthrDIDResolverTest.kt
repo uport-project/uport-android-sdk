@@ -74,6 +74,78 @@ class EthrDIDResolverTest {
         assertTrue(events.isNotEmpty())
     }
 
+    // "did/pub/(Secp256k1|Rsa|Ed25519)/(veriKey|sigAuth)/(hex|base64)",
+    val attributeRegexes = listOf(
+            "did/pub/Secp256k1/veriKey/hex",
+            "did/pub/Rsa/veriKey/hex",
+            "did/pub/Ed25519/veriKey/hex",
+            "did/pub/Secp256k1/sigAuth/hex",
+            "did/pub/Rsa/sigAuth/hex",
+            "did/pub/Ed25519/sigAuth/hex",
+            "did/pub/Secp256k1/veriKey/base64",
+            "did/pub/Rsa/veriKey/base64",
+            "did/pub/Ed25519/veriKey/base64",
+            "did/pub/Secp256k1/sigAuth/base64",
+            "did/pub/Rsa/sigAuth/base64",
+            "did/pub/Ed25519/sigAuth/base64",
+            "did/pub/Secp256k1/veriKey",
+            "did/pub/Rsa/veriKey",
+            "did/pub/Ed25519/veriKey",
+            "did/pub/Secp256k1/sigAuth",
+            "did/pub/Rsa/sigAuth",
+            "did/pub/Ed25519/sigAuth",
+            "did/pub/Secp256k1",
+            "did/pub/Rsa",
+            "did/pub/Ed25519"
+    )
+
+    @Test
+    fun `can parse attribute regex`() {
+        val regex = "^did/(pub|auth|svc)/(\\w+)(/(\\w+))?(/(\\w+))?$".toRegex()
+        attributeRegexes.forEach {
+            val matchResult = regex.find(it)
+            assertNotNull("expected to match \"$it\"", matchResult)
+            val (section, algo, _, rawType, _, encoding) = matchResult!!.destructured
+
+            assertTrue(section.isNotBlank())
+            assertTrue(algo.isNotBlank())
+            assertTrue(rawType.isNotBlank())
+            assertTrue(encoding.isNotBlank())
+        }
+    }
+
+    @Test
+    fun `can parse sample attr change event`() {
+        val soon = System.currentTimeMillis() / 1000 + 600
+        val identity = "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"
+        val owner = identity
+
+        val event = EthereumDIDRegistry.Events.DIDAttributeChanged.Arguments(
+                identity = Solidity.Address(identity.hexToBigInteger()),
+                name = Solidity.Bytes32("did/pub/Secp256k1/veriKey/base64".toByteArray()),
+                value = Solidity.Bytes("0x02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71".hexToByteArray()),
+                validto = Solidity.UInt256(soon.toBigInteger()),
+                previouschange = Solidity.UInt256(BigInteger.ZERO)
+        )
+
+        val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
+
+        val ddo = EthrDIDResolver(rpc).wrapDidDocument("did:ethr:$identity", owner, listOf(event))
+        println(ddo)
+
+    }
+
+    @Test
+    fun `to and from solidity bytes`() {
+        val str = "did/pub/Secp256k1/veriKey/hex"
+        val sol = Solidity.Bytes32(str.toByteArray())
+
+//        //this fails. for some reason, it is resolving to Object.toString() instead of ByteArray.toString()
+//        val decodedStr = sol.bytes.toString()
+
+        //this should work no matter what
+        val decodedStr = sol.bytes.toString(utf8)
+        assertEquals(str, decodedStr)
     }
 
 }

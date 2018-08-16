@@ -80,31 +80,128 @@ class EthrDIDResolver(
         return events
     }
 
-//    const lastChanged = async (identity) => {
-//        const result = await didReg.changed(identity)
-//        if (result) {
-//            return result['0']
-//        }
-//    }
-//    async function changeLog (identity) {
-//        const history = []
-//        let previousChange = await lastChanged(identity)
-//        while (previousChange) {
-//            const logs = await eth.getLogs({address: registryAddress, topics: [null, `0x000000000000000000000000${identity.slice(2)}`], fromBlock: previousChange, toBlock: previousChange})
-//            const events = logDecoder(logs)
-//            previousChange = undefined
-//            for (let event of events) {
-//                history.unshift(event)
-//                previousChange = event.previousChange
-//            }
-//        }
-//        return history
-//    }
-//
-//    async function resolve (did, parsed) {
-//        if (!parsed.id.match(/^0x[0-9a-fA-F]{40}$/)) throw new Error(`Not a valid ethr DID: ${did}`)
-//        const owner = await didReg.identityOwner(parsed.id)
-//        const history = await changeLog(parsed.id)
-//        return wrapDidDocument(did, owner['0'], history)
-//    }
+    fun wrapDidDocument(did: String, owner: String, history: List<Any>): DDO {
+        val now = System.currentTimeMillis() / 1000
+
+        val pkEntries = mapOf<String, PublicKeyEntry>().toMutableMap().apply {
+            put("owner", PublicKeyEntry(
+                    id = "$did#owner",
+                    type = Secp256k1VerificationKey2018,
+                    owner = did,
+                    ethereumAddress = owner
+            ))
+
+        }
+        val authEntries = mapOf<String, AuthenticationEntry>().toMutableMap().apply {
+            put("owner", AuthenticationEntry(
+                    type = Secp256k1SignatureAuthentication2018,
+                    publicKey = "$did#owner"
+            ))
+        }
+        val serviceEntries = mapOf<String, ServiceEntry>().toMutableMap()
+
+        var delegateCount = 0
+
+        history.forEach { event ->
+            when (event) {
+                is DIDDelegateChanged.Arguments -> {
+                    val delegateType = event.delegatetype.bytes.toString(utf8)
+                    val delegate = event.delegate.value.toHexStringNoPrefix().prepend0xPrefix()
+                    val key = "DIDDelegateChanged-$delegateType-$delegate"
+                    val validTo = event.validto.value.toLong()
+
+                    if (validTo >= now) {
+                        delegateCount++
+
+                        when (delegateType) {
+                            Secp256k1SignatureAuthentication2018.name,
+                            sigAuth -> authEntries[key] = AuthenticationEntry(
+                                    type = Secp256k1SignatureAuthentication2018,
+                                    publicKey = "$did#delegate-$delegateCount")
+
+                            Secp256k1VerificationKey2018.name,
+                            veriKey -> pkEntries[key] = PublicKeyEntry(
+                                    id = "$did#delegate-$delegateCount",
+                                    type = Secp256k1VerificationKey2018,
+                                    owner = did,
+                                    ethereumAddress = delegate)
+                        }
+
+
+                    }
+                }
+
+                is DIDAttributeChanged.Arguments -> {
+                    val validTo = event.validto.value.toLong()
+                    if (validTo >= now) {
+                        val name = event.name.byteArray.bytes32ToString()
+                        val key = "DIDAttributeChanged-$name-${event.value.items.toHexString()}"
+
+                        @Language("RegExp")
+                        val regex = """^did/(pub|auth|svc)/(\w+)(/(\w+))?(/(\w+))?$""".toRegex()
+                        val matchResult = regex.find(name)
+                        if (matchResult != null) {
+                            val (section, algo, _, rawType, _, encoding) = matchResult.destructured
+                            val type = parseType(algo, rawType)
+
+                            when (section) {
+
+                                "pub" -> {
+                                    delegateCount++
+                                    val pk = PublicKeyEntry(
+                                            id = "$did#delegate-$delegateCount",
+                                            type = type,
+                                            owner = did)
+
+                                    pkEntries[key] = when (encoding) {
+                                        "", "null", "hex" ->
+                                            pk.copy(publicKeyHex = event.value.items.toHexString())
+                                        "base64" ->
+                                            pk.copy(publicKeyBase64 = event.value.items.toBase64())
+                                        "base58" ->
+                                            pk.copy(publicKeyBase58 = event.value.items.toString(utf8).hexToByteArray().encodeToBase58String())
+                                        else ->
+                                            pk.copy(value = event.value.items.toHexString())
+                                    }
+
+                                }
+
+                                "svc" -> {
+                                    serviceEntries[key] = ServiceEntry(
+                                            type = algo,
+                                            serviceEndpoint = event.value.items.toString(utf8)
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        return DDO(
+                id = did,
+                publicKey = pkEntries.values.toList(),
+                authentication = authEntries.values.toList(),
+                service = serviceEntries.values.toList()
+        )
+    }
+
+    companion object {
+        const val veriKey = "veriKey"
+        const val sigAuth = "sigAuth"
+
+        private val attrTypes = mapOf(
+                sigAuth to "SignatureAuthentication2018",
+                veriKey to "VerificationKey2018"
+        )
+
+        fun parseType(algo: String, rawType: String): DelegateType {
+            var type = if (rawType.isBlank()) veriKey else rawType
+            type = attrTypes[type] ?: type
+            return DelegateType.valueOf("$algo$type") //will throw exception if none found
+        }
+
+    }
 }
