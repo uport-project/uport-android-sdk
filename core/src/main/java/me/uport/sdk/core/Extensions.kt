@@ -5,6 +5,7 @@ import org.kethereum.extensions.toHexStringNoPrefix
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
+import java.nio.charset.Charset
 
 fun String.toBase64() = Base64.encodeToString(this.toByteArray(), Base64.NO_WRAP)
 fun ByteArray.toBase64() = Base64.encodeToString(this, Base64.NO_WRAP)
@@ -19,5 +20,8 @@ fun String.decodeBase64(): ByteArray = this
         .let { Base64.decode(it.toByteArray(), Base64.URL_SAFE or Base64.NO_PADDING) }
 
 
-fun String.toBytes32String() = clean0xPrefix().padStart(64, '0').prepend0xPrefix()
+fun String.hexToBytes32() = clean0xPrefix().padStart(64, '0').prepend0xPrefix()
 fun BigInteger.toBytes32String() = toHexStringNoPrefix().padStart(64, '0').prepend0xPrefix()
+
+val utf8: Charset = Charset.forName("UTF-8")
+fun ByteArray.bytes32ToString() = this.toString(utf8)
