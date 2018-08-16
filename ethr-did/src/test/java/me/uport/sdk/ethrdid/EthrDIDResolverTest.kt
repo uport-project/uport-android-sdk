@@ -102,6 +102,7 @@ class EthrDIDResolverTest {
             "did/pub/Ed25519"
     )
 
+    @Suppress("UNUSED_VARIABLE")
     @Test
     fun `can parse attribute regex`() {
         val regex = "^did/(pub|auth|svc)/(\\w+)(/(\\w+))?(/(\\w+))?$".toRegex()

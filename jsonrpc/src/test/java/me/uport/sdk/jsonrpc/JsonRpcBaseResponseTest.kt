@@ -1,6 +1,5 @@
 package me.uport.sdk.jsonrpc
 
-import org.intellij.lang.annotations.Language
 
 import org.junit.Assert.*
 import org.junit.Test
@@ -8,8 +7,8 @@ import java.math.BigInteger
 
 class JsonRpcBaseResponseTest {
 
-    @Language("JSON")
-    val logItemJson = """
+    //language=JSON
+    private val logItemJson = """
 {
     "address":"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
     "topics": [
