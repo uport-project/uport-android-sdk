@@ -44,6 +44,7 @@ dependencies {
     implementation "com.github.uport-project:uport-android-signer:$uport_signer_version"
     implementation "com.github.walleth.kethereum:extensions:$kethereum_version"
     implementation "com.github.walleth.kethereum:model:$kethereum_version"
+    implementation "com.github.walleth.kethereum:base58:$kethereum_version"
 
     implementation project(":jsonrpc")
     implementation project(":core")

@@ -58,10 +58,12 @@ open class JsonRpcBaseResponse(
 
 class JsonRpcError(val code: Int, val message: String) {
     fun toException() = JsonRpcException(code, message)
-    override fun toString() = "JsonRpcError(code=$code, message=$message)"
 }
 
-class JsonRpcException(val code: Int, override val message: String) : Exception(message)
+class JsonRpcException(
+        val code: Int = -32603,
+        override val message: String = "Internal error"
+) : Exception(message)
 
 data class JsonRpcLogItem(
         val address: String,

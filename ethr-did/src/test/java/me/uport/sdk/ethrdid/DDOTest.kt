@@ -1,6 +1,7 @@
 package me.uport.sdk.ethrdid
 
 import kotlinx.serialization.json.JSON
+import org.intellij.lang.annotations.Language
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -17,6 +18,7 @@ class DDOTest {
 
     @Test
     fun `can parse example doc`() {
+        @Language("JSON")
         val docText = """
             {
                 "@context": "https://w3id.org/did/v1",

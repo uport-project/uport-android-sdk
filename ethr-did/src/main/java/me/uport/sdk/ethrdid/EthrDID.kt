@@ -2,6 +2,7 @@ package me.uport.sdk.ethrdid
 
 import me.uport.sdk.core.Signer
 import me.uport.sdk.core.signRawTx
+import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import me.uport.sdk.jsonrpc.experimental.ethCall
@@ -28,8 +29,8 @@ class EthrDID(
 
 
     class DelegateOptions(
-            val delegateType: String?,
-            val expiresIn: Long?
+            val delegateType: DelegateType = Secp256k1VerificationKey2018,
+            val expiresIn: Long = 86400L
     )
 
 
@@ -55,26 +56,24 @@ class EthrDID(
     }
 
 
-    suspend fun addDelegate(delegate: String, options: DelegateOptions? = null): String {
-        val delegateType = options?.delegateType ?: "Secp256k1VerificationKey2018"
-        val expiresIn = options?.expiresIn ?: 86400L
+    suspend fun addDelegate(delegate: String, options: DelegateOptions = DelegateOptions()): String {
         val owner = lookupOwner()
 
         val encodedCall = EthereumDIDRegistry.AddDelegate.encode(
                 Solidity.Address(this.address.hexToBigInteger()),
-                Solidity.Bytes32(delegateType.toByteArray()),
+                Solidity.Bytes32(options.delegateType.name.toByteArray()),
                 Solidity.Address(delegate.hexToBigInteger()),
-                Solidity.UInt256(BigInteger.valueOf(expiresIn))
+                Solidity.UInt256(BigInteger.valueOf(options.expiresIn))
         )
 
         return signAndSendContractCall(owner, encodedCall)
     }
 
-    suspend fun revokeDelegate(delegate: String, delegateType: String = "Secp256k1VerificationKey2018"): String {
+    suspend fun revokeDelegate(delegate: String, delegateType: DelegateType = Secp256k1VerificationKey2018): String {
         val owner = this.lookupOwner()
         val encodedCall = EthereumDIDRegistry.RevokeDelegate.encode(
                 Solidity.Address(this.address.hexToBigInteger()),
-                Solidity.Bytes32(delegateType.toByteArray()),
+                Solidity.Bytes32(delegateType.name.toByteArray()),
                 Solidity.Address(delegate.hexToBigInteger())
         )
 
