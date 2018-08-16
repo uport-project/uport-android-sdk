@@ -1,5 +1,6 @@
 package me.uport.sdk.ethrdid
 
+import android.support.annotation.Keep
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -19,6 +20,9 @@ data class DDO(
 
         @SerialName("authentication")
         val authentication: List<AuthenticationEntry> = emptyList(),
+
+        @SerialName("service")
+        val service: List<ServiceEntry> = emptyList(),
 
         @SerialName("@context")
         val context: String = "https://w3id.org/did/v1"
@@ -44,7 +48,19 @@ data class PublicKeyEntry(
 
         @Optional
         @SerialName("publicKeyHex")
-        val publicKeyHex: String? = null
+        val publicKeyHex: String? = null,
+
+        @Optional
+        @SerialName("publicKeyBase64")
+        val publicKeyBase64: String? = null,
+
+        @Optional
+        @SerialName("publicKeyBase58")
+        val publicKeyBase58: String? = null,
+
+        @Optional
+        @SerialName("value")
+        val value: String? = null
 )
 
 @Serializable
@@ -53,6 +69,13 @@ data class AuthenticationEntry(
         val publicKey: String
 )
 
+@Serializable
+data class ServiceEntry(
+        val type : String,
+        val serviceEndpoint: String
+)
+
+@Keep
 enum class DelegateType {
     Secp256k1VerificationKey2018,
     Secp256k1SignatureAuthentication2018,
