@@ -1,9 +1,8 @@
 package me.uport.sdk.ethrdid
 
-import me.uport.sdk.core.bytes32ToString
-import me.uport.sdk.core.hexToBytes32
-import me.uport.sdk.core.toBase64
-import me.uport.sdk.core.utf8
+import android.support.annotation.VisibleForTesting
+import android.support.annotation.VisibleForTesting.PRIVATE
+import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.DelegateType.Secp256k1SignatureAuthentication2018
 import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDAttributeChanged
@@ -29,6 +28,14 @@ class EthrDIDResolver(
         val registryAddress: String = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b"
 ) {
 
+    suspend fun resolve(did: String): DDO {
+        val normalizedDid = normalizeDid(did)
+        val identity = parseIdentity(normalizedDid)
+        val ethrdidContract = EthrDID(identity, rpc, registryAddress, Signer.blank)
+        val owner = ethrdidContract.lookupOwner(false)
+        val history = getHistory(identity)
+        return wrapDidDocument(normalizedDid, owner, history)
+    }
 
     suspend fun lastChanged(identity: String): String {
         val encodedCall = EthereumDIDRegistry.Changed.encode(Solidity.Address(identity.hexToBigInteger()))
@@ -201,6 +208,37 @@ class EthrDIDResolver(
             var type = if (rawType.isBlank()) veriKey else rawType
             type = attrTypes[type] ?: type
             return DelegateType.valueOf("$algo$type") //will throw exception if none found
+        }
+
+        //language=RegExp
+        private val identityExtractPattern = "^did:ethr:(0x[0-9a-fA-F]{40})".toRegex()
+
+        //language=RegExp
+        private val didParsePattern = "^(did:)?((\\w+):)?((0x)([0-9a-fA-F]{40}))".toRegex()
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        private fun parseIdentity(normalizedDid: String) = identityExtractPattern
+                .find(normalizedDid)
+                ?.destructured?.component1() ?: ""
+
+        @VisibleForTesting(otherwise = PRIVATE)
+        fun normalizeDid(did: String): String {
+            val matchResult = didParsePattern.find(did)
+            if (matchResult != null) {
+                val (didHeader, _, didType, _, _, hexDigits) = matchResult.destructured
+                if (didType.isNotBlank() && didType != "ethr") {
+                    //should forward to another resolver
+                    return ""
+                }
+                if (didHeader.isBlank() && didType.isNotBlank()) {
+                    //doesn't really look like a did if it only specifies type and not "did:"
+                    return ""
+                }
+                return "did:ethr:0x$hexDigits"
+            } else {
+                //should forward to another resolver
+                return ""
+            }
         }
 
     }

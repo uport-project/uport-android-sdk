@@ -21,6 +21,7 @@ data class DDO(
         @SerialName("authentication")
         val authentication: List<AuthenticationEntry> = emptyList(),
 
+        @Optional
         @SerialName("service")
         val service: List<ServiceEntry> = emptyList(),
 

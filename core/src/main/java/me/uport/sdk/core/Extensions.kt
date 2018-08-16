@@ -8,7 +8,8 @@ import java.math.BigInteger
 import java.nio.charset.Charset
 
 fun String.toBase64() = Base64.encodeToString(this.toByteArray(), Base64.NO_WRAP)
-fun ByteArray.toBase64() = Base64.encodeToString(this, Base64.NO_WRAP)
+//using spongy castle implementation because the android one can't be mocked in tests
+fun ByteArray.toBase64() = org.spongycastle.util.encoders.Base64.toBase64String(this)
 fun String.toBase64UrlSafe() = Base64.encodeToString(this.toByteArray(), Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE)
 fun ByteArray.toBase64UrlSafe() = Base64.encodeToString(this, Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE)
 

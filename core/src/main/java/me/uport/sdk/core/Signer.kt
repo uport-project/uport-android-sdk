@@ -24,6 +24,19 @@ interface Signer {
         }
         return@signMessage callback(null, unsignedTx.encodeRLP(sig))
     }
+
+    companion object {
+        /**
+         * A useless signer that calls back with empty signature and has no associated address
+         */
+        val blank = object : Signer {
+            override fun signMessage(rawMessage: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
+                callback(null, SignatureData())
+            }
+
+            override fun getAddress(): String = ""
+        }
+    }
 }
 
 

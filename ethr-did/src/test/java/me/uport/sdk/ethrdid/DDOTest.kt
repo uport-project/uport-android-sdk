@@ -12,7 +12,7 @@ class DDOTest {
         val doc = DDO("hello")
         val docText = JSON.stringify(doc)
         assertEquals("""
-            {"id":"hello","publicKey":[],"authentication":[],"@context":"https://w3id.org/did/v1"}
+            {"id":"hello","publicKey":[],"authentication":[],"service":[],"@context":"https://w3id.org/did/v1"}
         """.trimIndent(), docText)
     }
 

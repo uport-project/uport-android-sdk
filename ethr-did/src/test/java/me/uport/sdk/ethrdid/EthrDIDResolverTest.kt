@@ -1,6 +1,9 @@
+@file:Suppress("UnnecessaryVariable")
+
 package me.uport.sdk.ethrdid
 
 import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.hexToBytes32
 import me.uport.sdk.core.utf8
@@ -51,7 +54,7 @@ class EthrDIDResolverTest {
         val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
         val realAddress = "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"
         val resolver = EthrDIDResolver(rpc)
-        val lastChanged = resolver.lastChanged(realAddress).hexToBigInteger()
+        val lastChanged = 2784036L.toBigInteger()
         val logs = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.hexToBytes32()), lastChanged, lastChanged)
         println(logs)
 
@@ -75,7 +78,7 @@ class EthrDIDResolverTest {
     }
 
     // "did/pub/(Secp256k1|Rsa|Ed25519)/(veriKey|sigAuth)/(hex|base64)",
-    val attributeRegexes = listOf(
+    private val attributeRegexes = listOf(
             "did/pub/Secp256k1/veriKey/hex",
             "did/pub/Rsa/veriKey/hex",
             "did/pub/Ed25519/veriKey/hex",
@@ -109,8 +112,6 @@ class EthrDIDResolverTest {
 
             assertTrue(section.isNotBlank())
             assertTrue(algo.isNotBlank())
-            assertTrue(rawType.isNotBlank())
-            assertTrue(encoding.isNotBlank())
         }
     }
 
@@ -146,6 +147,65 @@ class EthrDIDResolverTest {
         //this should work no matter what
         val decodedStr = sol.bytes.toString(utf8)
         assertEquals(str, decodedStr)
+    }
+
+    @Test
+    fun `can resolve real address`() = runBlocking {
+
+        //language=JSON
+        val referenceDDOString = """
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a",
+              "publicKey": [{
+                   "id": "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a",
+                   "ethereumAddress": "0xb9c5714089478a327f09197987f16f9e5d936e8a"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a#owner"}]
+            }
+        """.trimIndent()
+        val referenceDDO = JSON.nonstrict.parse<DDO>(referenceDDOString)
+
+
+        val realAddress = "0xb9c5714089478a327f09197987f16f9e5d936e8a"
+        val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
+        val resolver = EthrDIDResolver(rpc)
+        val ddo = resolver.resolve(realAddress)
+        assertEquals(referenceDDO, ddo)
+        println(ddo)
+    }
+
+    @Test
+    fun `can normalize DID`() {
+
+        val validDids = listOf(
+                "0xb9c5714089478a327f09197987f16f9e5d936e8a",
+                "0xB9C5714089478a327F09197987f16f9E5d936E8a",
+                "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a",
+                "did:ethr:0xB9C5714089478a327F09197987f16f9E5d936E8a"
+        )
+
+        val invalidDids = listOf(
+                "0xb9c5714089478a327f09197987f16f9e5d936e",
+                "B9C5714089478a327F09197987f16f9E5d936E8a",
+                "ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a",
+                "B9C5714089478a327F09197987f16f9E5d936E8a",
+                "B9C5714089478a327F09197987f16f9E5d936E"
+        )
+
+        validDids.forEach {
+            val normalizedDid = EthrDIDResolver.normalizeDid(it)
+            assertTrue("failed to normalize $it", normalizedDid.isNotBlank())
+            assertEquals("did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a", normalizedDid.toLowerCase())
+        }
+
+        invalidDids.forEach {
+            val normalizedDid = EthrDIDResolver.normalizeDid(it)
+            assertTrue("should have failed to normalize $it but got $normalizedDid", normalizedDid.isBlank())
+        }
     }
 
 }
