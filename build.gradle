@@ -6,7 +6,9 @@ buildscript {
 
         kotlin_version = '1.2.60'
         kotlin_serialization_version = '0.6.1'
-        android_tools_version = '3.2.0-beta05'
+        coroutines_version = "0.23.4" // v0.24.0 has a bug with runBlocking in JUnit tests
+
+        android_tools_version = '3.3.0-alpha06'
 
         build_tools_version = "27.0.3"
 
@@ -22,7 +24,6 @@ buildscript {
         mockito_version = "2.19.0"
         mockito_kotlin_version = "2.0.0-RC1"
 
-        coroutines_version = "0.23.4" // v0.24.0 has a bug with runBlocking in JUnit tests
         moshi_version = "1.6.0"
         okhttp_version = "3.10.0"
 
@@ -31,7 +32,7 @@ buildscript {
         kethereum_version = "0.53"
         khex_version = "0.5"
 
-        uport_signer_version = "0.2.1"
+        uport_signer_version = "1a134709562e47d573bdd8f23d04bb3ab42e2c43"//"0.2.1"
         uport_sdk_version = "0.1.1"
     }
 

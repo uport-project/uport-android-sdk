@@ -33,7 +33,7 @@ import kotlin.experimental.and
 class JWTTools {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
-    fun create(context: Context, payload: JwtPayload, address: String, derivationPath: String, prompt: String, callback: (err: Exception?, encodedJWT: String?) -> Unit) {
+    fun create(context: Context, payload: JwtPayload, rootHandle: String, derivationPath: String, prompt: String = "", recoverable: Boolean = false, callback: (err: Exception?, encodedJWT: String?) -> Unit) {
         //JSON Parser
         val moshi = Moshi.Builder()
                 .add(KotlinJsonAdapterFactory())
@@ -44,7 +44,11 @@ class JWTTools {
         val jwtPayloadAdapter = moshi.adapter(JwtPayload::class.java)
 
         //create header and convert the parts to json strings
-        val header = JwtHeader("JWT", "ES256K")
+        val header = if (recoverable ) {
+            JwtHeader("JWT", "ES256K")
+        } else {
+            JwtHeader("JWT", "ES256K-R")
+        }
         val headerJsonString = jwtHeaderAdapter.toJson(header)
         val payloadJsonString = jwtPayloadAdapter.toJson(payload)
         //base 64 encode the jwt parts
@@ -54,8 +58,8 @@ class JWTTools {
         //XXX: This is the crux of the bad behavior. signJwtBundle expects a Base64 string as payload and it was receiving plain text
         val messageToSign = "$headerEncodedString.$payloadEncodedString".toBase64()
 
-        UportHDSigner().signJwtBundle(context, address, derivationPath, messageToSign, prompt) { err, signature ->
-            val encodedJwt = "$headerEncodedString.$payloadEncodedString.${signature.getJoseEncoded()}"
+        UportHDSigner().signJwtBundle(context, rootHandle, derivationPath, messageToSign, prompt) { err, signature ->
+            val encodedJwt = "$headerEncodedString.$payloadEncodedString.${signature.getJoseEncoded(recoverable)}"
             callback(err, encodedJwt)
         }
     }
