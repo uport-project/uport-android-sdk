@@ -44,7 +44,7 @@ class JWTTools {
         val jwtPayloadAdapter = moshi.adapter(JwtPayload::class.java)
 
         //create header and convert the parts to json strings
-        val header = if (recoverable ) {
+        val header = if (recoverable) {
             JwtHeader("JWT", "ES256K")
         } else {
             JwtHeader("JWT", "ES256K-R")
@@ -102,6 +102,7 @@ class JWTTools {
 
     fun verify(token: String, callback: (err: Exception?, payload: JwtPayload?) -> Unit) {
         val (_, payload, signatureBytes) = decode(token)
+        //TODO: use a broader DID resolver, or perhaps determine the resolver type based on `header.algo` or `payload.iss`
         DIDResolver().getProfileDocument(payload.iss) { err, ddo ->
             if (err !== null)
                 return@getProfileDocument callback(err, null)
@@ -112,8 +113,12 @@ class JWTTools {
 
             val r = BigInteger(1, signatureBytes.sliceArray(0 until 32))
             val s = BigInteger(1, signatureBytes.sliceArray(32 until 64))
+            val vArr = if (signatureBytes.size > 64)
+                signatureBytes.sliceArray(64..64) // just the recovery byte
+            else
+                byteArrayOf(27, 28) //try all recovery options
 
-            for (v in byteArrayOf(27, 28)) {
+            for (v in vArr) {
                 val sig = SignatureData(r, s, v)
                 val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sig)
                 val recoveredPubKeyString = recoveredPubKey.toHexStringZeroPadded(130).prepend0xPrefix()
