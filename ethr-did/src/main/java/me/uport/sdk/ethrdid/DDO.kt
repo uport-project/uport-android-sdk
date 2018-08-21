@@ -28,8 +28,11 @@ data class DDO(
         @SerialName("@context")
         val context: String = "https://w3id.org/did/v1"
 ) {
-
     override fun toString(): String = JSON.indented.stringify(this)
+
+    companion object {
+        val blank = DDO("")
+    }
 }
 
 @Serializable
