@@ -32,6 +32,8 @@ dependencies {
     implementation "com.github.uport-project:uport-android-signer:$uport_signer_version"
 
     implementation project(":did")
+    implementation project(":ethr-did")
+    implementation project(":jsonrpc")
     implementation project(":core")
 
     testImplementation "junit:junit:$junit_version"
