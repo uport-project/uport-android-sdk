@@ -2,7 +2,6 @@ package me.uport.sdk.ethrdid
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import me.uport.sdk.core.*
@@ -23,6 +22,8 @@ import org.walleth.khex.toHexString
 import pm.gnosis.model.Solidity
 import java.math.BigInteger
 import java.util.*
+
+
 
 class EthrDIDResolver(
         private val rpc: JsonRPC,

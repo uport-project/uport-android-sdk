@@ -3,8 +3,8 @@ package me.uport.sdk.identity
 import android.content.Context
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import me.uport.sdk.core.UI
 
 class KPAccountCreator(private val appContext: Context) : AccountCreator {
 

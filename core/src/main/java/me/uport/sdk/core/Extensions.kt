@@ -1,11 +1,31 @@
 package me.uport.sdk.core
 
+import android.support.annotation.VisibleForTesting
+import android.support.annotation.VisibleForTesting.PRIVATE
 import android.util.Base64
 import org.kethereum.extensions.toHexStringNoPrefix
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 import java.nio.charset.Charset
+import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.experimental.EmptyCoroutineContext
+import kotlinx.coroutines.experimental.android.UI as mainLooperContext
+
+/**
+ * Shorthand for a mockable UI context in unit tests
+ */
+val UI by lazy { coroutineUiContextInitBlock() }
+
+private var coroutineUiContextInitBlock: () -> CoroutineContext = { mainLooperContext }
+
+/**
+ * Call this in @Before methods where you need to interact with UI context
+ */
+@VisibleForTesting(otherwise = PRIVATE)
+fun stubUiContext() {
+    coroutineUiContextInitBlock = { EmptyCoroutineContext }
+}
 
 fun String.toBase64() = Base64.encodeToString(this.toByteArray(), Base64.NO_WRAP)
 //using spongy castle implementation because the android one can't be mocked in tests

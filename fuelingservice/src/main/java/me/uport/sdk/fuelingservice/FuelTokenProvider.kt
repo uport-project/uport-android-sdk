@@ -4,9 +4,9 @@ import android.content.Context
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.iid.FirebaseInstanceId
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import me.uport.sdk.core.UI
 import me.uport.sdk.core.experimental.urlPost
 import me.uport.sdk.identity.IFuelTokenProvider
 import org.json.JSONObject
