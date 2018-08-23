@@ -23,8 +23,6 @@ import pm.gnosis.model.Solidity
 import java.math.BigInteger
 import java.util.*
 
-
-
 class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration

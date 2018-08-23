@@ -28,9 +28,20 @@ fun stubUiContext() {
 }
 
 //using spongy castle implementation because the android one can't be mocked in tests
+/**
+ * Creates a base64 representation of the given byteArray, without padding
+ */
 fun ByteArray.toBase64(): String = Base64.toBase64String(this).replace("=", "")
 
+/**
+ * Creates a base64 representation of the byteArray that backs this string, without padding
+ */
 fun String.toBase64() = this.toByteArray().toBase64()
+
+/**
+ * pads a base64 string with a proper number of '='
+ */
+fun String.padBase64() = this.padEnd(this.length + (4 - this.length % 4) % 4, '=')
 
 fun String.toBase64UrlSafe() = this.toBase64().replace('+', '-').replace('/', '_')
 fun ByteArray.toBase64UrlSafe() = this.toBase64().replace('+', '-').replace('/', '_')
@@ -39,10 +50,7 @@ fun String.decodeBase64(): ByteArray = this
         //force non-url safe and add padding so that it can be applied to all b64 formats
         .replace('-', '+')
         .replace('_', '/')
-        .let {
-            val numPadding = it.length + (4 - it.length % 4) % 4
-            it.padEnd(numPadding, '=')
-        }
+        .padBase64()
         .let {
             if (it.isEmpty())
                 byteArrayOf()

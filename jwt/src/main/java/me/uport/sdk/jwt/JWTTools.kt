@@ -6,13 +6,19 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.getJoseEncoded
+import me.uport.sdk.core.Networks
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.core.toBase64UrlSafe
 import me.uport.sdk.did.DIDResolver
+import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtPayload
 import org.kethereum.crypto.CURVE
+import org.kethereum.crypto.getAddress
+import org.kethereum.encodings.decodeBase58
+import org.kethereum.extensions.toBytesPadded
 import org.kethereum.extensions.toHexStringZeroPadded
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
@@ -20,7 +26,7 @@ import org.spongycastle.asn1.x9.X9IntegerConverter
 import org.spongycastle.math.ec.ECAlgorithms
 import org.spongycastle.math.ec.ECPoint
 import org.spongycastle.math.ec.custom.sec.SecP256K1Curve
-import org.walleth.khex.prepend0xPrefix
+import org.walleth.khex.*
 import java.math.BigInteger
 import java.security.SignatureException
 import kotlin.experimental.and
@@ -100,32 +106,75 @@ class JWTTools {
         }
     }
 
-    fun verify(token: String, callback: (err: Exception?, payload: JwtPayload?) -> Unit) {
+    fun verify(token: String, options: Map<String, Any> = emptyMap(), callback: (err: Exception?, payload: JwtPayload?) -> Unit) {
         val (_, payload, signatureBytes) = decode(token)
-        //TODO: use a broader DID resolver, or perhaps determine the resolver type based on `header.algo` or `payload.iss`
-        DIDResolver().getProfileDocument(payload.iss) { err, ddo ->
-            if (err !== null)
-                return@getProfileDocument callback(err, null)
+        if (payload.iss.startsWith("did:ethr:0x")) {
+            val rpcUrl: String = options["rpcUrl"] as String? ?: Networks.mainnet.rpcUrl
+            val rpc: JsonRPC = options["rpc"] as JsonRPC? ?: JsonRPC(rpcUrl)
+            val registryAddress: String = options["ethrDidRegistry"] as String?
+                    ?: EthrDIDResolver.DEFAULT_REGISTRY_ADDRESS
+            EthrDIDResolver(rpc, registryAddress).resolve(payload.iss) { err, ddo ->
+                if (err !== null)
+                    return@resolve callback(err, null)
 
-            val tokenParts = token.split('.')
-            val signingInput = tokenParts[0] + "." + tokenParts[1]
-            val signingInputBytes = signingInput.toByteArray()
+                val sigData = signatureBytes.let {
+                    val r = it.copyOfRange(0, 32)
+                    val s = it.copyOfRange(32, 64)
+                    val v = it[64].let {
+                        if (it < 27) (it + 27).toByte() else it
+                    }
+                    SignatureData(BigInteger(1, r), BigInteger(1, s), v)
+                }
 
-            val r = BigInteger(1, signatureBytes.sliceArray(0 until 32))
-            val s = BigInteger(1, signatureBytes.sliceArray(32 until 64))
-            val vArr = if (signatureBytes.size > 64)
-                signatureBytes.sliceArray(64..64) // just the recovery byte
-            else
-                byteArrayOf(27, 28) //try all recovery options
+                val signingInputBytes = token.substringBeforeLast('.').toByteArray()
 
-            for (v in vArr) {
-                val sig = SignatureData(r, s, v)
-                val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sig)
-                val recoveredPubKeyString = recoveredPubKey.toHexStringZeroPadded(130).prepend0xPrefix()
-                if (recoveredPubKeyString == ddo.publicKey)
-                    return@getProfileDocument callback(err, payload)
+                val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sigData)
+                val pubKeyNoPrefix = recoveredPubKey
+                        .toBytesPadded(65)
+                        .copyOfRange(1, 65)
+                val recoveredAddress = getAddress(pubKeyNoPrefix).toNoPrefixHexString()
+
+                val numMatches = ddo.publicKey.map {
+                    val pk = it.publicKeyBase58?.decodeBase58()
+                            ?: it.publicKeyBase64?.decodeBase64()
+                            ?: it.publicKeyHex?.hexToByteArray()
+                            ?: byteArrayOf()
+                    (it.ethereumAddress ?: getAddress(pk).toHexString()).clean0xPrefix()
+                }.filter {
+                    it == recoveredAddress
+                }.size
+
+                if (numMatches > 0) {
+                    callback(null, payload)
+                } else {
+                    callback(InvalidSignatureException("Signature invalid: no valid match was found among the publicKey entries"), null)
+                }
             }
-            return@getProfileDocument callback(InvalidSignatureException("Signature invalid: Public Key Mismatch"), null)
+        } else {
+            DIDResolver().getProfileDocument(payload.iss) { err, ddo ->
+                if (err !== null)
+                    return@getProfileDocument callback(err, null)
+
+                val tokenParts = token.split('.')
+                val signingInput = tokenParts[0] + "." + tokenParts[1]
+                val signingInputBytes = signingInput.toByteArray()
+
+                val r = BigInteger(1, signatureBytes.sliceArray(0 until 32))
+                val s = BigInteger(1, signatureBytes.sliceArray(32 until 64))
+                val vArr = if (signatureBytes.size > 64)
+                    signatureBytes.sliceArray(64..64) // just the recovery byte
+                else
+                    byteArrayOf(27, 28) //try all recovery options
+
+                for (v in vArr) {
+                    val sig = SignatureData(r, s, v)
+                    val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sig)
+                    val recoveredPubKeyString = recoveredPubKey.toHexStringZeroPadded(130).prepend0xPrefix()
+                    if (recoveredPubKeyString == ddo.publicKey)
+                        return@getProfileDocument callback(err, payload)
+                }
+                return@getProfileDocument callback(InvalidSignatureException("Signature invalid: Public Key Mismatch"), null)
+            }
         }
     }
 
@@ -156,7 +205,7 @@ class JWTTools {
             return null
         }
         // Compressed keys require you to know an extra bit of data about the y-coord as there are
-        // two possibilities. So it's encoded in the recId.
+        // two possibilities. So it'DEFAULT_REGISTRY_ADDRESS encoded in the recId.
         val r = decompressKey(x, recId and 1 == 1)
         //   1.4. If nR != point at infinity, then do another iteration of Step 1 (callers
         //        responsibility).
@@ -171,7 +220,7 @@ class JWTTools {
         //               Q = mi(r) * (sR - eG)
         //
         // Where mi(x) is the modular multiplicative inverse. We transform this into the following:
-        //               Q = (mi(r) * s ** R) + (mi(r) * -e ** G)
+        //               Q = (mi(r) * DEFAULT_REGISTRY_ADDRESS ** R) + (mi(r) * -e ** G)
         // Where -e is the modular additive inverse of e, that is z such that z + e = 0 (mod n).
         // In the above equation ** is point multiplication and + is point addition (the EC group
         // operator).
