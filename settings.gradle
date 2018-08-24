@@ -1,5 +1,6 @@
 include ':demoapp'
 include ':did'
+include ':ethr-did'
 include ':identity'
 include ':sdk'
 include ':jsonrpc'
