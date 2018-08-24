@@ -258,22 +258,17 @@ class EthrDIDResolver(
 
         @VisibleForTesting(otherwise = PRIVATE)
         fun normalizeDid(did: String): String {
-            val matchResult = didParsePattern.find(did)
-            if (matchResult != null) {
-                val (didHeader, _, didType, _, _, hexDigits) = matchResult.destructured
-                if (didType.isNotBlank() && didType != "ethr") {
-                    //should forward to another resolver
-                    return ""
-                }
-                if (didHeader.isBlank() && didType.isNotBlank()) {
-                    //doesn't really look like a did if it only specifies type and not "did:"
-                    return ""
-                }
-                return "did:ethr:0x$hexDigits"
-            } else {
+            val matchResult = didParsePattern.find(did) ?: return ""
+            val (didHeader, _, didType, _, _, hexDigits) = matchResult.destructured
+            if (didType.isNotBlank() && didType != "ethr") {
                 //should forward to another resolver
                 return ""
             }
+            if (didHeader.isBlank() && didType.isNotBlank()) {
+                //doesn't really look like a did if it only specifies type and not "did:"
+                return ""
+            }
+            return "did:ethr:0x$hexDigits"
         }
 
     }
