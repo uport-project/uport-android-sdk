@@ -32,10 +32,14 @@ dependencies {
     implementation "com.github.uport-project:uport-android-signer:$uport_signer_version"
 
     implementation project(":did")
+    implementation project(":ethr-did")
+    implementation project(":jsonrpc")
     implementation project(":core")
 
     testImplementation "junit:junit:$junit_version"
-//    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testImplementation "org.mockito:mockito-inline:$mockito_version"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
 
     androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"

@@ -1,13 +1,13 @@
 package me.uport.sdk.extensions
 
 import android.content.Context
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
+import me.uport.sdk.core.UI
 import me.uport.sdk.identity.Account
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.experimental.getAccountBalance

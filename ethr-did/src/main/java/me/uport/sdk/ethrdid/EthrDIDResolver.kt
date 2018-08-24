@@ -2,6 +2,8 @@ package me.uport.sdk.ethrdid
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.DelegateType.Secp256k1SignatureAuthentication2018
 import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
@@ -24,7 +26,7 @@ import java.util.*
 class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration
-        val registryAddress: String = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b"
+        val registryAddress: String = DEFAULT_REGISTRY_ADDRESS
 ) {
 
     /**
@@ -37,6 +39,21 @@ class EthrDIDResolver(
         val owner = ethrdidContract.lookupOwner(false)
         val history = getHistory(identity)
         return wrapDidDocument(normalizedDid, owner, history)
+    }
+
+    /**
+     * Resolves a given ethereum address or DID string into a corresponding DDO
+     * Calls back on the main thread with the result or an exception
+     */
+    fun resolve(did: String, callback: (err: Exception?, ddo: DDO) -> Unit) {
+        launch {
+            try {
+                val ddo = resolve(did)
+                withContext(UI) { callback(null, ddo) }
+            } catch (ex: Exception) {
+                withContext(UI) { callback(ex, DDO.blank) }
+            }
+        }
     }
 
     /**
@@ -212,6 +229,8 @@ class EthrDIDResolver(
     }
 
     companion object {
+        const val DEFAULT_REGISTRY_ADDRESS = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b"
+
         internal const val veriKey = "veriKey"
         internal const val sigAuth = "sigAuth"
 

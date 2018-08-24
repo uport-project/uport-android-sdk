@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.UI
 import me.uport.sdk.identity.*
 import kotlin.coroutines.experimental.suspendCoroutine
 

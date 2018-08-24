@@ -76,7 +76,7 @@ class JWTToolsTests {
         ensureSeedIsImported(referenceSeedPhrase)
 
 
-        JWTTools().create(context = activity, payload = payload, address = address, derivationPath = UportHDSigner.UPORT_ROOT_DERIVATION_PATH, prompt = "", callback = { err, newJwt ->
+        JWTTools().create(context = activity, payload = payload, rootHandle = address, derivationPath = UportHDSigner.UPORT_ROOT_DERIVATION_PATH, prompt = "", callback = { err, newJwt ->
             assertNull(err)
 
             // but we should be able to verify the newly created token
