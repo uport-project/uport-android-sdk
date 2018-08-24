@@ -10,13 +10,16 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.identity.*
 import kotlin.coroutines.experimental.suspendCoroutine
 
+@SuppressLint("StaticFieldLeak")
 object Uport {
 
     private var initialized = false
 
-    @SuppressLint("StaticFieldLeak")
     private lateinit var config: Configuration
+
     private lateinit var prefs: SharedPreferences
+
+    private lateinit var accountCreator: AccountCreator
 
     var defaultAccount: Account? = null
 
@@ -37,6 +40,8 @@ object Uport {
 
         val context = config.applicationContext
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
+
+        accountCreator = KPAccountCreator(context)
 
         val serializedAccount = prefs.getString(DEFAULT_ACCOUNT, "")
         defaultAccount = Account.fromJson(serializedAccount)
@@ -98,11 +103,10 @@ object Uport {
 
         launch {
             try {
-                val creator = KPAccountCreator(config.applicationContext)
                 val acc = if (seedPhrase.isNullOrBlank()) {
-                    creator.createAccount(networkId)
+                    accountCreator.createAccount(networkId)
                 } else {
-                    creator.importAccount(networkId, seedPhrase!!)
+                    accountCreator.importAccount(networkId, seedPhrase!!)
                 }
                 prefs.edit().putString(DEFAULT_ACCOUNT, acc.toJson()).apply()
                 defaultAccount = defaultAccount ?: acc
@@ -114,8 +118,12 @@ object Uport {
         }
     }
 
-    fun deleteAccount() {
-        TODO("not implemented")
+    fun deleteAccount(rootHandle: String) {
+        if (!initialized) {
+            throw UportNotInitializedException()
+        }
+
+        accountCreator.deleteAccount(rootHandle)
     }
 
     class Configuration {
