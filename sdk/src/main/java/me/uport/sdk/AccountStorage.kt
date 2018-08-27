@@ -12,15 +12,17 @@ interface AccountStorage {
 
 class InMemoryAccountStorage : AccountStorage {
 
+    private val accounts = mapOf<String, Account>().toMutableMap()
+
     override fun upsert(newAcc: Account) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        accounts[newAcc.handle] = newAcc
     }
 
     override fun get(handle: String): Account? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return accounts[handle]
     }
 
     override fun delete(handle: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        accounts.remove(handle)
     }
 }

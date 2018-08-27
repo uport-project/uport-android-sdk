@@ -1,7 +1,7 @@
 package me.uport.sdk
 
 import me.uport.sdk.identity.Account
-import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class AccountStorageTest {
@@ -11,7 +11,7 @@ class AccountStorageTest {
         val storage: AccountStorage = InMemoryAccountStorage()
         val newAcc = Account("0xnewaccount", "", "", "", "", "", "")
         storage.upsert(newAcc)
-        Assert.assertEquals(newAcc, storage.get("0xnewaccount"))
+        assertEquals(newAcc, storage.get("0xnewaccount"))
     }
 
 }
