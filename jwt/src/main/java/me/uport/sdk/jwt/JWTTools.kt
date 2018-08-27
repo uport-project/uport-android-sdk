@@ -5,6 +5,7 @@ import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.decodeJose
 import com.uport.sdk.signer.getJoseEncoded
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.decodeBase64
@@ -117,14 +118,7 @@ class JWTTools {
                 if (err !== null)
                     return@resolve callback(err, null)
 
-                val sigData = signatureBytes.let {
-                    val r = it.copyOfRange(0, 32)
-                    val s = it.copyOfRange(32, 64)
-                    val v = it[64].let {
-                        if (it < 27) (it + 27).toByte() else it
-                    }
-                    SignatureData(BigInteger(1, r), BigInteger(1, s), v)
-                }
+                val sigData= signatureBytes.decodeJose()
 
                 val signingInputBytes = token.substringBeforeLast('.').toByteArray()
 
@@ -135,9 +129,9 @@ class JWTTools {
                 val recoveredAddress = getAddress(pubKeyNoPrefix).toNoPrefixHexString()
 
                 val numMatches = ddo.publicKey.map {
-                    val pk = it.publicKeyBase58?.decodeBase58()
+                    val pk = it.publicKeyHex?.hexToByteArray()
                             ?: it.publicKeyBase64?.decodeBase64()
-                            ?: it.publicKeyHex?.hexToByteArray()
+                            ?: it.publicKeyBase58?.decodeBase58()
                             ?: byteArrayOf()
                     (it.ethereumAddress ?: getAddress(pk).toHexString()).clean0xPrefix()
                 }.filter {
@@ -159,15 +153,16 @@ class JWTTools {
                 val signingInput = tokenParts[0] + "." + tokenParts[1]
                 val signingInputBytes = signingInput.toByteArray()
 
-                val r = BigInteger(1, signatureBytes.sliceArray(0 until 32))
-                val s = BigInteger(1, signatureBytes.sliceArray(32 until 64))
-                val vArr = if (signatureBytes.size > 64)
+                val recoveryBytes = if (signatureBytes.size > 64)
                     signatureBytes.sliceArray(64..64) // just the recovery byte
                 else
                     byteArrayOf(27, 28) //try all recovery options
 
-                for (v in vArr) {
-                    val sig = SignatureData(r, s, v)
+                val signatures = recoveryBytes.map {
+                    signatureBytes.decodeJose(it)
+                }
+
+                for (sig in signatures) {
                     val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sig)
                     val recoveredPubKeyString = recoveredPubKey.toHexStringZeroPadded(130).prepend0xPrefix()
                     if (recoveredPubKeyString == ddo.publicKey)
