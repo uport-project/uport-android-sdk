@@ -2,9 +2,9 @@
 
 Identity for your Android dApps.
 
-This is a preview version of the uPort android SDK.
-Many intended features are still missing, ant the ones already present are under heavy development.
-Expect breaking changes!
+**This is a preview version of the uPort android SDK.
+Many intended features are still missing, and the ones already present are under heavy development.
+Expect breaking changes!**
 
 ### Installation
 

@@ -1,0 +1,5 @@
+<resources>
+    <string name="uport_fingerprint_success">Success!</string>
+    <string name="uport_touch_sensor">Touch sensor</string>
+    <string name="uport_cancel">Cancel</string>
+</resources>
