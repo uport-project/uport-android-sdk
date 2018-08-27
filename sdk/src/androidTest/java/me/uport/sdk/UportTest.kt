@@ -31,7 +31,7 @@ class UportTest {
 
         val tested = Uport
 
-        tested.defaultAccount = null
+        tested.defaultAccount?.let{ tested.deleteAccount(it)}
 
         runBlocking {
             val acc = tested.createAccount(Networks.rinkeby)
@@ -58,7 +58,7 @@ class UportTest {
         val tested = Uport
         val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
 
-        tested.defaultAccount = null
+        tested.defaultAccount?.let{ tested.deleteAccount(it)}
 
         runBlocking {
             val account = tested.createAccount(Networks.rinkeby, referenceSeedPhrase)
@@ -75,7 +75,7 @@ class UportTest {
     fun can_delete_account() {
         val tested = Uport
 
-        tested.defaultAccount = null
+        tested.defaultAccount?.let{ tested.deleteAccount(it)}
 
         runBlocking {
             val account = tested.createAccount(Networks.rinkeby)

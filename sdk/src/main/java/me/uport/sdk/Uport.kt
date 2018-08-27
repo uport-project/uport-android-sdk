@@ -95,12 +95,6 @@ object Uport {
             throw UportNotInitializedException()
         }
 
-        //FIXME: single account limitation should disappear in future versions
-        if (defaultAccount != null) {
-            launch(UI) { completion(null, defaultAccount!!) }
-            return
-        }
-
         launch {
             try {
                 val acc = if (seedPhrase.isNullOrBlank()) {
@@ -108,7 +102,7 @@ object Uport {
                 } else {
                     accountCreator.importAccount(networkId, seedPhrase!!)
                 }
-                prefs.edit().putString(DEFAULT_ACCOUNT, acc.toJson()).apply()
+                accountStorage?.upsert(acc)
                 defaultAccount = defaultAccount ?: acc
 
                 launch(UI) { completion(null, acc) }
