@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.support.annotation.VisibleForTesting
+import android.support.annotation.VisibleForTesting.PRIVATE
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.UI
@@ -21,11 +23,32 @@ object Uport {
 
     private lateinit var accountCreator: AccountCreator
 
-    var defaultAccount: Account? = null
+    private var defaultAccountHandle = ""
+
+    var defaultAccount: Account?
+        get() = accountStorage?.get(defaultAccountHandle)
+        set(value) {
+            val newDefault = value?.copy(isDefault = true)
+            @Suppress("LiftReturnOrAssignment")
+            if (newDefault == null) {
+                accountStorage?.delete(defaultAccountHandle)
+                defaultAccountHandle = ""
+            } else {
+                val oldAccounts = accountStorage
+                        ?.all()
+                        ?.map { it.copy(isDefault = false) }
+                        ?: emptyList()
+                accountStorage?.upsertAll(oldAccounts + newDefault)
+                defaultAccountHandle = newDefault.handle
+            }
+        }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal var accountStorage: AccountStorage? = null
 
     private const val UPORT_CONFIG: String = "uport_sdk_prefs"
 
-    private const val DEFAULT_ACCOUNT: String = "default_account"
+    private const val OLD_DEFAULT_ACCOUNT: String = "default_account"
 
     /**
      * Initialize the Uport SDK.
@@ -39,12 +62,25 @@ object Uport {
         this.config = configuration
 
         val context = config.applicationContext
-        prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
         accountCreator = KPAccountCreator(context)
 
-        val serializedAccount = prefs.getString(DEFAULT_ACCOUNT, "")
-        defaultAccount = Account.fromJson(serializedAccount)
+        prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
+
+        accountStorage = SharedPrefsAcountStorage(prefs).apply {
+            this.all().forEach {
+                if (it.isDefault == true) {
+                    defaultAccountHandle = it.handle
+                }
+            }
+        }
+
+        prefs.getString(OLD_DEFAULT_ACCOUNT, "")
+                ?.let { Account.fromJson(it) }
+                ?.let {
+                    accountStorage?.upsert(it.copy(isDefault = true))
+                    prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
+                }
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
         initialized = true
