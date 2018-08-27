@@ -1,10 +1,28 @@
 package me.uport.sdk.identity
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.*
 import org.junit.Test
 
-class AccountSerializationTests {
+class AccountsTests {
+
+    @Test
+    fun `can serialize and deserialize account`() {
+        val acc = Account(
+                "0xroot",
+                "0xdevice",
+                "0x1",
+                "0xpublic",
+                "",
+                "",
+                ""
+        )
+
+        val serialized = acc.toJson()
+
+        val other = Account.fromJson(serialized)
+
+        assertEquals(acc, other)
+    }
 
     @Test
     fun `can deserialize account with optional field`() {
@@ -29,7 +47,8 @@ class AccountSerializationTests {
         account!!
 
         assertNotNull(account.isDefault)
-        assertFalse(account.isDefault)
+
+        assertFalse(account.isDefault!!)
     }
 
 }
