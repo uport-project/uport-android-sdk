@@ -43,8 +43,7 @@ object Uport {
             }
         }
 
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal var accountStorage: AccountStorage? = null
+    private var accountStorage: AccountStorage? = null
 
     private const val UPORT_CONFIG: String = "uport_sdk_prefs"
 
@@ -141,12 +140,16 @@ object Uport {
                 accountStorage?.upsert(acc)
                 defaultAccount = defaultAccount ?: acc
 
-                launch(UI) { completion(null, acc) }
+                launch(UI) { completion(null, if (acc.handle == defaultAccount?.handle) defaultAccount!! else acc) }
             } catch (err: Exception) {
                 launch(UI) { completion(err, Account.blank) }
             }
         }
     }
+
+    fun getAccount(handle: String) = accountStorage?.get(handle)
+
+    fun allAccounts() = accountStorage?.all() ?: emptyList()
 
     fun deleteAccount(rootHandle: String) {
         if (!initialized) {

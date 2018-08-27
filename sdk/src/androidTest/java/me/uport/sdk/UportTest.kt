@@ -46,7 +46,6 @@ class UportTest {
     fun there_can_be_only_one_default_account() {
 
         val tested = Uport
-        assertNotNull(tested.accountStorage)
 
         tested.defaultAccount?.let { tested.deleteAccount(it) }
 
@@ -55,16 +54,16 @@ class UportTest {
             val acc1 = tested.createAccount(Networks.rinkeby)
             assertEquals(acc1, tested.defaultAccount) //first account gets to be default
 
-            assertTrue(tested.accountStorage?.all()?.filter { it.isDefault == true }?.size == 1)
+            assertTrue(tested.allAccounts().filter { it.isDefault == true }.size == 1)
 
             val acc2 = tested.createAccount(Networks.rinkeby)
             assertNotEquals(acc2, tested.defaultAccount) //default isn't overwritten
 
-            assertTrue(tested.accountStorage?.all()?.filter { it.isDefault == true }?.size == 1) //still one
+            assertTrue(tested.allAccounts().filter { it.isDefault == true }.size == 1) //still one
 
             tested.defaultAccount = acc2
 
-            assertTrue(tested.accountStorage?.all()?.filter { it.isDefault == true }?.size == 1) //still one
+            assertTrue(tested.allAccounts().filter { it.isDefault == true }.size == 1) //still one
         }
     }
 
