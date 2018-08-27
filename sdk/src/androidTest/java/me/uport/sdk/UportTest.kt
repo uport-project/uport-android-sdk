@@ -97,6 +97,17 @@ class UportTest {
     }
 
     @Test
+    fun imported_account_can_be_retrieved() {
+        val tested = Uport
+        val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
+
+        runBlocking {
+            val account = tested.createAccount(Networks.rinkeby, referenceSeedPhrase)
+            assertEquals(account, tested.getAccount("0x794adde0672914159c1b77dd06d047904fe96ac8"))
+        }
+    }
+
+    @Test
     fun can_delete_account() {
         val tested = Uport
 
