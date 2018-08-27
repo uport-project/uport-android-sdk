@@ -14,6 +14,12 @@ class InMemoryAccountStorage : AccountStorage {
         accounts[newAcc.handle] = newAcc
     }
 
+    override fun upsertAll(list: Collection<Account>) {
+        list.forEach {
+            accounts[it.handle] = it
+        }
+    }
+
     override fun get(handle: String): Account? = accounts[handle]
 
     override fun delete(handle: String) {

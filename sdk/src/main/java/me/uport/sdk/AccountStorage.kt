@@ -11,6 +11,8 @@ interface AccountStorage {
     fun delete(handle: String)
 
     fun all(): List<Account>
+
+    fun upsertAll(list: Collection<Account>)
 }
 
 
@@ -41,6 +43,14 @@ class SharedPrefsAcountStorage(
 
     override fun upsert(newAcc: Account) {
         accounts[newAcc.handle] = newAcc
+        persist()
+    }
+
+    override fun upsertAll(list: Collection<Account>) {
+        list.forEach {
+            accounts[it.handle] = it
+        }
+
         persist()
     }
 

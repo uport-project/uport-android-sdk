@@ -83,4 +83,19 @@ class AccountStorageTest {
         assertTrue(storage.all().contains(newAccount))
     }
 
+    @Test
+    fun `can upsert all`() {
+        val storage: AccountStorage = SharedPrefsAcountStorage(InMemorySharedPrefs())
+
+        val accounts = (0..10).map {
+            Account("0x$it", "", "", "", "", "", "")
+        }
+
+        storage.upsertAll(accounts)
+
+        val allAccounts = storage.all()
+
+        assertTrue(allAccounts.containsAll(accounts))
+    }
+
 }
