@@ -8,7 +8,7 @@ buildscript {
         kotlin_serialization_version = '0.6.1'
         coroutines_version = "0.23.4" // v0.24.0 has a bug with runBlocking in JUnit tests
 
-        android_tools_version = '3.3.0-alpha06'
+        android_tools_version = '3.3.0-alpha07'
 
         build_tools_version = "27.0.3"
 
@@ -16,10 +16,11 @@ buildscript {
         compile_sdk_version = 27
         target_sdk_version = compile_sdk_version
 
-        test_runner_version = "1.0.1"
+        test_runner_version = "1.0.2"
+        test_rules_version = test_runner_version
         support_lib_version = "27.1.1"
         play_services_version = "15.0.0"
-        espresso_version = "3.0.1"
+        espresso_version = "3.0.2"
         junit_version = "4.12"
         mockito_version = "2.19.0"
         mockito_kotlin_version = "2.0.0-RC1"
@@ -27,12 +28,11 @@ buildscript {
         moshi_version = "1.6.0"
         okhttp_version = "3.10.0"
 
-        bivrost_version = "master-SNAPSHOT"//"v0.6.2"
+        bivrost_version = "1c0efeb7f3"//"v0.6.2"
         kmnid_version = "0.2.1"
         kethereum_version = "0.53"
         khex_version = "0.5"
 
-        uport_signer_version = "0.2.2"
         uport_sdk_version = "0.1.1"
     }
 

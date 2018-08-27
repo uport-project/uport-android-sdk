@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="uport_fingerprint_green">#388e3c</color>
+    <color name="uport_fingerprint_red">#b71c1c</color>
+</resources>
