@@ -31,9 +31,7 @@ dependencies {
 
     api "com.squareup.okhttp3:okhttp:$okhttp_version"
     api "com.github.uport-project:kmnid:$kmnid_version"
-    implementation "com.github.walleth.kethereum:functions:$kethereum_version"
-
-//    implementation "com.android.support:support-annotations:$support_lib_version"
+    api "com.github.walleth.kethereum:functions:$kethereum_version"
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
