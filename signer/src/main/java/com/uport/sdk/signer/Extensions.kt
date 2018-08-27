@@ -100,7 +100,7 @@ fun unpackCiphertext(ciphertext: String): List<ByteArray> =
                 .split(DELIMITER)
                 .map { it.decodeBase64() }
 
-internal fun ECKeyPair.getUncompressedPublicKeyWithPrefix(): ByteArray {
+fun ECKeyPair.getUncompressedPublicKeyWithPrefix(): ByteArray {
     val pubBytes = this.publicKey.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
     pubBytes[0] = 0x04
     return pubBytes

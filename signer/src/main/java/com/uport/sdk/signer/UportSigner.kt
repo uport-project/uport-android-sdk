@@ -3,6 +3,8 @@ package com.uport.sdk.signer
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.support.annotation.VisibleForTesting
+import android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.encryption.KeyProtectionFactory
 import com.uport.sdk.signer.encryption.SimpleAsymmetricProtection
@@ -234,7 +236,8 @@ open class UportSigner {
         }
     }
 
-    internal fun signJwt(payloadBytes: ByteArray, keyPair: ECKeyPair) = signMessageHash(payloadBytes.sha256(), keyPair, false)
+    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+    fun signJwt(payloadBytes: ByteArray, keyPair: ECKeyPair) = signMessageHash(payloadBytes.sha256(), keyPair, false)
 
     /**
      * Builds a list of all the saved eth addresses (that also have encrypted private keys tracked)

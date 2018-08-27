@@ -2,13 +2,18 @@ package com.uport.sdk.signer.storage
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.support.annotation.VisibleForTesting
+import android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE
 
 /**
  * Meant to be an encrypted drop in replacement for [SharedPreferences]
  *
  * This class is NOT thread safe
  */
-class ProtectedSharedPreferences(context: Context, internal val delegate: SharedPreferences) : SharedPreferences {
+class ProtectedSharedPreferences(
+        context: Context,
+        @VisibleForTesting(otherwise = PACKAGE_PRIVATE) val delegate: SharedPreferences
+) : SharedPreferences {
 
     val crypto = CryptoUtil(context)
 
