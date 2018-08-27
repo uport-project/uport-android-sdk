@@ -8,6 +8,8 @@ interface AccountCreator {
     fun createAccount(networkId: String, forceRestart: Boolean = false, callback: AccountCreatorCallback)
 
     fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean, callback: AccountCreatorCallback)
+
+    fun deleteAccount(handle: String)
 }
 
 suspend fun AccountCreator.createAccount(networkId: String, forceRestart: Boolean = false): Account = suspendCoroutine { continuation ->
@@ -29,3 +31,5 @@ suspend fun AccountCreator.importAccount(networkId: String, seedPhrase: String, 
         }
     }
 }
+
+fun AccountCreator.deleteAccount(acc: Account) = this.deleteAccount(acc.handle)

@@ -17,6 +17,8 @@ class MetaIdentityAccountCreator(
 
     private val progress: ProgressPersistence = ProgressPersistence(context)
 
+    private val signer = UportHDSigner()
+
     /**
      * Creates a new identity on the uPort platform.
      *
@@ -34,8 +36,6 @@ class MetaIdentityAccountCreator(
         } else {
             progress.restore()
         }
-
-        val signer = UportHDSigner()
 
         when (state) {
 
@@ -166,6 +166,10 @@ class MetaIdentityAccountCreator(
 
     override fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
         createOrImportAccount(networkId, seedPhrase, forceRestart, callback)
+    }
+
+    override fun deleteAccount(handle: String) {
+        signer.deleteSeed(context, handle)
     }
 
     private fun fail(err: Exception, callback: AccountCreatorCallback) {

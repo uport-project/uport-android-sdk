@@ -1,7 +1,9 @@
 package me.uport.sdk
 
+import android.content.Context
 import android.os.Looper
 import android.support.test.InstrumentationRegistry
+import com.uport.sdk.signer.UportHDSigner
 import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.core.Networks
 import me.uport.sdk.identity.Account
@@ -13,10 +15,14 @@ import java.util.concurrent.TimeUnit
 
 class UportTest {
 
+    lateinit var context : Context
+
     @Before
     fun run_before_every_test() {
+        context = InstrumentationRegistry.getTargetContext()
         val config = Uport.Configuration()
-                .setApplicationContext(InstrumentationRegistry.getTargetContext())
+                .setApplicationContext(context)
+
         Uport.initialize(config)
     }
 
@@ -62,6 +68,25 @@ class UportTest {
             assertEquals("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6", account.publicAddress)
             assertEquals("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6", account.deviceAddress)
             assertEquals("0x794adde0672914159c1b77dd06d047904fe96ac8", account.handle)
+        }
+    }
+
+    @Test
+    fun can_delete_account() {
+        val tested = Uport
+
+        tested.defaultAccount = null
+
+        runBlocking {
+            val account = tested.createAccount(Networks.rinkeby)
+            assertNotNull(account)
+            assertNotEquals(Account.blank, account)
+
+            val root = account.handle
+            tested.deleteAccount(root)
+
+            assertFalse(UportHDSigner().allHDRoots(context).contains(root))
+            assertNull(tested.defaultAccount)
         }
     }
 
