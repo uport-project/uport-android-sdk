@@ -6,7 +6,7 @@ buildscript {
 
         kotlin_version = '1.2.61'
         kotlin_serialization_version = '0.6.1'
-        coroutines_version = "0.23.4" // v0.24.0 has a bug with runBlocking in JUnit tests
+        coroutines_version = "0.25.0"
 
         android_tools_version = '3.3.0-alpha07'
 
@@ -33,7 +33,7 @@ buildscript {
         kethereum_version = "0.53"
         khex_version = "0.5"
 
-        uport_sdk_version = "0.1.1"
+        uport_sdk_version = "0.2.0"
     }
 
     repositories {

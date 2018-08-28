@@ -8,7 +8,7 @@ Expect breaking changes!**
 
 ### Installation
 
-This SDK is currently being distributed using [jitpack](https://jitpack.io/)
+This SDK is available through [jitpack](https://jitpack.io/)
 
 [![](https://jitpack.io/v/uport-project/uport-android-sdk.svg)](https://jitpack.io/#uport-project/uport-android-sdk)
 
@@ -25,7 +25,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.1.1"
+def uport_sdk_version = "v0.2.0"
 dependencies {
     ...
     // core SDK
@@ -52,8 +52,8 @@ override fun onCreate() {
 
 #### defaultAccount
 
-This preview version of the SDK allows creation of a single account
-that can be accessed by the nullable `defaultAccount` field in the `Uport` object.
+This preview version of the SDK has the concept of `defaultAccount` as a nullable field in the `Uport` object.
+If there is no default account when a new one is created, it becomes the default.
 
 ```kotlin
 
@@ -87,15 +87,24 @@ if (Uport.defaultAccount == null) {
 In case the app gets killed during the account creation process, the `createAccount` method will try to resume the process where it left off.
 It can be instructed to start from scratch, but that may cost additional fuel.
 
+#### Account management
+
+`Account` objects have a `handle` field that can be used to refer to them in the future.
+The handle right now is an ethereum address but it should be treated as an opaque string, as it will change in a future release.
+You should not send funds to that address.
+
 #### Ethereum interaction
 
-uPort SDK lets you create, sign, and submit Ethereum transactions on behalf of your users.
+uPort SDK lets you create, sign, and submit Ethereum transactions.
 
-This preview uses [metaTransactions](https://medium.com/uport/making-uport-smart-contracts-smarter-part-3-fixing-user-experience-with-meta-transactions-105209ed43e0) for `defaultAccount`
+This SDK preview version uses simple KeyPair accounts which require self-funding.
+There is also support for [proxy-contract accounts](https://github.com/uport-project/uport-identity)
+ and [metaTransactions](https://medium.com/uport/making-uport-smart-contracts-smarter-part-3-fixing-user-experience-with-meta-transactions-105209ed43e0)
+ but it is not used by default any more.
 
 
 ```kotlin
-//send value
+//transfer value
 val destination: String = "0x010101...."
 val amountInWei = BigInteger.valueOf(1_000_000_000)
 
@@ -123,15 +132,19 @@ val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 This library uses [kethereum](https://github.com/walleth/kethereum) for a lot of ethereum related work.
 
-The smart-contract encoding is generated using [bivrost-kotlin](https://github.com/gnosis/bivrost-kotlin)
-
-Private key management is done using [uport-android-signer](https://github.com/uport-project/uport-android-signer)
+The smart-contract binding code is generated using [bivrost-kotlin](https://github.com/gnosis/bivrost-kotlin)
 
 Currently there is a transient dependency on [spongycastle](https://rtyley.github.io/spongycastle/)
 but that may be removed when pure kotlin implementations of the required cryptographic primitives become available. 
 
 
 ### Changelog
+
+* 0.2.0
+    * add `:ethr-did` module with support for [resolving `ethr-did`s](https://github.com/uport-project/ethr-did-resolver) 
+    * move [uport-android-signer](https://github.com/uport-project/uport-android-signer) into this SDK as `:signer` module
+    * allow multiple root accounts
+    * add option to delete an account
 
 * 0.1.1
     * add option to import seeds phrases as account
