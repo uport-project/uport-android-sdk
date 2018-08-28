@@ -43,7 +43,7 @@ class FingerprintAsymmetricProtection : KeyProtection() {
     fun decrypt(context: Context, purpose: String, ciphertext: String, callback: DecryptionCallback) {
 
         try {
-            val (encryptedBytes) = unpackCiphertext(ciphertext)
+            val (_, encryptedBytes) = unpackCiphertext(ciphertext)
 
             val cipher = getWrappingCipher(Cipher.DECRYPT_MODE, alias)
 
