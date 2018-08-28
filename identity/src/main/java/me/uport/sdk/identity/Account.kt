@@ -34,7 +34,10 @@ data class Account(
         val fuelToken: String,
 
         @Json(name = "signerType")
-        val signerType: SignerType = SignerType.KeyPair
+        val signerType: SignerType = SignerType.KeyPair,
+
+        @Json(name = "isDefault")
+        val isDefault: Boolean? = false
 ) {
 
     val address : String

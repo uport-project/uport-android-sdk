@@ -1,6 +1,10 @@
 package com.uport.sdk.signer
 
 import android.os.Build
+import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.padBase64
+import me.uport.sdk.core.toBase64
+import me.uport.sdk.core.toBase64UrlSafe
 import org.kethereum.crypto.ECKeyPair
 import org.kethereum.crypto.PRIVATE_KEY_SIZE
 import org.kethereum.extensions.toBytesPadded
@@ -9,43 +13,10 @@ import org.spongycastle.asn1.ASN1EncodableVector
 import org.spongycastle.asn1.ASN1Encoding
 import org.spongycastle.asn1.ASN1Integer
 import org.spongycastle.asn1.DERSequence
-import org.spongycastle.util.encoders.Base64
 import org.walleth.khex.toNoPrefixHexString
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.util.*
-
-
-//using spongy castle implementation because the android one can't be mocked in tests
-/**
- * Creates a base64 representation of the given byteArray, without padding
- */
-fun ByteArray.toBase64(): String = Base64.toBase64String(this).replace("=", "")
-
-/**
- * Creates a base64 representation of the byteArray that backs this string, without padding
- */
-fun String.toBase64() = this.toByteArray().toBase64()
-
-/**
- * pads a base64 string with a proper number of '='
- */
-fun String.padBase64() = this.padEnd(this.length + (4 - this.length % 4) % 4, '=')
-
-fun String.toBase64UrlSafe() = this.toBase64().replace('+', '-').replace('/', '_')
-fun ByteArray.toBase64UrlSafe() = this.toBase64().replace('+', '-').replace('/', '_')
-
-fun String.decodeBase64(): ByteArray = this
-        //force non-url safe and add padding so that it can be applied to all b64 formats
-        .replace('-', '+')
-        .replace('_', '/')
-        .padBase64()
-        .let {
-            if (it.isEmpty())
-                byteArrayOf()
-            else
-                Base64.decode(it)
-        }
 
 const val SIG_COMPONENT_SIZE = PRIVATE_KEY_SIZE
 const val SIG_SIZE = SIG_COMPONENT_SIZE * 2
@@ -69,11 +40,17 @@ fun SignatureData.getJoseEncoded(recoverable: Boolean = false): String {
     return bos.toByteArray().toBase64UrlSafe()
 }
 
-fun String.decodeJose(recoveryParam: Byte = 27): SignatureData {
-    val bytes = this.decodeBase64()
-    val rBytes = Arrays.copyOfRange(bytes, 0, SIG_COMPONENT_SIZE)
-    val sBytes = Arrays.copyOfRange(bytes, SIG_COMPONENT_SIZE, SIG_SIZE)
-    val v = if (bytes.size > SIG_SIZE) bytes[SIG_SIZE] else recoveryParam
+fun String.decodeJose(recoveryParam: Byte = 27): SignatureData = this.decodeBase64().decodeJose(recoveryParam)
+
+fun ByteArray.decodeJose(recoveryParam: Byte = 27): SignatureData {
+    val rBytes = Arrays.copyOfRange(this, 0, SIG_COMPONENT_SIZE)
+    val sBytes = Arrays.copyOfRange(this, SIG_COMPONENT_SIZE, SIG_SIZE)
+    val v = if (this.size > SIG_SIZE)
+        this[SIG_SIZE].let {
+            if (it < 27) (it + 27).toByte() else it
+        }
+    else
+        recoveryParam
     return SignatureData(BigInteger(1, rBytes), BigInteger(1, sBytes), v)
 }
 

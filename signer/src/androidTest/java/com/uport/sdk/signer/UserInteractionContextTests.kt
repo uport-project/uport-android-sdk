@@ -5,6 +5,8 @@ import com.uport.sdk.signer.UportSigner.Companion.ERR_ACTIVITY_DOES_NOT_EXIST
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.testutil.ensureKeyIsImportedInTargetContext
 import com.uport.sdk.signer.testutil.ensureSeedIsImportedInTargetContext
+import me.uport.sdk.core.padBase64
+import me.uport.sdk.core.toBase64
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test

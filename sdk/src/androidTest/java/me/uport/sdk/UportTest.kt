@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 class UportTest {
 
-    lateinit var context : Context
+    lateinit var context: Context
 
     @Before
     fun run_before_every_test() {
@@ -31,7 +31,7 @@ class UportTest {
 
         val tested = Uport
 
-        tested.defaultAccount = null
+        tested.defaultAccount?.let { tested.deleteAccount(it) }
 
         runBlocking {
             val acc = tested.createAccount(Networks.rinkeby)
@@ -39,6 +39,31 @@ class UportTest {
             assertNotEquals(Account.blank, acc)
 
             assertNotNull(tested.defaultAccount)
+        }
+    }
+
+    @Test
+    fun there_can_be_only_one_default_account() {
+
+        val tested = Uport
+
+        tested.defaultAccount?.let { tested.deleteAccount(it) }
+
+        runBlocking {
+
+            val acc1 = tested.createAccount(Networks.rinkeby)
+            assertEquals(acc1, tested.defaultAccount) //first account gets to be default
+
+            assertTrue(tested.allAccounts().filter { it.isDefault == true }.size == 1)
+
+            val acc2 = tested.createAccount(Networks.rinkeby)
+            assertNotEquals(acc2, tested.defaultAccount) //default isn't overwritten
+
+            assertTrue(tested.allAccounts().filter { it.isDefault == true }.size == 1) //still one
+
+            tested.defaultAccount = acc2
+
+            assertTrue(tested.allAccounts().filter { it.isDefault == true }.size == 1) //still one
         }
     }
 
@@ -58,7 +83,7 @@ class UportTest {
         val tested = Uport
         val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
 
-        tested.defaultAccount = null
+        tested.defaultAccount?.let { tested.deleteAccount(it) }
 
         runBlocking {
             val account = tested.createAccount(Networks.rinkeby, referenceSeedPhrase)
@@ -72,10 +97,21 @@ class UportTest {
     }
 
     @Test
+    fun imported_account_can_be_retrieved() {
+        val tested = Uport
+        val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
+
+        runBlocking {
+            val account = tested.createAccount(Networks.rinkeby, referenceSeedPhrase)
+            assertEquals(account, tested.getAccount("0x794adde0672914159c1b77dd06d047904fe96ac8"))
+        }
+    }
+
+    @Test
     fun can_delete_account() {
         val tested = Uport
 
-        tested.defaultAccount = null
+        tested.defaultAccount?.let { tested.deleteAccount(it) }
 
         runBlocking {
             val account = tested.createAccount(Networks.rinkeby)

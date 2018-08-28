@@ -8,12 +8,10 @@ import android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.encryption.KeyProtectionFactory
 import com.uport.sdk.signer.encryption.SimpleAsymmetricProtection
-import org.kethereum.crypto.ECKeyPair
-import org.kethereum.crypto.PUBLIC_KEY_SIZE
-import org.kethereum.crypto.createEcKeyPair
-import org.kethereum.crypto.getAddress
-import org.kethereum.crypto.signMessage
-import org.kethereum.crypto.signMessageHash
+import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.padBase64
+import me.uport.sdk.core.toBase64
+import org.kethereum.crypto.*
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
 import org.spongycastle.jce.provider.BouncyCastleProvider
