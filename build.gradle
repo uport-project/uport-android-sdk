@@ -4,8 +4,11 @@ buildscript {
 
     ext {
 
-        kotlin_version = '1.2.51'
-        android_tools_version = "3.3.0-alpha03"
+        kotlin_version = '1.2.61'
+        kotlin_serialization_version = '0.6.1'
+        coroutines_version = "0.25.0"
+
+        android_tools_version = '3.3.0-alpha07'
 
         build_tools_version = "27.0.3"
 
@@ -13,36 +16,37 @@ buildscript {
         compile_sdk_version = 27
         target_sdk_version = compile_sdk_version
 
-        test_runner_version = "1.0.1"
+        test_runner_version = "1.0.2"
+        test_rules_version = test_runner_version
         support_lib_version = "27.1.1"
         play_services_version = "15.0.0"
-        espresso_version = "3.0.1"
+        espresso_version = "3.0.2"
         junit_version = "4.12"
-        mockito_version = "2.18.3"
-        mockito_kotlin_version = "1.5.0"
+        mockito_version = "2.19.0"
+        mockito_kotlin_version = "2.0.0-RC1"
 
-        coroutines_version = "0.22.5"
         moshi_version = "1.6.0"
         okhttp_version = "3.10.0"
 
-        bivrost_version = "v0.6.2"
+        bivrost_version = "1c0efeb7f3"//"v0.6.2"
         kmnid_version = "0.2.1"
         kethereum_version = "0.53"
         khex_version = "0.5"
 
-        uport_signer_version = "0.2.0"
-        uport_sdk_version = "0.1.1"
+        uport_sdk_version = "0.2.0"
     }
 
     repositories {
         google()
         jcenter()
         maven { url "https://jitpack.io" }
+        maven { url "https://kotlin.bintray.com/kotlinx" }
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$android_tools_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$kotlin_serialization_version"
         classpath "com.github.gnosis.bivrost-kotlin:bivrost-gradle-plugin:$bivrost_version"
     }
 }
@@ -52,6 +56,7 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
+        maven { url "https://kotlin.bintray.com/kotlinx" }
         mavenLocal()
     }
 }

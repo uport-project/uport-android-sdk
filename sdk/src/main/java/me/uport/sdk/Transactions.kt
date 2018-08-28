@@ -1,5 +1,6 @@
 package me.uport.sdk
 
+import android.content.Context
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.Signer
 import me.uport.sdk.core.signRawTx
@@ -14,6 +15,7 @@ import me.uport.sdk.jsonrpc.experimental.getGasPrice
 import me.uport.sdk.jsonrpc.experimental.getTransactionCount
 import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
 import me.uport.sdk.signer.*
+import org.kethereum.functions.encodeRLP
 import org.kethereum.model.Address
 import org.kethereum.model.Transaction
 import org.kethereum.model.createTransactionWithDefaults
@@ -23,11 +25,14 @@ import java.math.BigInteger
 val DEFAULT_GAS_LIMIT = 3_000_000L.toBigInteger()
 val DEFAULT_GAS_PRICE = 20_000_000_000L.toBigInteger()
 
+typealias TransactionsCallback = (err: Exception?, txHash: String) -> Unit
+
 class Transactions(
-        private val account: Account
-) {
+        private val context: Context,
+        private val account: Account ) {
 
     private val network = Networks.get(account.network)
+    private val progress: ProgressPersistence = ProgressPersistence(context)
 
     /**
      * A suspending function that takes in a [request] [Transaction] and constructs another [Transaction]
@@ -78,45 +83,65 @@ class Transactions(
                 gasLimit = gasLimit)
     }
 
-
-    /**
-     * sends a given transaction to the Eth network.
-     * Depending on the [signerType], the transaction may be wrapped into some other transaction
-     *
-     */
     suspend fun sendTransaction(signer: Signer, request: Transaction, signerType: SignerType = Proxy): String {
-        val unsigned = buildTransaction(request, signerType)
+        val txLabel = request.encodeRLP().toHexString()
 
-        val relaySigner = TxRelaySigner(signer, network)
-
-        val txHash = when (signerType) {
-            MetaIdentityManager -> {
-
-                val metaSigner = MetaIdentitySigner(relaySigner, account.publicAddress, account.identityManagerAddress)
-                val signedEncodedTx = metaSigner.signRawTx(unsigned)
-
-                relayMetaTransaction(signedEncodedTx)
-
-            }
-            KeyPair -> {
-                val signedEncodedTx = signer.signRawTx(unsigned)
-                relayRawTransaction(signedEncodedTx)
-            }
-            else -> {
-
-                val signedEncodedTx = relaySigner.signRawTx(unsigned)
-
-                if (signerType != KeyPair) {
-                    //fuel the device key?
-                    val refuelTxHash = maybeRefuel(signedEncodedTx)
-                    network.waitForTransactionToMine(refuelTxHash)
-                }
-
-                //relay directly to RPC node
-                relayRawTransaction(signedEncodedTx)
-            }
+        var (state, oldBundle) = if(progress.contains(txLabel)) {
+            (ProgressPersistence.PendingTransactionState.NONE to ProgressPersistence.PersistentBundle())
+        } else {
+            progress.restore(txLabel)
         }
-        return txHash
+
+        if (state == ProgressPersistence.PendingTransactionState.NONE) {
+            val unsigned = buildTransaction(request, signerType)
+            state = ProgressPersistence.PendingTransactionState.TRANSACTION_BUILT
+            oldBundle = oldBundle.copy(unsigned = unsigned, ordinal = state.ordinal)
+            progress.save(oldBundle, txLabel)
+        }
+
+        if (state == ProgressPersistence.PendingTransactionState.TRANSACTION_BUILT) {
+            val signedEncodedTx: ByteArray
+            val relaySigner = TxRelaySigner(signer, network)
+            val txHash = when (signerType) {
+                MetaIdentityManager -> {
+
+                    val metaSigner = MetaIdentitySigner(relaySigner, account.publicAddress, account.identityManagerAddress)
+                    signedEncodedTx = metaSigner.signRawTx(oldBundle.unsigned)
+
+                    relayMetaTransaction(signedEncodedTx)
+
+                }
+                KeyPair -> {
+                    signedEncodedTx = signer.signRawTx(oldBundle.unsigned)
+                    relayRawTransaction(signedEncodedTx)
+                }
+                else -> {
+
+                    signedEncodedTx = relaySigner.signRawTx(oldBundle.unsigned)
+
+                    if (signerType != KeyPair) {
+                        //fuel the device key?
+                        val refuelTxHash = maybeRefuel(signedEncodedTx)
+                        network.waitForTransactionToMine(refuelTxHash)
+                    }
+
+                    //relay directly to RPC node
+                    relayRawTransaction(signedEncodedTx)
+                }
+            }
+            state = ProgressPersistence.PendingTransactionState.TRANSACTION_SENT
+            oldBundle = oldBundle.copy(signed = signedEncodedTx, txHash = txHash, ordinal = state.ordinal)
+            progress.save(oldBundle, txLabel)
+        }
+
+        if (state == ProgressPersistence.PendingTransactionState.TRANSACTION_SENT) {
+            val blockHash = network.waitForTransactionToMine(oldBundle.txHash)
+            state = ProgressPersistence.PendingTransactionState.TRANSACTION_CONFIRMED
+            oldBundle = oldBundle.copy(blockHash = blockHash, ordinal = state.ordinal)
+            progress.save(oldBundle, txLabel)
+            return blockHash
+        }
+        return "no blockhash"
     }
 
     private suspend fun relayRawTransaction(signedEncodedTx: ByteArray): String {

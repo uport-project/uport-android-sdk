@@ -1,13 +1,13 @@
 package me.uport.sdk.extensions
 
 import android.content.Context
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
+import me.uport.sdk.core.UI
 import me.uport.sdk.identity.Account
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.experimental.getAccountBalance
@@ -20,7 +20,7 @@ import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
 
-fun Account.getBalance(callback : (err : Exception?, balance : BigInteger) -> Unit) {
+fun Account.getBalance(callback: (err: Exception?, balance: BigInteger) -> Unit) {
     val network = Networks.get(this.network)
     val rpc = JsonRPC(network.rpcUrl)
     rpc.getAccountBalance(this.deviceAddress, callback)
@@ -43,7 +43,7 @@ suspend fun Account.send(context: Context, destinationAddress: String, value: Bi
             from = Address(this.publicAddress)
     )
 
-    return Transactions(this)
+    return Transactions(context, this)
             .sendTransaction(
                     this.getSigner(context),
                     rawTransaction,
@@ -61,7 +61,7 @@ suspend fun Account.send(context: Context, contractAddress: String, data: ByteAr
             value = BigInteger.ZERO
     )
 
-    return Transactions(this)
+    return Transactions(context, this)
             .sendTransaction(
                     this.getSigner(context),
                     rawTransaction,

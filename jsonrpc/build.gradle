@@ -26,19 +26,20 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
-//    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-
-    implementation "com.github.walleth.kethereum:model:$kethereum_version"
-    implementation "com.github.walleth.kethereum:rlp:$kethereum_version"
-    implementation "com.github.walleth.kethereum:functions:$kethereum_version"
-
-    implementation project(":core")
 
     implementation "com.android.support:support-annotations:$support_lib_version"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+
+    api "com.github.walleth.kethereum:model:$kethereum_version"
+    api "com.github.walleth.kethereum:rlp:$kethereum_version"
+    api "com.github.walleth.kethereum:functions:$kethereum_version"
+
+    api project(":core")
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    testImplementation "org.mockito:mockito-inline:$mockito_version"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
 }
 
 kotlin {

@@ -3,14 +3,15 @@ package me.uport.sdk.identity
 import android.content.Context
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import me.uport.sdk.core.UI
 
 class KPAccountCreator(private val appContext: Context) : AccountCreator {
 
+    val signer = UportHDSigner()
+
     private fun createOrImportAccount(networkId: String, phrase: String?, callback: AccountCreatorCallback) {
         launch {
-            val signer = UportHDSigner()
             try {
                 val (handle, _) = if (phrase.isNullOrBlank()) {
                     signer.createHDSeed(appContext, KeyProtection.Level.SIMPLE)
@@ -46,6 +47,10 @@ class KPAccountCreator(private val appContext: Context) : AccountCreator {
 
     override fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
         createOrImportAccount(networkId, seedPhrase, callback)
+    }
+
+    override fun deleteAccount(handle: String) {
+        signer.deleteSeed(appContext, handle)
     }
 
 }

@@ -1,5 +1,5 @@
 {
-  "contract_name": "TxRelay",
+  "contractName": "TxRelay",
   "abi": [
     {
       "constant": true,

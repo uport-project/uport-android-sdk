@@ -4,25 +4,50 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import kotlinx.coroutines.experimental.android.UI
+import android.support.annotation.VisibleForTesting
+import android.support.annotation.VisibleForTesting.PRIVATE
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.UI
 import me.uport.sdk.identity.*
 import kotlin.coroutines.experimental.suspendCoroutine
 
+@SuppressLint("StaticFieldLeak")
 object Uport {
 
     private var initialized = false
 
-    @SuppressLint("StaticFieldLeak")
     private lateinit var config: Configuration
+
     private lateinit var prefs: SharedPreferences
 
-    var defaultAccount: Account? = null
+    private lateinit var accountCreator: AccountCreator
+
+    private var defaultAccountHandle = ""
+
+    var defaultAccount: Account?
+        get() = accountStorage?.get(defaultAccountHandle)
+        set(value) {
+            val newDefault = value?.copy(isDefault = true)
+            @Suppress("LiftReturnOrAssignment")
+            if (newDefault == null) {
+                accountStorage?.delete(defaultAccountHandle)
+                defaultAccountHandle = ""
+            } else {
+                val oldAccounts = accountStorage
+                        ?.all()
+                        ?.map { it.copy(isDefault = false) }
+                        ?: emptyList()
+                accountStorage?.upsertAll(oldAccounts + newDefault)
+                defaultAccountHandle = newDefault.handle
+            }
+        }
+
+    private var accountStorage: AccountStorage? = null
 
     private const val UPORT_CONFIG: String = "uport_sdk_prefs"
 
-    private const val DEFAULT_ACCOUNT: String = "default_account"
+    private const val OLD_DEFAULT_ACCOUNT: String = "default_account"
 
     /**
      * Initialize the Uport SDK.
@@ -36,10 +61,25 @@ object Uport {
         this.config = configuration
 
         val context = config.applicationContext
+
+        accountCreator = KPAccountCreator(context)
+
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
-        val serializedAccount = prefs.getString(DEFAULT_ACCOUNT, "")
-        defaultAccount = Account.fromJson(serializedAccount)
+        accountStorage = SharedPrefsAcountStorage(prefs).apply {
+            this.all().forEach {
+                if (it.isDefault == true) {
+                    defaultAccountHandle = it.handle
+                }
+            }
+        }
+
+        prefs.getString(OLD_DEFAULT_ACCOUNT, "")
+                ?.let { Account.fromJson(it) }
+                ?.let {
+                    accountStorage?.upsert(it.copy(isDefault = true))
+                    prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
+                }
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
         initialized = true
@@ -90,33 +130,39 @@ object Uport {
             throw UportNotInitializedException()
         }
 
-        //FIXME: single account limitation should disappear in future versions
-        if (defaultAccount != null) {
-            launch(UI) { completion(null, defaultAccount!!) }
-            return
-        }
-
         launch {
             try {
-                val creator = KPAccountCreator(config.applicationContext)
                 val acc = if (seedPhrase.isNullOrBlank()) {
-                    creator.createAccount(networkId)
+                    accountCreator.createAccount(networkId)
                 } else {
-                    creator.importAccount(networkId, seedPhrase!!)
+                    accountCreator.importAccount(networkId, seedPhrase!!)
                 }
-                prefs.edit().putString(DEFAULT_ACCOUNT, acc.toJson()).apply()
+                accountStorage?.upsert(acc)
                 defaultAccount = defaultAccount ?: acc
 
-                launch(UI) { completion(null, acc) }
+                launch(UI) { completion(null, if (acc.handle == defaultAccount?.handle) defaultAccount!! else acc) }
             } catch (err: Exception) {
                 launch(UI) { completion(err, Account.blank) }
             }
         }
     }
 
-    fun deleteAccount() {
-        TODO("not implemented")
+    fun getAccount(handle: String) = accountStorage?.get(handle)
+
+    fun allAccounts() = accountStorage?.all() ?: emptyList()
+
+    fun deleteAccount(rootHandle: String) {
+        if (!initialized) {
+            throw UportNotInitializedException()
+        }
+
+        accountCreator.deleteAccount(rootHandle)
+        if (rootHandle == defaultAccount?.handle) {
+            defaultAccount = null
+        }
     }
+
+    fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
 
     class Configuration {
 
