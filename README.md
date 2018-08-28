@@ -25,7 +25,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.2.0"
+def uport_sdk_version = "v0.2.1"
 dependencies {
     ...
     // core SDK
@@ -139,6 +139,9 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 
 ### Changelog
+
+* 0.2.1
+    * bugfix: crash when decrypting fingerprint protected seed
 
 * 0.2.0
     * add `:ethr-did` module with support for [resolving `ethr-did`s](https://github.com/uport-project/ethr-did-resolver) 
