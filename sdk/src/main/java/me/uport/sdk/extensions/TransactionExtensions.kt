@@ -10,21 +10,12 @@ import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.identity.Account
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.experimental.getAccountBalance
-import me.uport.sdk.jsonrpc.experimental.getTransactionByHash
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
 import org.kethereum.model.Address
 import org.kethereum.model.createTransactionWithDefaults
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
-
-
-fun Account.getBalance(callback: (err: Exception?, balance: BigInteger) -> Unit) {
-    val network = Networks.get(this.network)
-    val rpc = JsonRPC(network.rpcUrl)
-    rpc.getAccountBalance(this.deviceAddress, callback)
-}
 
 suspend fun Account.getBalance(): BigInteger {
     val network = Networks.get(this.network)
@@ -112,11 +103,9 @@ suspend fun EthNetwork.waitForTransactionToMine(txHash: String): String {
     return minedAtBlockHash.toHexStringNoPrefix().prepend0xPrefix()
 }
 
-fun EthNetwork.awaitConfirmation(txHash: String, callback: (err: Exception?, txReceipt: JsonRPC.TransactionReceipt) -> Unit) = launch {
-
+suspend fun EthNetwork.awaitConfirmation(txHash: String): JsonRPC.TransactionReceipt {
     waitForTransactionToMine(txHash)
-
-    JsonRPC(rpcUrl).getTransactionReceipt(txHash, callback)
+    return JsonRPC(rpcUrl).getTransactionReceipt(txHash)
 }
 
 private const val POLLING_DELAY_DEFAULT: Long = 5 * 1000L

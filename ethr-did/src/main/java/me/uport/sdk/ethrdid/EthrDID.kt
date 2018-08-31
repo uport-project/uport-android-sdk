@@ -1,14 +1,9 @@
 package me.uport.sdk.ethrdid
 
 import me.uport.sdk.core.Signer
-import me.uport.sdk.core.signRawTx
 import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
-import me.uport.sdk.jsonrpc.experimental.ethCall
-import me.uport.sdk.jsonrpc.experimental.getGasPrice
-import me.uport.sdk.jsonrpc.experimental.getTransactionCount
-import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
 import org.kethereum.model.createTransactionWithDefaults

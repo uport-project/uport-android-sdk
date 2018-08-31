@@ -1,8 +1,8 @@
 package me.uport.sdk.signer
 
 import me.uport.sdk.TxRelay
-import me.uport.sdk.core.experimental.urlPost
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.urlPost
 import me.uport.sdk.jsonrpc.EthCall
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import org.kethereum.extensions.hexToBigInteger

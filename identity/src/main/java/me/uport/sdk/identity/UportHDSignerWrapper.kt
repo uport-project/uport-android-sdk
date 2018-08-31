@@ -16,17 +16,14 @@ class UportHDSignerWrapper(
         private val deviceAddress: String
 ) : Signer {
 
-    override fun signMessage(
-            rawMessage: ByteArray,
-            callback: (err: Exception?, sigData: SignatureData) -> Unit) {
+    override suspend fun signMessage(rawMessage: ByteArray): SignatureData {
 
         return uportHDSigner.signTransaction(
                 context, //FIXME: Not cool hiding the context like this... may lead to leaks
                 rootAddress,
                 Account.GENERIC_DEVICE_KEY_DERIVATION_PATH,
                 Base64.encodeToString(rawMessage, Base64.DEFAULT),
-                "",
-                callback)
+                "")
     }
 
     /**

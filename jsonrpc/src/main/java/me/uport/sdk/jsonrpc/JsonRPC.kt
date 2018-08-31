@@ -28,7 +28,7 @@ class JsonRPC(private val rpcUrl: String) {
      * performs an eth_call
      * the result is returned as raw string and has to be parsed into a Json that can make sense of the expected result
      */
-    fun ethCall(address: String, data: String, callback: (err: Exception?, rawResult: String) -> Unit) {
+    suspend fun ethCall(address: String, data: String): String {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_call",
                 params = listOf(
@@ -37,7 +37,7 @@ class JsonRPC(private val rpcUrl: String) {
                         "latest")
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest, null, callback)
+        return urlPost(rpcUrl, payloadRequest, null)
     }
 
 
@@ -45,7 +45,7 @@ class JsonRPC(private val rpcUrl: String) {
 // eth_getLogs
 //=============================
 
-    fun getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger, callback: (err: Exception?, logs: List<JsonRpcLogItem>) -> Unit) {
+    suspend fun getLogs(address: String, topics: List<Any?> = emptyList(), fromBlock: BigInteger, toBlock: BigInteger): List<JsonRpcLogItem>{
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_getLogs",
                 params = listOf(
@@ -58,22 +58,15 @@ class JsonRPC(private val rpcUrl: String) {
                 )
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest, null) { err, rawResult ->
-            if (err != null) {
-                return@urlPost callback(err, emptyList())
-            }
-            val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-            if (parsedResponse.error != null) {
-                return@urlPost callback(parsedResponse.error.toException(), emptyList())
-            }
-            val logItemsRaw = parsedResponse.result.toString()
-            val type: ParameterizedType = Types.newParameterizedType(List::class.java, JsonRpcLogItem::class.java)
-            val jsonAdapter: JsonAdapter<List<JsonRpcLogItem>> = moshi.adapter(type)
-            val logs = jsonAdapter.lenient().fromJson(logItemsRaw) ?: emptyList()
-            return@urlPost callback(null, logs)
-
-
+        val rawResult = urlPost(rpcUrl, payloadRequest, null)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+        if (parsedResponse.error != null) {
+            throw parsedResponse.error.toException()
         }
+        val logItemsRaw = parsedResponse.result.toString()
+        val type: ParameterizedType = Types.newParameterizedType(List::class.java, JsonRpcLogItem::class.java)
+        val jsonAdapter: JsonAdapter<List<JsonRpcLogItem>> = moshi.adapter(type)
+        return jsonAdapter.lenient().fromJson(logItemsRaw) ?: emptyList()
     }
 
 //=============================
@@ -83,23 +76,18 @@ class JsonRPC(private val rpcUrl: String) {
     /**
      * calls back with the gas price in Wei or an error if one occurred
      */
-    fun getGasPrice(callback: (err: Exception?, nonce: BigInteger) -> Unit) {
+    suspend fun getGasPrice(): BigInteger {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_gasPrice",
                 params = emptyList()
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest) { err, rawResult ->
-            if (err != null) {
-                return@urlPost callback(err, BigInteger.ZERO)
-            }
-            val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-            if (parsedResponse.error != null) {
-                return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
-            }
-            val priceInWei = parsedResponse.result.toString().hexToBigInteger()
-            return@urlPost callback(null, priceInWei)
+        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+        if (parsedResponse.error != null) {
+            throw parsedResponse.error.toException()
         }
+        return parsedResponse.result.toString().hexToBigInteger()
     }
 
 
@@ -113,23 +101,18 @@ class JsonRPC(private val rpcUrl: String) {
      *
      * FIXME: account for pending transactions
      */
-    fun getTransactionCount(address: String, callback: (err: Exception?, count: BigInteger) -> Unit) {
+    suspend fun getTransactionCount(address: String): BigInteger {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_getTransactionCount",
                 params = listOf(address, "latest")
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest) { err, rawResult ->
-            if (err != null) {
-                return@urlPost callback(err, BigInteger.ZERO)
-            }
-            val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-            if (parsedResponse.error != null) {
-                return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
-            }
-            val count = parsedResponse.result.toString().hexToBigInteger()
-            return@urlPost callback(null, count)
+        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+        if (parsedResponse.error != null) {
+            throw parsedResponse.error.toException()
         }
+        return parsedResponse.result.toString().hexToBigInteger()
     }
 
 
@@ -141,23 +124,18 @@ class JsonRPC(private val rpcUrl: String) {
      * Calls back with the number of transactions made from the given address.
      * The number is usable as `nonce` (since nonce is zero indexed)
      */
-    fun getAccountBalance(address: String, callback: (err: Exception?, count: BigInteger) -> Unit) {
+    suspend fun getAccountBalance(address: String): BigInteger {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_getBalance",
                 params = listOf(address, "latest")
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest) { err, rawResult ->
-            if (err != null) {
-                return@urlPost callback(err, BigInteger.ZERO)
-            }
-            val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-            if (parsedResponse.error != null) {
-                return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
-            }
-            val balanceInWei = parsedResponse.result.toString().hexToBigInteger()
-            return@urlPost callback(null, balanceInWei)
+        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+        if (parsedResponse.error != null) {
+            throw parsedResponse.error.toException()
         }
+        return parsedResponse.result.toString().hexToBigInteger()
     }
 
 
@@ -206,27 +184,19 @@ class JsonRPC(private val rpcUrl: String) {
             val status: String? = "0x0"
     )
 
-    fun getTransactionReceipt(txHash: String, callback: (err: Exception?, receipt: TransactionReceipt) -> Unit) {
+    suspend fun getTransactionReceipt(txHash: String): TransactionReceipt {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_getTransactionReceipt",
                 params = arrayListOf(txHash)
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest) { err, rawResult ->
-            if (err != null) {
-                return@urlPost callback(err, TransactionReceipt())
-            }
-            val parsedResponse = JsonRpcReceiptResponse.fromJson(rawResult)
-            if (parsedResponse?.error != null) {
-                return@urlPost callback(parsedResponse.error.toException(), TransactionReceipt(transactionHash = txHash))
-            }
-
-            if (parsedResponse?.result != null) {
-                return@urlPost callback(null, parsedResponse.result)
-            } else {
-                return@urlPost callback(TransactionNotFound(txHash), TransactionReceipt(transactionHash = txHash))
-            }
+        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val parsedResponse = JsonRpcReceiptResponse.fromJson(rawResult)
+        if (parsedResponse?.error != null) {
+            throw parsedResponse.error.toException()
         }
+
+        return parsedResponse?.result ?: throw TransactionNotFound(txHash)
     }
 
 
@@ -245,24 +215,18 @@ class JsonRPC(private val rpcUrl: String) {
         }
     }
 
-    fun getTransactionByHash(txHash: String, callback: (err: Exception?, receipt: TransactionInformation) -> Unit) {
+    suspend fun getTransactionByHash(txHash: String): TransactionInformation {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_getTransactionByHash",
                 params = arrayListOf(txHash)
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest) { err, rawResult ->
-            if (err != null) {
-                return@urlPost callback(err, TransactionInformation())
-            }
-
-            val parsedResponse = JsonRpcTxByHashResponse.fromJson(rawResult)
-
-            if (parsedResponse?.result != null) {
-                return@urlPost callback(null, parsedResponse.result)
-            } else {
-                return@urlPost callback(TransactionNotFound(txHash), TransactionInformation(txHash = txHash))
-            }
+        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val parsedResponse = JsonRpcTxByHashResponse.fromJson(rawResult)
+        if (parsedResponse?.result != null) {
+            return parsedResponse.result
+        } else {
+            throw TransactionNotFound(txHash)
         }
     }
 
@@ -306,35 +270,23 @@ class JsonRPC(private val rpcUrl: String) {
 //eth_sendRawTransaction
 //=============================
 
-    fun sendRawTransaction(
-            transaction: Transaction,
-            signature: SignatureData,
-            callback: (err: Exception?, txHash: String) -> Unit) {
-
-        return sendRawTransaction(transaction.encodeRLP(signature).toHexString(), callback)
+    suspend fun sendRawTransaction(transaction: Transaction, signature: SignatureData): String {
+        return sendRawTransaction(transaction.encodeRLP(signature).toHexString())
     }
 
-    fun sendRawTransaction(
-            signedTx: String,
-            callback: (err: Exception?, txHash: String) -> Unit) {
+    suspend fun sendRawTransaction(signedTx: String): String {
 
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_sendRawTransaction",
                 params = listOf(signedTx)
         ).toJson()
 
-        urlPost(rpcUrl, payloadRequest) { err, rawResult ->
-            if (err != null) {
-                return@urlPost callback(err, "")
-            }
-
-            val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-            if (parsedResponse.error != null) {
-                return@urlPost callback(parsedResponse.error.toException(), "")
-            } else {
-                val txHash = parsedResponse.result.toString()
-                return@urlPost callback(null, txHash)
-            }
+        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+        if (parsedResponse.error != null) {
+            throw parsedResponse.error.toException()
+        } else {
+            return parsedResponse.result.toString()
         }
     }
 

@@ -10,6 +10,9 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import com.uport.sdk.signer.hasMarshmallow
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
+import kotlin.coroutines.experimental.suspendCoroutine
 
 class KeyguardLaunchFragment : Fragment() {
 
@@ -90,17 +93,24 @@ class KeyguardLaunchFragment : Fragment() {
         private const val TAG_KEYGUARD_FRAGMENT: String = "keyguard_fragment"
         private const val REQUEST_CODE_KEYGUARD: Int = 19867
 
-        fun show(fragManager: FragmentManager, purpose: String, callback: KeyguardCallback) {
-
-            //cleanup..
-            val headlessFragment = fragManager.findFragmentByTag(TAG_KEYGUARD_FRAGMENT) as KeyguardLaunchFragment?
-            if (headlessFragment != null) {
-                fragManager.beginTransaction().remove(headlessFragment).commitAllowingStateLoss()
+        suspend fun show(fragManager: FragmentManager, purpose: String): Boolean = suspendCoroutine { coroutineContext ->
+            val callback = object: KeyguardCallback {
+                override fun onKeyguardResult(unlocked: Boolean) {
+                    coroutineContext.resume(unlocked)
+                }
             }
 
-            val fragment = KeyguardLaunchFragment()
-            fragment.init(purpose, callback)
-            fragManager.beginTransaction().add(fragment, TAG_KEYGUARD_FRAGMENT).commit()
+            launch(UI) {
+                //cleanup..
+                val headlessFragment = fragManager.findFragmentByTag(TAG_KEYGUARD_FRAGMENT) as KeyguardLaunchFragment?
+                if (headlessFragment != null) {
+                    fragManager.beginTransaction().remove(headlessFragment).commitAllowingStateLoss()
+                }
+
+                val fragment = KeyguardLaunchFragment()
+                fragment.init(purpose, callback)
+                fragManager.beginTransaction().add(fragment, TAG_KEYGUARD_FRAGMENT).commit()
+            }
         }
 
 

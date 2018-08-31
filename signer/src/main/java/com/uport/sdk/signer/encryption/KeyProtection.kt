@@ -6,14 +6,13 @@ import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Context
 import android.hardware.fingerprint.FingerprintManager
-import com.uport.sdk.signer.DecryptionCallback
-import com.uport.sdk.signer.EncryptionCallback
 import com.uport.sdk.signer.encryption.AndroidKeyStoreHelper.getWrappingCipher
 import com.uport.sdk.signer.hasMarshmallow
 import com.uport.sdk.signer.packCiphertext
 import com.uport.sdk.signer.unpackCiphertext
 import javax.crypto.BadPaddingException
-import javax.crypto.Cipher.*
+import javax.crypto.Cipher.DECRYPT_MODE
+import javax.crypto.Cipher.ENCRYPT_MODE
 import javax.crypto.IllegalBlockSizeException
 
 
@@ -45,8 +44,8 @@ abstract class KeyProtection {
     }
 
     abstract fun genKey(context: Context)
-    abstract fun encrypt(context: Context, purpose: String = "", blob: ByteArray, callback: EncryptionCallback)
-    abstract fun decrypt(context: Context, purpose: String = "", ciphertext: String, callback: DecryptionCallback)
+    abstract suspend fun encrypt(context: Context, purpose: String = "", blob: ByteArray): String
+    abstract suspend fun decrypt(context: Context, purpose: String = "", ciphertext: String): ByteArray
 
     abstract val alias: String
 

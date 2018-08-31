@@ -35,15 +35,18 @@ class UportHDSigner : UportSigner() {
      * Creates a 128 bit seed and stores it at the [level] encryption level.
      * Calls back with the seed handle ([rootAddress]) and the Base64 encoded
      * [pubKey] corresponding to it, or a non-null [err] if something broke
+     *
+     * @return Returns a Pair with the first value being the address, and the second being the
+     * public key.
      */
-    fun createHDSeed(context: Context, level: KeyProtection.Level, callback: (err: Exception?, rootAddress: String, pubKey: String) -> Unit) {
+    suspend fun createHDSeed(context: Context, level: KeyProtection.Level): Pair<String, String> {
 
         val entropyBuffer = ByteArray(128 / 8)
         SecureRandom().nextBytes(entropyBuffer)
 
         val seedPhrase = Mnemonic.entropyToMnemonic(entropyBuffer)
 
-        return importHDSeed(context, level, seedPhrase, callback)
+        return importHDSeed(context, level, seedPhrase)
 
     }
 
@@ -56,42 +59,31 @@ class UportHDSigner : UportSigner() {
      *
      * Then calls back with the derived 0x `rootAddress` and base64 encoded `public Key`
      * or a non-null err in case something goes wrong
+     *
+     * @return Returns a pair being the address and the public key
      */
-    fun importHDSeed(context: Context, level: KeyProtection.Level, phrase: String, callback: (err: Exception?, address: String, pubKey: String) -> Unit) {
+    suspend fun importHDSeed(context: Context, level: KeyProtection.Level, phrase: String): Pair<String, String> {
+        val seedBuffer = Mnemonic.mnemonicToSeed(phrase)
 
-        try {
-            val seedBuffer = Mnemonic.mnemonicToSeed(phrase)
+        val entropyBuffer = Mnemonic.mnemonicToEntropy(phrase)
 
-            val entropyBuffer = Mnemonic.mnemonicToEntropy(phrase)
+        val extendedRootKey = generateKey(seedBuffer, UPORT_ROOT_DERIVATION_PATH)
 
-            val extendedRootKey = generateKey(seedBuffer, UPORT_ROOT_DERIVATION_PATH)
+        val keyPair = extendedRootKey.keyPair
 
-            val keyPair = extendedRootKey.keyPair
+        val publicKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
+        val publicKeyString = publicKeyBytes.toBase64().padBase64()
+        val address: String = keyPair.getAddress().prepend0xPrefix()
 
-            val publicKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
-            val publicKeyString = publicKeyBytes.toBase64().padBase64()
-            val address: String = keyPair.getAddress().prepend0xPrefix()
+        val label = asSeedLabel(address)
 
-            val label = asSeedLabel(address)
+        // Store the payload
+        storeEncryptedPayload(context, level, label, entropyBuffer)
 
-            storeEncryptedPayload(context,
-                    level,
-                    label,
-                    entropyBuffer
-            ) { err, _ ->
+        // Empty memory
+        entropyBuffer.fill(0)
 
-                //empty memory
-                entropyBuffer.fill(0)
-
-                if (err != null) {
-                    return@storeEncryptedPayload callback(err, "", "")
-                }
-
-                return@storeEncryptedPayload callback(null, address, publicKeyString)
-            }
-        } catch (ex: Exception) {
-            return callback(ex, "", "")
-        }
+        return Pair(address, publicKeyString)
     }
 
     /**
@@ -125,40 +117,21 @@ class UportHDSigner : UportSigner() {
      * @param callback (error, signature) called after the transaction has been signed successfully or
      * with an error and empty data when it fails
      */
-    fun signTransaction(context: Context, rootAddress: String, derivationPath: String, txPayload: String, prompt: String, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
+    suspend fun signTransaction(context: Context, rootAddress: String, derivationPath: String, txPayload: String, prompt: String): SignatureData {
+        val (encryptionLayer, encryptedEntropy) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
 
-        val (encryptionLayer, encryptedEntropy, storageError) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
+        val entropyBuff = encryptionLayer.decrypt(context, prompt, encryptedEntropy)
 
-        if (storageError != null) {
-            //storage error is also thrown if the root seed does not exist
-            return callback(storageError, EMPTY_SIGNATURE_DATA)
-        }
+        val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
+        val seed = Mnemonic.mnemonicToSeed(phrase)
+        val extendedKey = generateKey(seed, derivationPath)
 
-        encryptionLayer.decrypt(context, prompt, encryptedEntropy) { err, entropyBuff ->
+        val keyPair = extendedKey.keyPair
 
-            if (err != null) {
-                return@decrypt callback(err, EMPTY_SIGNATURE_DATA)
-            }
+        val txBytes = txPayload.decodeBase64()
 
-            try {
-
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
-                val seed = Mnemonic.mnemonicToSeed(phrase)
-                val extendedKey = generateKey(seed, derivationPath)
-
-                val keyPair = extendedKey.keyPair
-
-                val txBytes = txPayload.decodeBase64()
-
-                val sigData = keyPair.signMessage(txBytes)
-                return@decrypt callback(null, sigData)
-
-            } catch (exception: Exception) {
-                return@decrypt callback(exception, EMPTY_SIGNATURE_DATA)
-            }
-
-        }
-
+        val sigData = keyPair.signMessage(txBytes)
+        return sigData
     }
 
     /**
@@ -178,34 +151,17 @@ class UportHDSigner : UportSigner() {
      * @param callback (error, signature) called after the transaction has been signed successfully or
      * with an error and empty data when it fails
      */
-    fun signJwtBundle(context: Context, rootAddress: String, derivationPath: String, data: String, prompt: String, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
+    suspend fun signJwtBundle(context: Context, rootAddress: String, derivationPath: String, data: String, prompt: String): SignatureData {
+        val (encryptionLayer, encryptedEntropy) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
+        val entropyBuff = encryptionLayer.decrypt(context, prompt, encryptedEntropy)
+        val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
+        val seed = Mnemonic.mnemonicToSeed(phrase)
+        val extendedKey = generateKey(seed, derivationPath)
 
-        val (encryptionLayer, encryptedEntropy, storageError) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
+        val keyPair = extendedKey.keyPair
 
-        if (storageError != null) {
-            return callback(storageError, SignatureData())
-        }
-
-        encryptionLayer.decrypt(context, prompt, encryptedEntropy) { err, entropyBuff ->
-            if (err != null) {
-                return@decrypt callback(err, SignatureData())
-            }
-
-            try {
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
-                val seed = Mnemonic.mnemonicToSeed(phrase)
-                val extendedKey = generateKey(seed, derivationPath)
-
-                val keyPair = extendedKey.keyPair
-
-                val payloadBytes = data.decodeBase64()
-                val sig = signJwt(payloadBytes, keyPair)
-
-                return@decrypt callback(null, sig)
-            } catch (exception: Exception) {
-                return@decrypt callback(err, SignatureData())
-            }
-        }
+        val payloadBytes = data.decodeBase64()
+        return signJwt(payloadBytes, keyPair)
     }
 
     /**
@@ -215,39 +171,26 @@ class UportHDSigner : UportSigner() {
      * The respective seed must have been previously generated or imported.
      *
      * The results are passed back to the calling code using the provided [callback]
+     *
+     * @return Returns a Pair containing the address and the public key
      */
-    fun computeAddressForPath(context: Context, rootAddress: String, derivationPath: String, prompt: String, callback: (err: Exception?, address: String, pubKey: String) -> Unit) {
+    suspend fun computeAddressForPath(context: Context, rootAddress: String, derivationPath: String, prompt: String): Pair<String, String> {
 
-        val (encryptionLayer, encryptedEntropy, storageError) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
+        val (encryptionLayer, encryptedEntropy) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
 
-        if (storageError != null) {
-            return callback(storageError, "", "")
-        }
+        val entropyBuff = encryptionLayer.decrypt(context, prompt, encryptedEntropy)
 
-        encryptionLayer.decrypt(context, prompt, encryptedEntropy) { err, entropyBuff ->
-            if (err != null) {
-                return@decrypt callback(storageError, "", "")
-            }
+        val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
+        val seed = Mnemonic.mnemonicToSeed(phrase)
+        val extendedKey = generateKey(seed, derivationPath)
 
-            try {
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
-                val seed = Mnemonic.mnemonicToSeed(phrase)
-                val extendedKey = generateKey(seed, derivationPath)
+        val keyPair = extendedKey.keyPair
 
-                val keyPair = extendedKey.keyPair
+        val publicKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
+        val publicKeyString = publicKeyBytes.toBase64().padBase64()
+        val address: String = keyPair.getAddress().prepend0xPrefix()
 
-                val publicKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
-                val publicKeyString = publicKeyBytes.toBase64().padBase64()
-                val address: String = keyPair.getAddress().prepend0xPrefix()
-
-                return@decrypt callback(null, address, publicKeyString)
-
-            } catch (exception: Exception) {
-                return@decrypt callback(err, "", "")
-            }
-        }
-
-
+        return Pair(address, publicKeyString)
     }
 
     /**
@@ -256,27 +199,14 @@ class UportHDSigner : UportSigner() {
      * The respective seed must have been previously generated or imported.
      *
      * The result is passed back to the calling code using the provided [callback]
+     * @return Returns the seed
      */
-    fun showHDSeed(context: Context, rootAddress: String, prompt: String, callback: (err: Exception?, phrase: String) -> Unit) {
+    suspend fun showHDSeed(context: Context, rootAddress: String, prompt: String): String {
 
-        val (encryptionLayer, encryptedEntropy, storageError) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
-
-        if (storageError != null) {
-            return callback(storageError, "")
-        }
-
-        encryptionLayer.decrypt(context, prompt, encryptedEntropy) { err, entropyBuff ->
-            if (err != null) {
-                return@decrypt callback(err, "")
-            }
-
-            try {
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
-                return@decrypt callback(null, phrase)
-            } catch (exception: Exception) {
-                return@decrypt callback(err, "")
-            }
-        }
+        val (encryptionLayer, encryptedEntropy) = getEncryptionForLabel(context, asSeedLabel(rootAddress))
+        val entropyBuff = encryptionLayer.decrypt(context, prompt, encryptedEntropy)
+        val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
+        return phrase
     }
 
     /**

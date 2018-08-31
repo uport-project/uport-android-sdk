@@ -3,7 +3,6 @@ package me.uport.sdk
 import android.content.Context
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.Signer
-import me.uport.sdk.core.signRawTx
 import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
 import me.uport.sdk.identity.Account
@@ -11,9 +10,6 @@ import me.uport.sdk.identity.SignerType
 import me.uport.sdk.identity.SignerType.*
 import me.uport.sdk.identity.SignerType.MetaIdentityManager
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.experimental.getGasPrice
-import me.uport.sdk.jsonrpc.experimental.getTransactionCount
-import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
 import me.uport.sdk.signer.*
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.Address

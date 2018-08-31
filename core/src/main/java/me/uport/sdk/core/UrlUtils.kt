@@ -2,6 +2,7 @@ package me.uport.sdk.core
 
 import okhttp3.*
 import java.io.IOException
+import kotlin.coroutines.experimental.suspendCoroutine
 
 val okClient by lazy { OkHttpClient() }
 
@@ -32,7 +33,7 @@ fun urlPostSync(url: String, jsonBody: String): String {
  *
  * Calls back with IOException if the request could not be executed due to cancellation, disconnect or timeout
  */
-fun urlPost(url: String, jsonBody: String, authToken: String? = null, callback: (err: Exception?, payload: String) -> Unit) {
+suspend fun urlPost(url: String, jsonBody: String, authToken: String? = null): String {
     val contentType = MediaType.parse("application/json")
 
     val body = RequestBody.create(contentType, jsonBody)
@@ -46,23 +47,25 @@ fun urlPost(url: String, jsonBody: String, authToken: String? = null, callback: 
         post(body)
     }.build()
 
-    okClient.newCall(request).enqueue(object : Callback {
-        override fun onResponse(call: Call?, response: Response?) {
-            if (response?.isSuccessful == true) {
-                val payload = response.body()?.use {
-                    it.string()
-                } ?: ""
-                callback(null, payload)
-            } else {
-                val code = response?.code()
-                callback(IOException("server responded with HTTP $code"), "")
+    return suspendCoroutine { continuation ->
+        okClient.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call?, response: Response?) {
+                if (response?.isSuccessful == true) {
+                    val payload = response.body()?.use { it.string() } ?: ""
+                    continuation.resume(payload)
+                } else {
+                    val code = response?.code()
+                    continuation.resumeWithException(IOException("server responded with HTTP $code"))
+                }
             }
-        }
 
-        override fun onFailure(call: Call?, err: IOException?) {
-            callback(err, "")
-        }
-    })
+            override fun onFailure(call: Call?, err: IOException?) {
+                err?.let { continuation.resumeWithException(err) }
+            }
+        })
+    }
+
+
 }
 
 fun urlGetSync(url: String): String {

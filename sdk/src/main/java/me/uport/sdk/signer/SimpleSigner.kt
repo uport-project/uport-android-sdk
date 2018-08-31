@@ -11,16 +11,9 @@ class SimpleSigner(private val privateKey: String) : Signer {
 
     override fun getAddress() = ECKeyPair.create(privateKey.hexToBigInteger()).getAddress()
 
-    override fun signMessage(rawMessage: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
-
-        try {
-            val keyPair = ECKeyPair.create(privateKey.hexToBigInteger())
-            val sigData = keyPair.signMessage(rawMessage)
-            callback(null, sigData)
-        } catch (ex: Exception) {
-            callback(ex, SignatureData())
-        }
-
+    override suspend fun signMessage(rawMessage: ByteArray): SignatureData {
+        val keyPair = ECKeyPair.create(privateKey.hexToBigInteger())
+        return keyPair.signMessage(rawMessage)
     }
 
 }

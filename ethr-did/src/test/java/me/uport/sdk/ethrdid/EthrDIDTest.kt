@@ -2,14 +2,16 @@
 
 package me.uport.sdk.ethrdid
 
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.DEFAULT_GAS_PRICE
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.signer.SimpleSigner
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyString
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
@@ -33,7 +35,7 @@ class EthrDIDTest {
 
         val rpc = mock<JsonRPC>()
 
-        whenever(rpc.ethCall(any(), any(), any())).then {
+        whenever(runBlocking { rpc.ethCall(any(), any()) }).then {
             //callback with an address for lookupOwner
             (it.arguments.last() as CBI).invoke(null, "{\"result\":\"0x0000000000000000000000001122334455667788990011223344556677889900\"}")
         }
@@ -55,17 +57,17 @@ class EthrDIDTest {
 
             val rpc = mock<JsonRPC>()
 
-            whenever(rpc.getTransactionCount(any(), any())).then {
+            whenever(rpc.getTransactionCount(any())).then {
                 (it.arguments.last() as CBI).invoke(null, BigInteger.ZERO)
             }
-            whenever(rpc.getGasPrice(any())).then {
+            whenever(rpc.getGasPrice()).then {
                 (it.arguments.last() as CBI).invoke(null, DEFAULT_GAS_PRICE)
             }
-            whenever(rpc.ethCall(any(), any(), any())).then {
+            whenever(rpc.ethCall(any(), any())).then {
                 //callback with an address for lookupOwner
                 (it.arguments.last() as CBI).invoke(null, "{\"result\":\"0x0000000000000000000000001122334455667788990011223344556677889900\"}")
             }
-            whenever(rpc.sendRawTransaction(anyString(), any())).then {
+            whenever(rpc.sendRawTransaction(any())).then {
                 (it.arguments.last() as CBI).invoke(null, "mockedTxHash")
             }
 
@@ -77,7 +79,8 @@ class EthrDIDTest {
 
             val expectedSignedTx = "0xf8aa808504a817c8008301117094dca7ef03e98e0dc2b855be647c39abe984fcf21b80b844f00d4b5d000000000000000000000000f3beac30c498d9e26865f34fcaa57dbb935b0d7400000000000000000000000045c4ebd7ffb86891ba6f9f68452f9f0815aacd8b1ca0eb687cc4a323d4c3471d01d3a0d3d212754539fa9d2f6973acc0f1de275f53e9a0257684845b8d3d5e0c0838c5da007ddc7a0df08722fba53866601821f0aceff4"
 
-            verify(rpc).sendRawTransaction(eq(expectedSignedTx), any())
+            val signedTransaction = verify(rpc).sendRawTransaction(any())
+            assertEquals(expectedSignedTx, signedTransaction)
 
         }
     }

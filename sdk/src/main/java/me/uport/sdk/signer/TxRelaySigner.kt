@@ -6,7 +6,6 @@ import me.uport.sdk.signer.TxRelayHelper.Companion.ZERO_ADDRESS
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.Address
-import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
 import org.kethereum.model.createTransactionWithDefaults
 import org.walleth.khex.clean0xPrefix
@@ -28,14 +27,14 @@ class TxRelaySigner(private val wrappedSigner: Signer,
     /**
      * signs a buffer using the [wrappedSigner]
      */
-    override fun signMessage(rawMessage: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signMessage(rawMessage, callback)
+    override suspend fun signMessage(rawMessage: ByteArray) = wrappedSigner.signMessage(rawMessage)
 
     /**
      * Takes in an [unsignedTx], wraps it as a call to `relayMetaTx` and signs it using the [wrappedSigner]
      *
      * Calls back with the RLP encoded signed transaction
      */
-    override fun signRawTx(unsignedTx: Transaction, callback: (err: Exception?, signedEncodedTx: ByteArray) -> Unit) {
+    override suspend fun signRawTx(unsignedTx: Transaction): ByteArray {
 
         val nonce = unsignedTx.nonce ?: 0.toBigInteger()
         val to = unsignedTx.to ?: Address(ZERO_ADDRESS)
@@ -51,30 +50,23 @@ class TxRelaySigner(private val wrappedSigner: Signer,
                 to.cleanHex +
                 data.toNoPrefixHexString()
 
-        signMessage(hashInput.hexToByteArray()) { err, signature ->
+        val signature = signMessage(hashInput.hexToByteArray())
 
-            if (err != null) {
-                return@signMessage callback(err, byteArrayOf())
-            }
+        val rawMetaTxData = TxRelayHelper(network)
+                .abiEncodeRelayMetaTx(signature, to.hex, data, whitelistOwner)
+                .hexToByteArray()
 
-            val rawMetaTxData = TxRelayHelper(network)
-                    .abiEncodeRelayMetaTx(signature, to.hex, data, whitelistOwner)
-                    .hexToByteArray()
+        val wrapperTx = createTransactionWithDefaults(
+                gasPrice = unsignedTx.gasPrice,
+                gasLimit = unsignedTx.gasLimit,
+                value = BigInteger.ZERO,
+                to = Address(network.txRelayAddress),
+                nonce = nonce,
+                from = Address(sender),
+                input = rawMetaTxData.toList()
+        )
 
-            val wrapperTx = createTransactionWithDefaults(
-                    gasPrice = unsignedTx.gasPrice,
-                    gasLimit = unsignedTx.gasLimit,
-                    value = BigInteger.ZERO,
-                    to = Address(network.txRelayAddress),
-                    nonce = nonce,
-                    from = Address(sender),
-                    input = rawMetaTxData.toList()
-            )
-
-            return@signMessage callback(null, wrapperTx.encodeRLP())
-        }
-
-
+        return wrapperTx.encodeRLP()
     }
 
     companion object {

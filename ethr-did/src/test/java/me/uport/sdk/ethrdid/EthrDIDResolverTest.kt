@@ -9,7 +9,6 @@ import me.uport.sdk.core.hexToBytes32
 import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDOwnerChanged
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.experimental.getLogs
 import org.junit.Assert.*
 import org.junit.Test
 import org.kethereum.extensions.hexToBigInteger

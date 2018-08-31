@@ -6,7 +6,13 @@ buildscript {
 
         kotlin_version = '1.2.61'
         kotlin_serialization_version = '0.6.1'
-        coroutines_version = "0.25.0"
+
+        // TODO: Use version 0.25.0 once that D8 compilation has been fixed in order to support multi-version jars
+        // Use version 0.24.0 which is not multi-version in order to avoid error
+        // com.android.tools.r8.errors.CompilationError: Program type already present: kotlinx.coroutines.experimental.AbstractContinuation
+
+        // Also use version 0.23.4 as version 0.24.0 has bugs while mocking the UI context inside jUnit tests
+        coroutines_version = "0.23.4"
 
         android_tools_version = '3.3.0-alpha07'
 

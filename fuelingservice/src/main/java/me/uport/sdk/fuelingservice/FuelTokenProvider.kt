@@ -5,34 +5,20 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-import me.uport.sdk.core.UI
-import me.uport.sdk.core.experimental.urlPost
-import me.uport.sdk.identity.IFuelTokenProvider
+import me.uport.sdk.core.IFuelTokenProvider
+import me.uport.sdk.core.urlPost
 import org.json.JSONObject
 import java.io.IOException
 
 class FuelTokenProvider(private val context: Context, private val dAppMnid: String) : IFuelTokenProvider {
 
-    override fun onCreateFuelToken(deviceAddress: String, callback: (err: Exception?, fuelToken: String) -> Unit) {
-
+    override suspend fun onCreateFuelToken(deviceAddress: String): String {
         val ctx = context.applicationContext
-
-        launch(UI) {
-            try {
-                val uportInstanceToken = getInstanceToken(ctx, dAppMnid)
-                val fuelToken = getFuelToken(deviceAddress, uportInstanceToken)
-
-                callback(null, fuelToken)
-            } catch (ex: Exception) {
-                //TODO: separate user solvable errors from fatal exceptions in documentation
-                callback(ex, "")
-            }
-        }
+        val uportInstanceToken = getInstanceToken(ctx, dAppMnid)
+        return getFuelToken(deviceAddress, uportInstanceToken)
     }
 
     private suspend fun getFuelToken(deviceAddress : String, uportInstanceToken: String): String {
-
         val rawResponse = urlPost(FUELING_SERVICE_URL, "{\"iid_token\":\"$uportInstanceToken\", \"deviceAddress\":\"$deviceAddress\"}")
 
         val response = JSONObject(rawResponse)

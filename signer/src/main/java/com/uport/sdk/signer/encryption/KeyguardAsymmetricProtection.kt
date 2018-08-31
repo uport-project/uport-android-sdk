@@ -5,8 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.security.keystore.UserNotAuthenticatedException
 import android.support.v7.app.AppCompatActivity
-import com.uport.sdk.signer.DecryptionCallback
-import com.uport.sdk.signer.EncryptionCallback
 import com.uport.sdk.signer.UportSigner
 import com.uport.sdk.signer.UportSigner.Companion.ERR_ACTIVITY_DOES_NOT_EXIST
 import com.uport.sdk.signer.encryption.AndroidKeyStoreHelper.generateWrappingKey
@@ -35,14 +33,8 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
         generateWrappingKey(context, extendedAlias, true, sessionTimeout)
     }
 
-    override
-    fun encrypt(context: Context, purpose: String, blob: ByteArray, callback: EncryptionCallback) {
-        try {
-            val ciphertext = KeyProtection.encryptRaw(blob, extendedAlias)
-            callback(null, ciphertext)
-        } catch (ex: Exception) {
-            callback(ex, "")
-        }
+    override suspend fun encrypt(context: Context, purpose: String, blob: ByteArray): String {
+        return KeyProtection.encryptRaw(blob, extendedAlias)
     }
 
     /**
@@ -62,65 +54,46 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
     }
 
 
-    private fun decryptAfterKeyguard(context: Context, purpose: String, ciphertext: String, callback: DecryptionCallback) {
-        if (context is AppCompatActivity) {
-            showKeyguard(
-                    context,
-                    purpose,
-                    object : KeyguardLaunchFragment.KeyguardCallback {
-                        override fun onKeyguardResult(unlocked: Boolean) {
-                            if (unlocked) {
-                                try {
-                                    val cleartextBytes = KeyProtection.decryptRaw(ciphertext, extendedAlias)
-                                    //only update if there was no exception
-                                    updateUnlock(extendedAlias)
-                                    //finally decrypted.. phew
-                                    callback(null, cleartextBytes)
-                                } catch (exception: Exception) {
-                                    callback(exception, ByteArray(0))
-                                }
-                            } else {
-                                callback(RuntimeException(UportSigner.ERR_AUTH_CANCELED), ByteArray(0))
-                            }
-                        }
-                    })
-        } else {
-            callback(IllegalStateException(ERR_ACTIVITY_DOES_NOT_EXIST), ByteArray(0))
+    private suspend fun decryptAfterKeyguard(context: Context, purpose: String, ciphertext: String): ByteArray {
+        return when {
+            context !is AppCompatActivity -> throw IllegalStateException(ERR_ACTIVITY_DOES_NOT_EXIST)
+            !showKeyguard(context, purpose) -> throw RuntimeException(UportSigner.ERR_AUTH_CANCELED)
+            else -> {
+                val cleartextBytes = KeyProtection.decryptRaw(ciphertext, extendedAlias)
+                //only update if there was no exception
+                updateUnlock(extendedAlias)
+                //finally decrypted.. phew
+                cleartextBytes
+            }
         }
     }
 
-    override
-    fun decrypt(context: Context, purpose: String, ciphertext: String, callback: DecryptionCallback) {
-        try {
-            if (hasMarshmallow()) {
-                try {
-                    val cleartextBytes = KeyProtection.decryptRaw(ciphertext, extendedAlias)
-                    callback(null, cleartextBytes)
-                } catch (exception: InvalidKeyException) {
-                    @SuppressLint("NewApi")
-                    if (exception is UserNotAuthenticatedException) {
-                        decryptAfterKeyguard(context, purpose, ciphertext, callback)
-                    } else {
-                        throw exception
-                    }
-                }
-            } else {
-                if (shouldShowKeyguard()) {
-                    decryptAfterKeyguard(context, purpose, ciphertext, callback)
+    override suspend fun decrypt(context: Context, purpose: String, ciphertext: String): ByteArray {
+        return if (hasMarshmallow()) {
+            try {
+                KeyProtection.decryptRaw(ciphertext, extendedAlias)
+            } catch (exception: InvalidKeyException) {
+                @SuppressLint("NewApi")
+                if (exception is UserNotAuthenticatedException) {
+                    decryptAfterKeyguard(context, purpose, ciphertext)
                 } else {
-                    val cleartextBytes = KeyProtection.decryptRaw(ciphertext, extendedAlias)
-                    callback(null, cleartextBytes)
+                    throw exception
                 }
             }
-        } catch (exception: Exception) {
-            //TODO: possible scenario to address: if the device has just configured PIN and has never been unlocked, this may throw IllegalBlockSizeException
-            return callback(exception, ByteArray(0))
+        } else {
+            if (shouldShowKeyguard()) {
+                decryptAfterKeyguard(context, purpose, ciphertext)
+            } else {
+                KeyProtection.decryptRaw(ciphertext, extendedAlias)
+            }
         }
+
+        //TODO: possible scenario to address: if the device has just configured PIN and has never been unlocked, this may throw IllegalBlockSizeException
     }
 
-    private fun showKeyguard(activity: Activity, purpose: String, callback: KeyguardLaunchFragment.KeyguardCallback) {
+    private suspend fun showKeyguard(activity: Activity, purpose: String): Boolean {
         val supportFragmentManager = (activity as AppCompatActivity).supportFragmentManager
-        KeyguardLaunchFragment.show(supportFragmentManager, purpose, callback)
+        return KeyguardLaunchFragment.show(supportFragmentManager, purpose)
     }
 
 

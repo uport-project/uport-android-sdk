@@ -3,10 +3,11 @@ package me.uport.sdk.identity
 import android.content.Context
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
+import kotlinx.coroutines.experimental.delay
+import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
 import me.uport.sdk.identity.ProgressPersistence.AccountCreationState
 import me.uport.sdk.identity.ProgressPersistence.PersistentBundle
-import me.uport.sdk.identity.endpoints.UnnuIdentityInfo
 import me.uport.sdk.identity.endpoints.lookupIdentityInfo
 import me.uport.sdk.identity.endpoints.requestIdentityCreation
 
@@ -29,8 +30,7 @@ class MetaIdentityAccountCreator(
      *
      * To force the creation of a new identity, use [forceRestart]
      */
-    private fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean, callback: AccountCreatorCallback) {
-
+    private suspend fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean): Account {
         var (state, oldBundle) = if (forceRestart) {
             (AccountCreationState.NONE to PersistentBundle())
         } else {
@@ -38,143 +38,116 @@ class MetaIdentityAccountCreator(
         }
 
         when (state) {
-
             AccountCreationState.NONE -> {
                 if (phrase.isNullOrEmpty()) {
-                    signer.createHDSeed(context, KeyProtection.Level.SIMPLE) { err, rootAddress, _ ->
-                        if (err != null) {
-                            return@createHDSeed fail(err, callback)
-                        }
-                        val bundle = oldBundle.copy(rootAddress = rootAddress)
-                        progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
-                        return@createHDSeed createAccount(networkId, false, callback)
+                    val (rootAddress, _) = failSave {
+                        signer.createHDSeed(context, KeyProtection.Level.SIMPLE)
                     }
+                    val bundle = oldBundle.copy(rootAddress = rootAddress)
+                    progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
+                    return createAccount(networkId, false)
+
                 } else {
-                    signer.importHDSeed(context, KeyProtection.Level.SIMPLE, phrase!!) { err, rootAddress, _ ->
-                        if (err != null) {
-                            return@importHDSeed fail(err, callback)
-                        }
-                        val bundle = oldBundle.copy(rootAddress = rootAddress)
-                        progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
-                        return@importHDSeed createAccount(networkId, false, callback)
+                    val (rootAddress, _) = failSave {
+                        signer.importHDSeed(context, KeyProtection.Level.SIMPLE, phrase!!)
                     }
+                    val bundle = oldBundle.copy(rootAddress = rootAddress)
+                    progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
+                    return createAccount(networkId, false)
                 }
             }
 
             AccountCreationState.ROOT_KEY_CREATED -> {
-                signer.computeAddressForPath(context, oldBundle.rootAddress, Account.GENERIC_DEVICE_KEY_DERIVATION_PATH, "") { err, deviceAddress, _ ->
-                    if (err != null) {
-                        return@computeAddressForPath fail(err, callback)
-                    }
-                    val bundle = oldBundle.copy(deviceAddress = deviceAddress)
-                    progress.save(AccountCreationState.DEVICE_KEY_CREATED, bundle)
-                    return@computeAddressForPath createAccount(networkId, false, callback)
-                }
+                val (deviceAddress, _) = signer.computeAddressForPath(context, oldBundle.rootAddress, Account.GENERIC_DEVICE_KEY_DERIVATION_PATH, "")
+                val bundle = oldBundle.copy(deviceAddress = deviceAddress)
+                progress.save(AccountCreationState.DEVICE_KEY_CREATED, bundle)
+                return createAccount(networkId, false)
             }
 
             AccountCreationState.DEVICE_KEY_CREATED -> {
-                signer.computeAddressForPath(context, oldBundle.rootAddress, Account.GENERIC_RECOVERY_DERIVATION_PATH, "") { err, recoveryAddress, _ ->
-                    if (err != null) {
-                        return@computeAddressForPath fail(err, callback)
-                    }
-                    val detail = oldBundle.copy(recoveryAddress = recoveryAddress)
-                    progress.save(AccountCreationState.RECOVERY_KEY_CREATED, detail)
-                    return@computeAddressForPath createAccount(networkId, false, callback)
-                }
+                val (recoveryAddress, _) = signer.computeAddressForPath(context, oldBundle.rootAddress, Account.GENERIC_RECOVERY_DERIVATION_PATH, "")
+                val detail = oldBundle.copy(recoveryAddress = recoveryAddress)
+                progress.save(AccountCreationState.RECOVERY_KEY_CREATED, detail)
+                return createAccount(networkId, false)
             }
 
             AccountCreationState.RECOVERY_KEY_CREATED -> {
-                fuelTokenProvider.onCreateFuelToken(oldBundle.deviceAddress) { err, fuelToken ->
-                    if (err != null) {
-                        return@onCreateFuelToken fail(err, callback)
-                    }
-
-                    val bundle = oldBundle.copy(fuelToken = fuelToken)
-                    progress.save(AccountCreationState.FUEL_TOKEN_OBTAINED, bundle)
-                    return@onCreateFuelToken createAccount(networkId, false, callback)
-                }
+                val fuelToken = fuelTokenProvider.onCreateFuelToken(oldBundle.deviceAddress)
+                val bundle = oldBundle.copy(fuelToken = fuelToken)
+                progress.save(AccountCreationState.FUEL_TOKEN_OBTAINED, bundle)
+                return createAccount(networkId, false)
             }
 
             AccountCreationState.FUEL_TOKEN_OBTAINED -> {
-
-                requestIdentityCreation(
-                        oldBundle.deviceAddress,
-                        oldBundle.recoveryAddress,
-                        networkId,
-                        oldBundle.fuelToken
-                ) { err, identityInfo ->
-                    if (err != null) {
-                        return@requestIdentityCreation fail(err, callback)
-                    }
-                    val bundle = oldBundle.copy(txHash = identityInfo.txHash ?: "")
-                    progress.save(AccountCreationState.PROXY_CREATION_SENT, bundle)
-
-                    return@requestIdentityCreation createAccount(networkId, false, callback)
-                }
-
+                val identityInfo = requestIdentityCreation(oldBundle.deviceAddress, oldBundle.recoveryAddress, networkId, oldBundle.fuelToken)
+                val bundle = oldBundle.copy(txHash = identityInfo.txHash ?: "")
+                progress.save(AccountCreationState.PROXY_CREATION_SENT, bundle)
+                return createAccount(networkId, false)
             }
 
             AccountCreationState.PROXY_CREATION_SENT -> {
-                Thread {
-                    var pollingDelay = POLLING_INTERVAL
-                    while (state != AccountCreationState.COMPLETE) {
+                val identityInfo = retry({ state != AccountCreationState.COMPLETE }) {
+                    lookupIdentityInfo(oldBundle.deviceAddress)
+                }
 
-                        lookupIdentityInfo(oldBundle.deviceAddress) { _, identityInfo ->
-
-                            //if (err != null) {
-                            //    //FIXME: an error here does not necessarily mean a failure; the flow splits here based on type of failure, for example Unnu returns 404 if the proxy hasn't been mined yet
-                            //    return@lookupIdentityInfo fail(context, err, callback)
-                            //}
-
-                            if (identityInfo != UnnuIdentityInfo.blank) {
-                                val proxyAddress = identityInfo.proxyAddress ?: ""
-                                val acc = Account(
-                                        oldBundle.rootAddress,
-                                        oldBundle.deviceAddress,
-                                        networkId,
-                                        proxyAddress,
-                                        identityInfo.managerAddress,
-                                        Networks.get(networkId).txRelayAddress,
-                                        oldBundle.fuelToken,
-                                        SignerType.MetaIdentityManager
-                                )
-                                state = AccountCreationState.COMPLETE
-                                progress.save(state, oldBundle.copy(partialAccount = acc))
-
-                                return@lookupIdentityInfo callback(null, acc)
-                            }
-
-                        }
-
-                        pollingDelay = Math.round(pollingDelay * BACKOFF_FACTOR).toLong()
-                        //FIXME: use saner polling model.. coroutines maybe?
-                        Thread.sleep(pollingDelay)
-                    }
-                }.start()
+                //FIXME: an error here does not necessarily mean a failure; the flow splits here based on type of failure, for example Unnu returns 404 if the proxy hasn't been mined yet
+                val proxyAddress = identityInfo.proxyAddress ?: ""
+                val account = Account(
+                        oldBundle.rootAddress,
+                        oldBundle.deviceAddress,
+                        networkId,
+                        proxyAddress,
+                        identityInfo.managerAddress,
+                        Networks.get(networkId).txRelayAddress,
+                        oldBundle.fuelToken,
+                        SignerType.MetaIdentityManager
+                )
+                state = AccountCreationState.COMPLETE
+                progress.save(state, oldBundle.copy(partialAccount = account))
+                return account
             }
+
             AccountCreationState.COMPLETE -> {
-                return callback(null, oldBundle.partialAccount)
+                return oldBundle.partialAccount
             }
-            else ->
-                return callback(RuntimeException("Exhausted account creation options, ${state.name}"), Account.blank)
+            else -> throw RuntimeException("Exhausted account creation options, ${state.name}")
         }
+
     }
 
-    override fun createAccount(networkId: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
-        createOrImportAccount(networkId, null, forceRestart, callback)
+    private suspend fun <T> retry(condition: () -> Boolean, block: suspend () -> T): T {
+        var pollingDelay = POLLING_INTERVAL
+        while (condition()) {
+            try {
+                return block()
+            } catch (exception: Exception) {
+                // TODO: Handle exception
+            }
+            delay(pollingDelay)
+            pollingDelay = Math.round(pollingDelay * BACKOFF_FACTOR).toLong()
+        }
+        return block()
     }
 
-    override fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
-        createOrImportAccount(networkId, seedPhrase, forceRestart, callback)
+    override suspend fun createAccount(networkId: String, forceRestart: Boolean): Account {
+        return createOrImportAccount(networkId, null, forceRestart)
     }
 
-    override fun deleteAccount(handle: String) {
+    override suspend fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean): Account {
+        return createOrImportAccount(networkId, seedPhrase, forceRestart)
+    }
+
+    override suspend fun deleteAccount(handle: String) {
         signer.deleteSeed(context, handle)
     }
 
-    private fun fail(err: Exception, callback: AccountCreatorCallback) {
-        progress.save(AccountCreationState.NONE)
-        return callback(err, Account.blank)
+    private suspend fun <T> failSave(block: suspend () -> T): T {
+        return try {
+            block()
+        } catch (exception: Exception) {
+            progress.save(AccountCreationState.NONE)
+            throw exception
+        }
     }
 
     companion object {

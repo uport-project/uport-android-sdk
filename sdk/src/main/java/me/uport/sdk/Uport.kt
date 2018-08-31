@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.support.annotation.VisibleForTesting
-import android.support.annotation.VisibleForTesting.PRIVATE
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.UI
-import me.uport.sdk.identity.*
+import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.AccountCreator
+import me.uport.sdk.identity.AccountCreatorCallback
+import me.uport.sdk.identity.KPAccountCreator
 import kotlin.coroutines.experimental.suspendCoroutine
 
 @SuppressLint("StaticFieldLeak")
@@ -151,7 +153,7 @@ object Uport {
 
     fun allAccounts() = accountStorage?.all() ?: emptyList()
 
-    fun deleteAccount(rootHandle: String) {
+    suspend fun deleteAccount(rootHandle: String) {
         if (!initialized) {
             throw UportNotInitializedException()
         }
@@ -162,7 +164,7 @@ object Uport {
         }
     }
 
-    fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
+    suspend fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
 
     class Configuration {
 

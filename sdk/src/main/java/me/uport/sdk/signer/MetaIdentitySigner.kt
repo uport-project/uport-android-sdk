@@ -4,7 +4,6 @@ import me.uport.sdk.MetaIdentityManager
 import me.uport.sdk.core.Signer
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
-import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
 import pm.gnosis.model.Solidity
 import pm.gnosis.utils.hexToByteArray
@@ -18,9 +17,7 @@ class MetaIdentitySigner(
     /**
      * Signs a buffer by forwarding to the [wrappedSigner]
      */
-    override fun signMessage(
-            rawMessage: ByteArray,
-            callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signMessage(rawMessage, callback)
+    override suspend fun signMessage(rawMessage: ByteArray) = wrappedSigner.signMessage(rawMessage)
 
 
     /**
@@ -31,7 +28,7 @@ class MetaIdentitySigner(
     /**
      * Takes an [unsignedTx], wraps it as a call to `forwardTo` and signs it using the [wrappedSigner]
      */
-    override fun signRawTx(unsignedTx: Transaction, callback: (err: Exception?, signedEncodedTransaction: ByteArray) -> Unit) {
+    override suspend fun signRawTx(unsignedTx: Transaction): ByteArray {
 
         val finalDestination = unsignedTx.to!!.hex //dont allow unknown destination to reach this far
 
@@ -50,7 +47,7 @@ class MetaIdentitySigner(
 
         txCopy.input = newInput.hexToByteArray().toList()
 
-        return wrappedSigner.signRawTx(txCopy, callback)
+        return wrappedSigner.signRawTx(txCopy)
     }
 
     companion object {

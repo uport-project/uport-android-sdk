@@ -7,7 +7,6 @@ import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.encryption.KeyProtectionFactory
-import com.uport.sdk.signer.encryption.SimpleAsymmetricProtection
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
@@ -55,17 +54,19 @@ open class UportSigner {
      * Creates an ETH keypair and stores it at the [level] encryption level.
      * then [callback] with the corresponding 0x `address` and base64 `public Key`
      * or a non-null error in case something went wrong
+     *
+     * @return Returns a Pair being the address and the public key
      */
-    fun createKey(context: Context, level: KeyProtection.Level, callback: (err: Exception?, address: String, pubKey: String) -> Unit) {
+    suspend fun createKey(context: Context, level: KeyProtection.Level): Pair<String, String> {
 
         val privateKeyBytes = try {
             val (privKey, _) = createEcKeyPair()
             privKey.toByteArray()
         } catch (exception: Exception) {
-            return callback(KeyException("ERR_CREATING_KEYPAIR", exception), "", "")
+            throw KeyException("ERR_CREATING_KEYPAIR", exception)
         }
 
-        return saveKey(context, level, privateKeyBytes, callback)
+        return saveKey(context, level, privateKeyBytes)
     }
 
     /**
@@ -73,8 +74,10 @@ open class UportSigner {
      *
      * Then calls back with the derived 0x `address` and base64 `public Key`
      * or a non-null err in case something goes wrong
+     *
+     * @return Returns a Pair being the address and the public key
      */
-    fun saveKey(context: Context, level: KeyProtection.Level, privateKeyBytes: ByteArray, callback: (err: Exception?, address: String, pubKey: String) -> Unit) {
+    suspend fun saveKey(context: Context, level: KeyProtection.Level, privateKeyBytes: ByteArray): Pair<String, String> {
 
         val keyPair = ECKeyPair.create(privateKeyBytes)
 
@@ -84,21 +87,13 @@ open class UportSigner {
 
         val label = asAddressLabel(address)
 
-        storeEncryptedPayload(context,
-                level,
-                label,
-                privateKeyBytes
-        ) { err, _ ->
+        storeEncryptedPayload(context, level, label, privateKeyBytes)
 
-            //empty memory
-            privateKeyBytes.fill(0)
+        //empty memory
+        privateKeyBytes.fill(0)
 
-            if (err != null) {
-                return@storeEncryptedPayload callback(err, "", "")
-            }
 
-            return@storeEncryptedPayload callback(null, address, publicKeyString)
-        }
+        return Pair(address, publicKeyString)
     }
 
     /**
@@ -129,35 +124,17 @@ open class UportSigner {
      * @param callback (error, signature) called after the transaction has been signed successfully or
      * with an error and empty data when it fails
      */
-    fun signTransaction(context: Context, address: String, txPayload: String, prompt: String, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
+    suspend fun signTransaction(context: Context, address: String, txPayload: String, prompt: String): SignatureData {
 
-        val (encryptionLayer, encryptedPrivateKey, storageError) = getEncryptionForLabel(context, asAddressLabel(address))
+        val (encryptionLayer, encryptedPrivateKey) = getEncryptionForLabel(context, asAddressLabel(address))
 
-        if (storageError != null) {
-            return callback(storageError, EMPTY_SIGNATURE_DATA)
-        }
+        val privateKey = encryptionLayer.decrypt(context, prompt, encryptedPrivateKey)
+         val keyPair = ECKeyPair.create(privateKey)
+        privateKey.fill(0)
 
-        encryptionLayer.decrypt(context, prompt, encryptedPrivateKey) { err, privateKey ->
+        val txBytes = txPayload.decodeBase64()
 
-            if (err != null) {
-                return@decrypt callback(err, EMPTY_SIGNATURE_DATA)
-            }
-
-            try {
-                val keyPair = ECKeyPair.create(privateKey)
-                privateKey.fill(0)
-
-                val txBytes = txPayload.decodeBase64()
-
-                val sigData = keyPair.signMessage(txBytes)
-                return@decrypt callback(null, sigData)
-
-            } catch (exception: Exception) {
-                return@decrypt callback(exception, EMPTY_SIGNATURE_DATA)
-            }
-
-        }
-
+        return keyPair.signMessage(txBytes)
     }
 
     /**
@@ -167,8 +144,7 @@ open class UportSigner {
     fun getEncryptionForLabel(context: Context, label: String): EncryptionCombo {
         val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
 
-        return try {
-            //check if label is tracked
+            // Check if label is tracked
             val keyExists = (prefs.contains(asLevelLabel(label))
                     && prefs.contains(label))
 
@@ -184,11 +160,7 @@ open class UportSigner {
             val encryptedPayload = prefs.getString(label, null)
                     ?: throw InvalidKeyException(ERR_KEY_CORRUPTED)
 
-            EncryptionCombo(encryptionLayer, encryptedPayload, null)
-
-        } catch (ex: Exception) {
-            EncryptionCombo(SimpleAsymmetricProtection(), "", ex)
-        }
+            return EncryptionCombo(encryptionLayer, encryptedPayload)
     }
 
     /**
@@ -208,30 +180,17 @@ open class UportSigner {
      * @param callback (error, signature) called after the transaction has been signed successfully or
      * with an error and empty data when it fails
      */
-    fun signJwtBundle(context: Context, address: String, data: String, prompt: String, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
+    suspend fun signJwtBundle(context: Context, address: String, data: String, prompt: String): SignatureData {
+        val (encryptionLayer, encryptedPrivateKey) = getEncryptionForLabel(context, asAddressLabel(address))
 
-        val (encryptionLayer, encryptedPrivateKey, storageError) = getEncryptionForLabel(context, asAddressLabel(address))
+        val privateKey = encryptionLayer.decrypt(context, prompt, encryptedPrivateKey)
 
-        if (storageError != null) {
-            return callback(storageError, SignatureData())
-        }
+        val keyPair = ECKeyPair.create(privateKey)
+        val payloadBytes = data.decodeBase64()
+        val sig = signJwt(payloadBytes, keyPair)
+        privateKey.fill(0)
 
-        encryptionLayer.decrypt(context, prompt, encryptedPrivateKey) { err, privateKey ->
-            if (err != null) {
-                return@decrypt callback(err, SignatureData())
-            }
-
-            try {
-                val keyPair = ECKeyPair.create(privateKey)
-                val payloadBytes = data.decodeBase64()
-                val sig = signJwt(payloadBytes, keyPair)
-                privateKey.fill(0)
-
-                return@decrypt callback(null, sig)
-            } catch (exception: Exception) {
-                return@decrypt callback(err, SignatureData())
-            }
-        }
+        return sig
     }
 
     @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
@@ -257,39 +216,20 @@ open class UportSigner {
      *
      * This method calls back with the success of the encryption operation
      * or a non-null exception if something goes wrong
+     *
+     * @return Returns without error if the storage goes successfully, otherwise throws an exception
      */
-    fun storeEncryptedPayload(
-            context: Context,
-            keyLevel: KeyProtection.Level,
-            label: String,
-            payload: ByteArray,
-            callback: (err: Exception?, result: Boolean) -> Unit
-    ) {
+    suspend fun storeEncryptedPayload(context: Context, keyLevel: KeyProtection.Level, label: String, payload: ByteArray) {
+        val encLayer: KeyProtection = KeyProtectionFactory.obtain(context, keyLevel)
+        val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
 
-        try {
-            val encLayer: KeyProtection = KeyProtectionFactory.obtain(context, keyLevel)
-            val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
-
-            encLayer.encrypt(
-                    context,
-                    "store encrypted payload",
-                    payload
-            ) { err, ciphertext ->
-
-                if (err != null) {
-                    return@encrypt callback(err, false)
-                }
-                prefs.edit()
-                        //store encrypted privatekey
-                        .putString(label, ciphertext)
-                        //mark the key as encrypted with provided security level
-                        .putString(asLevelLabel(label), keyLevel.name)
-                        .apply()
-                return@encrypt callback(null, true)
-            }
-        } catch (ex: Exception) {
-            return callback(ex, false)
-        }
+        val cipherText = encLayer.encrypt(context, "store encrypted payload", payload)
+        prefs.edit()
+                //store encrypted private key
+                .putString(label, cipherText)
+                //mark the key as encrypted with provided security level
+                .putString(asLevelLabel(label), keyLevel.name)
+                .apply()
     }
 
     /**
@@ -303,27 +243,9 @@ open class UportSigner {
      * This method calls back with the decrypted [ByteArray] on success
      * or a non-null exception if something goes wrong
      */
-    fun loadEncryptedPayload(
-            context: Context,
-            label: String,
-            prompt: String,
-            callback: (err: Exception?, result: ByteArray) -> Unit
-    ) {
-
-        val (encryptionLayer, encryptedPayload, storageError) = getEncryptionForLabel(context, label)
-
-        if (storageError != null) {
-            return callback(storageError, ByteArray(0))
-        }
-
-        //decrypt using the appropriate level
-        encryptionLayer.decrypt(context, prompt, encryptedPayload) { err, decrypted ->
-            if (err != null) {
-                return@decrypt callback(err, ByteArray(0))
-            }
-
-            return@decrypt callback(null, decrypted)
-        }
+    suspend fun loadEncryptedPayload(context: Context, label: String, prompt: String): ByteArray {
+        val (encryptionLayer, encryptedPayload) = getEncryptionForLabel(context, label)
+        return encryptionLayer.decrypt(context, prompt, encryptedPayload)
     }
 
     companion object {
@@ -366,7 +288,7 @@ open class UportSigner {
 
         const val UNCOMPRESSED_PUBLIC_KEY_SIZE = PUBLIC_KEY_SIZE + 1
 
-        data class EncryptionCombo(val keyProtection: KeyProtection, val encPayload: String, val err: Exception?)
+        data class EncryptionCombo(val keyProtection: KeyProtection, val encPayload: String)
 
         internal val EMPTY_SIGNATURE_DATA = SignatureData(BigInteger.ZERO, BigInteger.ZERO, 0)
 
