@@ -8,9 +8,9 @@ buildscript {
         kotlin_serialization_version = '0.6.1'
         coroutines_version = "0.25.0"
 
-        android_tools_version = '3.3.0-alpha07'
+        android_tools_version = '3.3.0-alpha11'
 
-        build_tools_version = "27.0.3"
+        build_tools_version = "28.0.2"
 
         min_sdk_version = 19
         compile_sdk_version = 27
