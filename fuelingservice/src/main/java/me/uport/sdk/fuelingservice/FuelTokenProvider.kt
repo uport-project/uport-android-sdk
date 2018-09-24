@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.iid.FirebaseInstanceId
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.UI
@@ -18,7 +19,7 @@ class FuelTokenProvider(private val context: Context, private val dAppMnid: Stri
 
         val ctx = context.applicationContext
 
-        launch(UI) {
+        GlobalScope.launch(UI) {
             try {
                 val uportInstanceToken = getInstanceToken(ctx, dAppMnid)
                 val fuelToken = getFuelToken(deviceAddress, uportInstanceToken)
@@ -63,7 +64,7 @@ class FuelTokenProvider(private val context: Context, private val dAppMnid: Stri
 
         val iidService = FirebaseInstanceId.getInstance(firebaseApp)
 
-        return async {
+        return GlobalScope.async {
             iidService.getToken(FIREBASE_SENDER_ID, dAppMnid)
                     ?: "can't get uPort specific instance token"
         }.await()

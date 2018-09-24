@@ -25,7 +25,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.2.1"
+def uport_sdk_version = "v0.2.2"
 dependencies {
     ...
     // core SDK
@@ -139,6 +139,9 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 
 ### Changelog
+
+* 0.2.2
+    * update of dependencies for coroutines and build tools
 
 * 0.2.1
     * bugfix: crash when decrypting fingerprint protected seed
