@@ -1,6 +1,7 @@
 package me.uport.sdk.extensions
 
 import android.content.Context
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -71,7 +72,7 @@ suspend fun Account.send(context: Context, contractAddress: String, data: ByteAr
 /**
  * Send [value] amount of WEI ( 1e-18 ETH ) from Account to the address [to]
  */
-fun Account.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = async {
+fun Account.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.async {
     try {
         val txHash = send(context, to, value)
         launch(UI) { callback(null, txHash) }
@@ -85,7 +86,7 @@ fun Account.send(context: Context, to: String, value: BigInteger, callback: (err
 /**
  * Send contract call from account to [contractAddress] with [data] as the ABI encoded function call
  */
-fun Account.send(context: Context, contractAddress: String, data: ByteArray, callback: (err: Exception?, txHash: String) -> Unit) = async {
+fun Account.send(context: Context, contractAddress: String, data: ByteArray, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.async {
     try {
         val txHash = send(context, contractAddress, data)
         launch(UI) { callback(null, txHash) }
@@ -112,7 +113,7 @@ suspend fun EthNetwork.waitForTransactionToMine(txHash: String): String {
     return minedAtBlockHash.toHexStringNoPrefix().prepend0xPrefix()
 }
 
-fun EthNetwork.awaitConfirmation(txHash: String, callback: (err: Exception?, txReceipt: JsonRPC.TransactionReceipt) -> Unit) = launch {
+fun EthNetwork.awaitConfirmation(txHash: String, callback: (err: Exception?, txReceipt: JsonRPC.TransactionReceipt) -> Unit) = GlobalScope.launch {
 
     waitForTransactionToMine(txHash)
 

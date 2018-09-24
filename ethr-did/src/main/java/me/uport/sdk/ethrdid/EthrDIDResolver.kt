@@ -2,6 +2,7 @@ package me.uport.sdk.ethrdid
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import me.uport.sdk.core.*
@@ -46,7 +47,7 @@ class EthrDIDResolver(
      * Calls back on the main thread with the result or an exception
      */
     fun resolve(did: String, callback: (err: Exception?, ddo: DDO) -> Unit) {
-        launch {
+        GlobalScope.launch {
             try {
                 val ddo = resolve(did)
                 withContext(UI) { callback(null, ddo) }

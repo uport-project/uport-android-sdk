@@ -2,6 +2,8 @@ package me.uport.sdk.core
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.android.Main
 import org.kethereum.extensions.toHexStringNoPrefix
 import org.spongycastle.util.encoders.Base64
 import org.walleth.khex.clean0xPrefix
@@ -17,7 +19,7 @@ import kotlinx.coroutines.experimental.android.UI as mainLooperContext
  */
 val UI by lazy { coroutineUiContextInitBlock() }
 
-private var coroutineUiContextInitBlock: () -> CoroutineContext = { mainLooperContext }
+private var coroutineUiContextInitBlock: () -> CoroutineContext = { Dispatchers.Main }
 
 /**
  * Call this in @Before methods where you need to interact with UI context

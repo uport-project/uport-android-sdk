@@ -6,6 +6,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.UI
@@ -130,7 +131,7 @@ object Uport {
             throw UportNotInitializedException()
         }
 
-        launch {
+        GlobalScope.launch {
             try {
                 val acc = if (seedPhrase.isNullOrBlank()) {
                     accountCreator.createAccount(networkId)
