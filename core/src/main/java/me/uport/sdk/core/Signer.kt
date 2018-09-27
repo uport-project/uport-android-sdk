@@ -6,23 +6,29 @@ import org.kethereum.model.Transaction
 import kotlin.coroutines.experimental.suspendCoroutine
 
 /**
+ * Callback type for signature results.
+ */
+typealias SignatureCallback = (err: Exception?, sigData: SignatureData) -> Unit
+
+/**
  * An interface used to sign transactions or messages for uport specific operations
  */
 interface Signer {
 
-    fun signMessage(rawMessage: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit)
+    fun signETH(rawMessage: ByteArray, callback: SignatureCallback)
+    fun signJWT(rawPayload: ByteArray, callback: SignatureCallback)
 
     fun getAddress() : String
 
     fun signRawTx(
             unsignedTx: Transaction,
             callback: (err: Exception?,
-                       signedEncodedTransaction: ByteArray) -> Unit) = signMessage(unsignedTx.encodeRLP())
+                       signedEncodedTransaction: ByteArray) -> Unit) = signETH(unsignedTx.encodeRLP())
     { err, sig ->
         if (err != null) {
-            return@signMessage callback(err, byteArrayOf())
+            return@signETH callback(err, byteArrayOf())
         }
-        return@signMessage callback(null, unsignedTx.encodeRLP(sig))
+        return@signETH callback(null, unsignedTx.encodeRLP(sig))
     }
 
     companion object {
@@ -30,10 +36,8 @@ interface Signer {
          * A useless signer that calls back with empty signature and has no associated address
          */
         val blank = object : Signer {
-            override fun signMessage(rawMessage: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
-                callback(null, SignatureData())
-            }
-
+            override fun signETH(rawMessage: ByteArray, callback: SignatureCallback)  = callback(null, SignatureData())
+            override fun signJWT(rawPayload: ByteArray, callback: SignatureCallback)  = callback(null, SignatureData())
             override fun getAddress(): String = ""
         }
     }
@@ -54,8 +58,18 @@ suspend fun Signer.signRawTx(unsignedTx: Transaction): ByteArray = suspendCorout
     }
 }
 
-suspend fun Signer.signMessage(rawMessage: ByteArray): SignatureData = suspendCoroutine { continuation ->
-    this.signMessage(rawMessage) { err, sigData ->
+suspend fun Signer.signETH(rawMessage: ByteArray): SignatureData = suspendCoroutine { continuation ->
+    this.signETH(rawMessage) { err, sigData ->
+        if (err != null) {
+            continuation.resumeWithException(err)
+        } else {
+            continuation.resume(sigData)
+        }
+    }
+}
+
+suspend fun Signer.signJWT(rawMessage: ByteArray): SignatureData = suspendCoroutine { continuation ->
+    this.signJWT(rawMessage) { err, sigData ->
         if (err != null) {
             continuation.resumeWithException(err)
         } else {

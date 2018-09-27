@@ -18,9 +18,13 @@ class MetaIdentitySigner(
     /**
      * Signs a buffer by forwarding to the [wrappedSigner]
      */
-    override fun signMessage(
+    override fun signETH(
             rawMessage: ByteArray,
-            callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signMessage(rawMessage, callback)
+            callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signETH(rawMessage, callback)
+
+    override fun signJWT(
+            rawPayload: ByteArray,
+            callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signJWT(rawPayload, callback)
 
 
     /**

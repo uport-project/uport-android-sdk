@@ -16,7 +16,7 @@ class UportHDSignerWrapper(
         private val deviceAddress: String
 ) : Signer {
 
-    override fun signMessage(
+    override fun signETH(
             rawMessage: ByteArray,
             callback: (err: Exception?, sigData: SignatureData) -> Unit) {
 
@@ -25,6 +25,17 @@ class UportHDSignerWrapper(
                 rootAddress,
                 Account.GENERIC_DEVICE_KEY_DERIVATION_PATH,
                 Base64.encodeToString(rawMessage, Base64.DEFAULT),
+                "",
+                callback)
+    }
+
+    override fun signJWT(rawPayload: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
+
+        return uportHDSigner.signJwtBundle(
+                context, //FIXME: Not cool hiding the context like this... may lead to leaks
+                rootAddress,
+                Account.GENERIC_DEVICE_KEY_DERIVATION_PATH,
+                Base64.encodeToString(rawPayload, Base64.DEFAULT),
                 "",
                 callback)
     }
