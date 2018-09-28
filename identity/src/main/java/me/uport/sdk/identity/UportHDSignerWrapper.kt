@@ -7,7 +7,7 @@ import com.uport.sdk.signer.Signer
 import org.kethereum.model.SignatureData
 
 /**
- * Wrapps the [uportHDSigner] into a [Signer] interface
+ * Wraps the [uportHDSigner] into a [Signer] interface
  */
 class UportHDSignerWrapper(
         private val context: Context,
