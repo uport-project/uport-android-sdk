@@ -1,6 +1,6 @@
-package me.uport.sdk.signer
+package com.uport.sdk.signer
 
-import me.uport.sdk.core.Signer
+import com.uport.sdk.signer.Signer
 import org.kethereum.crypto.ECKeyPair
 import org.kethereum.crypto.getAddress
 import org.kethereum.crypto.signMessage

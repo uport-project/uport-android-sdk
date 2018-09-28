@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.DEFAULT_GAS_PRICE
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.signer.SimpleSigner
+import com.uport.sdk.signer.SimpleSigner
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString

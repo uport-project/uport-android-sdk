@@ -1,7 +1,7 @@
 package me.uport.sdk.ethrdid
 
-import me.uport.sdk.core.Signer
-import me.uport.sdk.core.signRawTx
+import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse

@@ -6,7 +6,7 @@ import android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE
 import com.squareup.moshi.Json
 import com.uport.sdk.signer.UportHDSigner
 import me.uport.mnid.MNID
-import me.uport.sdk.core.Signer
+import com.uport.sdk.signer.Signer
 import me.uport.sdk.identity.endpoints.moshi
 
 data class Account(

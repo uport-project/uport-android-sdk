@@ -3,7 +3,7 @@ package me.uport.sdk.identity
 import android.content.Context
 import android.util.Base64
 import com.uport.sdk.signer.UportHDSigner
-import me.uport.sdk.core.Signer
+import com.uport.sdk.signer.Signer
 import org.kethereum.model.SignatureData
 
 /**

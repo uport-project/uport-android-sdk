@@ -1,4 +1,4 @@
-package me.uport.sdk.core
+package com.uport.sdk.signer
 
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.SignatureData

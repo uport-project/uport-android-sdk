@@ -1,4 +1,4 @@
-package me.uport.sdk.core
+package com.uport.sdk.signer
 
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert
