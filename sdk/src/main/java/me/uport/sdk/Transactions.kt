@@ -7,9 +7,9 @@ import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
 import me.uport.sdk.identity.Account
-import me.uport.sdk.identity.SignerType
-import me.uport.sdk.identity.SignerType.*
-import me.uport.sdk.identity.SignerType.MetaIdentityManager
+import me.uport.sdk.identity.AccountType
+import me.uport.sdk.identity.AccountType.*
+import me.uport.sdk.identity.AccountType.MetaIdentityManager
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.experimental.getGasPrice
 import me.uport.sdk.jsonrpc.experimental.getTransactionCount
@@ -41,7 +41,7 @@ class Transactions(
      *
      * Returns a modified [Transaction] object, ready to be signed and sent.
      */
-    private suspend fun buildTransaction(request: Transaction, signerType: SignerType = Proxy): Transaction {
+    private suspend fun buildTransaction(request: Transaction, signerType: AccountType = Proxy): Transaction {
         var from = request.from
         val rpcRelayUrl = network.rpcUrl
         val rpcRelay = JsonRPC(rpcRelayUrl)
@@ -83,7 +83,7 @@ class Transactions(
                 gasLimit = gasLimit)
     }
 
-    suspend fun sendTransaction(signer: Signer, request: Transaction, signerType: SignerType = Proxy): String {
+    suspend fun sendTransaction(signer: Signer, request: Transaction, signerType: AccountType = Proxy): String {
         val txLabel = request.encodeRLP().toHexString()
 
         var (state, oldBundle) = if(progress.contains(txLabel)) {

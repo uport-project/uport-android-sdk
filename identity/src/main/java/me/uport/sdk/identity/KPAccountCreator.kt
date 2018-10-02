@@ -35,7 +35,7 @@ class KPAccountCreator(private val appContext: Context) : AccountCreator {
                         "",
                         "",
                         "",
-                        SignerType.KeyPair
+                        AccountType.KeyPair
                 )
 
                 launch(UI) { callback(null, account) }

@@ -136,7 +136,7 @@ class MetaIdentityAccountCreator(
                                         identityInfo.managerAddress,
                                         Networks.get(networkId).txRelayAddress,
                                         oldBundle.fuelToken,
-                                        SignerType.MetaIdentityManager
+                                        AccountType.MetaIdentityManager
                                 )
                                 state = AccountCreationState.COMPLETE
                                 progress.save(state, oldBundle.copy(partialAccount = acc))

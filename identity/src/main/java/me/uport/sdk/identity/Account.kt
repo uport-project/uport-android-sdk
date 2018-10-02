@@ -35,7 +35,7 @@ data class Account(
         val fuelToken: String,
 
         @Json(name = "signerType")
-        val signerType: SignerType = SignerType.KeyPair,
+        val type: AccountType = AccountType.KeyPair,
 
         @Json(name = "isDefault")
         val isDefault: Boolean? = false
@@ -52,7 +52,7 @@ data class Account(
 
     companion object {
 
-        val blank = Account("", "", "", "", "", "", "", SignerType.KeyPair)
+        val blank = Account("", "", "", "", "", "", "", AccountType.KeyPair)
 
         private val adapter = moshi.adapter<Account>(Account::class.java)
 
