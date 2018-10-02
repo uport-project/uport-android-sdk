@@ -1,6 +1,5 @@
 package com.uport.sdk.signer
 
-import com.uport.sdk.signer.Signer
 import org.kethereum.crypto.ECKeyPair
 import org.kethereum.crypto.getAddress
 import org.kethereum.crypto.signMessage
@@ -10,11 +9,11 @@ import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
 
 /**
- * Simple [Signer] implementation that holds its keys in memory.
+ * Simple [Signer] implementation that holds the KeyPair in memory.
  *
  * There is no special handling of threads for callbacks.
  */
-class SimpleSigner(private val privateKey: String) : Signer {
+class KPSigner(private val privateKey: String) : Signer {
 
     override fun signJWT(rawPayload: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) {
         try {
