@@ -47,7 +47,7 @@ data class Account(
 
     fun toJson(pretty: Boolean = false): String = adapter.indent(if (pretty) "  " else "").toJson(this)
 
-    fun getSigner(context: Context): Signer = UportHDSignerWrapper(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
+    fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
     companion object {
 
