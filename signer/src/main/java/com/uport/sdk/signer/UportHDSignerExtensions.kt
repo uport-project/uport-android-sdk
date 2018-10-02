@@ -1,9 +1,13 @@
-package me.uport.sdk.identity
+package com.uport.sdk.signer
 
 import android.content.Context
-import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
 import kotlin.coroutines.experimental.suspendCoroutine
+
+/**
+ *
+ * Exposes some HD key provider async methods as coroutines
+ */
 
 suspend fun UportHDSigner.createHDSeed(
         context: Context,

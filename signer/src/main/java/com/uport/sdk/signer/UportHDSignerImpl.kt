@@ -1,13 +1,15 @@
-package me.uport.sdk.identity
+package com.uport.sdk.signer
 
 import android.content.Context
 import android.util.Base64
-import com.uport.sdk.signer.UportHDSigner
-import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_DEVICE_KEY_DERIVATION_PATH
 import org.kethereum.model.SignatureData
 
 /**
- * Wraps a [UportHDSigner] into a [Signer] interface
+ * Wraps a [UportHDSigner] into a [Signer] interface.
+ *
+ * The HD key provider it wraps needs an activity context for keys that are linked to user-auth.
+ * This object should not be long-lived
  */
 class UportHDSignerImpl(
         private val context: Context,
@@ -23,7 +25,7 @@ class UportHDSignerImpl(
         return uportHDSigner.signTransaction(
                 context, //FIXME: Not cool hiding the context like this... may lead to leaks
                 rootAddress,
-                Account.GENERIC_DEVICE_KEY_DERIVATION_PATH,
+                GENERIC_DEVICE_KEY_DERIVATION_PATH,
                 Base64.encodeToString(rawMessage, Base64.DEFAULT),
                 "",
                 callback)
@@ -34,7 +36,7 @@ class UportHDSignerImpl(
         return uportHDSigner.signJwtBundle(
                 context, //FIXME: Not cool hiding the context like this... may lead to leaks
                 rootAddress,
-                Account.GENERIC_DEVICE_KEY_DERIVATION_PATH,
+                GENERIC_DEVICE_KEY_DERIVATION_PATH,
                 Base64.encodeToString(rawPayload, Base64.DEFAULT),
                 "",
                 callback)

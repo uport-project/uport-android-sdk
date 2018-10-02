@@ -15,11 +15,24 @@ typealias SignatureCallback = (err: Exception?, sigData: SignatureData) -> Unit
  */
 interface Signer {
 
+    /**
+     * Signs a blob of bytes that represent a RLP encoded transaction.
+     */
     fun signETH(rawMessage: ByteArray, callback: SignatureCallback)
+
+    /**
+     * Signs a blob of bytes that represent the encoded header and payload parts of a JWT
+     */
     fun signJWT(rawPayload: ByteArray, callback: SignatureCallback)
 
+    /**
+     * returns the ethereum address corresponding to the key that does the signing
+     */
     fun getAddress() : String
 
+    /**
+     *
+     */
     fun signRawTx(
             unsignedTx: Transaction,
             callback: (err: Exception?,
