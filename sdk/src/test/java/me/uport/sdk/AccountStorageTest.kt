@@ -9,7 +9,7 @@ class AccountStorageTest {
 
     @Test
     fun `can add and retrieve new account`() {
-        val storage: AccountStorage = SharedPrefsAcountStorage(InMemorySharedPrefs())
+        val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
         val newAcc = Account("0xnewaccount", "", "", "", "", "", "")
         storage.upsert(newAcc)
         assertEquals(newAcc, storage.get("0xnewaccount"))
@@ -17,7 +17,7 @@ class AccountStorageTest {
 
     @Test
     fun `can show all accounts`() {
-        val storage: AccountStorage = SharedPrefsAcountStorage(InMemorySharedPrefs())
+        val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val accounts = (0..10).map {
             Account("0x$it", "", "", "", "", "", "")
@@ -33,7 +33,7 @@ class AccountStorageTest {
 
     @Test
     fun `can delete account`() {
-        val storage: AccountStorage = SharedPrefsAcountStorage(InMemorySharedPrefs())
+        val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val account = Account(
                 "0xmyAccount",
@@ -58,7 +58,7 @@ class AccountStorageTest {
 
     @Test
     fun `can overwrite account`() {
-        val storage: AccountStorage = SharedPrefsAcountStorage(InMemorySharedPrefs())
+        val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val account = Account(
                 "0xmyAccount",
@@ -85,7 +85,7 @@ class AccountStorageTest {
 
     @Test
     fun `can upsert all`() {
-        val storage: AccountStorage = SharedPrefsAcountStorage(InMemorySharedPrefs())
+        val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val accounts = (0..10).map {
             Account("0x$it", "", "", "", "", "", "")

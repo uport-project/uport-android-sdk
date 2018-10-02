@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.support.annotation.VisibleForTesting
-import android.support.annotation.VisibleForTesting.PRIVATE
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
@@ -67,7 +65,7 @@ object Uport {
 
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
-        accountStorage = SharedPrefsAcountStorage(prefs).apply {
+        accountStorage = SharedPrefsAccountStorage(prefs).apply {
             this.all().forEach {
                 if (it.isDefault == true) {
                     defaultAccountHandle = it.handle
