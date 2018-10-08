@@ -37,7 +37,7 @@ class AccountsTests {
               "manager":"0xidentityManagerAddress",
               "txRelay":"0xtxRelayAddress",
               "fuelToken":"base64FuelToken",
-              "type":"KeyPair"
+              "signerType":"KeyPair"
             }""".trimIndent()
 
         val account = Account.fromJson(serializedAccount)
