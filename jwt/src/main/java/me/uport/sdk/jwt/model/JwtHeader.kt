@@ -8,7 +8,7 @@ class JwtHeader(
         /**
          * Standard JWT headeer
          */
-        val typ: String,
+        val typ: String = "JWT",
 
-        val alg: String
+        val alg: String = "ES256K-R"
 )
