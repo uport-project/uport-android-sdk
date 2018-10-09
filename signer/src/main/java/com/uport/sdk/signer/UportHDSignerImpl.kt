@@ -1,8 +1,8 @@
 package com.uport.sdk.signer
 
 import android.content.Context
-import android.util.Base64
-import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_DEVICE_KEY_DERIVATION_PATH
+import com.uport.sdk.signer.UportHDSigner.Companion.UPORT_ROOT_DERIVATION_PATH
+import me.uport.sdk.core.toBase64
 import org.kethereum.model.SignatureData
 
 /**
@@ -25,8 +25,8 @@ class UportHDSignerImpl(
         return uportHDSigner.signTransaction(
                 context, //FIXME: Not cool hiding the context like this... may lead to leaks
                 rootAddress,
-                GENERIC_DEVICE_KEY_DERIVATION_PATH,
-                Base64.encodeToString(rawMessage, Base64.DEFAULT),
+                UPORT_ROOT_DERIVATION_PATH, //FIXME: path should be configurable
+                rawMessage.toBase64(),
                 "",
                 callback)
     }
@@ -36,8 +36,8 @@ class UportHDSignerImpl(
         return uportHDSigner.signJwtBundle(
                 context, //FIXME: Not cool hiding the context like this... may lead to leaks
                 rootAddress,
-                GENERIC_DEVICE_KEY_DERIVATION_PATH,
-                Base64.encodeToString(rawPayload, Base64.DEFAULT),
+                UPORT_ROOT_DERIVATION_PATH, //FIXME: path should be configurable
+                rawPayload.toBase64(),
                 "",
                 callback)
     }

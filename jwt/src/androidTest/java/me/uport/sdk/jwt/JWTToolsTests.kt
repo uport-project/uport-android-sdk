@@ -6,14 +6,16 @@ package me.uport.sdk.jwt
 import android.support.test.rule.ActivityTestRule
 import android.util.Log
 import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
+import com.uport.sdk.signer.importHDSeed
+import kotlinx.coroutines.experimental.runBlocking
+import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.jwt.model.JwtPayload
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
-import kotlin.test.assertNotNull
 
 class JWTToolsTests {
 
@@ -98,15 +100,41 @@ class JWTToolsTests {
         latch.await()
     }
 
-    private fun ensureSeedIsImported(phrase: String) {
-        //ensure seed is imported
-        val latch = CountDownLatch(1)
-        UportHDSigner().importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, phrase) { err, _, _ ->
-            assertNull(err)
-            latch.countDown()
-        }
-        latch.await()
+    @Test
+    fun create_token_from_payload() = runBlocking {
+        val timeProvider = TestTimeProvider(12345678000L)
+        val tested = JWTTools(timeProvider)
+
+        val payload = mapOf<String, Any>(
+                "claims" to mapOf("name" to "R Daneel Olivaw")
+        )
+        val baseSigner = UportHDSigner()
+        val (rootHandle, _) = baseSigner.importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, "notice suffer eagle style exclude burst write mechanic junior crater crystal seek")
+        val signer = UportHDSignerImpl(
+                mActivityRule.activity,
+                baseSigner,
+                rootHandle,
+                rootHandle
+        )
+        val issuerDID = "did:ethr:${signer.getAddress()}"
+
+        val jwt = tested.createJWT(payload, issuerDID, signer)
+        val expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbXMiOnsibmFtZSI6IlIgRGFuZWVsIE9saXZhdyJ9LCJpYXQiOjEyMzQ1Njc4LCJleHAiOjEyMzQ1OTc4LCJpc3MiOiJkaWQ6ZXRocjoweDQxMjNjYmQxNDNiNTVjMDZlNDUxZmYyNTNhZjA5Mjg2YjY4N2E5NTAifQ.o6eDKYjHJnak1ylkpe9g8krxvK9UEhKf-1T0EYhH8pGyb8MjOEepRJi8DYlVEnZno0DkVYXQCf3u1i_HThBKtBs"
+        assertEquals(expected, jwt)
+        val tt = tested.decode(expected)
+        assertEquals(12345678L, tt.second.iat)
     }
+
+    private fun ensureSeedIsImported(phrase: String) = runBlocking {
+        //ensure seed is imported
+        UportHDSigner().importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, phrase)
+    }
+
+
+}
+
+class TestTimeProvider(val currentTime: Long) : ITimeProvider {
+    override fun now(): Long = currentTime
 
 }
 
