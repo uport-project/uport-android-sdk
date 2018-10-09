@@ -1,12 +1,14 @@
 package me.uport.sdk.jwt
 
+import com.uport.sdk.signer.KPSigner
+import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.core.stubUiContext
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class JWTToolsTest {
+class JWTToolsJVMTest {
 
     @Before
     fun `run before every test`() {
@@ -32,4 +34,19 @@ class JWTToolsTest {
 
         latch.await()
     }
+
+    @Suppress("UNUSED_VARIABLE")
+    @Test(expected = JWTEncodingException::class)
+    fun throws_when_algorithm_is_wrong() = runBlocking {
+        val tested = JWTTools()
+
+        val payload = emptyMap<String, Any>()
+        val signer = KPSigner("0x1234")
+        val issuerDID = "did:ethr:${signer.getAddress()}"
+
+        //should throw a JWTEncodingException
+        val unused = tested.createJWT(payload, issuerDID, signer, algorithm = "some fancy but unknown algorithm")
+
+    }
 }
+
