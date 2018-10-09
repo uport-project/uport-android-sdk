@@ -58,7 +58,7 @@ class CryptoUtil(context: Context, private val alias: String = DEFAULT_ALIAS) {
 
             val secretKey = keyStore.getKey(alias, null) ?: genEncryptionKey()
             cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-            //FIXME: On some devices (like emulator with API 24) this throws IllegalBlockSizeException for large blobs (ex 4096 bytes)
+            //FIXME: On some devices (like emulator with API 24 & 26) this throws IllegalBlockSizeException for large blobs (ex 4096 bytes)
             val encryptedBytes = cipher.doFinal(blob)
 
             return packCiphertext(cipher.iv, encryptedBytes)

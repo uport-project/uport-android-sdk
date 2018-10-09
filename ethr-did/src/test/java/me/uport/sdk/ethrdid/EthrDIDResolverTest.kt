@@ -56,15 +56,17 @@ class EthrDIDResolverTest {
         val resolver = EthrDIDResolver(rpc)
         val lastChanged = 2784036L.toBigInteger()
         val logs = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.hexToBytes32()), lastChanged, lastChanged)
-        println(logs)
 
+        assertTrue(logs.isNotEmpty())
+
+        //topics should be 0x prefixed hex strings
         val topics: List<String> = logs[0].topics
         val data: String = logs[0].data
         val args: DIDOwnerChanged.Arguments = DIDOwnerChanged.decode(topics, data)
-        println(args)
+        //no assertion about args but it should not crash
         val previousBlock = args.previouschange.value
-        println(previousBlock)
 
+        assertTrue(previousBlock > BigInteger.ZERO)
     }
 
     @Test
@@ -135,6 +137,8 @@ class EthrDIDResolverTest {
         val ddo = EthrDIDResolver(rpc).wrapDidDocument("did:ethr:$identity", owner, listOf(event))
         println(ddo)
 
+        //did not crash
+        assertTrue(true)
     }
 
     @Test
@@ -142,7 +146,7 @@ class EthrDIDResolverTest {
         val str = "did/pub/Secp256k1/veriKey/hex"
         val sol = Solidity.Bytes32(str.toByteArray())
 
-//        //this fails. for some reason, it is resolving to Object.toString() instead of ByteArray.toString()
+//        //this fails. for some reason, the default is resolving to Object.toString() instead of ByteArray.toString()
 //        val decodedStr = sol.bytes.toString()
 
         //this should work no matter what

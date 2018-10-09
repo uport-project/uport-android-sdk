@@ -2,6 +2,7 @@ package me.uport.sdk.jwt
 
 //import org.kethereum.crypto.signedMessageToKey
 import android.content.Context
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.uport.sdk.signer.UportHDSigner
@@ -41,17 +42,8 @@ class JWTTools {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
     fun create(context: Context, payload: JwtPayload, rootHandle: String, derivationPath: String, prompt: String = "", recoverable: Boolean = false, callback: (err: Exception?, encodedJWT: String?) -> Unit) {
-        //JSON Parser
-        val moshi = Moshi.Builder()
-                .add(KotlinJsonAdapterFactory())
-                .build()
-
-        //Create adapters with each object
-        val jwtHeaderAdapter = moshi.adapter(JwtHeader::class.java)
-        val jwtPayloadAdapter = moshi.adapter(JwtPayload::class.java)
-
         //create header and convert the parts to json strings
-        val header = if (recoverable) {
+        val header = if (!recoverable) {
             JwtHeader("JWT", "ES256K")
         } else {
             JwtHeader("JWT", "ES256K-R")
@@ -62,7 +54,7 @@ class JWTTools {
         val headerEncodedString = headerJsonString.toBase64UrlSafe()
         val payloadEncodedString = payloadJsonString.toBase64UrlSafe()
 
-        //XXX: This is the crux of the bad behavior. signJwtBundle expects a Base64 string as payload and it was receiving plain text
+        //FIXME: UportHDSigner should not be expecting base64 payloads
         val messageToSign = "$headerEncodedString.$payloadEncodedString".toBase64()
 
         UportHDSigner().signJwtBundle(context, rootHandle, derivationPath, messageToSign, prompt) { err, signature ->
@@ -88,14 +80,6 @@ class JWTTools {
         val headerString = String(encodedHeader.decodeBase64())
         val payloadString = String(encodedPayload.decodeBase64())
         val signatureBytes = encodedSignature.decodeBase64()
-        //JSON Parser
-        val moshi = Moshi.Builder()
-                .add(KotlinJsonAdapterFactory())
-                .build()
-
-        //Create adapters with each object
-        val jwtHeaderAdapter = moshi.adapter(JwtHeader::class.java)
-        val jwtPayloadAdapter = moshi.adapter(JwtPayload::class.java)
 
         //Parse Json
         if (headerString[0] != '{' || payloadString[0] != '{')
@@ -274,6 +258,16 @@ class JWTTools {
         val recId = header - 27
         return recoverFromSignature(recId, sig, messageHash)
                 ?: throw SignatureException("Could not recover public key from signature")
+    }
+
+    companion object {
+        private val moshi = Moshi.Builder()
+                        .add(KotlinJsonAdapterFactory())
+                        .build()
+
+        //Create adapters with each object
+        val jwtHeaderAdapter: JsonAdapter<JwtHeader> = moshi.adapter(JwtHeader::class.java)
+        val jwtPayloadAdapter: JsonAdapter<JwtPayload> = moshi.adapter(JwtPayload::class.java)
     }
 
 }

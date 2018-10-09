@@ -2,7 +2,11 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_DEVICE_KEY_DERIVATION_PATH
+import com.uport.sdk.signer.computeAddressForPath
+import com.uport.sdk.signer.createHDSeed
 import com.uport.sdk.signer.encryption.KeyProtection
+import com.uport.sdk.signer.importHDSeed
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.UI
@@ -21,7 +25,7 @@ class KPAccountCreator(private val appContext: Context) : AccountCreator {
                 }
                 val (deviceAddress, _) = signer.computeAddressForPath(appContext,
                         handle,
-                        Account.GENERIC_DEVICE_KEY_DERIVATION_PATH,
+                        GENERIC_DEVICE_KEY_DERIVATION_PATH,
                         "")
                 val account = Account(
                         handle,
@@ -31,7 +35,7 @@ class KPAccountCreator(private val appContext: Context) : AccountCreator {
                         "",
                         "",
                         "",
-                        SignerType.KeyPair
+                        AccountType.KeyPair
                 )
 
                 launch(UI) { callback(null, account) }

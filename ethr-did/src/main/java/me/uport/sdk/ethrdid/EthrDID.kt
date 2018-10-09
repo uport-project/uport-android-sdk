@@ -1,7 +1,7 @@
 package me.uport.sdk.ethrdid
 
-import me.uport.sdk.core.Signer
-import me.uport.sdk.core.signRawTx
+import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
@@ -94,7 +94,7 @@ class EthrDID(
 //    // Create a temporary signing delegate able to sign JWT on behalf of identity
 //    suspend fun createSigningDelegate(delegateType: String = "Secp256k1VerificationKey2018", expiresIn: Long = 86400L) {
 //        val kp = createKeyPair()
-//        this.signer = SimpleSigner(kp.privateKey)
+//        this.signer = KPSigner(kp.privateKey)
 //        const txHash = await this.addDelegate(kp.address, { delegateType, expiresIn })
 //        return { kp, txHash }
 //    }

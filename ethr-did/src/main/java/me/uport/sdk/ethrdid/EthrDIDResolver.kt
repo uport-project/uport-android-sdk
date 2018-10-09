@@ -2,6 +2,7 @@ package me.uport.sdk.ethrdid
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
+import com.uport.sdk.signer.Signer
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext

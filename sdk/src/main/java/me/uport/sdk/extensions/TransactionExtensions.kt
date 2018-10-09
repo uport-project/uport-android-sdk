@@ -48,7 +48,7 @@ suspend fun Account.send(context: Context, destinationAddress: String, value: Bi
             .sendTransaction(
                     this.getSigner(context),
                     rawTransaction,
-                    this.signerType)
+                    this.type)
 }
 
 /**
@@ -66,7 +66,7 @@ suspend fun Account.send(context: Context, contractAddress: String, data: ByteAr
             .sendTransaction(
                     this.getSigner(context),
                     rawTransaction,
-                    this.signerType)
+                    this.type)
 }
 
 /**

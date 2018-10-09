@@ -4,9 +4,10 @@ import android.content.Context
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE
 import com.squareup.moshi.Json
+import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.UportHDSignerImpl
 import me.uport.mnid.MNID
-import me.uport.sdk.core.Signer
 import me.uport.sdk.identity.endpoints.moshi
 
 data class Account(
@@ -34,30 +35,24 @@ data class Account(
         val fuelToken: String,
 
         @Json(name = "signerType")
-        val signerType: SignerType = SignerType.KeyPair,
+        val type: AccountType = AccountType.KeyPair,
 
         @Json(name = "isDefault")
         val isDefault: Boolean? = false
 ) {
 
-    val address : String
+    val address: String
         get() = getMnid()
 
     fun getMnid() = MNID.encode(network, publicAddress)
 
     fun toJson(pretty: Boolean = false): String = adapter.indent(if (pretty) "  " else "").toJson(this)
 
-    fun getSigner(context: Context): Signer = UportHDSignerWrapper(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
+    fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
     companion object {
 
-        /**
-         * TODO: should be used to derive SDK KeyPairs instead of the UPORT_ROOT
-         */
-        const val GENERIC_DEVICE_KEY_DERIVATION_PATH = "m/44'/60'/0'/0"
-        const val GENERIC_RECOVERY_DERIVATION_PATH = "m/44'/60'/0'/1"
-
-        val blank = Account("", "", "", "", "", "", "", SignerType.KeyPair)
+        val blank = Account("", "", "", "", "", "", "", AccountType.KeyPair)
 
         private val adapter = moshi.adapter<Account>(Account::class.java)
 

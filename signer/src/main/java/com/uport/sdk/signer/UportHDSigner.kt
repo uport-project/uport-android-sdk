@@ -292,12 +292,16 @@ class UportHDSigner : UportSigner() {
         val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
         //list all stored keys, keep a list off what looks like uport root addresses
         return prefs.all.keys
+                .asSequence()
                 .filter { label -> label.startsWith(SEED_PREFIX) }
                 .filter { hasCorrespondingLevelKey(prefs, it) }
                 .map { label: String -> label.substring(SEED_PREFIX.length) }
+                .toList()
     }
 
     companion object {
-        const val UPORT_ROOT_DERIVATION_PATH: String = "m/7696500'/0'/0'/0'"
+        const val UPORT_ROOT_DERIVATION_PATH = "m/7696500'/0'/0'/0'"
+        const val GENERIC_DEVICE_KEY_DERIVATION_PATH = "m/44'/60'/0'/0"
+        const val GENERIC_RECOVERY_DERIVATION_PATH = "m/44'/60'/0'/1"
     }
 }
