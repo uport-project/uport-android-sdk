@@ -6,6 +6,8 @@ Identity for your Android dApps.
 Many intended features are still missing, and the ones already present are under heavy development.
 Expect breaking changes!**
 
+Issues are being tracket at https://www.pivotaltracker.com/n/projects/2198688
+
 ### Installation
 
 This SDK is available through [jitpack](https://jitpack.io/)
