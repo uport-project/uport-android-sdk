@@ -33,22 +33,27 @@ import java.security.SignatureException
 import kotlin.experimental.and
 
 /**
- * Tools for Verifying, Creating, and Decoding uport JWT's
+ * Tools for Verifying, Creating, and Decoding uport JWTs
+ *
+ * the [timeProvider] defaults to [SystemTimeProvider] but you can configure it for testing or for "was valid at" scenarios
  */
-
-
 class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider()
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
+    /**
+     * This coroutine method creates a signed JWT from a [payload] Map and an abstracted [Signer]
+     * You're also supposed to pass the [issuerDID] and can configure the algorithm used and expiry time
+     *
+     * The issuerDID is NOT checked for format, nor for a match with the signer.
+     */
     suspend fun createJWT(payload: Map<String, Any>, issuerDID: String, signer: Signer, expiresInSeconds: Long = 300, algorithm: String = ES256K_R): String {
         val mapAdapter = moshi.mapAdapter<String, Any>(String::class.java, Any::class.java)
 
         val mutablePayload = payload.toMutableMap()
 
         val header = JwtHeader(alg = algorithm)
-        val headerJson = header.toJson()
 
         val iatSeconds = Math.floor(timeProvider.now() / 1000.0).toLong()
         val expSeconds = iatSeconds + expiresInSeconds
@@ -57,10 +62,8 @@ class JWTTools(
         mutablePayload["exp"] = expSeconds
         mutablePayload["iss"] = issuerDID
 
-        val payloadJson = mapAdapter.toJson(mutablePayload)
-
         @Suppress("SimplifiableCallChain", "ConvertCallChainIntoSequence")
-        val signingInput = listOf(headerJson, payloadJson)
+        val signingInput = listOf(header.toJson(), mapAdapter.toJson(mutablePayload))
                 .map { it.toBase64UrlSafe() }
                 .joinToString(".")
 
@@ -166,7 +169,7 @@ class JWTTools(
                 val signingInputBytes = signingInput.toByteArray()
 
                 val recoveryBytes = if (signatureBytes.size > 64)
-                    signatureBytes.sliceArray(64..64) // just the recovery byte
+                    signatureBytes.sliceArray(64..64) // an array of just the recovery byte
                 else
                     byteArrayOf(27, 28) //try all recovery options
 
