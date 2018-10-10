@@ -1,4 +1,4 @@
-package me.uport.sdk.did
+package me.uport.sdk.uportdid
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi

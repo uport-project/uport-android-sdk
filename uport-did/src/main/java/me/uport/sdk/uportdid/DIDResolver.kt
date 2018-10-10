@@ -1,4 +1,4 @@
-package me.uport.sdk.did
+package me.uport.sdk.uportdid
 
 import android.os.Handler
 import android.os.Looper

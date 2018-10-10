@@ -1,4 +1,4 @@
-package me.uport.sdk.did
+package me.uport.sdk.uportdid
 
 import me.uport.mnid.Account
 import me.uport.sdk.jsonrpc.EthCall
