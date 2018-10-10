@@ -1,6 +1,6 @@
 include ':demoapp'
 include ':signer'
-include ':did'
+include ':uport-did'
 include ':ethr-did'
 include ':identity'
 include ':sdk'

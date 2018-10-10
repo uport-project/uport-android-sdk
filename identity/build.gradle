@@ -35,7 +35,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 
     api "com.github.walleth.kethereum:model:$kethereum_version"
-    api project(":did")
+    api project(':uport-did')
     api project(":core")
     api project(":signer")
 
