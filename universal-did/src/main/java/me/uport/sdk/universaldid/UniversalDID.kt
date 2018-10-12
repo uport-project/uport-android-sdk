@@ -31,10 +31,14 @@ object UniversalDID : DIDResolver {
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun clearResolvers() = resolvers.clear()
 
+    /**
+     * This universal resolver can't be used for any one particular did but for all [DIDResolver]s
+     * that have been added using [registerResolver]
+     */
     override val method: String = ""
 
     /**
-     * checks if any of the registered resolvers can resolve
+     * Checks if any of the registered resolvers can resolve
      */
     override fun canResolve(potentialDID: String): Boolean {
         val resolver = resolvers.values.find {
@@ -43,6 +47,12 @@ object UniversalDID : DIDResolver {
         return (resolver != null)
     }
 
+    /**
+     * Looks for a [DIDResolver] that can resolve the provided [did] either by method if the did contains one or by trial
+     *
+     * @throws IllegalStateException if the proper resolver is not registered or produces `null`
+     * @throws [IllegalArgumentException] if the given [did] has no `method` but could be resolved by one of the registered resolvers and that one fails with `null`
+     */
     override suspend fun resolve(did: String): DIDDocument {
         val (method, _) = parse(did)
 
