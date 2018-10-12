@@ -19,6 +19,8 @@ class AccountsTests {
 
         val serialized = acc.toJson()
 
+        println(serialized)
+
         val other = Account.fromJson(serialized)
 
         assertEquals(acc, other)
