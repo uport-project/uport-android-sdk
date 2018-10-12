@@ -9,14 +9,28 @@ import me.uport.sdk.core.urlGetSync
 import me.uport.sdk.core.urlPostSync
 import me.uport.sdk.jsonrpc.EthCall
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.DIDResolver
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import pm.gnosis.model.Solidity
+import kotlin.coroutines.experimental.suspendCoroutine
 
 
-class UportDIDResolver {
+class UportDIDResolver : DIDResolver {
+    override val method: String = "uport"
+
+    override suspend fun resolve(did: String): DIDDocument = suspendCoroutine { continuation ->
+        getProfileDocument(did) { err, ddo ->
+            if(err != null) {
+                continuation.resumeWithException(err)
+            } else {
+                continuation.resume(ddo)
+            }
+        }
+    }
 
     /**
      * Given an MNID, calls the uport registry and returns the raw json

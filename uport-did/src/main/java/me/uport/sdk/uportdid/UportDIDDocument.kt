@@ -11,7 +11,6 @@ import me.uport.sdk.universaldid.DIDDocument
  * See [identity_document spec](https://github.com/uport-project/specs/blob/develop/pki/identitydocument.md)
  *
  */
-@Deprecated("This class definition is prone to change soon so it's marked Deprecated as opposed to stable")
 data class UportDIDDocument(
         @Json(name = "@context")
         val context: String?, //ex: "http://schema.org"
