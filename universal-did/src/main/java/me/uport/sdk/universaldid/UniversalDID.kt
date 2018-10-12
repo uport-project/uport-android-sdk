@@ -2,6 +2,8 @@ package me.uport.sdk.universaldid
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 
 /**
  * A class to abstract resolving Decentralized Identity (DID) documents
@@ -31,15 +33,32 @@ object UniversalDID : DIDResolver {
 
     override val method: String = ""
 
+    /**
+     * checks if any of the registered resolvers can resolve
+     */
     override fun canResolve(potentialDID: String): Boolean {
-        //FIXME: check if any of the registered resolvers can resolve
-        return true
+        val resolver = resolvers.values.find {
+            it.canResolve(potentialDID)
+        }
+        return (resolver != null)
     }
 
     override suspend fun resolve(did: String): DIDDocument {
         val (method, _) = parse(did)
-        if (method.isBlank()) return DIDDocument.blank
-        return resolvers[method]?.resolve(did) ?: return DIDDocument.blank
+
+        if (method.isBlank()) {
+            val resolver = resolvers.values.find {
+                it.canResolve(did)
+            }
+            return resolver?.resolve(did)
+                    ?: throw IllegalArgumentException("The provided did ($did) could not be resolved by any of the ${resolvers.size} registered resolvers")
+        }  //no else clause, carry on
+
+        if (resolvers.containsKey(method)) {
+            return resolvers[method]?.resolve(did) ?: throw IllegalStateException("There DIDResolver for '$method' failed to resolve '$did' for an unknown reason.")
+        } else {
+            throw IllegalStateException("There is no DIDResolver registered to resolve '$method' DIDs and none of the other ${resolvers.size} registered ones can do it.")
+        }
     }
 
     @VisibleForTesting(otherwise = PRIVATE)
@@ -60,9 +79,19 @@ object UniversalDID : DIDResolver {
  * and implement a [resolve] coroutine to eventually return a [DIDDocument] or throw an error
  */
 interface DIDResolver {
+    /**
+     * The DID method that a particular implementation can resolve
+     */
     val method: String
+
+    /**
+     * Resolve a given [did] in a coroutine and return the [DIDDocument] or throw an error
+     */
     suspend fun resolve(did: String): DIDDocument
 
+    /**
+     * Check if the [potentialDID] can be resolved by this resolver.
+     */
     fun canResolve(potentialDID: String): Boolean
 }
 
