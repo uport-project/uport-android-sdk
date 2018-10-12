@@ -16,7 +16,7 @@ import org.walleth.khex.hexToByteArray
 import pm.gnosis.model.Solidity
 
 
-class DIDResolver {
+class UportDIDResolver {
 
     /**
      * Given an MNID, calls the uport registry and returns the raw json
@@ -53,10 +53,10 @@ class DIDResolver {
     }
 
     /**
-     * Given an MNID, obtains the IPFS hash of the DIDResolver document by eth_call to the uport registry
+     * Given an MNID, obtains the IPFS hash of the UportDIDResolver document by eth_call to the uport registry
      */
     internal fun getIpfsHashSync(mnid: String): String {
-        val docAddressHex = DIDResolver().callRegistrySync(mnid)
+        val docAddressHex = UportDIDResolver().callRegistrySync(mnid)
         return if (docAddressHex.isBlank()) {
             return ""
         } else {
@@ -65,7 +65,7 @@ class DIDResolver {
     }
 
     /**
-     * Obtains the JSON encoded DIDResolver doc given an mnid
+     * Obtains the JSON encoded UportDIDResolver doc given an mnid
      */
     private fun getJsonProfileSync(mnid: String): String {
 
@@ -77,22 +77,22 @@ class DIDResolver {
     }
 
     /**
-     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [DDO] object
+     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [UportDIDDocument] object
      *
      * Should return `null` if anything goes wrong
      */
-    internal fun getProfileDocumentSync(mnid: String): DDO? {
+    internal fun getProfileDocumentSync(mnid: String): UportDIDDocument? {
         val rawJsonDDO = getJsonProfileSync(mnid)
 
-        return DDO.fromJson(rawJsonDDO)
+        return UportDIDDocument.fromJson(rawJsonDDO)
     }
 
     /**
-     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [DDO] object
+     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [UportDIDDocument] object
      *
      * TODO: Should [callback] with non-`null` error if anything goes wrong
      */
-    fun getProfileDocument(mnid: String, callback: (err: Exception?, ddo: DDO) -> Unit) {
+    fun getProfileDocument(mnid: String, callback: (err: Exception?, ddo: UportDIDDocument) -> Unit) {
 
         Thread {
             //safe to call networks

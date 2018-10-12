@@ -5,13 +5,14 @@ import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON
+import me.uport.sdk.universaldid.DIDDocument
 
 /**
  * Classes to describe the DID document corresponding to a particular ethr-did
  */
 
 @Serializable
-data class DDO(
+data class EthrDIDDocument(
         @SerialName("id")
         val id: String,
 
@@ -27,11 +28,11 @@ data class DDO(
 
         @SerialName("@context")
         val context: String = "https://w3id.org/did/v1"
-) {
+) : DIDDocument {
     override fun toString(): String = JSON.indented.stringify(this)
 
     companion object {
-        val blank = DDO("")
+        val blank = EthrDIDDocument("")
     }
 }
 

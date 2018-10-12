@@ -36,6 +36,7 @@ dependencies {
 
     api project(":jsonrpc")
     api project(":core")
+    api project(":universal-did")
 
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 

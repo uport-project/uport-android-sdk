@@ -3,6 +3,7 @@ package me.uport.sdk.uportdid
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import me.uport.sdk.universaldid.DIDDocument
 
 /**
  * A class that encapsulates the DID document
@@ -11,7 +12,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
  *
  */
 @Deprecated("This class definition is prone to change soon so it's marked Deprecated as opposed to stable")
-data class DDO(
+data class UportDIDDocument(
         @Json(name = "@context")
         val context: String?, //ex: "http://schema.org"
 
@@ -32,11 +33,11 @@ data class DDO(
 
         @Json(name = "description")
         val description: String? // ex: "uPort Attestation"
-) {
+) : DIDDocument {
     companion object {
-        fun fromJson(json: String): DDO? {
+        fun fromJson(json: String): UportDIDDocument? {
             val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-            val adapter = moshi.adapter<DDO>(DDO::class.java)
+            val adapter = moshi.adapter<UportDIDDocument>(UportDIDDocument::class.java)
 
             return adapter.fromJson(json)
         }

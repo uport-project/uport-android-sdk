@@ -7,7 +7,7 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.decodeJose
 import com.uport.sdk.signer.getJoseEncoded
 import me.uport.sdk.core.*
-import me.uport.sdk.uportdid.DIDResolver
+import me.uport.sdk.uportdid.UportDIDResolver
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
@@ -160,7 +160,7 @@ class JWTTools(
                 }
             }
         } else {
-            DIDResolver().getProfileDocument(payload.iss) { err, ddo ->
+            UportDIDResolver().getProfileDocument(payload.iss) { err, ddo ->
                 if (err !== null)
                     return@getProfileDocument callback(err, null)
 

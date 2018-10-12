@@ -15,6 +15,7 @@ import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import me.uport.sdk.jsonrpc.experimental.ethCall
 import me.uport.sdk.jsonrpc.experimental.getLogs
+import me.uport.sdk.universaldid.DIDResolver
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
@@ -29,12 +30,14 @@ class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration
         val registryAddress: String = DEFAULT_REGISTRY_ADDRESS
-) {
+) : DIDResolver {
+
+    override val method = "ethr"
 
     /**
-     * Resolves a given ethereum address or DID string into a corresponding DDO
+     * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      */
-    suspend fun resolve(did: String): DDO {
+    override suspend fun resolve(did: String): EthrDIDDocument {
         val normalizedDid = normalizeDid(did)
         val identity = parseIdentity(normalizedDid)
         val ethrdidContract = EthrDID(identity, rpc, registryAddress, Signer.blank)
@@ -44,16 +47,16 @@ class EthrDIDResolver(
     }
 
     /**
-     * Resolves a given ethereum address or DID string into a corresponding DDO
+     * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      * Calls back on the main thread with the result or an exception
      */
-    fun resolve(did: String, callback: (err: Exception?, ddo: DDO) -> Unit) {
+    fun resolve(did: String, callback: (err: Exception?, ddo: EthrDIDDocument) -> Unit) {
         GlobalScope.launch {
             try {
                 val ddo = resolve(did)
                 withContext(UI) { callback(null, ddo) }
             } catch (ex: Exception) {
-                withContext(UI) { callback(ex, DDO.blank) }
+                withContext(UI) { callback(ex, EthrDIDDocument.blank) }
             }
         }
     }
@@ -119,10 +122,10 @@ class EthrDIDResolver(
     }
 
     /**
-     * Wraps previously gathered info into a DDO
+     * Wraps previously gathered info into a [EthrDIDDocument]
      */
     @VisibleForTesting(otherwise = PRIVATE)
-    fun wrapDidDocument(normalizedDid: String, owner: String, history: List<Any>): DDO {
+    fun wrapDidDocument(normalizedDid: String, owner: String, history: List<Any>): EthrDIDDocument {
         val now = System.currentTimeMillis() / 1000
 
         val pkEntries = mapOf<String, PublicKeyEntry>().toMutableMap().apply {
@@ -222,7 +225,7 @@ class EthrDIDResolver(
             }
         }
 
-        return DDO(
+        return EthrDIDDocument(
                 id = normalizedDid,
                 publicKey = pkEntries.values.toList(),
                 authentication = authEntries.values.toList(),
