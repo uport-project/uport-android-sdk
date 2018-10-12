@@ -3,9 +3,21 @@ package me.uport.sdk.universaldid
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
 
+/**
+ * A class to abstract resolving Decentralized Identity (DID) documents
+ * from specific implementations based on the [method] component of a DID [String]
+ *
+ * [DIDResolver] implementations need to be registered using [registerResolver]
+ *
+ * Known implementations of [DIDResolver] are [ethr-did] and [uport-did]
+ */
 object UniversalDID : DIDResolver {
 
     private val resolvers = mapOf<String, DIDResolver>().toMutableMap()
+
+    /**
+     * Register a resolver for a particular DID [method]
+     */
     fun registerResolver(resolver: DIDResolver) {
         if (resolver.method.isBlank()) {
             return
@@ -35,12 +47,21 @@ object UniversalDID : DIDResolver {
     private val didPattern = "^did:(.*?):(.+)".toRegex()
 }
 
+/**
+ * Abstraction of various methods of resolving DIDs
+ *
+ * Each resolver should know the [method] it is supposed to resolve
+ * and implement a [resolve] coroutine to eventually return a [DIDDocument] or throw an error
+ */
 interface DIDResolver {
     val method: String
     suspend fun resolve(did: String): DIDDocument
 
 }
 
+/**
+ * Abstraction for DID documents
+ */
 interface DIDDocument {
 
     companion object {
