@@ -34,6 +34,9 @@ class EthrDIDResolver(
 
     override val method = "ethr"
 
+    override fun canResolve(potentialDID: String): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
     /**
      * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      */

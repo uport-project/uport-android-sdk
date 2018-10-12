@@ -13,6 +13,7 @@ import android.support.annotation.VisibleForTesting.PRIVATE
  */
 object UniversalDID : DIDResolver {
 
+
     private val resolvers = mapOf<String, DIDResolver>().toMutableMap()
 
     /**
@@ -29,6 +30,11 @@ object UniversalDID : DIDResolver {
     internal fun clearResolvers() = resolvers.clear()
 
     override val method: String = ""
+
+    override fun canResolve(potentialDID: String): Boolean {
+        //FIXME: check if any of the registered resolvers can resolve
+        return true
+    }
 
     override suspend fun resolve(did: String): DIDDocument {
         val (method, _) = parse(did)
@@ -57,6 +63,7 @@ interface DIDResolver {
     val method: String
     suspend fun resolve(did: String): DIDDocument
 
+    fun canResolve(potentialDID: String): Boolean
 }
 
 /**

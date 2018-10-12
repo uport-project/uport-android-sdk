@@ -2,6 +2,8 @@ package me.uport.sdk.uportdid
 
 import android.os.Handler
 import android.os.Looper
+import android.support.annotation.VisibleForTesting
+import android.support.annotation.VisibleForTesting.PRIVATE
 import me.uport.mnid.Account
 import me.uport.mnid.MNID
 import me.uport.sdk.core.Networks
@@ -18,18 +20,42 @@ import org.walleth.khex.hexToByteArray
 import pm.gnosis.model.Solidity
 import kotlin.coroutines.experimental.suspendCoroutine
 
-
+/**
+ * This is a DID resolver implementation that supports the "uport" DID method.
+ * It accepts uport dids or simple mnids and produces a document described at:
+ * https://github.com/uport-project/specs/blob/develop/pki/identitydocument.md
+ *
+ * Example uport did: "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX#owner"
+ * Example mnid: "2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX"
+ */
 class UportDIDResolver : DIDResolver {
     override val method: String = "uport"
 
     override suspend fun resolve(did: String): DIDDocument = suspendCoroutine { continuation ->
-        getProfileDocument(did) { err, ddo ->
-            if(err != null) {
+        val (_, mnid) = parse(did)
+        getProfileDocument(mnid) { err, ddo ->
+            if (err != null) {
                 continuation.resumeWithException(err)
             } else {
                 continuation.resume(ddo)
             }
         }
+    }
+
+    override fun canResolve(potentialDID: String): Boolean {
+        val (method, mnid) = parse(potentialDID)
+        return if (method == this.method) {
+            MNID.isMNID(mnid)
+        } else {
+            MNID.isMNID(potentialDID)
+        }
+    }
+
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun parse(did: String): Pair<String, String> {
+        val matchResult = uportDIDPattern.find(did) ?: return ("" to did)
+        val (_, method, mnid) = matchResult.destructured
+        return (method to mnid)
     }
 
     /**
@@ -70,7 +96,7 @@ class UportDIDResolver : DIDResolver {
      * Given an MNID, obtains the IPFS hash of the UportDIDResolver document by eth_call to the uport registry
      */
     internal fun getIpfsHashSync(mnid: String): String {
-        val docAddressHex = UportDIDResolver().callRegistrySync(mnid)
+        val docAddressHex = callRegistrySync(mnid)
         return if (docAddressHex.isBlank()) {
             return ""
         } else {
@@ -118,6 +144,11 @@ class UportDIDResolver : DIDResolver {
             }
         }.run()
 
+    }
+
+    companion object {
+        //language=RegExp
+        private val uportDIDPattern = "^(did:(uport):)?([1-9A-HJ-NP-Za-km-z]{34,38})(.*)".toRegex()
     }
 
 }

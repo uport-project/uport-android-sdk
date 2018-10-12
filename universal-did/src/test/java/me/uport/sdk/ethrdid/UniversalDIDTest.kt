@@ -54,6 +54,8 @@ class UniversalDIDTest {
     }
 
     private val testResolver = object : DIDResolver {
+        override fun canResolve(potentialDID: String): Boolean = true
+
         override val method: String = "test"
 
         override suspend fun resolve(did: String): DIDDocument {

@@ -2,7 +2,7 @@ package me.uport.sdk.uportdid
 
 import me.uport.mnid.Account
 import me.uport.sdk.jsonrpc.EthCall
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Test
 
 class UportDIDResolverTest {
@@ -54,6 +54,37 @@ class UportDIDResolverTest {
         val ddo = UportDIDResolver().getProfileDocumentSync("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
         assertEquals(expectedDDO, ddo)
+    }
+
+
+    @Test
+    fun can_resolve_valid_dids() {
+        listOf(
+                "2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+                "5A8bRWU3F7j3REx3vkJWxdjQPp4tqmxFPmab1Tr",
+                "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+                "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX#owner"
+        ).forEach {
+            assertTrue("fails to resolve resolve '$it'", UportDIDResolver().canResolve(it))
+        }
+
+    }
+
+    @Test
+    fun fails_on_invalid_dids() {
+        listOf(
+                "did:something:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX", //different method
+                "QmXuNqXmrkxs4WhTDC2GCnXEep4LUD87bu97LQMn1rkxmQ", //not mnid
+                "1GbVUSW5WJmRCpaCJ4hanUny77oDaWW4to", //not mnid
+                "0x00521965e7bd230323c423d96c657db5b79d099f", //not mnid
+                "did:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX", //missing method
+                "did:uport:", //missing mnid
+                "did:uport" //missing mnid and colon
+        ).forEach {
+            assertFalse("claims to be able to resolve '$it", UportDIDResolver().canResolve(it))
+        }
+
+
     }
 
 
