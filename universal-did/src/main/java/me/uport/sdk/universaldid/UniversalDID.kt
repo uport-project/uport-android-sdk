@@ -110,7 +110,4 @@ interface DIDResolver {
  */
 interface DIDDocument {
 
-    companion object {
-        val blank = object : DIDDocument {}
-    }
 }

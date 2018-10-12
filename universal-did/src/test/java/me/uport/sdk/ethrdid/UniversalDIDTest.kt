@@ -6,14 +6,47 @@ import me.uport.sdk.universaldid.DIDResolver
 import me.uport.sdk.universaldid.UniversalDID
 import org.junit.Assert.*
 import org.junit.Test
+import java.lang.IllegalArgumentException
 
 class UniversalDIDTest {
 
-    @Test
-    fun `blank resolves to blank`() = runBlocking {
+    private val testDDO = object : DIDDocument {
+        val unusedField = "test document"
+    }
+
+    private val testResolver = object : DIDResolver {
+        override fun canResolve(potentialDID: String): Boolean = true
+
+        override val method: String = "test"
+
+        override suspend fun resolve(did: String): DIDDocument {
+            return if (did.contains("test")) testDDO else throw IllegalArgumentException("can't use test resolver")
+        }
+
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `blank resolves to error`() = runBlocking {
         UniversalDID.clearResolvers()
 
-        assertEquals(DIDDocument.blank, UniversalDID.resolve(""))
+        val unusedDdo = UniversalDID.resolve("")
+    }
+
+    @Test(expected = Exception::class)
+    fun `testResolver resolves to error with blank`() = runBlocking {
+        UniversalDID.clearResolvers()
+        UniversalDID.registerResolver(testResolver)
+
+        val unusedDdo = UniversalDID.resolve("")
+    }
+
+    @Test
+    fun `can register and find resolver`() = runBlocking {
+        UniversalDID.clearResolvers()
+        UniversalDID.registerResolver(testResolver)
+
+        val ddo = UniversalDID.resolve("did:test:this is a test did")
+        assertEquals(testDDO, ddo)
     }
 
     private val validDIDs = listOf(
@@ -46,33 +79,6 @@ class UniversalDIDTest {
         invalidDIDs.forEach {
             val (method, identifier) = UniversalDID.parse(it)
             assertTrue("parsing $it should have failed, got (method=$method, identifier=$identifier)", method.isBlank())
-        }
-    }
-
-    private val testDDO = object : DIDDocument {
-        val unusedField = "test document"
-    }
-
-    private val testResolver = object : DIDResolver {
-        override fun canResolve(potentialDID: String): Boolean = true
-
-        override val method: String = "test"
-
-        override suspend fun resolve(did: String): DIDDocument {
-            return testDDO
-        }
-
-    }
-
-    @Test
-    fun `can register and find resolver`() {
-        UniversalDID.clearResolvers()
-
-        UniversalDID.registerResolver(resolver = testResolver)
-
-        runBlocking {
-            val ddo = UniversalDID.resolve("did:test:can find resolver for this")
-            assertNotEquals(ddo, DIDDocument.blank)
         }
     }
 
