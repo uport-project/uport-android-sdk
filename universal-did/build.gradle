@@ -41,21 +41,9 @@ dependencies {
 
     implementation "com.android.support:support-annotations:$support_lib_version"
 
-    api "com.github.walleth.kethereum:extensions:$kethereum_version"
-    api "com.github.walleth.kethereum:model:$kethereum_version"
-    api "com.github.walleth.kethereum:base58:$kethereum_version"
-
-    api project(":jsonrpc")
-    api project(":core")
-    api project(":signer")
-    api project(":serialization")
-
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.mockito:mockito-inline:$mockito_version"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
-
-    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
-    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
 }
 
 kotlin {

@@ -18,25 +18,26 @@ object UniversalDID : DIDResolver {
 
     override val method: String = ""
 
-    override fun resolve(did: String): DIDDocument {
+    override suspend fun resolve(did: String): DIDDocument {
         val (method, _) = parse(did)
         if (method.isBlank()) return DIDDocument.blank
         return resolvers[method]?.resolve(did) ?: return DIDDocument.blank
     }
 
-    private fun parse(did: String): Pair<String, String> {
+    @VisibleForTesting(otherwise = PRIVATE)
+    internal fun parse(did: String): Pair<String, String> {
         val matchResult = didPattern.find(did) ?: return ("" to "")
         val (method, identifier) = matchResult.destructured
         return (method to identifier)
     }
 
     //language=RegExp
-    private val didPattern = "^did:(.*):(.*)".toRegex()
+    private val didPattern = "^did:(.*?):(.+)".toRegex()
 }
 
 interface DIDResolver {
     val method: String
-    fun resolve(did: String): DIDDocument
+    suspend fun resolve(did: String): DIDDocument
 
 }
 
