@@ -2,8 +2,8 @@ package me.uport.sdk.universaldid
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
+import me.uport.sdk.universaldid.UniversalDID.method
+import me.uport.sdk.universaldid.UniversalDID.registerResolver
 
 /**
  * A class to abstract resolving Decentralized Identity (DID) documents
@@ -14,7 +14,6 @@ import java.lang.IllegalStateException
  * Known implementations of [DIDResolver] are [ethr-did] and [uport-did]
  */
 object UniversalDID : DIDResolver {
-
 
     private val resolvers = mapOf<String, DIDResolver>().toMutableMap()
 
@@ -65,7 +64,8 @@ object UniversalDID : DIDResolver {
         }  //no else clause, carry on
 
         if (resolvers.containsKey(method)) {
-            return resolvers[method]?.resolve(did) ?: throw IllegalStateException("There DIDResolver for '$method' failed to resolve '$did' for an unknown reason.")
+            return resolvers[method]?.resolve(did)
+                    ?: throw IllegalStateException("There DIDResolver for '$method' failed to resolve '$did' for an unknown reason.")
         } else {
             throw IllegalStateException("There is no DIDResolver registered to resolve '$method' DIDs and none of the other ${resolvers.size} registered ones can do it.")
         }
@@ -103,11 +103,4 @@ interface DIDResolver {
      * Check if the [potentialDID] can be resolved by this resolver.
      */
     fun canResolve(potentialDID: String): Boolean
-}
-
-/**
- * Abstraction for DID documents
- */
-interface DIDDocument {
-
 }

@@ -1,9 +1,7 @@
 package me.uport.sdk.ethrdid
 
 import kotlinx.coroutines.experimental.runBlocking
-import me.uport.sdk.universaldid.DIDDocument
-import me.uport.sdk.universaldid.DIDResolver
-import me.uport.sdk.universaldid.UniversalDID
+import me.uport.sdk.universaldid.*
 import org.junit.Assert.*
 import org.junit.Test
 import java.lang.IllegalArgumentException
@@ -11,7 +9,11 @@ import java.lang.IllegalArgumentException
 class UniversalDIDTest {
 
     private val testDDO = object : DIDDocument {
-        val unusedField = "test document"
+        override val context: String = "test context"
+        override val id: String = "1234"
+        override val publicKey: List<PublicKeyEntry> = emptyList()
+        override val authentication: List<AuthenticationEntry> = emptyList()
+        override val service: List<ServiceEntry> = emptyList()
     }
 
     private val testResolver = object : DIDResolver {
@@ -29,7 +31,10 @@ class UniversalDIDTest {
     fun `blank resolves to error`() = runBlocking {
         UniversalDID.clearResolvers()
 
-        val unusedDdo = UniversalDID.resolve("")
+        val ddo = UniversalDID.resolve("")
+
+        //should never be reached, expecting exception above
+        assertNull(ddo)
     }
 
     @Test(expected = Exception::class)
@@ -37,7 +42,10 @@ class UniversalDIDTest {
         UniversalDID.clearResolvers()
         UniversalDID.registerResolver(testResolver)
 
-        val unusedDdo = UniversalDID.resolve("")
+        val ddo = UniversalDID.resolve("")
+
+        //should never be reached, expecting exception above
+        assertNull(ddo)
     }
 
     @Test

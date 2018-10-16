@@ -2,8 +2,11 @@ package me.uport.sdk.uportdid
 
 import me.uport.mnid.Account
 import me.uport.sdk.jsonrpc.EthCall
+import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.PublicKeyEntry
 import org.junit.Assert.*
 import org.junit.Test
+import org.walleth.khex.clean0xPrefix
 
 class UportDIDResolverTest {
 
@@ -39,9 +42,41 @@ class UportDIDResolverTest {
     }
 
     @Test
+    fun `can convert legacy DDO`() {
+        val publicKeyHex = "0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f"
+        val publicEncKey = "k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="
+        val legacyDDO = UportIdentityDocument(
+                context = "http://schema.org",
+                type = "Person",
+                publicKey = publicKeyHex,
+                publicEncKey = publicEncKey,
+                description = null,
+                image = ProfilePicture(),
+                name = null
+        )
+
+        val convertedDDO = legacyDDO.convertToDIDDocument("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
+
+        val expectedOwner = "did:uport:2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC"
+        assertTrue(convertedDDO.id == expectedOwner)
+        assertNotNull(convertedDDO.publicKey.find { it ->
+            it.id.startsWith(expectedOwner) &&
+                    it.owner == expectedOwner &&
+                    it.type == DelegateType.Secp256k1VerificationKey2018 &&
+                    it.publicKeyHex == publicKeyHex.clean0xPrefix()
+        })
+        assertNotNull(convertedDDO.publicKey.find { it ->
+            it.id.startsWith(expectedOwner) &&
+                    it.owner == expectedOwner &&
+                    it.type == DelegateType.Curve25519EncryptionPublicKey &&
+                    it.publicKeyBase64 == publicEncKey
+        })
+    }
+
+    @Test
     fun getJsonDIDSync() {
 
-        val expectedDDO = UportDIDDocument(
+        val expectedDDO = UportIdentityDocument(
                 context = "http://schema.org",
                 type = "Person",
                 publicKey = "0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f",

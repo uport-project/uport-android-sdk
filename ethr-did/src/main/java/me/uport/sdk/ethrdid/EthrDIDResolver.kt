@@ -7,15 +7,13 @@ import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import me.uport.sdk.core.*
-import me.uport.sdk.ethrdid.DelegateType.Secp256k1SignatureAuthentication2018
-import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDAttributeChanged
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDDelegateChanged
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import me.uport.sdk.jsonrpc.experimental.ethCall
 import me.uport.sdk.jsonrpc.experimental.getLogs
-import me.uport.sdk.universaldid.DIDResolver
+import me.uport.sdk.universaldid.*
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
@@ -38,6 +36,7 @@ class EthrDIDResolver(
         //if it can be normalized, then it matches either an ethereum address or a full ethr-did
         return normalizeDid(potentialDID).isNotBlank()
     }
+
     /**
      * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      */
@@ -135,7 +134,7 @@ class EthrDIDResolver(
         val pkEntries = mapOf<String, PublicKeyEntry>().toMutableMap().apply {
             put("owner", PublicKeyEntry(
                     id = "$normalizedDid#owner",
-                    type = Secp256k1VerificationKey2018,
+                    type = DelegateType.Secp256k1VerificationKey2018,
                     owner = normalizedDid,
                     ethereumAddress = owner
             ))
@@ -143,7 +142,7 @@ class EthrDIDResolver(
         }
         val authEntries = mapOf<String, AuthenticationEntry>().toMutableMap().apply {
             put("owner", AuthenticationEntry(
-                    type = Secp256k1SignatureAuthentication2018,
+                    type = DelegateType.Secp256k1SignatureAuthentication2018,
                     publicKey = "$normalizedDid#owner"
             ))
         }
@@ -163,15 +162,15 @@ class EthrDIDResolver(
                         delegateCount++
 
                         when (delegateType) {
-                            Secp256k1SignatureAuthentication2018.name,
+                            DelegateType.Secp256k1SignatureAuthentication2018.name,
                             sigAuth -> authEntries[key] = AuthenticationEntry(
-                                    type = Secp256k1SignatureAuthentication2018,
+                                    type = DelegateType.Secp256k1SignatureAuthentication2018,
                                     publicKey = "$normalizedDid#delegate-$delegateCount")
 
-                            Secp256k1VerificationKey2018.name,
+                            DelegateType.Secp256k1VerificationKey2018.name,
                             veriKey -> pkEntries[key] = PublicKeyEntry(
                                     id = "$normalizedDid#delegate-$delegateCount",
-                                    type = Secp256k1VerificationKey2018,
+                                    type = DelegateType.Secp256k1VerificationKey2018,
                                     owner = normalizedDid,
                                     ethereumAddress = delegate)
                         }

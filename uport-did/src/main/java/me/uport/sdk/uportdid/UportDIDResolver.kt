@@ -2,8 +2,6 @@ package me.uport.sdk.uportdid
 
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.VisibleForTesting
-import android.support.annotation.VisibleForTesting.PRIVATE
 import me.uport.mnid.Account
 import me.uport.mnid.MNID
 import me.uport.sdk.core.Networks
@@ -32,30 +30,27 @@ class UportDIDResolver : DIDResolver {
     override val method: String = "uport"
 
     override suspend fun resolve(did: String): DIDDocument = suspendCoroutine { continuation ->
-        val (_, mnid) = parse(did)
-        getProfileDocument(mnid) { err, ddo ->
-            if (err != null) {
-                continuation.resumeWithException(err)
-            } else {
-                continuation.resume(ddo)
+        if (canResolve(did)) {
+            val (_, mnid) = parseDIDString(did)
+            getProfileDocument(mnid) { err, ddo ->
+                if (err != null) {
+                    continuation.resumeWithException(err)
+                } else {
+                    continuation.resume(ddo.convertToDIDDocument(did))
+                }
             }
+        } else {
+            continuation.resumeWithException(java.lang.IllegalArgumentException("The DID('$did') cannot be resolved by the uPort DID resolver"))
         }
     }
 
     override fun canResolve(potentialDID: String): Boolean {
-        val (method, mnid) = parse(potentialDID)
+        val (method, mnid) = parseDIDString(potentialDID)
         return if (method == this.method) {
             MNID.isMNID(mnid)
         } else {
             MNID.isMNID(potentialDID)
         }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun parse(did: String): Pair<String, String> {
-        val matchResult = uportDIDPattern.find(did) ?: return ("" to did)
-        val (_, method, mnid) = matchResult.destructured
-        return (method to mnid)
     }
 
     /**
@@ -117,22 +112,22 @@ class UportDIDResolver : DIDResolver {
     }
 
     /**
-     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [UportDIDDocument] object
+     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [UportIdentityDocument] object
      *
      * Should return `null` if anything goes wrong
      */
-    internal fun getProfileDocumentSync(mnid: String): UportDIDDocument? {
+    internal fun getProfileDocumentSync(mnid: String): UportIdentityDocument? {
         val rawJsonDDO = getJsonProfileSync(mnid)
 
-        return UportDIDDocument.fromJson(rawJsonDDO)
+        return UportIdentityDocument.fromJson(rawJsonDDO)
     }
 
     /**
-     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [UportDIDDocument] object
+     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [UportIdentityDocument] object
      *
      * TODO: Should [callback] with non-`null` error if anything goes wrong
      */
-    fun getProfileDocument(mnid: String, callback: (err: Exception?, ddo: UportDIDDocument) -> Unit) {
+    fun getProfileDocument(mnid: String, callback: (err: Exception?, ddo: UportIdentityDocument) -> Unit) {
 
         Thread {
             //safe to call networks
@@ -149,6 +144,12 @@ class UportDIDResolver : DIDResolver {
     companion object {
         //language=RegExp
         private val uportDIDPattern = "^(did:(uport):)?([1-9A-HJ-NP-Za-km-z]{34,38})(.*)".toRegex()
+
+        internal fun parseDIDString(did: String): Pair<String, String> {
+            val matchResult = uportDIDPattern.find(did) ?: return ("" to did)
+            val (_, method, mnid) = matchResult.destructured
+            return (method to mnid)
+        }
     }
 
 }
