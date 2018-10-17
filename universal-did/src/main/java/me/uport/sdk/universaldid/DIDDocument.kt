@@ -1,39 +1,22 @@
-package me.uport.sdk.ethrdid
+package me.uport.sdk.universaldid
 
 import android.support.annotation.Keep
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+
 
 /**
- * Classes to describe the DID document corresponding to a particular ethr-did
+ * Abstraction for DID documents
  */
-
-@Serializable
-data class DDO(
-        @SerialName("id")
-        val id: String,
-
-        @SerialName("publicKey")
-        val publicKey: List<PublicKeyEntry> = emptyList(),
-
-        @SerialName("authentication")
-        val authentication: List<AuthenticationEntry> = emptyList(),
-
-        @Optional
-        @SerialName("service")
-        val service: List<ServiceEntry> = emptyList(),
-
-        @SerialName("@context")
-        val context: String = "https://w3id.org/did/v1"
-) {
-    override fun toString(): String = JSON.indented.stringify(this)
-
-    companion object {
-        val blank = DDO("")
-    }
+interface DIDDocument {
+    val context: String?
+    val id: String?
+    val publicKey: List<PublicKeyEntry>
+    val authentication: List<AuthenticationEntry>
+    val service: List<ServiceEntry>
 }
+
 
 @Serializable
 data class PublicKeyEntry(
@@ -75,7 +58,7 @@ data class AuthenticationEntry(
 
 @Serializable
 data class ServiceEntry(
-        val type : String,
+        val type: String,
         val serviceEndpoint: String
 )
 
@@ -85,5 +68,5 @@ enum class DelegateType {
     Secp256k1SignatureAuthentication2018,
     Ed25519VerificationKey2018,
     RsaVerificationKey2018,
+    Curve25519EncryptionPublicKey, // encryption key. Usage described here: https://github.com/uport-project/specs/blob/develop/pki/diddocument.md
 }
-

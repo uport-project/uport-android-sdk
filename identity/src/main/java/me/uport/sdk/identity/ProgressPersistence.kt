@@ -2,8 +2,9 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.squareup.moshi.Json
-import me.uport.sdk.identity.endpoints.moshi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 
 class ProgressPersistence(context: Context) {
 
@@ -30,36 +31,34 @@ class ProgressPersistence(context: Context) {
     /**
      * Wrapper for intermediate states of account creation
      */
+    @Serializable
     internal data class PersistentBundle(
-            @Json(name = "rootAddress")
+            @SerialName("rootAddress")
             val rootAddress: String = "",
 
-            @Json(name = "devKey")
+            @SerialName("devKey")
             val deviceAddress: String = "",
 
-            @Json(name = "recoveryKey")
+            @SerialName("recoveryKey")
             val recoveryAddress: String = "",
 
-            @Json(name = "fuelToken")
+            @SerialName("fuelToken")
             val fuelToken: String = "",
 
-            @Json(name = "txHash")
+            @SerialName("txHash")
             val txHash: String = "",
 
-            @Json(name = "partialAccount")
+            @SerialName("partialAccount")
             val partialAccount: Account = Account.blank
     ) {
-        fun toJson() = jsonAdapter.toJson(this) ?: ""
+        fun toJson() = JSON.stringify(this)
 
         companion object {
             fun fromJson(json: String): PersistentBundle = try {
-                jsonAdapter.fromJson(json)
-                        ?: PersistentBundle()
+                JSON.nonstrict.parse(json)
             } catch (err: Exception) {
                 PersistentBundle()
             }
-
-            private val jsonAdapter = moshi.adapter<PersistentBundle>(PersistentBundle::class.java)
         }
     }
 
@@ -76,7 +75,7 @@ class ProgressPersistence(context: Context) {
     internal fun restore(): Pair<AccountCreationState, PersistentBundle> {
         val persistedOrdinal = prefs.getInt(ACCOUNT_CREATION_PROGRESS, AccountCreationState.NONE.ordinal)
         val state = AccountCreationState.values()[persistedOrdinal]
-        val serialized = prefs.getString(ACCOUNT_CREATION_DETAIL, "")
+        val serialized = prefs.getString(ACCOUNT_CREATION_DETAIL, "") ?: ""
 
         return (state to PersistentBundle.fromJson(serialized))
     }

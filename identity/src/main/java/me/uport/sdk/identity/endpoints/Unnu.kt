@@ -1,7 +1,8 @@
 package me.uport.sdk.identity.endpoints
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonAdapter
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.urlPost
 import java.io.IOException
@@ -16,58 +17,51 @@ typealias IdentityInfoCallback = (err: Exception?, identityInfo: UnnuIdentityInf
 /**
  * Encapsulates the payload data for an "Identity creation request" made to Unnu
  */
+@Serializable
 data class UnnuCreationRequest(
-        @Json(name = "deviceKey")
+        @SerialName("deviceKey")
         val deviceKey: String,
 
-        @Json(name = "recoveryKey")
+        @SerialName("recoveryKey")
         val recoveryKey: String,
 
-        @Json(name = "blockchain")
+        @SerialName("blockchain")
         val blockchain: String,
 
-        @Json(name = "managerType")
+        @SerialName("managerType")
         val managerType: String = "MetaIdentityManager") {
 
-    fun toJson() = unnuCreationRequestAdapter?.toJson(this) ?: ""
-
-    companion object {
-        /**
-         * Adapter used to serialize unnu request object
-         */
-        private val unnuCreationRequestAdapter = moshi.adapter<UnnuCreationRequest>(UnnuCreationRequest::class.java)
-    }
+    fun toJson() = JSON.stringify(this)
 }
 
 /**
  * Wraps the data needed for a Unnu lookup request
  */
+@Serializable
 data class UnnuLookupRequest(val deviceKey: String) {
 
-    fun toJson() = jsonAdapter?.toJson(this) ?: ""
+    fun toJson() = JSON.stringify(this)
 
-    companion object {
-        private val jsonAdapter: JsonAdapter<UnnuLookupRequest>? = moshi.adapter<UnnuLookupRequest>(UnnuLookupRequest::class.java)
-    }
 }
 
 /**
  * Encapsulates the response data for identity creation or lookup
  */
+@Serializable
 data class UnnuIdentityInfo(
-        @Json(name = "managerType")
+        @SerialName("managerType")
         val managerType: String = "MetaIdentityManager",
 
-        @Json(name = "managerAddress")
+        @SerialName("managerAddress")
         val managerAddress: String = "",
 
-        @Json(name = "txHash")
+        @SerialName("txHash")
         val txHash: String? = null,
 
-        @Json(name = "identity")
+        @SerialName("identity")
         val proxyAddress: String? = null,
 
-        @Json(name = "blockchain")
+        @SerialName("blockchain")
         val blockchain: String? = null) {
 
     companion object {
@@ -78,24 +72,20 @@ data class UnnuIdentityInfo(
 /**
  * Wraps the [UnnuIdentityInfo] response in an object suitable for receiving JsonRPC responses
  */
+@Serializable
 data class UnnuJRPCResponse(
 
-        @Json(name = "status")
+        @SerialName("status")
         val status: String = "failure",
 
-        @Json(name = "message")
+        @SerialName("message")
         val message: String? = null,
 
-        @Json(name = "data")
+        @SerialName("data")
         val data: UnnuIdentityInfo = UnnuIdentityInfo()) {
 
     companion object {
-        /**
-         * Adapter used to de-serialize unnu response object
-         */
-        private val jsonAdapter = moshi.adapter<UnnuJRPCResponse>(UnnuJRPCResponse::class.java)
-
-        fun fromJson(json: String) = jsonAdapter.fromJson(json) ?: UnnuJRPCResponse()
+        fun fromJson(json: String) : UnnuJRPCResponse = JSON.nonstrict.parse(json)
     }
 }
 

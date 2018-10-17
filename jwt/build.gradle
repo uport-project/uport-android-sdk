@@ -37,7 +37,7 @@ dependencies {
     api "com.github.walleth.kethereum:extensions:$kethereum_version"
 
     api project(":signer")
-    api project(":did")
+    api project(':uport-did')
     api project(":ethr-did")
     api project(":jsonrpc")
     api project(":core")

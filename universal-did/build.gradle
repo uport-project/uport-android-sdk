@@ -1,6 +1,6 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "bivrost"
+apply plugin: "kotlinx-serialization"
 apply plugin: "maven"
 
 //apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
@@ -16,7 +16,10 @@ android {
         versionCode 1
         versionName "1.0"
 
+        multiDexEnabled true
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -26,24 +29,27 @@ android {
         }
     }
 
+    dexOptions {
+        jumboMode true
+    }
+
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "com.github.gnosis.bivrost-kotlin:bivrost-solidity-types:$bivrost_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
-    api "com.github.walleth.kethereum:extensions:$kethereum_version"
+    api project(":serialization")
 
-    api project(":jsonrpc")
-    api project(":core")
+    implementation "com.android.support:support-annotations:$support_lib_version"
 
-    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
-
-    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
-//    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
-
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "org.mockito:mockito-inline:$mockito_version"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
 }
 
-repositories {
-    mavenCentral()
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
 }

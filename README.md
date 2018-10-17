@@ -6,7 +6,7 @@ Identity for your Android dApps.
 Many intended features are still missing, and the ones already present are under heavy development.
 Expect breaking changes!**
 
-Issues are being tracket at https://www.pivotaltracker.com/n/projects/2198688
+Issues are being tracked at https://www.pivotaltracker.com/n/projects/2198688
 
 ### Installation
 
@@ -129,6 +129,22 @@ val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 ```
 
+#### off-chain interaction
+
+Off-chain interaction is essentially signing and verifying JWTs using uport-specific JWT algorithms.
+Verification of such tokens implies resolving a 
+[Decentralized Identity (DID) document](https://github.com/uport-project/specs/blob/develop/pki/diddocument.md)
+that will contain the keys or address that should match a JWT signature.
+
+To obtain a `DIDDocument` one needs to use a `DIDResolver`.
+`UniversalDID` is a global registry of `DIDResolver`s for apps using the SDK.
+During SDK initialization this registry gets populated with resolvers for
+[uport-did](https://github.com/uport-project/uport-did-resolver) and [ethr-did](https://github.com/uport-project/ethr-did-resolver)
+
+```
+//TODO: Details about how to use these docs for verification of JWTs to be added when
+JWT verification functionality is finalized
+``` 
 
 ### Dependencies
 
@@ -141,6 +157,10 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 
 ### Changelog
+
+* 0.3.x - upcoming release with breaking changes
+    * add universal DID resolver
+    * add cleaner way of creating JWTs with abstracted signer
 
 * 0.2.2
     * update of dependencies for coroutines and build tools

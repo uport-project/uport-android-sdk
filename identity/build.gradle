@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: "kotlin-android"
+apply plugin: "kotlinx-serialization"
 apply plugin: "maven"
 
 android {
@@ -32,12 +33,11 @@ dependencies {
 
     implementation "com.android.support:support-annotations:$support_lib_version"
 
-    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
-
     api "com.github.walleth.kethereum:model:$kethereum_version"
-    api project(":did")
+    api project(':uport-did')
     api project(":core")
     api project(":signer")
+    api project(":serialization")
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"

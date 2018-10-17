@@ -172,7 +172,7 @@ class EthrDIDResolverTest {
                    "publicKey": "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a#owner"}]
             }
         """.trimIndent()
-        val referenceDDO = JSON.nonstrict.parse<DDO>(referenceDDOString)
+        val referenceDDO = JSON.nonstrict.parse<EthrDIDDocument>(referenceDDOString)
 
 
         val realAddress = "0xb9c5714089478a327f09197987f16f9e5d936e8a"
@@ -190,7 +190,8 @@ class EthrDIDResolverTest {
                 "0xb9c5714089478a327f09197987f16f9e5d936e8a",
                 "0xB9C5714089478a327F09197987f16f9E5d936E8a",
                 "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a",
-                "did:ethr:0xB9C5714089478a327F09197987f16f9E5d936E8a"
+                "did:ethr:0xB9C5714089478a327F09197987f16f9E5d936E8a",
+                "did:ethr:0xB9C5714089478a327F09197987f16f9E5d936E8a#owner"
         )
 
         val invalidDids = listOf(
