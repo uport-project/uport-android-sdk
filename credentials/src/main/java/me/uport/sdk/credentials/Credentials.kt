@@ -20,12 +20,22 @@ class Credentials(
         private val clock: ITimeProvider = SystemTimeProvider
 ) {
 
+
     @Suppress("EnumEntryName")
     enum class RequestType {
         shareReq,
         shareResp,
         verReq,
         ethtx
+    }
+
+    /**
+     *  Creates a JWT using the given [payload]
+     */
+    suspend fun signJWT(payload: Map<String, Any>, expiresInSeconds: Long = 300L): String {
+        val normDID = normalizeKnownDID(this.did)
+        val alg = if (normDID.startsWith("did:uport:")) JwtHeader.ES256K else JwtHeader.ES256K_R
+        return JWTTools(clock).createJWT(payload, normDID, this.signer, expiresInSeconds = expiresInSeconds, algorithm = alg)
     }
 
     companion object {

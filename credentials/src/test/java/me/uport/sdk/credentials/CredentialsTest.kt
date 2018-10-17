@@ -1,5 +1,10 @@
 package me.uport.sdk.credentials
 
+import com.uport.sdk.signer.KPSigner
+import kotlinx.coroutines.experimental.runBlocking
+import me.uport.sdk.jwt.JWTTools
+import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
+import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -35,9 +40,32 @@ class CredentialsTest {
                 "2nQtiQG6Cgm1GYTBaaK" to "2nQtiQG6Cgm1GYTBaaK"
         )
 
-        transformations.forEach {(orig, expected) ->
+        transformations.forEach { (orig, expected) ->
             assertEquals(expected, Credentials.normalizeKnownDID(orig))
         }
     }
+
+    @Test
+    fun `signJWT uses the correct algorithm for uport did`() = runBlocking {
+
+        val cred = Credentials("did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX", KPSigner("0x1234"))
+        val jwt = cred.signJWT(emptyMap())
+
+        val (header, payload, signature) = JWTTools().decode(jwt)
+        assertEquals(ES256K, header.alg)
+
+    }
+
+    @Test
+    fun `signJWT uses the correct algorithm for non-uport did`() = runBlocking {
+
+        val cred = Credentials("0xf3beac30c498d9e26865f34fcaa57dbb935b0d74", KPSigner("0x1234"))
+        val jwt = cred.signJWT(emptyMap())
+
+        val (header, payload, signature) = JWTTools().decode(jwt)
+        assertEquals(ES256K_R, header.alg)
+
+    }
+
 
 }
