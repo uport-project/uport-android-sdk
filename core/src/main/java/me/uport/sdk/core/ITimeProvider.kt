@@ -17,6 +17,6 @@ interface ITimeProvider {
 /**
  * Default time provider
  */
-class SystemTimeProvider : ITimeProvider {
+object SystemTimeProvider : ITimeProvider {
     override fun now()  = System.currentTimeMillis()
 }

@@ -38,7 +38,7 @@ import kotlin.experimental.and
  * the [timeProvider] defaults to [SystemTimeProvider] but you can configure it for testing or for "was valid at" scenarios
  */
 class JWTTools(
-        private val timeProvider: ITimeProvider = SystemTimeProvider()
+        private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
