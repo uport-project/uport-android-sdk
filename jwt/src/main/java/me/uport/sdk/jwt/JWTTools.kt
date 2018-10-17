@@ -48,7 +48,7 @@ class JWTTools(
      *
      * The issuerDID is NOT checked for format, nor for a match with the signer.
      */
-    suspend fun createJWT(payload: Map<String, Any>, issuerDID: String, signer: Signer, expiresInSeconds: Long = 300, algorithm: String = ES256K_R): String {
+    suspend fun createJWT(payload: Map<String, Any>, issuerDID: String, signer: Signer, expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS, algorithm: String = ES256K_R): String {
         val mapAdapter = moshi.mapAdapter<String, Any>(String::class.java, Any::class.java)
 
         val mutablePayload = payload.toMutableMap()
@@ -294,6 +294,7 @@ class JWTTools(
     companion object {
         //Create adapters with each object
         val jwtPayloadAdapter: JsonAdapter<JwtPayload> by lazy { moshi.adapter(JwtPayload::class.java) }
+        const val DEFAULT_JWT_VALIDITY_SECONDS = 300L
     }
 
 }
