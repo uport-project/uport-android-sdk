@@ -67,5 +67,14 @@ class CredentialsTest {
 
     }
 
+    @Test
+    fun `selective disclosure payload is filtered to specific fields`() {
+        TODO("implement this scenario. the payload that actually gets signed should include the following fields if they are present in the parameters: requested, networkId(net), accountType(act), expiresIn(exp=iat+expiresIn), verified, callbackUrl(callback), notifications")
+    }
+
+    @Test
+    fun `selective disclosure request contains required fields`() {
+        TODO("implement this scenario. The processed payload has to have: iss, iat, type=shareReq")
+    }
 
 }
