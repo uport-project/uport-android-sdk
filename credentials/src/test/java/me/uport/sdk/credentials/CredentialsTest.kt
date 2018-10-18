@@ -2,6 +2,7 @@ package me.uport.sdk.credentials
 
 import com.uport.sdk.signer.KPSigner
 import kotlinx.coroutines.experimental.runBlocking
+import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
@@ -73,8 +74,32 @@ class CredentialsTest {
     }
 
     @Test
-    fun `selective disclosure request contains required fields`() {
-        TODO("implement this scenario. The processed payload has to have: iss, iat, type=shareReq")
+    fun `selective disclosure payload contains relevant fields`() = runBlocking {
+
+        val params = SelectiveDisclosureRequestParams(
+                requested = listOf("name", "country"),
+                callbackUrl = "myapp://get-back-to-me-with-response.url",
+                verified = listOf("email"),
+                networkId = "0x4",
+                accountType = RequestAccountType.keypair,
+                vc = emptyList(),
+                expiresInSeconds = 1234L,
+                extras = mapOf(
+                        "hello" to "world",
+                        "type" to "expect this to be overwritten"
+                )
+        )
+
+        val load = buildPayloadForShareReq(params)
+
+        assertTrue((load["requested"] as List<*>).containsAll(listOf("name", "country")))
+        assertTrue((load["verified"] as List<*>).containsAll(listOf("email")))
+        assertEquals("myapp://get-back-to-me-with-response.url", load["callback"])
+        assertEquals("0x4", load["net"])
+        assertEquals("keypair", load["act"])
+        assertTrue((load["vc"] as List<*>).isEmpty())
+        assertEquals("world", load["hello"])
+        assertEquals("shareReq", load["type"])
     }
 
 }
