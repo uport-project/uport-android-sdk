@@ -22,6 +22,26 @@ class Credentials(
 ) {
 
     /**
+     *  Creates a [Selective Disclosure Request JWT](https://github.com/uport-project/specs/blob/develop/messages/sharereq.md)
+     *
+     * Example:
+     * ```
+     *  val reqParams = SelectiveDisclosureRequestParams(
+     *                      requested = listOf("name", "country"),
+     *                      callbackUrl = "https://myserver.com"
+     *                  )
+     *  val jwt = credentials.createDisclosureRequest(reqParams)
+     *
+     *  // ... send jwt to the relevant party and expect a callback with the response at https://myserver.com
+     *
+     *  ```
+     */
+    suspend fun createDisclosureRequest(params: SelectiveDisclosureRequestParams): String {
+        val payload = buildPayloadForShareReq(params)
+        return this.signJWT(payload, params.expiresInSeconds ?: DEFAULT_SHARE_REQ_VALIDITY_SECONDS)
+    }
+
+    /**
      *  Creates a JWT using the given [payload], issued and signed using the [did] and [signer]
      *  fields of this [Credentials] instance.
      *

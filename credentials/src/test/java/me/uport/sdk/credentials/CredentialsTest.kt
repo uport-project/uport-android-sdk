@@ -69,8 +69,16 @@ class CredentialsTest {
     }
 
     @Test
-    fun `selective disclosure payload is filtered to specific fields`() {
-        TODO("implement this scenario. the payload that actually gets signed should include the following fields if they are present in the parameters: requested, networkId(net), accountType(act), expiresIn(exp=iat+expiresIn), verified, callbackUrl(callback), notifications")
+    fun `selective disclosure request contains required fields`() = runBlocking {
+        val now = Math.floor(SystemTimeProvider.now() / 1000.0).toLong()
+        val cred = Credentials("did:example:issuer", KPSigner("0x1234"))
+
+        val jwt = cred.createDisclosureRequest(SelectiveDisclosureRequestParams(emptyList(), ""))
+        val (_, payload, _) = JWTTools().decode(jwt)
+
+        assertEquals("did:example:issuer", payload.iss)
+        assertTrue("payload.iat(${payload.iat}) should be greater than currentTime ($now)", payload.iat!! >= now)
+        assertEquals(RequestType.shareReq.name, payload.type)
     }
 
     @Test
