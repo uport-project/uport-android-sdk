@@ -38,7 +38,7 @@ import kotlin.experimental.and
  * the [timeProvider] defaults to [SystemTimeProvider] but you can configure it for testing or for "was valid at" scenarios
  */
 class JWTTools(
-        private val timeProvider: ITimeProvider = SystemTimeProvider()
+        private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
@@ -46,9 +46,22 @@ class JWTTools(
      * This coroutine method creates a signed JWT from a [payload] Map and an abstracted [Signer]
      * You're also supposed to pass the [issuerDID] and can configure the algorithm used and expiry time
      *
-     * The issuerDID is NOT checked for format, nor for a match with the signer.
+     * @param payload a map containing the fields forming the payload of this JWT
+     * @param issuerDID a DID string that will be set as the `iss` field in the JWT payload.
+     *                  The signature produced by the signer should correspond to this DID.
+     *                  If the `iss` field is already part of the [payload], that will get overwritten.
+     *                  **The [issuerDID] is NOT checked for format, nor for a match with the signer.**
+     * @param signer a [Signer] that will produce the signature section of this JWT.
+     *                  The signature should correspond to the [issuerDID].
+     * @param expiresInSeconds number of seconds of validity of this JWT. You may omit this param if
+     *                  an `exp` timestamp is already part of the [payload].
+     *                  If there is no `exp` field in the payload and the param is not specified,
+     *                  it defaults to [DEFAULT_JWT_VALIDITY_SECONDS]
+     * @param algorithm defaults to `ES256K-R`. The signing algorithm for this JWT.
+     *                  Supported types are `ES256K` for uport DID and `ES256K-R` for ethr-did and the rest
+     *
      */
-    suspend fun createJWT(payload: Map<String, Any>, issuerDID: String, signer: Signer, expiresInSeconds: Long = 300, algorithm: String = ES256K_R): String {
+    suspend fun createJWT(payload: Map<String, Any>, issuerDID: String, signer: Signer, expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS, algorithm: String = ES256K_R): String {
         val mapAdapter = moshi.mapAdapter<String, Any>(String::class.java, Any::class.java)
 
         val mutablePayload = payload.toMutableMap()
@@ -59,7 +72,7 @@ class JWTTools(
         val expSeconds = iatSeconds + expiresInSeconds
 
         mutablePayload["iat"] = iatSeconds
-        mutablePayload["exp"] = expSeconds
+        mutablePayload["exp"] = payload["exp"] ?: expSeconds
         mutablePayload["iss"] = issuerDID
 
         @Suppress("SimplifiableCallChain", "ConvertCallChainIntoSequence")
@@ -294,6 +307,11 @@ class JWTTools(
     companion object {
         //Create adapters with each object
         val jwtPayloadAdapter: JsonAdapter<JwtPayload> by lazy { moshi.adapter(JwtPayload::class.java) }
+
+        /**
+         * 5 minutes. The default number of seconds of validity of a JWT, in case no other interval is specified.
+         */
+        const val DEFAULT_JWT_VALIDITY_SECONDS = 300L
     }
 
 }
