@@ -17,7 +17,8 @@ import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import org.kethereum.crypto.CURVE
-import org.kethereum.crypto.getAddress
+import org.kethereum.crypto.model.PublicKey
+import org.kethereum.crypto.toAddress
 import org.kethereum.encodings.decodeBase58
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.extensions.toHexStringZeroPadded
@@ -154,14 +155,14 @@ class JWTTools(
                 val pubKeyNoPrefix = recoveredPubKey
                         .toBytesPadded(65)
                         .copyOfRange(1, 65)
-                val recoveredAddress = getAddress(pubKeyNoPrefix).toNoPrefixHexString()
+                val recoveredAddress = PublicKey(pubKeyNoPrefix).toAddress().cleanHex
 
                 val numMatches = ddo.publicKey.map {
                     val pk = it.publicKeyHex?.hexToByteArray()
                             ?: it.publicKeyBase64?.decodeBase64()
                             ?: it.publicKeyBase58?.decodeBase58()
                             ?: byteArrayOf()
-                    (it.ethereumAddress ?: getAddress(pk).toHexString()).clean0xPrefix()
+                    (it.ethereumAddress?.clean0xPrefix() ?: PublicKey(pk).toAddress().cleanHex)
                 }.filter {
                     it == recoveredAddress
                 }.size

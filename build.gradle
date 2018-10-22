@@ -6,9 +6,9 @@ buildscript {
 
         kotlin_version = '1.2.71'
         kotlin_serialization_version = '0.6.2'
-        coroutines_version = "0.26.1"
+        coroutines_version = "0.30.2"
 
-        android_tools_version = '3.3.0-alpha13'
+        android_tools_version = '3.3.0-beta01'
 
         build_tools_version = "28.0.3"
 
@@ -18,19 +18,19 @@ buildscript {
 
         test_runner_version = "1.0.2"
         test_rules_version = test_runner_version
-        support_lib_version = "27.1.1"
+        support_lib_version = "28.0.0"
         play_services_version = "15.0.0"
         espresso_version = "3.0.2"
         junit_version = "4.12"
-        mockito_version = "2.19.0"
-        mockito_kotlin_version = "2.0.0-RC1"
+        mockito_version = "2.23.0"
+        mockito_kotlin_version = "2.0.0-RC3"
 
         moshi_version = "1.7.0"
         okhttp_version = "3.10.0"
 
         bivrost_version = "1c0efeb7f3"//"v0.6.2"
         kmnid_version = "0.2.1"
-        kethereum_version = "0.53"
+        kethereum_version = "0.63"
         khex_version = "0.5"
 
         uport_sdk_version = "0.2.2"

@@ -7,6 +7,7 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class JWTToolsJVMTest {
 
@@ -23,16 +24,16 @@ class JWTToolsJVMTest {
     @Test
     fun verify() {
 
-        val latch = CountDownLatch(tokens.size)
-        tokens.forEach {
-            JWTTools().verify(it) { err, payload ->
-                assertNull(err)
+        tokens.forEachIndexed { index, token ->
+            val latch = CountDownLatch(tokens.size)
+            JWTTools().verify(token) { err, payload ->
+                assertNull("token $index failed verification", err)
                 println(payload)
                 latch.countDown()
             }
+            latch.await(15, TimeUnit.SECONDS)
         }
 
-        latch.await()
     }
 
     @Suppress("UNUSED_VARIABLE")

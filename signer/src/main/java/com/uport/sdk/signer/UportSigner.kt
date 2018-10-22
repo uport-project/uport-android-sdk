@@ -12,10 +12,14 @@ import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import org.kethereum.crypto.*
+import org.kethereum.crypto.model.ECKeyPair
+import org.kethereum.crypto.model.PRIVATE_KEY_SIZE
+import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
+import org.kethereum.crypto.model.PrivateKey
+import org.kethereum.extensions.toBytesPadded
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
 import org.spongycastle.jce.provider.BouncyCastleProvider
-import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 import java.security.InvalidKeyException
 import java.security.KeyException
@@ -59,8 +63,8 @@ open class UportSigner {
     fun createKey(context: Context, level: KeyProtection.Level, callback: (err: Exception?, address: String, pubKey: String) -> Unit) {
 
         val privateKeyBytes = try {
-            val (privKey, _) = createEcKeyPair()
-            privKey.toByteArray()
+            val (privKey, _) = createEthereumKeyPair()
+            privKey.key.toBytesPadded(PRIVATE_KEY_SIZE)
         } catch (exception: Exception) {
             return callback(KeyException("ERR_CREATING_KEYPAIR", exception), "", "")
         }
@@ -76,11 +80,11 @@ open class UportSigner {
      */
     fun saveKey(context: Context, level: KeyProtection.Level, privateKeyBytes: ByteArray, callback: (err: Exception?, address: String, pubKey: String) -> Unit) {
 
-        val keyPair = ECKeyPair.create(privateKeyBytes)
+        val keyPair = PrivateKey(privateKeyBytes).toECKeyPair()
 
         val publicKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
         val publicKeyString = publicKeyBytes.toBase64().padBase64()
-        val address: String = keyPair.getAddress().prepend0xPrefix()
+        val address: String = keyPair.toAddress().hex
 
         val label = asAddressLabel(address)
 
@@ -137,15 +141,15 @@ open class UportSigner {
             return callback(storageError, EMPTY_SIGNATURE_DATA)
         }
 
-        encryptionLayer.decrypt(context, prompt, encryptedPrivateKey) { err, privateKey ->
+        encryptionLayer.decrypt(context, prompt, encryptedPrivateKey) { err, privateKeyBytes ->
 
             if (err != null) {
                 return@decrypt callback(err, EMPTY_SIGNATURE_DATA)
             }
 
             try {
-                val keyPair = ECKeyPair.create(privateKey)
-                privateKey.fill(0)
+                val keyPair = PrivateKey(privateKeyBytes).toECKeyPair()
+                privateKeyBytes.fill(0)
 
                 val txBytes = txPayload.decodeBase64()
 
@@ -216,16 +220,16 @@ open class UportSigner {
             return callback(storageError, SignatureData())
         }
 
-        encryptionLayer.decrypt(context, prompt, encryptedPrivateKey) { err, privateKey ->
+        encryptionLayer.decrypt(context, prompt, encryptedPrivateKey) { err, privateKeyBytes ->
             if (err != null) {
                 return@decrypt callback(err, SignatureData())
             }
 
             try {
-                val keyPair = ECKeyPair.create(privateKey)
+                val keyPair = PrivateKey(privateKeyBytes).toECKeyPair()
                 val payloadBytes = data.decodeBase64()
                 val sig = signJwt(payloadBytes, keyPair)
-                privateKey.fill(0)
+                privateKeyBytes.fill(0)
 
                 return@decrypt callback(null, sig)
             } catch (exception: Exception) {
