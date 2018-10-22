@@ -22,4 +22,10 @@ class IntentSenderAndroidTest {
         assertTrue(true)
     }
 
+    @Test
+    fun can_call_share_req() {
+        val jwt = "dummy jwt bundle"
+        IntentSender().send(jwt)
+    }
+
 }
