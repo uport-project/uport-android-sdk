@@ -1,4 +1,4 @@
-package me.uport.sdk.ethrdid
+package me.uport.sdk.universaldid
 
 import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.universaldid.*
