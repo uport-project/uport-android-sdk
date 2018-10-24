@@ -10,13 +10,14 @@ import me.uport.sdk.core.toBase64
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.kethereum.bip39.Mnemonic
+import org.kethereum.bip39.generateMnemonic
+import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import java.security.SecureRandom
 import java.util.concurrent.CountDownLatch
 
 class UserInteractionContextTests {
 
-    private val phrase = Mnemonic.generateMnemonic()
+    private val phrase = generateMnemonic(wordList = WORDLIST_ENGLISH)
     private val key = ByteArray(32).apply { SecureRandom().nextBytes(this) }
 
     private val context = InstrumentationRegistry.getTargetContext()

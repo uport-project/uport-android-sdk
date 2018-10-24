@@ -44,6 +44,7 @@ dependencies {
 
     api "com.github.walleth.kethereum:crypto:$kethereum_version"
     api "com.github.walleth.kethereum:bip39:$kethereum_version"
+    api "com.github.walleth.kethereum:bip39_wordlist_en:$kethereum_version"
     api project(":core")
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"

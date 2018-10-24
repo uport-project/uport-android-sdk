@@ -11,8 +11,9 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.kethereum.crypto.ECKeyPair
+import org.kethereum.crypto.model.PrivateKey
 import org.kethereum.crypto.signMessage
+import org.kethereum.crypto.toECKeyPair
 import org.kethereum.extensions.hexToBigInteger
 import org.spongycastle.util.encoders.Hex
 import org.walleth.khex.hexToByteArray
@@ -125,7 +126,7 @@ class SignerTests {
     fun testPublicKey1() {
         val referencePrivateKey = "5047c789919e943c559d8c134091d47b4642122ba0111dfa842ef6edefb48f38"
         val referencePublicKey = "04bf42759e6d2a684ef64a8210c55bf2308e4101f78959ffa335ff045ef1e4252b1c09710281f8971b39efed7bfb61ae381ed73b9faa5a96f17e00c1a4c32796b1"
-        val keyPair = ECKeyPair.create(Hex.decode(referencePrivateKey))
+        val keyPair = PrivateKey(referencePrivateKey.hexToBigInteger()).toECKeyPair()
         val pubKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
         val pubKeyHex = pubKeyBytes.toNoPrefixHexString()
 
@@ -159,7 +160,7 @@ class SignerTests {
 
     @Test
     fun testPublicKey2() {
-        val keypair = ECKeyPair.create(Hex.decode("278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f"))
+        val keypair = PrivateKey("278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f".hexToBigInteger()).toECKeyPair()
         val pubKeyBytes = keypair.getUncompressedPublicKeyWithPrefix()
         val pubKeyEnc = Hex.toHexString(pubKeyBytes)
         assertEquals("04fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea535847946393f8145252eea68afe67e287b3ed9b31685ba6c3b00060a73b9b1242d68f7", pubKeyEnc)
@@ -172,7 +173,7 @@ class SignerTests {
 
         val msg = "Hello, world!".toByteArray()
 
-        val keyPair = ECKeyPair.create(Hex.decode(referencePrivateKey))
+        val keyPair = PrivateKey(referencePrivateKey.hexToBigInteger()).toECKeyPair()
 
         val sigData = UportSigner().signJwt(msg, keyPair).getJoseEncoded()
 
@@ -186,7 +187,7 @@ class SignerTests {
 
         val msg = "Hello, world!".toByteArray()
 
-        val keyPair = ECKeyPair.create(Hex.decode(referencePrivateKey))
+        val keyPair = PrivateKey(referencePrivateKey.hexToBigInteger()).toECKeyPair()
 
         val sigData = UportSigner().signJwt(msg, keyPair).getDerEncoded()
 
@@ -202,7 +203,7 @@ class SignerTests {
 
         val msg = "Hello, world!".toByteArray()
 
-        val keyPair = ECKeyPair.create(referencePrivateKey)
+        val keyPair = PrivateKey(referencePrivateKey).toECKeyPair()
 
         val sigData = UportSigner().signJwt(msg, keyPair)
 
@@ -219,7 +220,7 @@ class SignerTests {
 
         val rawTransaction = "84CFC6Q7dACDL+/YlJ4gaMziLeTh6A8Vy3HvQ1ogo7N8iA3gtrOnZAAAiQq83vASNFZ4kA==".decodeBase64()
 
-        val keyPair = ECKeyPair.create(referencePrivKeyBytes)
+        val keyPair = PrivateKey(referencePrivKeyBytes).toECKeyPair()
 
         val sigData = keyPair.signMessage(rawTransaction)
 

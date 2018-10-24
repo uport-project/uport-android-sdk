@@ -161,6 +161,8 @@ but that may be removed when pure kotlin implementations of the required cryptog
 * 0.3.x - upcoming release with breaking changes
     * add universal DID resolver
     * add cleaner way of creating JWTs with abstracted signer
+    * updated to kethereum 0.63 which has a different key derivation and mnemonic API.
+        If you're using an older version in parallel, you need to update as well. 
 
 * 0.2.2
     * update of dependencies for coroutines and build tools

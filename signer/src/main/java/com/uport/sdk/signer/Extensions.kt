@@ -5,8 +5,8 @@ import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.core.toBase64UrlSafe
-import org.kethereum.crypto.ECKeyPair
-import org.kethereum.crypto.PRIVATE_KEY_SIZE
+import org.kethereum.crypto.model.ECKeyPair
+import org.kethereum.crypto.model.PRIVATE_KEY_SIZE
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.model.SignatureData
 import org.spongycastle.asn1.ASN1EncodableVector
@@ -78,7 +78,7 @@ fun unpackCiphertext(ciphertext: String): List<ByteArray> =
                 .map { it.decodeBase64() }
 
 fun ECKeyPair.getUncompressedPublicKeyWithPrefix(): ByteArray {
-    val pubBytes = this.publicKey.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
+    val pubBytes = this.publicKey.key.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
     pubBytes[0] = 0x04
     return pubBytes
 }

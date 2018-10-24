@@ -52,7 +52,7 @@ class CredentialsTest {
         val cred = Credentials("did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX", KPSigner("0x1234"))
         val jwt = cred.signJWT(emptyMap())
 
-        val (header, payload, signature) = JWTTools().decode(jwt)
+        val (header, _, _) = JWTTools().decode(jwt)
         assertEquals(ES256K, header.alg)
 
     }
@@ -63,7 +63,7 @@ class CredentialsTest {
         val cred = Credentials("0xf3beac30c498d9e26865f34fcaa57dbb935b0d74", KPSigner("0x1234"))
         val jwt = cred.signJWT(emptyMap())
 
-        val (header, payload, signature) = JWTTools().decode(jwt)
+        val (header, _, _) = JWTTools().decode(jwt)
         assertEquals(ES256K_R, header.alg)
 
     }

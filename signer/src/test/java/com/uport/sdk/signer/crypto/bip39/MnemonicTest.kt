@@ -1,13 +1,12 @@
 package com.uport.sdk.signer.crypto.bip39
 
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.kethereum.bip32.generateKey
-import org.kethereum.bip39.Mnemonic
+import org.kethereum.bip39.*
+import org.kethereum.bip39.model.MnemonicWords
+import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import org.walleth.khex.hexToByteArray
 import java.security.Security
@@ -24,12 +23,17 @@ class MnemonicTest {
         Security.addProvider(BouncyCastleProvider())
     }
 
+    @After
+    fun `run after every test`() {
+        Security.removeProvider("SC")
+    }
+
     @Test
-    fun mnemonicToSeed() {
+    fun `can hash mnemonic phrase to seed buffer`() {
         testData.forEach {
 
             val expectedSeed = it.seed.hexToByteArray()
-            val actualSeed = Mnemonic.mnemonicToSeed(it.phrase, "TREZOR")
+            val actualSeed = MnemonicWords(it.phrase).toSeed("TREZOR").seed
 
             assertArrayEquals(expectedSeed, actualSeed)
         }
@@ -37,62 +41,60 @@ class MnemonicTest {
     }
 
     @Test
-    fun mnemonicToEntropy() {
+    fun `can convert mnemonic phrase to entropy buffer`() {
         testData.forEach {
 
             val expectedEntropy = it.entropy.hexToByteArray()
-            val actualEntropy = Mnemonic.mnemonicToEntropy(it.phrase)
+            val actualEntropy = MnemonicWords(it.phrase).mnemonicToEntropy(WORDLIST_ENGLISH)
 
             assertArrayEquals(expectedEntropy, actualEntropy)
         }
     }
 
     @Test
-    fun entropyToMnemonic() {
+    fun `can convert entropy to mnemonic phrase `() {
         testData.forEach {
             val entropy = it.entropy.hexToByteArray()
-            val actualPhrase = Mnemonic.entropyToMnemonic(entropy)
+            val actualPhrase = entropyToMnemonic(entropy, WORDLIST_ENGLISH)
 
             assertEquals(it.phrase, actualPhrase)
         }
     }
 
     @Test
-    fun mnemonicToMasterKey() {
+    fun `can convert mnemonic phrase to extended key`() {
         testData.forEach {
 
-            val generatedSeed = Mnemonic.mnemonicToSeed(it.phrase, "TREZOR")
-
-            val generatedMaster = generateKey(generatedSeed, "m/")
+            val generatedMaster = MnemonicWords(it.phrase).toKey("m/", "TREZOR")
             assertEquals(it.masterKey, generatedMaster.serialize())
 
             //XXX: be advised, the roots generated here use the string "TREZOR" for salting.
             // The actual roots in the app will probably use something else
-            val generatedUportRoot = generateKey(generatedSeed, "m/7696500'/0'/0'/0'")
+            val generatedUportRoot = MnemonicWords(it.phrase).toKey("m/7696500'/0'/0'/0'", "TREZOR")
             assertEquals(it.uportRoot, generatedUportRoot.serialize())
         }
 
     }
 
     @Test
-    fun mnemonicVerify() {
+    fun `can (in)validate mnemonic phrase`() {
         val phraseGood = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         //bad checksum
         val phraseBad1 = "about about about about about about about about about about about about"
         // missing from dictionary
         val phraseBad2 = "hello world"
 
-        assertTrue(Mnemonic.validateMnemonic(phraseGood))
-        assertFalse(Mnemonic.validateMnemonic(phraseBad1))
-        assertFalse(Mnemonic.validateMnemonic(phraseBad2))
+        assertTrue(MnemonicWords(phraseGood).validate(WORDLIST_ENGLISH))
+        assertFalse(MnemonicWords(phraseBad1).validate(WORDLIST_ENGLISH))
+        assertFalse(MnemonicWords(phraseBad2).validate(WORDLIST_ENGLISH))
     }
 
     @Test
-    fun batchTest() {
+    fun `can convert entropy buffers to mnemonic phrases`() {
         testData.forEach {
             val entropy = it.entropy.hexToByteArray()
             val expectedPhrase = it.phrase
-            val actualPhrase = Mnemonic.entropyToMnemonic(entropy)
+            val actualPhrase = entropyToMnemonic(entropy, WORDLIST_ENGLISH)
 
             assertEquals(expectedPhrase, actualPhrase)
         }
@@ -100,7 +102,7 @@ class MnemonicTest {
 
     data class MnemonicTestData(val entropy: String, val phrase: String, val seed: String, val masterKey: String, val uportRoot: String)
 
-    val testData = arrayOf(
+    private val testData = arrayOf(
             MnemonicTestData("00000000000000000000000000000000",
                     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
                     "c55257c360c07c72029aebc1b53c05ed0362ada38ead3e3e9efa3708e53495531f09a6987599d18264c1e1c92f2cf141630c7a3c4ab7c81b2f001698e7463b04",

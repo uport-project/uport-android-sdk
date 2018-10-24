@@ -15,8 +15,9 @@ import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.kethereum.bip32.generateKey
-import org.kethereum.bip39.Mnemonic
+import org.kethereum.bip32.toKey
+import org.kethereum.bip39.model.MnemonicWords
+import org.kethereum.bip39.toSeed
 import org.kethereum.extensions.hexToBigInteger
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
@@ -87,7 +88,7 @@ class HDSignerTests {
     @Test
     fun testJwtComponents() {
 
-        val referenceSeed = Mnemonic.mnemonicToSeed("vessel ladder alter error federal sibling chat ability sun glass valve picture")
+        val referenceSeed = MnemonicWords("vessel ladder alter error federal sibling chat ability sun glass valve picture").toSeed()
         val referencePayload = "Hello, world!".toByteArray()
 
         val referencePrivateKey = "65fc670d9351cb87d1f56702fb56a7832ae2aab3427be944ab8c9f2a0ab87960".hexToBigInteger()
@@ -95,9 +96,9 @@ class HDSignerTests {
         val referenceR = "6bcd81446183af193ca4a172d5c5c26345903b24770d90b5d790f74a9dec1f68".hexToBigInteger()
         val referenceS = "e2b85b3c92c9b4f3cf58de46e7997d8efb6e14b2e532d13dfa22ee02f3a43d5d".hexToBigInteger()
 
-        val derivedRootExtendedKey = generateKey(referenceSeed, UportHDSigner.UPORT_ROOT_DERIVATION_PATH)
+        val derivedRootExtendedKey = referenceSeed.toKey(UportHDSigner.UPORT_ROOT_DERIVATION_PATH)
 
-        assertEquals(referencePrivateKey, derivedRootExtendedKey.keyPair.privateKey)
+        assertEquals(referencePrivateKey, derivedRootExtendedKey.keyPair.privateKey.key)
 
         val keyPair = derivedRootExtendedKey.keyPair
 
