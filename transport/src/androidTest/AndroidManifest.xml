@@ -3,6 +3,6 @@
 
     <!-- manifest only used for testing -->
     <application>
-        <activity android:name=".IntentSenderAndroidTest$DummyActivity" />
+        <activity android:name=".TransportsAndroidTests$DummyActivity" />
     </application>
 </manifest>
