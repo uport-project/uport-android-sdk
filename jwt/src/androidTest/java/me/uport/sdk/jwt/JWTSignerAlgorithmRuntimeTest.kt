@@ -60,7 +60,7 @@ class JWTSignerAlgorithmRuntimeTest {
 
         val signature = JWTSignerAlgorithm(ES256K_R).sign(referencePayload, testedSigner)
 
-        val expectedSignature = "a82BRGGDrxk8pKFy1cXCY0WQOyR3DZC115D3Sp3sH2jiuFs8ksm0889Y3kbnmX2O-24UsuUy0T36Iu4C86Q9XRw"
+        val expectedSignature = "a82BRGGDrxk8pKFy1cXCY0WQOyR3DZC115D3Sp3sH2jiuFs8ksm0889Y3kbnmX2O-24UsuUy0T36Iu4C86Q9XQE"
         assertEquals(expectedSignature, signature)
         assertEquals(65, signature.decodeBase64().size)
     }

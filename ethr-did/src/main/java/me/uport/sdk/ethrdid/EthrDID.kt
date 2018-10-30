@@ -22,7 +22,7 @@ class EthrDID(
         private val address: String,
         private val rpc: JsonRPC,
         private val registry: String,
-        var signer: Signer
+        val signer: Signer
 ) {
 
     private val owner: String? = null

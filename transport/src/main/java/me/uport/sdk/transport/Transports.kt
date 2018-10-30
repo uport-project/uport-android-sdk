@@ -20,6 +20,7 @@ class Transports {
         val uri = Uri.parse("https://id.uport.me/req/$encodedQuery")
         val intent = Intent(Intent.ACTION_VIEW, uri)
                 .addCategory(Intent.CATEGORY_BROWSABLE)
+        println(uri.toString())
         context.startActivity(intent)
     }
 
