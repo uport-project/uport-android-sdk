@@ -24,6 +24,9 @@ const val SIG_RECOVERABLE_SIZE = SIG_SIZE + 1
 
 /**
  * Returns the JOSE encoding of the standard signature components (joined by empty string)
+ *
+ * @param recoverable If this is true then the buffer returned gets an extra byte with the
+ *          recovery param shifted back to [0, 1] ( as opposed to [27,28] )
  */
 fun SignatureData.getJoseEncoded(recoverable: Boolean = false): String {
     val size = if (recoverable)
@@ -35,7 +38,7 @@ fun SignatureData.getJoseEncoded(recoverable: Boolean = false): String {
     bos.write(this.r.toBytesPadded(SIG_COMPONENT_SIZE))
     bos.write(this.s.toBytesPadded(SIG_COMPONENT_SIZE))
     if (recoverable) {
-        bos.write(byteArrayOf(this.v))
+        bos.write(byteArrayOf((this.v - 27).toByte()))
     }
     return bos.toByteArray().toBase64UrlSafe()
 }
