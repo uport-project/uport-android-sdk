@@ -8,7 +8,7 @@ import me.uport.sdk.Uport
 import me.uport.sdk.core.Networks
 
 
-class MainActivity : AppCompatActivity() {
+class CreateAccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

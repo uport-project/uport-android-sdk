@@ -34,7 +34,7 @@ class MainListActivity : AppCompatActivity() {
 
     private fun itemSelected(position: Int) {
         when(position) {
-            0 -> startActivity(Intent(this, MainActivity::class.java))
+            0 -> startActivity(Intent(this, CreateAccountActivity::class.java))
         }
     }
 }
