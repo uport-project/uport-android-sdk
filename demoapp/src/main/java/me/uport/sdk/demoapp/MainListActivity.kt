@@ -1,5 +1,6 @@
 package me.uport.sdk.demoapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
@@ -25,5 +26,15 @@ class MainListActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, features)
 
         listView.adapter = adapter
+
+        listView.setOnItemClickListener { _, _, position, _ ->
+            itemSelected(position)
+        }
+    }
+
+    private fun itemSelected(position: Int) {
+        when(position) {
+            0 -> startActivity(Intent(this, MainActivity::class.java))
+        }
     }
 }
