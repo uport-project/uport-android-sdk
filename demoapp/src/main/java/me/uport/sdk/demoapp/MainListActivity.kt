@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.activity_list_main.*
 
 class MainListActivity : AppCompatActivity() {
 
-    val features = arrayOf("Create an Account", "Manage Keys", "Create a JWT", "Verify a JWT", "Selective Disclosure")
+    val features = arrayOf("Create an Account", "Create a Key", "Import a Key", "Manage Keys","Create a JWT", "Verify a JWT", "Selective Disclosure")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
