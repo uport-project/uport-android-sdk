@@ -24,6 +24,7 @@ class DeepLinkActivity : AppCompatActivity() {
         val appLinkData: Uri? = intent.data
         if (Intent.ACTION_VIEW == appLinkAction) {
             appLinkData?.also { link ->
+                println("got called with: $link")
                 Toast.makeText(this, link.toString(), Toast.LENGTH_LONG).show()
             } ?: Toast.makeText(this, "no data to parse in intent", Toast.LENGTH_SHORT).show()
 

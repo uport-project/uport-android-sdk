@@ -17,8 +17,13 @@ class Transports {
      */
     fun send(context: Context, jwt: String) {
         val encodedQuery = URLEncoder.encode(jwt, "UTF-8")
-        val encodedRedirect = URLEncoder.encode("https://uport-project.github.io/uport-android-sdk", "UTF-8")
-        val uri = Uri.parse("https://id.uport.me/req/$encodedQuery")
+        val uri = Uri.parse("https://id.uport.me/req/$encodedQuery?callback_type=redirect")
+
+
+        //deprecated calling convention
+//        val uri = Uri.parse("me.uport:me?requestToken=$encodedQuery")
+
+
         val intent = Intent(Intent.ACTION_VIEW, uri)
                 .addCategory(Intent.CATEGORY_BROWSABLE)
         println(uri.toString())
