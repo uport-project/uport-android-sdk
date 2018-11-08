@@ -8,7 +8,12 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
 import kotlinx.android.synthetic.main.create_import_key.*
 import me.uport.sdk.core.decodeBase64
+import org.kethereum.bip39.entropyToMnemonic
+import org.kethereum.bip39.generateMnemonic
+import org.kethereum.bip39.model.MnemonicWords
+import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import org.walleth.khex.toHexString
+import java.security.SecureRandom
 
 class ImportKeyActivity : AppCompatActivity() {
 
@@ -16,8 +21,13 @@ class ImportKeyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.create_import_key)
 
-        input_seed_phrase.visibility = View.VISIBLE
+        seed_phrase_layout.visibility = View.VISIBLE
         create_key_btn.text = "Import Key"
+
+        generate_seed_phrase.setOnClickListener {
+            val seedPhrase = generateMnemonic(wordList = WORDLIST_ENGLISH)
+            input_seed_phrase.setText(seedPhrase)
+        }
 
         create_key_btn.setOnClickListener{
 
