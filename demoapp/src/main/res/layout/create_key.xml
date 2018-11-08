@@ -10,17 +10,26 @@
     <TextView
         android:id="@+id/public_key_details"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:padding="10dp"
-        android:background="#efefef" />
-
+        android:layout_height="110dp"
+        android:background="#efefef"
+        android:padding="10dp" />
 
     <TextView
         android:id="@+id/address_details"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:padding="10dp"
-        android:background="#efefef" />
+        android:layout_height="60dp"
+        android:layout_marginTop="10dp"
+        android:background="#efefef"
+        android:padding="10dp" />
+
+    <EditText
+        android:id="@+id/input_seed_phrase"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+        android:lines="3"
+        android:hint="Enter Seed Phrase"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/create_key_btn"
