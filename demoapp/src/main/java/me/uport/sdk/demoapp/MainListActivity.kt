@@ -37,6 +37,7 @@ class MainListActivity : AppCompatActivity() {
         when (position) {
             0 -> startActivity(Intent(this, CreateAccountActivity::class.java))
             1 -> startActivity(Intent(this, CreateKeyActivity::class.java))
+            2 -> startActivity(Intent(this, ImportKeyActivity::class.java))
             else -> Toast.makeText(this, "Not yet Implemented", Toast.LENGTH_LONG).show()
         }
     }
