@@ -30,7 +30,7 @@ class ImportKeyActivity : AppCompatActivity() {
         }
 
         create_key_btn.setOnClickListener{
-
+            resetUI()
             val seedPhrase = input_seed_phrase.text.toString().trim()
             if (!seedPhrase.isEmpty()) {
                 UportHDSigner().importHDSeed(this, KeyProtection.Level.SIMPLE, seedPhrase) {err, rootAddress, pubKey ->
@@ -43,5 +43,11 @@ class ImportKeyActivity : AppCompatActivity() {
                 Toast.makeText(this, "Enter seed phrase", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun resetUI() {
+        public_key_details.text = ""
+        address_details.text = ""
+        error_text.text = ""
     }
 }
