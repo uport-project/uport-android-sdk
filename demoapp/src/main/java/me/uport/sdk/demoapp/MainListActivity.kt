@@ -38,7 +38,7 @@ class MainListActivity : AppCompatActivity() {
             0 -> startActivity(Intent(this, CreateAccountActivity::class.java))
             1 -> startActivity(Intent(this, CreateKeyActivity::class.java))
             2 -> startActivity(Intent(this, ImportKeyActivity::class.java))
-            3 -> startActivity(Intent(this, KeyProtectionActivity::class.java))
+            3 -> startActivity(Intent(this, KeyProtectionListActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }

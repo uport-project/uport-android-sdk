@@ -8,5 +8,6 @@ class KeyProtectionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.key_protection_activity)
+
     }
 }

@@ -21,6 +21,7 @@
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".CreateKeyActivity" />
         <activity android:name=".ImportKeyActivity" />
+        <activity android:name=".KeyProtectionListActivity" />
         <activity android:name=".KeyProtectionActivity" />
     </application>
 
