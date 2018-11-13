@@ -67,10 +67,10 @@ class ProtectedSharedPreferences(
     private fun canDecrypt(queryKey: String): Boolean {
         return try {
             if (queryKey.matches("^e:.*".toRegex())) {
-                val set = delegate.getStringSet(queryKey, mutableSetOf(/*nothing*/))
+                val set = delegate.getStringSet(queryKey, mutableSetOf(/*nothing*/)).orEmpty()
                 set.forEach { crypto.decrypt(it) }
             } else {
-                crypto.decrypt(delegate.getString(queryKey, ""))
+                crypto.decrypt(delegate.getString(queryKey, "") ?: "")
             }
             true
         } catch (ex: Exception) {
@@ -89,7 +89,7 @@ class ProtectedSharedPreferences(
         }
 
         val decryptedBytes = try {
-            crypto.decrypt(delegate.getString(queryKey, ""))
+            crypto.decrypt(delegate.getString(queryKey, "") ?: "")
         } catch (ex: Exception) {
             delegate.edit().remove(queryKey).apply()
             return default
@@ -106,7 +106,7 @@ class ProtectedSharedPreferences(
             return default
         }
         val decryptedBytes = try {
-            crypto.decrypt(delegate.getString(queryKey, ""))
+            crypto.decrypt(delegate.getString(queryKey, "") ?: "")
         } catch (ex: Exception) {
             delegate.edit().remove(queryKey).apply()
             return default
@@ -123,7 +123,7 @@ class ProtectedSharedPreferences(
         }
 
         val decryptedBytes = try {
-            crypto.decrypt(delegate.getString(queryKey, ""))
+            crypto.decrypt(delegate.getString(queryKey, "") ?: "")
         } catch (ex: Exception) {
             delegate.edit().remove(queryKey).apply()
             return default
@@ -140,7 +140,7 @@ class ProtectedSharedPreferences(
         }
 
         val decryptedBytes = try {
-            crypto.decrypt(delegate.getString(queryKey, ""))
+            crypto.decrypt(delegate.getString(queryKey, "") ?: "")
         } catch (ex: Exception) {
             delegate.edit().remove(queryKey).apply()
             return default
@@ -157,7 +157,7 @@ class ProtectedSharedPreferences(
         }
 
         val decryptedBytes = try {
-            crypto.decrypt(delegate.getString(queryKey, ""))
+            crypto.decrypt(delegate.getString(queryKey, "") ?: "")
         } catch (ex: Exception) {
             delegate.edit().remove(queryKey).apply()
             return default
