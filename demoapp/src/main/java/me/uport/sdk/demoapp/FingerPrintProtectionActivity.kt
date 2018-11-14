@@ -5,8 +5,6 @@ import android.support.v7.app.AppCompatActivity
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
 import kotlinx.android.synthetic.main.key_protection_activity.*
-import kotlinx.android.synthetic.main.create_import_key.*
-import kotlinx.android.synthetic.main.key_protection_activity.*
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
@@ -24,18 +22,26 @@ class FingerPrintProtectionActivity : AppCompatActivity() {
 
         var errorMessage = ""
 
+        // checks to see if device has the required fingerprint hardware
         UportHDSigner().hasFingerprintHardware(this) {
             errorMessage += "\nFingerPrint Hardware: $it"
             error.text = errorMessage
         }
 
+        // checks to see if the user has setup fingerprint authentication
         UportHDSigner().hasSetupFingerprints(this) {
             errorMessage += "\nFingerPrint Setup: $it"
             error.text = errorMessage
         }
 
-        create_key.setOnClickListener {
+        /**
+         *
+         * Note: If none of the above are true the system will default to using single prompt protection level
+         *
+         **/
 
+        create_key.setOnClickListener {
+            // creating a seed using prompt protection level which prompts the user for fingerprint authentication
             UportHDSigner().createHDSeed(this, KeyProtection.Level.PROMPT) { err, rootAddress, pubKey ->
                 if (err == null) {
                     key_details.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
