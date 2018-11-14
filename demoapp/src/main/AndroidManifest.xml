@@ -23,6 +23,7 @@
         <activity android:name=".ImportKeyActivity" />
         <activity android:name=".KeyProtectionListActivity" />
         <activity android:name=".KeyGuardProtectionActivity" />
+        <activity android:name=".FingerPrintProtectionActivity" />
     </application>
 
 </manifest>
