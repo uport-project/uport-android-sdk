@@ -26,8 +26,8 @@ class KeyProtectionListActivity : AppCompatActivity() {
 
     private fun itemSelected(position: Int) {
         when (position) {
-            0 -> startActivity(Intent(this, KeyProtectionActivity::class.java))
-            1 -> startActivity(Intent(this, KeyProtectionActivity::class.java))
+            0 -> startActivity(Intent(this, KeyGuardProtectionActivity::class.java).putExtra("type", "KeyGuard"))
+            1 -> startActivity(Intent(this, KeyGuardProtectionActivity::class.java).putExtra("type", "FingerPrint"))
         }
     }
 }

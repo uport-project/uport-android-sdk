@@ -22,7 +22,7 @@
         <activity android:name=".CreateKeyActivity" />
         <activity android:name=".ImportKeyActivity" />
         <activity android:name=".KeyProtectionListActivity" />
-        <activity android:name=".KeyProtectionActivity" />
+        <activity android:name=".KeyGuardProtectionActivity" />
     </application>
 
 </manifest>
