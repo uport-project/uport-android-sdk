@@ -6,7 +6,7 @@ Identity for your Android dApps.
 Many intended features are still missing, and the ones already present are under heavy development.
 Expect breaking changes!**
 
-Issues are being tracked at https://www.pivotaltracker.com/n/projects/2198688
+Planning is done at https://www.pivotaltracker.com/n/projects/2198688
 
 ### Installation
 
@@ -27,7 +27,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.2.2"
+def uport_sdk_version = "v0.3.0"
 dependencies {
     ...
     // core SDK
@@ -158,7 +158,7 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 ### Changelog
 
-* 0.3.x - upcoming release with breaking changes
+* 0.3.0 - upcoming release with breaking changes
     * add universal DID resolver
     * add cleaner way of creating JWTs with abstracted signer
     * updated to kethereum 0.63 which has a different key derivation and mnemonic API.
