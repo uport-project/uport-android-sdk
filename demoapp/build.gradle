@@ -53,7 +53,9 @@ dependencies {
     )
     androidTestImplementation(
             "com.android.support.test:runner:$test_runner_version",
-            "com.android.support.test.espresso:espresso-core:$espresso_version"
+            "com.android.support.test:rules:$test_runner_version",
+            "com.android.support.test.espresso:espresso-core:$espresso_version",
+            "com.android.support.test.espresso:espresso-intents:$espresso_version"
     )
 
 }
