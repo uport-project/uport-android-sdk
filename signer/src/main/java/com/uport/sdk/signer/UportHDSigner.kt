@@ -6,12 +6,15 @@ import com.uport.sdk.signer.encryption.KeyProtection
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
-import org.kethereum.bip32.generateKey
-import org.kethereum.bip39.Mnemonic
-import org.kethereum.crypto.getAddress
+import org.kethereum.bip39.entropyToMnemonic
+import org.kethereum.bip39.mnemonicToEntropy
+import org.kethereum.bip39.model.MnemonicWords
+import org.kethereum.bip39.toKey
+import org.kethereum.bip39.validate
+import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import org.kethereum.crypto.signMessage
+import org.kethereum.crypto.toAddress
 import org.kethereum.model.SignatureData
-import org.walleth.khex.prepend0xPrefix
 import java.security.SecureRandom
 
 @Suppress("unused", "KDocUnresolvedReference")
@@ -41,7 +44,7 @@ class UportHDSigner : UportSigner() {
         val entropyBuffer = ByteArray(128 / 8)
         SecureRandom().nextBytes(entropyBuffer)
 
-        val seedPhrase = Mnemonic.entropyToMnemonic(entropyBuffer)
+        val seedPhrase = entropyToMnemonic(entropyBuffer, WORDLIST_ENGLISH)
 
         return importHDSeed(context, level, seedPhrase, callback)
 
@@ -60,17 +63,17 @@ class UportHDSigner : UportSigner() {
     fun importHDSeed(context: Context, level: KeyProtection.Level, phrase: String, callback: (err: Exception?, address: String, pubKey: String) -> Unit) {
 
         try {
-            val seedBuffer = Mnemonic.mnemonicToSeed(phrase)
+//            val seedBuffer = mnemonicToSeed(phrase)
 
-            val entropyBuffer = Mnemonic.mnemonicToEntropy(phrase)
+            val entropyBuffer = mnemonicToEntropy(phrase, WORDLIST_ENGLISH)
 
-            val extendedRootKey = generateKey(seedBuffer, UPORT_ROOT_DERIVATION_PATH)
+            val extendedRootKey = MnemonicWords(phrase).toKey(UPORT_ROOT_DERIVATION_PATH)
 
             val keyPair = extendedRootKey.keyPair
 
             val publicKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
             val publicKeyString = publicKeyBytes.toBase64().padBase64()
-            val address: String = keyPair.getAddress().prepend0xPrefix()
+            val address: String = keyPair.toAddress().hex
 
             val label = asSeedLabel(address)
 
@@ -142,9 +145,8 @@ class UportHDSigner : UportSigner() {
 
             try {
 
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
-                val seed = Mnemonic.mnemonicToSeed(phrase)
-                val extendedKey = generateKey(seed, derivationPath)
+                val phrase = entropyToMnemonic(entropyBuff, WORDLIST_ENGLISH)
+                val extendedKey = MnemonicWords(phrase).toKey(derivationPath)
 
                 val keyPair = extendedKey.keyPair
 
@@ -192,9 +194,8 @@ class UportHDSigner : UportSigner() {
             }
 
             try {
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
-                val seed = Mnemonic.mnemonicToSeed(phrase)
-                val extendedKey = generateKey(seed, derivationPath)
+                val phrase = entropyToMnemonic(entropyBuff, WORDLIST_ENGLISH)
+                val extendedKey = MnemonicWords(phrase).toKey(derivationPath)
 
                 val keyPair = extendedKey.keyPair
 
@@ -230,15 +231,14 @@ class UportHDSigner : UportSigner() {
             }
 
             try {
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
-                val seed = Mnemonic.mnemonicToSeed(phrase)
-                val extendedKey = generateKey(seed, derivationPath)
+                val phrase = entropyToMnemonic(entropyBuff, WORDLIST_ENGLISH)
+                val extendedKey = MnemonicWords(phrase).toKey(derivationPath)
 
                 val keyPair = extendedKey.keyPair
 
                 val publicKeyBytes = keyPair.getUncompressedPublicKeyWithPrefix()
                 val publicKeyString = publicKeyBytes.toBase64().padBase64()
-                val address: String = keyPair.getAddress().prepend0xPrefix()
+                val address: String = keyPair.toAddress().hex
 
                 return@decrypt callback(null, address, publicKeyString)
 
@@ -271,7 +271,7 @@ class UportHDSigner : UportSigner() {
             }
 
             try {
-                val phrase = Mnemonic.entropyToMnemonic(entropyBuff)
+                val phrase = entropyToMnemonic(entropyBuff, WORDLIST_ENGLISH)
                 return@decrypt callback(null, phrase)
             } catch (exception: Exception) {
                 return@decrypt callback(err, "")
@@ -282,7 +282,7 @@ class UportHDSigner : UportSigner() {
     /**
      * Verifies if a given phrase is a valid mnemonic phrase usable in seed generation
      */
-    fun validateMnemonic(phrase: String): Boolean = Mnemonic.validateMnemonic(phrase)
+    fun validateMnemonic(phrase: String): Boolean = MnemonicWords(phrase).validate(WORDLIST_ENGLISH)
 
     /**
      * Returns a list of addresses representing the uport roots used as handles for seeds
@@ -292,12 +292,16 @@ class UportHDSigner : UportSigner() {
         val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
         //list all stored keys, keep a list off what looks like uport root addresses
         return prefs.all.keys
+                .asSequence()
                 .filter { label -> label.startsWith(SEED_PREFIX) }
                 .filter { hasCorrespondingLevelKey(prefs, it) }
                 .map { label: String -> label.substring(SEED_PREFIX.length) }
+                .toList()
     }
 
     companion object {
-        const val UPORT_ROOT_DERIVATION_PATH: String = "m/7696500'/0'/0'/0'"
+        const val UPORT_ROOT_DERIVATION_PATH = "m/7696500'/0'/0'/0'"
+        const val GENERIC_DEVICE_KEY_DERIVATION_PATH = "m/44'/60'/0'/0"
+        const val GENERIC_RECOVERY_DERIVATION_PATH = "m/44'/60'/0'/1"
     }
 }

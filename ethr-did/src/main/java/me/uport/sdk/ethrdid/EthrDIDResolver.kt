@@ -2,18 +2,18 @@ package me.uport.sdk.ethrdid
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
+import com.uport.sdk.signer.Signer
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import me.uport.sdk.core.*
-import me.uport.sdk.ethrdid.DelegateType.Secp256k1SignatureAuthentication2018
-import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDAttributeChanged
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDDelegateChanged
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import me.uport.sdk.jsonrpc.experimental.ethCall
 import me.uport.sdk.jsonrpc.experimental.getLogs
+import me.uport.sdk.universaldid.*
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
@@ -28,12 +28,19 @@ class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration
         val registryAddress: String = DEFAULT_REGISTRY_ADDRESS
-) {
+) : DIDResolver {
+
+    override val method = "ethr"
+
+    override fun canResolve(potentialDID: String): Boolean {
+        //if it can be normalized, then it matches either an ethereum address or a full ethr-did
+        return normalizeDid(potentialDID).isNotBlank()
+    }
 
     /**
-     * Resolves a given ethereum address or DID string into a corresponding DDO
+     * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      */
-    suspend fun resolve(did: String): DDO {
+    override suspend fun resolve(did: String): EthrDIDDocument {
         val normalizedDid = normalizeDid(did)
         val identity = parseIdentity(normalizedDid)
         val ethrdidContract = EthrDID(identity, rpc, registryAddress, Signer.blank)
@@ -43,16 +50,16 @@ class EthrDIDResolver(
     }
 
     /**
-     * Resolves a given ethereum address or DID string into a corresponding DDO
+     * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      * Calls back on the main thread with the result or an exception
      */
-    fun resolve(did: String, callback: (err: Exception?, ddo: DDO) -> Unit) {
+    fun resolve(did: String, callback: (err: Exception?, ddo: EthrDIDDocument) -> Unit) {
         GlobalScope.launch {
             try {
                 val ddo = resolve(did)
                 withContext(UI) { callback(null, ddo) }
             } catch (ex: Exception) {
-                withContext(UI) { callback(ex, DDO.blank) }
+                withContext(UI) { callback(ex, EthrDIDDocument.blank) }
             }
         }
     }
@@ -118,16 +125,16 @@ class EthrDIDResolver(
     }
 
     /**
-     * Wraps previously gathered info into a DDO
+     * Wraps previously gathered info into a [EthrDIDDocument]
      */
     @VisibleForTesting(otherwise = PRIVATE)
-    fun wrapDidDocument(normalizedDid: String, owner: String, history: List<Any>): DDO {
+    fun wrapDidDocument(normalizedDid: String, owner: String, history: List<Any>): EthrDIDDocument {
         val now = System.currentTimeMillis() / 1000
 
         val pkEntries = mapOf<String, PublicKeyEntry>().toMutableMap().apply {
             put("owner", PublicKeyEntry(
                     id = "$normalizedDid#owner",
-                    type = Secp256k1VerificationKey2018,
+                    type = DelegateType.Secp256k1VerificationKey2018,
                     owner = normalizedDid,
                     ethereumAddress = owner
             ))
@@ -135,7 +142,7 @@ class EthrDIDResolver(
         }
         val authEntries = mapOf<String, AuthenticationEntry>().toMutableMap().apply {
             put("owner", AuthenticationEntry(
-                    type = Secp256k1SignatureAuthentication2018,
+                    type = DelegateType.Secp256k1SignatureAuthentication2018,
                     publicKey = "$normalizedDid#owner"
             ))
         }
@@ -155,15 +162,15 @@ class EthrDIDResolver(
                         delegateCount++
 
                         when (delegateType) {
-                            Secp256k1SignatureAuthentication2018.name,
+                            DelegateType.Secp256k1SignatureAuthentication2018.name,
                             sigAuth -> authEntries[key] = AuthenticationEntry(
-                                    type = Secp256k1SignatureAuthentication2018,
+                                    type = DelegateType.Secp256k1SignatureAuthentication2018,
                                     publicKey = "$normalizedDid#delegate-$delegateCount")
 
-                            Secp256k1VerificationKey2018.name,
+                            DelegateType.Secp256k1VerificationKey2018.name,
                             veriKey -> pkEntries[key] = PublicKeyEntry(
                                     id = "$normalizedDid#delegate-$delegateCount",
-                                    type = Secp256k1VerificationKey2018,
+                                    type = DelegateType.Secp256k1VerificationKey2018,
                                     owner = normalizedDid,
                                     ethereumAddress = delegate)
                         }
@@ -221,7 +228,7 @@ class EthrDIDResolver(
             }
         }
 
-        return DDO(
+        return EthrDIDDocument(
                 id = normalizedDid,
                 publicKey = pkEntries.values.toList(),
                 authentication = authEntries.values.toList(),

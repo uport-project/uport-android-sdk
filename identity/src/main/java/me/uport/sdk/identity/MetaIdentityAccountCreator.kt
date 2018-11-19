@@ -2,6 +2,8 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_DEVICE_KEY_DERIVATION_PATH
+import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_RECOVERY_DERIVATION_PATH
 import com.uport.sdk.signer.encryption.KeyProtection
 import me.uport.sdk.core.Networks
 import me.uport.sdk.identity.ProgressPersistence.AccountCreationState
@@ -62,7 +64,7 @@ class MetaIdentityAccountCreator(
             }
 
             AccountCreationState.ROOT_KEY_CREATED -> {
-                signer.computeAddressForPath(context, oldBundle.rootAddress, Account.GENERIC_DEVICE_KEY_DERIVATION_PATH, "") { err, deviceAddress, _ ->
+                signer.computeAddressForPath(context, oldBundle.rootAddress, GENERIC_DEVICE_KEY_DERIVATION_PATH, "") { err, deviceAddress, _ ->
                     if (err != null) {
                         return@computeAddressForPath fail(err, callback)
                     }
@@ -73,7 +75,7 @@ class MetaIdentityAccountCreator(
             }
 
             AccountCreationState.DEVICE_KEY_CREATED -> {
-                signer.computeAddressForPath(context, oldBundle.rootAddress, Account.GENERIC_RECOVERY_DERIVATION_PATH, "") { err, recoveryAddress, _ ->
+                signer.computeAddressForPath(context, oldBundle.rootAddress, GENERIC_RECOVERY_DERIVATION_PATH, "") { err, recoveryAddress, _ ->
                     if (err != null) {
                         return@computeAddressForPath fail(err, callback)
                     }
@@ -136,7 +138,7 @@ class MetaIdentityAccountCreator(
                                         identityInfo.managerAddress,
                                         Networks.get(networkId).txRelayAddress,
                                         oldBundle.fuelToken,
-                                        SignerType.MetaIdentityManager
+                                        AccountType.MetaIdentityManager
                                 )
                                 state = AccountCreationState.COMPLETE
                                 progress.save(state, oldBundle.copy(partialAccount = acc))

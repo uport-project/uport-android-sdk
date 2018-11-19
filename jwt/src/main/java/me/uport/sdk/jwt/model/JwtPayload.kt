@@ -10,10 +10,10 @@ data class JwtPayload(
          * General
          */
         val iss: String = "", //Cannot be null for signature verification
-        val iat: Int? = null,
+        val iat: Long? = null,
         val sub: String? = null,
         val aud: String? = null,
-        val exp: Int? = null,
+        val exp: Long? = null,
         val callback: String? = null,
         val type: String? = null,
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="me.uport.sdk.demoapp.MainActivity">
+    tools:context="me.uport.sdk.demoapp.CreateAccountActivity">
 
     <TextView
         android:id="@+id/defaultAccountView"
@@ -47,4 +47,5 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

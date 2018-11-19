@@ -36,6 +36,11 @@ dependencies {
     api project(":identity")
     api project(":core")
     api project(":jsonrpc")
+    api project(":universal-did")
+    api project(":ethr-did")
+    api project(":uport-did")
+    api project(":credentials")
+    api project(":transport")
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"

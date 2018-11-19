@@ -1,23 +1,24 @@
 package me.uport.sdk.jwt
 
-//import org.kethereum.crypto.signedMessageToKey
 import android.content.Context
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.squareup.moshi.JsonAdapter
+import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.decodeJose
 import com.uport.sdk.signer.getJoseEncoded
-import me.uport.sdk.core.Networks
-import me.uport.sdk.core.decodeBase64
-import me.uport.sdk.core.toBase64
-import me.uport.sdk.core.toBase64UrlSafe
-import me.uport.sdk.did.DIDResolver
+import me.uport.sdk.core.*
+import me.uport.sdk.uportdid.UportDIDResolver
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
+import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
+import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
+import me.uport.sdk.serialization.mapAdapter
+import me.uport.sdk.serialization.moshi
 import org.kethereum.crypto.CURVE
-import org.kethereum.crypto.getAddress
+import org.kethereum.crypto.model.PublicKey
+import org.kethereum.crypto.toAddress
 import org.kethereum.encodings.decodeBase58
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.extensions.toHexStringZeroPadded
@@ -33,36 +34,73 @@ import java.security.SignatureException
 import kotlin.experimental.and
 
 /**
- * Tools for Verifying, Creating, and Decoding uport JWT's
+ * Tools for Verifying, Creating, and Decoding uport JWTs
+ *
+ * the [timeProvider] defaults to [SystemTimeProvider] but you can configure it for testing or for "was valid at" scenarios
  */
-
-
-class JWTTools {
+class JWTTools(
+        private val timeProvider: ITimeProvider = SystemTimeProvider
+) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
+    /**
+     * This coroutine method creates a signed JWT from a [payload] Map and an abstracted [Signer]
+     * You're also supposed to pass the [issuerDID] and can configure the algorithm used and expiry time
+     *
+     * @param payload a map containing the fields forming the payload of this JWT
+     * @param issuerDID a DID string that will be set as the `iss` field in the JWT payload.
+     *                  The signature produced by the signer should correspond to this DID.
+     *                  If the `iss` field is already part of the [payload], that will get overwritten.
+     *                  **The [issuerDID] is NOT checked for format, nor for a match with the signer.**
+     * @param signer a [Signer] that will produce the signature section of this JWT.
+     *                  The signature should correspond to the [issuerDID].
+     * @param expiresInSeconds number of seconds of validity of this JWT. You may omit this param if
+     *                  an `exp` timestamp is already part of the [payload].
+     *                  If there is no `exp` field in the payload and the param is not specified,
+     *                  it defaults to [DEFAULT_JWT_VALIDITY_SECONDS]
+     * @param algorithm defaults to `ES256K-R`. The signing algorithm for this JWT.
+     *                  Supported types are `ES256K` for uport DID and `ES256K-R` for ethr-did and the rest
+     *
+     */
+    suspend fun createJWT(payload: Map<String, Any>, issuerDID: String, signer: Signer, expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS, algorithm: String = ES256K_R): String {
+        val mapAdapter = moshi.mapAdapter<String, Any>(String::class.java, Any::class.java)
+
+        val mutablePayload = payload.toMutableMap()
+
+        val header = JwtHeader(alg = algorithm)
+
+        val iatSeconds = Math.floor(timeProvider.now() / 1000.0).toLong()
+        val expSeconds = iatSeconds + expiresInSeconds
+
+        mutablePayload["iat"] = iatSeconds
+        mutablePayload["exp"] = payload["exp"] ?: expSeconds
+        mutablePayload["iss"] = issuerDID
+
+        @Suppress("SimplifiableCallChain", "ConvertCallChainIntoSequence")
+        val signingInput = listOf(header.toJson(), mapAdapter.toJson(mutablePayload))
+                .map { it.toBase64UrlSafe() }
+                .joinToString(".")
+
+        val jwtSigner = JWTSignerAlgorithm(header)
+        val signature: String = jwtSigner.sign(signingInput, signer)
+        return listOf(signingInput, signature).joinToString(".")
+    }
+
+    @Deprecated("This method has been deprecated in favor of `createJWT` because it is too coupled to the UportHDSigner mechanics", ReplaceWith("createJWT()"))
     fun create(context: Context, payload: JwtPayload, rootHandle: String, derivationPath: String, prompt: String = "", recoverable: Boolean = false, callback: (err: Exception?, encodedJWT: String?) -> Unit) {
-        //JSON Parser
-        val moshi = Moshi.Builder()
-                .add(KotlinJsonAdapterFactory())
-                .build()
-
-        //Create adapters with each object
-        val jwtHeaderAdapter = moshi.adapter(JwtHeader::class.java)
-        val jwtPayloadAdapter = moshi.adapter(JwtPayload::class.java)
-
         //create header and convert the parts to json strings
-        val header = if (recoverable) {
-            JwtHeader("JWT", "ES256K")
+        val header = if (!recoverable) {
+            JwtHeader(alg = ES256K)
         } else {
-            JwtHeader("JWT", "ES256K-R")
+            JwtHeader(alg = ES256K_R)
         }
-        val headerJsonString = jwtHeaderAdapter.toJson(header)
+        val headerJsonString = header.toJson()
         val payloadJsonString = jwtPayloadAdapter.toJson(payload)
         //base 64 encode the jwt parts
         val headerEncodedString = headerJsonString.toBase64UrlSafe()
         val payloadEncodedString = payloadJsonString.toBase64UrlSafe()
 
-        //XXX: This is the crux of the bad behavior. signJwtBundle expects a Base64 string as payload and it was receiving plain text
+        //FIXME: UportHDSigner should not be expecting base64 payloads
         val messageToSign = "$headerEncodedString.$payloadEncodedString".toBase64()
 
         UportHDSigner().signJwtBundle(context, rootHandle, derivationPath, messageToSign, prompt) { err, signature ->
@@ -88,20 +126,12 @@ class JWTTools {
         val headerString = String(encodedHeader.decodeBase64())
         val payloadString = String(encodedPayload.decodeBase64())
         val signatureBytes = encodedSignature.decodeBase64()
-        //JSON Parser
-        val moshi = Moshi.Builder()
-                .add(KotlinJsonAdapterFactory())
-                .build()
-
-        //Create adapters with each object
-        val jwtHeaderAdapter = moshi.adapter(JwtHeader::class.java)
-        val jwtPayloadAdapter = moshi.adapter(JwtPayload::class.java)
 
         //Parse Json
         if (headerString[0] != '{' || payloadString[0] != '{')
             throw InvalidJWTException("Invalid JSON format, should start with {")
         else {
-            val header = jwtHeaderAdapter.fromJson(headerString) // JSONObject(headerString)
+            val header = JwtHeader.fromJson(headerString) // JSONObject(headerString)
             val payload = jwtPayloadAdapter.fromJson(payloadString) //JSONObject(payloadString
             return Triple(header!!, payload!!, signatureBytes)
         }
@@ -118,7 +148,7 @@ class JWTTools {
                 if (err !== null)
                     return@resolve callback(err, null)
 
-                val sigData= signatureBytes.decodeJose()
+                val sigData = signatureBytes.decodeJose()
 
                 val signingInputBytes = token.substringBeforeLast('.').toByteArray()
 
@@ -126,14 +156,14 @@ class JWTTools {
                 val pubKeyNoPrefix = recoveredPubKey
                         .toBytesPadded(65)
                         .copyOfRange(1, 65)
-                val recoveredAddress = getAddress(pubKeyNoPrefix).toNoPrefixHexString()
+                val recoveredAddress = PublicKey(pubKeyNoPrefix).toAddress().cleanHex
 
                 val numMatches = ddo.publicKey.map {
                     val pk = it.publicKeyHex?.hexToByteArray()
                             ?: it.publicKeyBase64?.decodeBase64()
                             ?: it.publicKeyBase58?.decodeBase58()
                             ?: byteArrayOf()
-                    (it.ethereumAddress ?: getAddress(pk).toHexString()).clean0xPrefix()
+                    (it.ethereumAddress?.clean0xPrefix() ?: PublicKey(pk).toAddress().cleanHex)
                 }.filter {
                     it == recoveredAddress
                 }.size
@@ -145,7 +175,7 @@ class JWTTools {
                 }
             }
         } else {
-            DIDResolver().getProfileDocument(payload.iss) { err, ddo ->
+            UportDIDResolver().getProfileDocument(payload.iss) { err, ddo ->
                 if (err !== null)
                     return@getProfileDocument callback(err, null)
 
@@ -154,7 +184,7 @@ class JWTTools {
                 val signingInputBytes = signingInput.toByteArray()
 
                 val recoveryBytes = if (signatureBytes.size > 64)
-                    signatureBytes.sliceArray(64..64) // just the recovery byte
+                    signatureBytes.sliceArray(64..64) // an array of just the recovery byte
                 else
                     byteArrayOf(27, 28) //try all recovery options
 
@@ -274,6 +304,16 @@ class JWTTools {
         val recId = header - 27
         return recoverFromSignature(recId, sig, messageHash)
                 ?: throw SignatureException("Could not recover public key from signature")
+    }
+
+    companion object {
+        //Create adapters with each object
+        val jwtPayloadAdapter: JsonAdapter<JwtPayload> by lazy { moshi.adapter(JwtPayload::class.java) }
+
+        /**
+         * 5 minutes. The default number of seconds of validity of a JWT, in case no other interval is specified.
+         */
+        const val DEFAULT_JWT_VALIDITY_SECONDS = 300L
     }
 
 }

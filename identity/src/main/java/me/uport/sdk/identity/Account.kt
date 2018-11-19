@@ -3,70 +3,69 @@ package me.uport.sdk.identity
 import android.content.Context
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE
-import com.squareup.moshi.Json
+import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.UportHDSignerImpl
+import kotlinx.serialization.Optional
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JSON
 import me.uport.mnid.MNID
-import me.uport.sdk.core.Signer
-import me.uport.sdk.identity.endpoints.moshi
 
+@Serializable
 data class Account(
 
         @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-        @Json(name = "uportRoot")
+        @SerialName("uportRoot")
         val handle: String,
 
-        @Json(name = "devKey")
+        @SerialName("devKey")
         val deviceAddress: String,
 
-        @Json(name = "network")
+        @SerialName("network")
         val network: String,
 
-        @Json(name = "proxy")
+        @SerialName("proxy")
         val publicAddress: String,
 
-        @Json(name = "manager")
+        @SerialName("manager")
         val identityManagerAddress: String,
 
-        @Json(name = "txRelay")
+        @SerialName("txRelay")
         val txRelayAddress: String,
 
-        @Json(name = "fuelToken")
+        @SerialName("fuelToken")
         val fuelToken: String,
 
-        @Json(name = "signerType")
-        val signerType: SignerType = SignerType.KeyPair,
+        @SerialName("signerType")
+        val type: AccountType = AccountType.KeyPair,
 
-        @Json(name = "isDefault")
+        @Optional
+        @SerialName("isDefault")
         val isDefault: Boolean? = false
 ) {
 
-    val address : String
+    @Transient
+    val address: String
         get() = getMnid()
 
     fun getMnid() = MNID.encode(network, publicAddress)
 
-    fun toJson(pretty: Boolean = false): String = adapter.indent(if (pretty) "  " else "").toJson(this)
+    fun toJson(pretty: Boolean = false): String = if (pretty) JSON.indented.stringify(this) else JSON.stringify(this)
 
-    fun getSigner(context: Context): Signer = UportHDSignerWrapper(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
+    fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
     companion object {
 
-        /**
-         * TODO: should be used to derive SDK KeyPairs instead of the UPORT_ROOT
-         */
-        const val GENERIC_DEVICE_KEY_DERIVATION_PATH = "m/44'/60'/0'/0"
-        const val GENERIC_RECOVERY_DERIVATION_PATH = "m/44'/60'/0'/1"
-
-        val blank = Account("", "", "", "", "", "", "", SignerType.KeyPair)
-
-        private val adapter = moshi.adapter<Account>(Account::class.java)
+        val blank = Account("", "", "", "", "", "", "", AccountType.KeyPair)
 
         fun fromJson(serializedAccount: String?): Account? {
             if (serializedAccount == null || serializedAccount.isEmpty()) {
                 return null
             }
 
-            return adapter.fromJson(serializedAccount)
+            return JSON.parse(serializedAccount)
         }
     }
 

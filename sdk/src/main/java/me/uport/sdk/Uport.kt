@@ -4,13 +4,16 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.support.annotation.VisibleForTesting
-import android.support.annotation.VisibleForTesting.PRIVATE
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
+import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.identity.*
+import me.uport.sdk.jsonrpc.JsonRPC
+import me.uport.sdk.universaldid.UniversalDID
+import me.uport.sdk.uportdid.UportDIDResolver
 import kotlin.coroutines.experimental.suspendCoroutine
 
 @SuppressLint("StaticFieldLeak")
@@ -67,7 +70,7 @@ object Uport {
 
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
-        accountStorage = SharedPrefsAcountStorage(prefs).apply {
+        accountStorage = SharedPrefsAccountStorage(prefs).apply {
             this.all().forEach {
                 if (it.isDefault == true) {
                     defaultAccountHandle = it.handle
@@ -81,6 +84,10 @@ object Uport {
                     accountStorage?.upsert(it.copy(isDefault = true))
                     prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
                 }
+
+        UniversalDID.registerResolver(UportDIDResolver())
+        val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
+        UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
         initialized = true
@@ -179,5 +186,6 @@ object Uport {
             this.applicationContext = context.applicationContext
             return this
         }
+
     }
 }

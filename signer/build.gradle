@@ -39,10 +39,12 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation "com.android.support:appcompat-v7:$support_lib_version"
 
     api "com.github.walleth.kethereum:crypto:$kethereum_version"
     api "com.github.walleth.kethereum:bip39:$kethereum_version"
+    api "com.github.walleth.kethereum:bip39_wordlist_en:$kethereum_version"
     api project(":core")
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
@@ -51,9 +53,16 @@ dependencies {
 
 
 }
-repositories {
-    mavenCentral()
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
 }
+
 
 //
 //task androidJavadocs(type: Javadoc) {

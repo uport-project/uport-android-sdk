@@ -1,14 +1,14 @@
 package me.uport.sdk.ethrdid
 
-import me.uport.sdk.core.Signer
-import me.uport.sdk.core.signRawTx
-import me.uport.sdk.ethrdid.DelegateType.Secp256k1VerificationKey2018
+import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import me.uport.sdk.jsonrpc.experimental.ethCall
 import me.uport.sdk.jsonrpc.experimental.getGasPrice
 import me.uport.sdk.jsonrpc.experimental.getTransactionCount
 import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
+import me.uport.sdk.universaldid.DelegateType
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
 import org.kethereum.model.createTransactionWithDefaults
@@ -22,17 +22,16 @@ class EthrDID(
         private val address: String,
         private val rpc: JsonRPC,
         private val registry: String,
-        var signer: Signer
+        val signer: Signer
 ) {
 
     private val owner: String? = null
 
 
     class DelegateOptions(
-            val delegateType: DelegateType = Secp256k1VerificationKey2018,
+            val delegateType: DelegateType = DelegateType.Secp256k1VerificationKey2018,
             val expiresIn: Long = 86400L
     )
-
 
     suspend fun lookupOwner(cache: Boolean = true): String {
         if (cache && this.owner != null) return this.owner
@@ -69,7 +68,7 @@ class EthrDID(
         return signAndSendContractCall(owner, encodedCall)
     }
 
-    suspend fun revokeDelegate(delegate: String, delegateType: DelegateType = Secp256k1VerificationKey2018): String {
+    suspend fun revokeDelegate(delegate: String, delegateType: DelegateType = DelegateType.Secp256k1VerificationKey2018): String {
         val owner = this.lookupOwner()
         val encodedCall = EthereumDIDRegistry.RevokeDelegate.encode(
                 Solidity.Address(this.address.hexToBigInteger()),
@@ -94,7 +93,7 @@ class EthrDID(
 //    // Create a temporary signing delegate able to sign JWT on behalf of identity
 //    suspend fun createSigningDelegate(delegateType: String = "Secp256k1VerificationKey2018", expiresIn: Long = 86400L) {
 //        val kp = createKeyPair()
-//        this.signer = SimpleSigner(kp.privateKey)
+//        this.signer = KPSigner(kp.privateKey)
 //        const txHash = await this.addDelegate(kp.address, { delegateType, expiresIn })
 //        return { kp, txHash }
 //    }

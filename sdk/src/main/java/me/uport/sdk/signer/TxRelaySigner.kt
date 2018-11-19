@@ -1,7 +1,7 @@
 package me.uport.sdk.signer
 
 import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.core.Signer
+import com.uport.sdk.signer.Signer
 import me.uport.sdk.signer.TxRelayHelper.Companion.ZERO_ADDRESS
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.functions.encodeRLP
@@ -28,7 +28,11 @@ class TxRelaySigner(private val wrappedSigner: Signer,
     /**
      * signs a buffer using the [wrappedSigner]
      */
-    override fun signMessage(rawMessage: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signMessage(rawMessage, callback)
+    override fun signETH(rawMessage: ByteArray, callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signETH(rawMessage, callback)
+
+    override fun signJWT(
+            rawPayload: ByteArray,
+            callback: (err: Exception?, sigData: SignatureData) -> Unit) = wrappedSigner.signJWT(rawPayload, callback)
 
     /**
      * Takes in an [unsignedTx], wraps it as a call to `relayMetaTx` and signs it using the [wrappedSigner]
@@ -51,10 +55,10 @@ class TxRelaySigner(private val wrappedSigner: Signer,
                 to.cleanHex +
                 data.toNoPrefixHexString()
 
-        signMessage(hashInput.hexToByteArray()) { err, signature ->
+        signETH(hashInput.hexToByteArray()) { err, signature ->
 
             if (err != null) {
-                return@signMessage callback(err, byteArrayOf())
+                return@signETH callback(err, byteArrayOf())
             }
 
             val rawMetaTxData = TxRelayHelper(network)
@@ -71,7 +75,7 @@ class TxRelaySigner(private val wrappedSigner: Signer,
                     input = rawMetaTxData.toList()
             )
 
-            return@signMessage callback(null, wrapperTx.encodeRLP())
+            return@signETH callback(null, wrapperTx.encodeRLP())
         }
 
 

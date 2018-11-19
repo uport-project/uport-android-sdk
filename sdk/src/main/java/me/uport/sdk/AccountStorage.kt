@@ -21,7 +21,7 @@ interface AccountStorage {
  *
  * Accounts are loaded during construction and then relayed from memory
  */
-class SharedPrefsAcountStorage(
+class SharedPrefsAccountStorage(
         private val prefs: SharedPreferences
 ) : AccountStorage {
 

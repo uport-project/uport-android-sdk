@@ -6,6 +6,8 @@ Identity for your Android dApps.
 Many intended features are still missing, and the ones already present are under heavy development.
 Expect breaking changes!**
 
+Planning is done at https://www.pivotaltracker.com/n/projects/2198688
+
 ### Installation
 
 This SDK is available through [jitpack](https://jitpack.io/)
@@ -25,7 +27,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.2.2"
+def uport_sdk_version = "v0.3.0"
 dependencies {
     ...
     // core SDK
@@ -127,6 +129,22 @@ val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 ```
 
+#### off-chain interaction
+
+Off-chain interaction is essentially signing and verifying JWTs using uport-specific JWT algorithms.
+Verification of such tokens implies resolving a 
+[Decentralized Identity (DID) document](https://github.com/uport-project/specs/blob/develop/pki/diddocument.md)
+that will contain the keys or address that should match a JWT signature.
+
+To obtain a `DIDDocument` one needs to use a `DIDResolver`.
+`UniversalDID` is a global registry of `DIDResolver`s for apps using the SDK.
+During SDK initialization this registry gets populated with resolvers for
+[uport-did](https://github.com/uport-project/uport-did-resolver) and [ethr-did](https://github.com/uport-project/ethr-did-resolver)
+
+```
+//TODO: Details about how to use these docs for verification of JWTs to be added when
+JWT verification functionality is finalized
+``` 
 
 ### Dependencies
 
@@ -139,6 +157,12 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 
 ### Changelog
+
+* 0.3.0 - upcoming release with breaking changes
+    * add universal DID resolver
+    * add cleaner way of creating JWTs with abstracted signer
+    * updated to kethereum 0.63 which has a different key derivation and mnemonic API.
+        If you're using an older version in parallel, you need to update as well. 
 
 * 0.2.2
     * update of dependencies for coroutines and build tools

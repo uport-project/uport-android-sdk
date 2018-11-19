@@ -10,13 +10,20 @@
         android:theme="@style/AppTheme"
         android:name=".DemoApplication"
         >
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".CreateAccountActivity" />
+        <activity android:name=".CreateKeyActivity" />
+        <activity android:name=".ImportKeyActivity" />
+        <activity android:name=".KeyProtectionListActivity" />
+        <activity android:name=".KeyGuardProtectionActivity" />
+        <activity android:name=".FingerPrintProtectionActivity" />
     </application>
 
 </manifest>

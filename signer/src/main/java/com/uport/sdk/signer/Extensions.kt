@@ -5,8 +5,8 @@ import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.core.toBase64UrlSafe
-import org.kethereum.crypto.ECKeyPair
-import org.kethereum.crypto.PRIVATE_KEY_SIZE
+import org.kethereum.crypto.model.ECKeyPair
+import org.kethereum.crypto.model.PRIVATE_KEY_SIZE
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.model.SignatureData
 import org.spongycastle.asn1.ASN1EncodableVector
@@ -24,6 +24,9 @@ const val SIG_RECOVERABLE_SIZE = SIG_SIZE + 1
 
 /**
  * Returns the JOSE encoding of the standard signature components (joined by empty string)
+ *
+ * @param recoverable If this is true then the buffer returned gets an extra byte with the
+ *          recovery param shifted back to [0, 1] ( as opposed to [27,28] )
  */
 fun SignatureData.getJoseEncoded(recoverable: Boolean = false): String {
     val size = if (recoverable)
@@ -35,7 +38,7 @@ fun SignatureData.getJoseEncoded(recoverable: Boolean = false): String {
     bos.write(this.r.toBytesPadded(SIG_COMPONENT_SIZE))
     bos.write(this.s.toBytesPadded(SIG_COMPONENT_SIZE))
     if (recoverable) {
-        bos.write(byteArrayOf(this.v))
+        bos.write(byteArrayOf((this.v - 27).toByte()))
     }
     return bos.toByteArray().toBase64UrlSafe()
 }
@@ -78,7 +81,7 @@ fun unpackCiphertext(ciphertext: String): List<ByteArray> =
                 .map { it.decodeBase64() }
 
 fun ECKeyPair.getUncompressedPublicKeyWithPrefix(): ByteArray {
-    val pubBytes = this.publicKey.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
+    val pubBytes = this.publicKey.key.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
     pubBytes[0] = 0x04
     return pubBytes
 }

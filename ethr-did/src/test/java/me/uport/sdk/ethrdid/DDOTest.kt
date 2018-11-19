@@ -8,7 +8,7 @@ class DDOTest {
 
     @Test
     fun `can serialize minimal doc`() {
-        val doc = DDO("hello")
+        val doc = EthrDIDDocument("hello")
         val docText = JSON.stringify(doc)
         assertEquals("""
             {"id":"hello","publicKey":[],"authentication":[],"service":[],"@context":"https://w3id.org/did/v1"}
@@ -35,7 +35,7 @@ class DDOTest {
             }
         """.trimIndent()
 
-        val obj: DDO = JSON.parse(docText)
+        val obj: EthrDIDDocument = JSON.parse(docText)
 
         println(obj)
     }

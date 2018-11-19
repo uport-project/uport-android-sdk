@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.experimental.runBlocking
 import me.uport.sdk.DEFAULT_GAS_PRICE
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.signer.SimpleSigner
+import com.uport.sdk.signer.KPSigner
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -38,7 +38,7 @@ class EthrDIDTest {
             (it.arguments.last() as CBI).invoke(null, "{\"result\":\"0x0000000000000000000000001122334455667788990011223344556677889900\"}")
         }
 
-        val ethrDid = EthrDID("0x11", rpc, rinkebyRegistry, SimpleSigner(originalPrivKey))
+        val ethrDid = EthrDID("0x11", rpc, rinkebyRegistry, KPSigner(originalPrivKey))
         val owner = runBlocking {
             ethrDid.lookupOwner()
         }
@@ -50,7 +50,7 @@ class EthrDIDTest {
 
         runBlocking {
 
-            val signer = SimpleSigner(originalPrivKey)
+            val signer = KPSigner(originalPrivKey)
             val address = signer.getAddress().prepend0xPrefix()
 
             val rpc = mock<JsonRPC>()
