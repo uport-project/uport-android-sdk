@@ -8,7 +8,6 @@ import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import org.hamcrest.Matchers.not
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,26 +17,18 @@ class CreateKeyTest {
 
     @JvmField
     @Rule
-    val activityRule = ActivityTestRule(CreateKeyActivity::class.java, true, false)
-
-    @Before
-    fun run_before_every_test() {
-        activityRule.launchActivity(null)
-    }
+    val activityRule = ActivityTestRule(CreateKeyActivity::class.java)
 
     @Test
-    public fun keyIsCreated() {
+    fun keyIsCreated() {
 
         onView(withId(R.id.create_key_btn)).perform(click())
 
-        onView(withId(R.id.public_key_details))
-                .check(matches(not(withText(""))))
+        onView(withId(R.id.public_key_details)).check(matches(not(withText(""))))
 
-        onView(withId(R.id.address_details))
-                .check(matches(not(withText(""))))
+        onView(withId(R.id.address_details)).check(matches(not(withText(""))))
 
-        onView(withId(R.id.error_text))
-                .check(matches(withText("")))
+        onView(withId(R.id.error_text)).check(matches(withText("")))
 
     }
 

@@ -10,7 +10,6 @@ import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.runner.AndroidJUnit4
 import org.hamcrest.CoreMatchers.anything
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,50 +21,43 @@ class NavigationTest {
 
     @JvmField
     @Rule
-    val activityRule = IntentsTestRule(MainListActivity::class.java, true, false)
+    val activityRule = IntentsTestRule(MainListActivity::class.java)
 
-
-    @Before
-    fun run_before_every_test() {
-        activityRule.launchActivity(null)
+    @Test
+    fun listIsDisplayed() {
+        onView(withId(me.uport.sdk.demoapp.R.id.feature_list)).check(ViewAssertions.matches(isDisplayed()))
     }
 
     @Test
-    public fun listIsDisplayed() {
-        onView(withId(me.uport.sdk.demoapp.R.id.feature_list))
-                .check(ViewAssertions.matches(isDisplayed()))
-    }
-
-    @Test
-    public fun navigateAllActivities() {
+    fun navigateAllActivities() {
 
         // check if Create Account Activity is launched
-        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(0).perform(click());
-        intended(hasComponent(CreateAccountActivity::class.java!!.name))
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(0).perform(click())
+        intended(hasComponent(CreateAccountActivity::class.java.name))
         pressBack()
 
         // check if Create Key Activity is launched
-        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(1).perform(click());
-        intended(hasComponent(CreateKeyActivity::class.java!!.name))
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(1).perform(click())
+        intended(hasComponent(CreateKeyActivity::class.java.name))
         pressBack()
 
         // check if Import Key Activity is launched
-        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(2).perform(click());
-        intended(hasComponent(ImportKeyActivity::class.java!!.name))
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(2).perform(click())
+        intended(hasComponent(ImportKeyActivity::class.java.name))
         pressBack()
 
         // check if Key Protection Activity is launched
-        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(3).perform(click());
-        intended(hasComponent(KeyProtectionListActivity::class.java!!.name))
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(3).perform(click())
+        intended(hasComponent(KeyProtectionListActivity::class.java.name))
 
         // check if KeyGuard Protection Activity is launched
-        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(0).perform(click());
-        intended(hasComponent(KeyGuardProtectionActivity::class.java!!.name))
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(0).perform(click())
+        intended(hasComponent(KeyGuardProtectionActivity::class.java.name))
         pressBack()
 
         // check if FingerPrint Protection Activity is launched
-        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(1).perform(click());
-        intended(hasComponent(FingerPrintProtectionActivity::class.java!!.name))
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(1).perform(click())
+        intended(hasComponent(FingerPrintProtectionActivity::class.java.name))
         pressBack()
 
         pressBack()

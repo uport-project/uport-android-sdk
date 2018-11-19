@@ -8,12 +8,9 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
 import kotlinx.android.synthetic.main.create_import_key.*
 import me.uport.sdk.core.decodeBase64
-import org.kethereum.bip39.entropyToMnemonic
 import org.kethereum.bip39.generateMnemonic
-import org.kethereum.bip39.model.MnemonicWords
 import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import org.walleth.khex.toHexString
-import java.security.SecureRandom
 
 class ImportKeyActivity : AppCompatActivity() {
 

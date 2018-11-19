@@ -7,7 +7,6 @@ import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import org.hamcrest.CoreMatchers.not
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,15 +16,10 @@ class ImportKeyTest {
 
     @JvmField
     @Rule
-    val activityRule = ActivityTestRule(ImportKeyActivity::class.java, true, false)
-
-    @Before
-    fun run_before_every_test() {
-        activityRule.launchActivity(null)
-    }
+    val activityRule = ActivityTestRule(ImportKeyActivity::class.java)
 
     @Test
-    public fun keyIsCreated() {
+    fun keyIsCreated() {
 
         onView(withId(R.id.seed_phrase_layout)).check(matches(isDisplayed()))
 
