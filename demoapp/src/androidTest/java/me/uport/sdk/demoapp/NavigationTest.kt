@@ -60,5 +60,21 @@ class NavigationTest {
         pressBack()
 
         pressBack()
+
+        // check if Key Protection Activity is launched
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(4).perform(click())
+        intended(hasComponent(SignJWTListActivity::class.java.name))
+
+        // check if KeyGuard Protection Activity is launched
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(0).perform(click())
+        intended(hasComponent(SignJWTKeyPairSignerActivity::class.java.name))
+        pressBack()
+
+        // check if FingerPrint Protection Activity is launched
+        onData(anything()).inAdapterView(withId(R.id.feature_list)).atPosition(1).perform(click())
+        intended(hasComponent(SignJWTUportHDSignerActivity::class.java.name))
+        pressBack()
+
+
     }
 }
