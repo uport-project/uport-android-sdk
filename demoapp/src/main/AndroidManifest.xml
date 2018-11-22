@@ -25,6 +25,9 @@
         <activity android:name=".KeyProtectionListActivity" />
         <activity android:name=".KeyGuardProtectionActivity" />
         <activity android:name=".FingerPrintProtectionActivity" />
+        <activity android:name=".SignJWTKeyPairSignerActivity" />
+        <activity android:name=".SignJWTListActivity" />
+        <activity android:name=".SignJWTUportHDSignerActivity" />
     </application>
 
 </manifest>

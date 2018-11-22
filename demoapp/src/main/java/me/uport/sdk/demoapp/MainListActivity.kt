@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.activity_list_main.*
 
 class MainListActivity : AppCompatActivity() {
 
-    private val features = arrayOf("Create an Account", "Create a Key", "Import a Key", "Key Protection", "Create a JWT", "Verify a JWT", "Selective Disclosure")
+    private val features = arrayOf("Create an Account", "Create a Key", "Import a Key", "Key Protection","Create a Signed JWT", "Selective Disclosure")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +38,7 @@ class MainListActivity : AppCompatActivity() {
             1 -> startActivity(Intent(this, CreateKeyActivity::class.java))
             2 -> startActivity(Intent(this, ImportKeyActivity::class.java))
             3 -> startActivity(Intent(this, KeyProtectionListActivity::class.java))
+            4 -> startActivity(Intent(this, SignJWTListActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }
