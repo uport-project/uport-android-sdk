@@ -48,7 +48,7 @@ dependencies {
 
             "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
             "com.android.support:appcompat-v7:$support_lib_version",
-
+            "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version",
             "com.android.support.constraint:constraint-layout:1.0.2"
     )
 
