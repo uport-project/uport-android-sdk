@@ -10,14 +10,14 @@
     <TextView
         android:id="@+id/public_key_details"
         android:layout_width="match_parent"
-        android:layout_height="110dp"
+        android:layout_height="wrap_content"
         android:background="#efefef"
         android:padding="10dp" />
 
     <TextView
         android:id="@+id/address_details"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="#efefef"
         android:padding="10dp" />
@@ -37,8 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Enter Seed Phrase"
-            android:lines="3"
-             />
+            android:lines="3" />
 
         <Button
             android:id="@+id/generate_seed_phrase"
