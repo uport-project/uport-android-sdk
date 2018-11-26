@@ -14,6 +14,8 @@ import me.uport.sdk.jwt.JWTTools
 
 class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
+    var issuerDID: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.create_import_key)
@@ -47,10 +49,10 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
                 // create KeyPair signer
                 val signer = UportHDSignerImpl(this@SignJWTUportHDSignerActivity, UportHDSigner(), address, address)
-                val issuerDID = "did:ethr:${signer.getAddress()}"
+                issuerDID = "did:ethr:${signer.getAddress()}"
 
                 val signedJWT: String? = try {
-                    JWTTools().createJWT(payload, issuerDID, signer, 5000)
+                    JWTTools().createJWT(payload, issuerDID!!, signer, 5000)
                 } catch (exception: Exception){
                     null
                 }

@@ -10,6 +10,9 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.jwt.JWTTools
 
 class SignJWTKeyPairSignerActivity : AppCompatActivity() {
+
+    var signedJWT: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.create_import_key)
@@ -33,7 +36,7 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
 
             // use coroutine function to create signed JWT and display results
             GlobalScope.launch (UI){
-                val signedJWT: String? = try {
+                signedJWT = try {
                     JWTTools().createJWT(payload, issuerDID, signer, 5000)
                 } catch (exception: Exception){
                     null
