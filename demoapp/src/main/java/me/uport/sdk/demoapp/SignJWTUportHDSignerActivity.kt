@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
+import com.uport.sdk.signer.importHDSeed
 import kotlinx.android.synthetic.main.create_import_key.*
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
@@ -34,12 +35,7 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
                         "write mechanic junior " +
                         "crater crystal seek"
 
-                var address = ""
-                UportHDSigner().importHDSeed(this@SignJWTUportHDSignerActivity, KeyProtection.Level.PROMPT, phrase) { err, rootAddress, pubKey ->
-                    if (err == null) {
-                        address = rootAddress
-                    }
-                }
+                val (address, _) = UportHDSigner().importHDSeed(this@SignJWTUportHDSignerActivity, KeyProtection.Level.PROMPT, phrase)
 
                 // mock a JWT payload
                 val payload = mapOf<String, Any>(
@@ -53,7 +49,12 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
                 val signer = UportHDSignerImpl(this@SignJWTUportHDSignerActivity, UportHDSigner(), address, address)
                 val issuerDID = "did:ethr:${signer.getAddress()}"
 
-                val signedJWT = JWTTools().createJWT(payload, issuerDID, signer, 5000)
+                val signedJWT: String? = try {
+                    JWTTools().createJWT(payload, issuerDID, signer, 5000)
+                } catch (exception: Exception){
+                    null
+                }
+
                 public_key_details.text = "Signed JWT Token: ${signedJWT}"
                 address_details.text = "Issuer DID: ${issuerDID}"
 

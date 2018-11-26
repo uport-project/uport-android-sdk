@@ -33,7 +33,11 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
 
             // use coroutine function to create signed JWT and display results
             GlobalScope.launch (UI){
-                val signedJWT = JWTTools().createJWT(payload, issuerDID, signer, 5000)
+                val signedJWT: String? = try {
+                    JWTTools().createJWT(payload, issuerDID, signer, 5000)
+                } catch (exception: Exception){
+                    null
+                }
 
                 public_key_details.text = "Signed JWT Token: ${signedJWT}"
 
