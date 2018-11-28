@@ -1,7 +1,7 @@
 package me.uport.sdk.credentials
 
 import com.uport.sdk.signer.KPSigner
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K

@@ -23,8 +23,7 @@ class TransportsAndroidTests {
     //only used for testing
     class DummyActivity : Activity()
 
-    @JvmField
-    @Rule
+    @get:Rule
     var intentsTestRule = IntentsTestRule<DummyActivity>(DummyActivity::class.java, true, true)
 
     private val filter: IntentFilter? = null
