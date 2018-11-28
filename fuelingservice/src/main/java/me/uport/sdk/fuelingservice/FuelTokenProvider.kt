@@ -4,35 +4,37 @@ import android.content.Context
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.iid.FirebaseInstanceId
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.UI
 import me.uport.sdk.core.experimental.urlPost
-import me.uport.sdk.identity.IFuelTokenProvider
 import org.json.JSONObject
 import java.io.IOException
 
+@Deprecated("This service is no longer supported. Use at your own risk")
 class FuelTokenProvider(private val context: Context, private val dAppMnid: String) : IFuelTokenProvider {
 
     override fun onCreateFuelToken(deviceAddress: String, callback: (err: Exception?, fuelToken: String) -> Unit) {
 
         val ctx = context.applicationContext
 
-        GlobalScope.launch(UI) {
+        GlobalScope.launch {
             try {
                 val uportInstanceToken = getInstanceToken(ctx, dAppMnid)
                 val fuelToken = getFuelToken(deviceAddress, uportInstanceToken)
 
-                callback(null, fuelToken)
+                withContext(UI) { callback(null, fuelToken) }
             } catch (ex: Exception) {
                 //TODO: separate user solvable errors from fatal exceptions in documentation
-                callback(ex, "")
+                withContext(UI) { callback(ex, "") }
             }
         }
     }
 
-    private suspend fun getFuelToken(deviceAddress : String, uportInstanceToken: String): String {
+    private suspend fun getFuelToken(deviceAddress: String, uportInstanceToken: String): String {
 
         val rawResponse = urlPost(FUELING_SERVICE_URL, "{\"iid_token\":\"$uportInstanceToken\", \"deviceAddress\":\"$deviceAddress\"}")
 

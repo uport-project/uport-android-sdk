@@ -31,7 +31,7 @@ data class UnnuCreationRequest(
         @SerialName("managerType")
         val managerType: String = "MetaIdentityManager") {
 
-    fun toJson() = JSON.stringify(this)
+    fun toJson() = JSON.stringify(UnnuCreationRequest.serializer(), this)
 }
 
 /**
@@ -40,7 +40,7 @@ data class UnnuCreationRequest(
 @Serializable
 data class UnnuLookupRequest(val deviceKey: String) {
 
-    fun toJson() = JSON.stringify(this)
+    fun toJson() = JSON.stringify(UnnuLookupRequest.serializer(), this)
 
 }
 
@@ -85,7 +85,7 @@ data class UnnuJRPCResponse(
         val data: UnnuIdentityInfo = UnnuIdentityInfo()) {
 
     companion object {
-        fun fromJson(json: String) : UnnuJRPCResponse = JSON.nonstrict.parse(json)
+        fun fromJson(json: String): UnnuJRPCResponse = JSON.nonstrict.parse(UnnuJRPCResponse.serializer(), json)
     }
 }
 

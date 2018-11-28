@@ -47,12 +47,3 @@ dependencies {
 
 
 }
-repositories {
-    mavenCentral()
-}
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}

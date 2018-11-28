@@ -45,9 +45,3 @@ dependencies {
 
 
 }
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}

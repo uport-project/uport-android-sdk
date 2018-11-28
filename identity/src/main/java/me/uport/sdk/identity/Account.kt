@@ -52,7 +52,7 @@ data class Account(
 
     fun getMnid() = MNID.encode(network, publicAddress)
 
-    fun toJson(pretty: Boolean = false): String = if (pretty) JSON.indented.stringify(this) else JSON.stringify(this)
+    fun toJson(pretty: Boolean = false): String = if (pretty) JSON.indented.stringify(Account.serializer(), this) else JSON.stringify(Account.serializer(), this)
 
     fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
@@ -65,7 +65,7 @@ data class Account(
                 return null
             }
 
-            return JSON.parse(serializedAccount)
+            return JSON.parse(Account.serializer(), serializedAccount)
         }
     }
 
