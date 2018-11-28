@@ -7,7 +7,6 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.decodeJose
 import com.uport.sdk.signer.getJoseEncoded
 import me.uport.sdk.core.*
-import me.uport.sdk.uportdid.UportDIDResolver
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
@@ -16,6 +15,7 @@ import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
+import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
 import org.kethereum.crypto.model.PublicKey
 import org.kethereum.crypto.toAddress
@@ -28,7 +28,9 @@ import org.spongycastle.asn1.x9.X9IntegerConverter
 import org.spongycastle.math.ec.ECAlgorithms
 import org.spongycastle.math.ec.ECPoint
 import org.spongycastle.math.ec.custom.sec.SecP256K1Curve
-import org.walleth.khex.*
+import org.walleth.khex.clean0xPrefix
+import org.walleth.khex.hexToByteArray
+import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 import java.security.SignatureException
 import kotlin.experimental.and
@@ -238,7 +240,7 @@ class JWTTools(
             return null
         }
         //   1.5. Compute e from M using Steps 2 and 3 of ECDSA signature verification.
-        val e = BigInteger(1, message!!)
+        val e = BigInteger(1, message)
         //   1.6. For k from 1 to 2 do the following.   (loop is outside this function via
         //        iterating recId)
         //   1.6.1. Compute a candidate public key as:

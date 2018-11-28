@@ -60,10 +60,19 @@ allprojects {
         mavenLocal()
     }
 
+//address warnings about multiple kotlin runtimes in classpath
     configurations.all {
+        resolutionStrategy.dependencySubstitution {
+            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre7") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre8") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+
+        }
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
             def requested = details.requested
-            if (requested.group == 'org.jetbrains.kotlin' && requested.name == 'kotlin-reflect') {
+            if (requested.group == 'org.jetbrains.kotlin' && requested.name in [
+                    'kotlin-reflect', 'kotlin-stdlib', 'kotlin-stdlib-common',
+                    'kotlin-stdlib-jdk7', 'kotlin-stdlib-jdk8',
+            ]) {
                 details.useVersion kotlin_version
             }
         }
