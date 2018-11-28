@@ -1,13 +1,16 @@
+@file:Suppress("DEPRECATION")
+
 package com.uport.sdk.signer.encryption
 
 import android.animation.Animator
 import android.annotation.TargetApi
-import android.app.DialogFragment
 import android.content.Context
+import android.graphics.Color
 import android.hardware.fingerprint.FingerprintManager
 import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,9 +45,9 @@ class FingerprintDialog : DialogFragment() {
 
         purpose = savedInstanceState?.getString(KEY_DIALOG_PURPOSE) ?: arguments?.getString(KEY_DIALOG_PURPOSE) ?: ""
 
-        fingerprintManager = context.getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
-        successColor = context.getColor(R.color.uport_fingerprint_green)
-        failureColor = context.getColor(R.color.uport_fingerprint_red)
+        fingerprintManager = context?.getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
+        successColor = context?.getColor(R.color.uport_fingerprint_green) ?: Color.GREEN
+        failureColor = context?.getColor(R.color.uport_fingerprint_red) ?: Color.RED
     }
 
     override
@@ -84,7 +87,7 @@ class FingerprintDialog : DialogFragment() {
         textViewStatus = content.findViewById(R.id.textViewFingerprintStatus)
         cancelButton = content.findViewById(R.id.buttonFingerprintCancel)
 
-        cancelButton.setOnClickListener { _ -> onCancelPressed() }
+        cancelButton.setOnClickListener { onCancelPressed() }
 
         return content
     }
