@@ -5,7 +5,9 @@ import me.uport.sdk.jsonrpc.JsonRpcLogItem
 import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
 import java.math.BigInteger
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 suspend fun JsonRPC.ethCall(address: String, data: String): String = suspendCoroutine { cont ->
     this.ethCall(address, data) { err, jrpcResult ->
