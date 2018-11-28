@@ -1,6 +1,8 @@
-package me.uport.sdk.identity
+package me.uport.sdk.core
 
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 interface IFuelTokenProvider {
     fun onCreateFuelToken(deviceAddress: String, callback: (err: Exception?, fuelToken: String) -> Unit)
