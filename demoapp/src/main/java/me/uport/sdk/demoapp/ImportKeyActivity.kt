@@ -26,7 +26,7 @@ class ImportKeyActivity : AppCompatActivity() {
             text_input_area.setText(seedPhrase)
         }
 
-        submit_btn_one.setOnClickListener{
+        submit_btn_one.setOnClickListener {
             resetUI()
             val seedPhrase = text_input_area.text.toString().trim()
             if (!seedPhrase.isEmpty()) {
@@ -35,7 +35,7 @@ class ImportKeyActivity : AppCompatActivity() {
                         item_details_one.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                         item_details_two.text = "address: $rootAddress"
                     } else {
-                        error_details.text = "error: $err"
+                        error_details.text = "error: ${err.toString()}"
                     }
                 }
             } else {
