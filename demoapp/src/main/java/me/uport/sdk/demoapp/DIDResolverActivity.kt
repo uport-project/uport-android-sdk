@@ -13,14 +13,14 @@ import me.uport.sdk.universaldid.UniversalDID
 class DIDResolverActivity : AppCompatActivity() {
 
     val ethr_did_text = "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"
-    val uport_did_text = "did:uport:2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC"//""did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX"
+    val uport_did_text = "did:uport:2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.did_resolver)
 
-        ethr_did.text = "Ethr DID\n$ethr_did_text"
-        uport_did.text = "Ethr DID\n$uport_did_text"
+        ethr_did.text = "Ethr DID\n\n$ethr_did_text"
+        uport_did.text = "Uport DID\n\n$uport_did_text"
 
         resolve_btn.setOnClickListener {
             GlobalScope.launch {
@@ -29,7 +29,7 @@ class DIDResolverActivity : AppCompatActivity() {
                 val ethrDIDResultText = if (UniversalDID.canResolve(ethr_did_text)) {
                     val ddo: DIDDocument = UniversalDID.resolve(ethr_did_text)
 
-                    "Ethr DID Document\n$ddo"
+                    "Ethr DID Document\n\n$ddo"
                 } else {
                     "Invalid Ethr DID"
                 }
@@ -39,7 +39,7 @@ class DIDResolverActivity : AppCompatActivity() {
                 val uportDIDResultText = if (UniversalDID.canResolve(uport_did_text)) {
                     val ddo: DIDDocument = UniversalDID.resolve(uport_did_text)
 
-                    "Uport DID Document\n$ddo"
+                    "Uport DID Document\n\n$ddo"
                 } else {
                     "Invalid Uport DID"
                 }
