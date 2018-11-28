@@ -19,8 +19,7 @@ import org.junit.runner.RunWith
 class NavigationTest {
 
 
-    @JvmField
-    @Rule
+    @get:Rule
     val activityRule = IntentsTestRule(MainListActivity::class.java)
 
     @Test

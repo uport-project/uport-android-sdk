@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
-import android.widget.ListAdapter
 import kotlinx.android.synthetic.main.activity_list_main.*
 
 class KeyProtectionListActivity : AppCompatActivity() {
@@ -17,7 +16,7 @@ class KeyProtectionListActivity : AppCompatActivity() {
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, features)
 
-        feature_list.adapter = adapter as ListAdapter?
+        feature_list.adapter = adapter
 
         feature_list.setOnItemClickListener { _, _, position, _ ->
             itemSelected(position)

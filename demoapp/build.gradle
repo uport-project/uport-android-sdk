@@ -26,6 +26,10 @@ android {
     dexOptions {
         jumboMode true
     }
+
+    lintOptions {
+        disable 'SetTextI18n'
+    }
 }
 
 configurations.all {
@@ -58,8 +62,4 @@ dependencies {
             "com.android.support.test.espresso:espresso-intents:$espresso_version"
     )
 
-}
-
-repositories {
-    mavenLocal()
 }

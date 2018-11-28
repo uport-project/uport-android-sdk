@@ -14,13 +14,15 @@ class CreateKeyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.create_import_key)
 
-        create_key_btn.setOnClickListener{
+        create_key_btn.setOnClickListener {
             resetUI()
-            UportHDSigner().createHDSeed(this, KeyProtection.Level.SIMPLE) {err, rootAddress, pubKey ->
+            UportHDSigner().createHDSeed(this, KeyProtection.Level.SIMPLE) { err, rootAddress, pubKey ->
                 if (err == null) {
                     public_key_details.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                     address_details.text = "address: $rootAddress"
-                } else error_text.text = "error: ${err.toString()}"
+                } else {
+                    error_text.text = "error: $err"
+                }
             }
         }
     }
