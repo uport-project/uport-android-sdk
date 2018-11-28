@@ -42,12 +42,5 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
-//    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
 
-}
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
 }

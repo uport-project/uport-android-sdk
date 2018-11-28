@@ -1,10 +1,8 @@
 package me.uport.sdk.universaldid
 
-import kotlinx.coroutines.experimental.runBlocking
-import me.uport.sdk.universaldid.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
-import java.lang.IllegalArgumentException
 
 class UniversalDIDTest {
 

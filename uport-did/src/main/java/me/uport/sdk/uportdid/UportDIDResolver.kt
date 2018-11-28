@@ -16,7 +16,9 @@ import org.kethereum.extensions.hexToBigInteger
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import pm.gnosis.model.Solidity
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * This is a DID resolver implementation that supports the "uport" DID method.
