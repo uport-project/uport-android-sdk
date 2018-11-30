@@ -22,13 +22,13 @@ class CreateKeyTest {
     @Test
     fun keyIsCreated() {
 
-        onView(withId(R.id.create_key_btn)).perform(click())
+        onView(withId(R.id.submit_btn_one)).perform(click())
 
-        onView(withId(R.id.public_key_details)).check(matches(not(withText(""))))
+        onView(withId(R.id.item_details_one)).check(matches(not(withText(""))))
 
-        onView(withId(R.id.address_details)).check(matches(not(withText(""))))
+        onView(withId(R.id.item_details_two)).check(matches(not(withText(""))))
 
-        onView(withId(R.id.error_text)).check(matches(withText("")))
+        onView(withId(R.id.error_details)).check(matches(withText("")))
 
     }
 

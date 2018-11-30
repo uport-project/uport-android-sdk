@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
 import android.widget.ListAdapter
-import kotlinx.android.synthetic.main.activity_list_main.*
+import kotlinx.android.synthetic.main.simple_list.*
 
 class KeyProtectionListActivity : AppCompatActivity() {
 
@@ -13,13 +13,13 @@ class KeyProtectionListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_list_main)
+        setContentView(R.layout.simple_list)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, features)
 
-        feature_list.adapter = adapter as ListAdapter?
+        item_list.adapter = adapter as ListAdapter?
 
-        feature_list.setOnItemClickListener { _, _, position, _ ->
+        item_list.setOnItemClickListener { _, _, position, _ ->
             itemSelected(position)
         }
     }

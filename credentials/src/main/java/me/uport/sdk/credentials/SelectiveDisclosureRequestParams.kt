@@ -15,7 +15,7 @@ import android.support.annotation.Keep
 class SelectiveDisclosureRequestParams(
         /**
          * [**required**]
-         * a list of attributes for which you are requesting credentials.
+         * a simple_list of attributes for which you are requesting credentials.
          * Ex. [ 'name', 'country' ]
          */
         val requested: List<String>,
@@ -31,7 +31,7 @@ class SelectiveDisclosureRequestParams(
 
         /**
          * [**optional**]
-         * A list of signed claims being requested.
+         * A simple_list of signed claims being requested.
          * This is semantically similar to the [requested] field
          * but the response should contain signatures as well.
          */
@@ -59,7 +59,7 @@ class SelectiveDisclosureRequestParams(
 
         /**
          * [**optional**]
-         * A list of signed claims about the issuer, usually signed by 3rd parties.
+         * A simple_list of signed claims about the issuer, usually signed by 3rd parties.
          */
         val vc: List<String>? = null,
 
