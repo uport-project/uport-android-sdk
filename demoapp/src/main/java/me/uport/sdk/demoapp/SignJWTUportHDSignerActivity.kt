@@ -2,6 +2,7 @@ package me.uport.sdk.demoapp
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
@@ -22,43 +23,48 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
         create_key_btn.text = "Sign JWT"
 
+
+        // mock a JWT payload
+        val payload = mapOf<String, Any>(
+                "claims" to mapOf(
+                        "name" to "Steve Austin",
+                        "dob" to "13 Aug 1976"
+                )
+        )
+
+        /*
+         * Ensure a seed is available.
+         * For demonstration purposes this is done in the same process as signing the JWT
+         * In actual use cases the seed would be created when the user is first on-boarded
+         */
+
+        val phrase = "notice suffer eagle " +
+                "style exclude burst " +
+                "write mechanic junior " +
+                "crater crystal seek"
+
+        var signer: Signer? = null
+        GlobalScope.launch(UI) {
+            val (address, _) = UportHDSigner().importHDSeed(this@SignJWTUportHDSignerActivity, KeyProtection.Level.PROMPT, phrase)
+
+            // create KeyPair signer
+            signer = UportHDSignerImpl(this@SignJWTUportHDSignerActivity, UportHDSigner(), address, address)
+            issuerDID = "did:ethr:${signer?.getAddress()}"
+
+            address_details.text = "Issuer DID: ${issuerDID}"
+        }
+
         create_key_btn.setOnClickListener {
 
             GlobalScope.launch(UI) {
 
-                /*
-                 * Ensure a seed is available.
-                 * For demonstration purposes this is done in the same process as signing the JWT
-                 * In actual use cases the seed would be created when the user is first on-boarded
-                 */
-
-                val phrase = "notice suffer eagle " +
-                        "style exclude burst " +
-                        "write mechanic junior " +
-                        "crater crystal seek"
-
-                val (address, _) = UportHDSigner().importHDSeed(this@SignJWTUportHDSignerActivity, KeyProtection.Level.PROMPT, phrase)
-
-                // mock a JWT payload
-                val payload = mapOf<String, Any>(
-                        "claims" to mapOf(
-                                "name" to "Steve Austin",
-                                "dob" to "13 Aug 1976"
-                        )
-                )
-
-                // create KeyPair signer
-                val signer = UportHDSignerImpl(this@SignJWTUportHDSignerActivity, UportHDSigner(), address, address)
-                issuerDID = "did:ethr:${signer.getAddress()}"
-
                 val signedJWT: String? = try {
-                    JWTTools().createJWT(payload, issuerDID!!, signer, 5000)
+                    JWTTools().createJWT(payload, issuerDID!!, signer!!, 5000)
                 } catch (exception: Exception){
                     null
                 }
 
                 public_key_details.text = "Signed JWT Token: ${signedJWT}"
-                address_details.text = "Issuer DID: ${issuerDID}"
 
             }
         }

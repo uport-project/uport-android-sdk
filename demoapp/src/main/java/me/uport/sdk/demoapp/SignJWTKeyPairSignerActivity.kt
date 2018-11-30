@@ -31,6 +31,7 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
         val signer = KPSigner("0x1234")
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+        address_details.text = "Issuer DID: ${issuerDID}"
 
         create_key_btn.setOnClickListener {
 
@@ -43,8 +44,6 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
                 }
 
                 public_key_details.text = "Signed JWT Token: ${signedJWT}"
-
-                address_details.text = "Issuer DID: ${issuerDID}"
             }
         }
     }
