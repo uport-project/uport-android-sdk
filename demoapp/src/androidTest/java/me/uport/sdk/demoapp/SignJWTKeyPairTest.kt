@@ -20,7 +20,7 @@ class SignJWTKeyPairTest {
     @Test
     fun keyIsCreated() {
 
-        onView(withId(R.id.create_key_btn)).perform(click())
+        onView(withId(R.id.submit_btn_one)).perform(click())
 
         assertNotNull(activityRule.activity.signedJWT)
     }

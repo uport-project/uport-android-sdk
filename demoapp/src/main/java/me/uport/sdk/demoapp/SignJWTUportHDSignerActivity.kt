@@ -7,7 +7,7 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.importHDSeed
-import kotlinx.android.synthetic.main.create_import_key.*
+import kotlinx.android.synthetic.main.simple_result_layout.*
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.UI
@@ -19,9 +19,9 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.create_import_key)
+        setContentView(R.layout.simple_result_layout)
 
-        create_key_btn.text = "Sign JWT"
+        submit_btn_one.text = "Sign JWT"
 
 
         // mock a JWT payload
@@ -51,10 +51,10 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
             signer = UportHDSignerImpl(this@SignJWTUportHDSignerActivity, UportHDSigner(), address, address)
             issuerDID = "did:ethr:${signer?.getAddress()}"
 
-            address_details.text = "Issuer DID: ${issuerDID}"
+            item_details_two.text = "Issuer DID: ${issuerDID}"
         }
 
-        create_key_btn.setOnClickListener {
+        submit_btn_one.setOnClickListener {
 
             GlobalScope.launch(UI) {
 
@@ -64,7 +64,7 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
                     null
                 }
 
-                public_key_details.text = "Signed JWT Token: ${signedJWT}"
+                item_details_one.text = "Signed JWT Token: ${signedJWT}"
 
             }
         }

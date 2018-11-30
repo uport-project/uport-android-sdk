@@ -21,7 +21,7 @@ class SignJWTUportHDTest {
     @Test
     fun keyIsCreated() {
 
-        onView(withId(R.id.create_key_btn)).perform(click())
+        onView(withId(R.id.submit_btn_one)).perform(click())
 
         assertFalse(activityRule.activity.issuerDID!!.contains("null"))
     }

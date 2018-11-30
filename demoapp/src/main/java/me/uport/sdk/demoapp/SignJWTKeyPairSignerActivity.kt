@@ -3,7 +3,7 @@ package me.uport.sdk.demoapp
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.uport.sdk.signer.KPSigner
-import kotlinx.android.synthetic.main.create_import_key.*
+import kotlinx.android.synthetic.main.simple_result_layout.*
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import me.uport.sdk.core.UI
@@ -15,9 +15,9 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.create_import_key)
+        setContentView(R.layout.simple_result_layout)
 
-        create_key_btn.text = "Sign JWT"
+        submit_btn_one.text = "Sign JWT"
 
         // create a JWT payload
         val payload = mapOf<String, Any>(
@@ -31,9 +31,9 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
         val signer = KPSigner("0x1234")
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        address_details.text = "Issuer DID: ${issuerDID}"
+        item_details_two.text = "Issuer DID: ${issuerDID}"
 
-        create_key_btn.setOnClickListener {
+        submit_btn_one.setOnClickListener {
 
             // use coroutine function to create signed JWT and display results
             GlobalScope.launch (UI){
@@ -43,7 +43,7 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
                     null
                 }
 
-                public_key_details.text = "Signed JWT Token: ${signedJWT}"
+                item_details_one.text = "Signed JWT Token: ${signedJWT}"
             }
         }
     }
