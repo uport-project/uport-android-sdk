@@ -2,6 +2,7 @@ package me.uport.sdk.demoapp
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import kotlinx.android.synthetic.main.did_resolver.*
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
@@ -23,6 +24,9 @@ class DIDResolverActivity : AppCompatActivity() {
         uport_did.text = "Uport DID\n\n$uport_did_text"
 
         resolve_btn.setOnClickListener {
+
+            progress.visibility = View.VISIBLE
+
             GlobalScope.launch {
 
                 // validate the did before resolving
@@ -44,7 +48,10 @@ class DIDResolverActivity : AppCompatActivity() {
                     "Invalid Uport DID"
                 }
 
-                withContext(UI) { uport_did_doc.text = uportDIDResultText }
+                withContext(UI) {
+                    uport_did_doc.text = uportDIDResultText
+                    progress.visibility = View.GONE
+                }
             }
         }
     }
