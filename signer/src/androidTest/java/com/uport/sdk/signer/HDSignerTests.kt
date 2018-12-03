@@ -8,10 +8,7 @@ import com.uport.sdk.signer.testutil.ensureSeedIsImportedInTargetContext
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,7 +31,7 @@ class HDSignerTests {
         Security.addProvider(BouncyCastleProvider())
     }
 
-    private lateinit var context : Context
+    private lateinit var context: Context
 
     @Before
     fun runBeforeEachTest() {
@@ -116,7 +113,6 @@ class HDSignerTests {
         val referenceSignature = "lnEso6Io2pJvlC6sWDLRkvxvpXqcUpZpvr4sdpHcTGA66Y1zher8KlrnWzQ2tt_lpxpx2YYdbfdtkfVmwjex2Q".decodeJose(28)
 
         val referencePayload = "Hello world".toBase64().padBase64()
-
 
 
         val latch = CountDownLatch(1)

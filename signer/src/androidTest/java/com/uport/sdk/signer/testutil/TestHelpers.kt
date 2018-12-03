@@ -13,7 +13,7 @@ import java.util.concurrent.CountDownLatch
 fun ensureSeedIsImportedInTargetContext(phrase: String, level: KeyProtection.Level = KeyProtection.Level.SIMPLE): String {
     val targetContext = InstrumentationRegistry.getTargetContext()
     val latch = CountDownLatch(1)
-    lateinit var handle : String
+    lateinit var handle: String
     UportHDSigner().importHDSeed(targetContext, level, phrase) { err, rootAddress, _ ->
         Assert.assertNull(err)
         handle = rootAddress
@@ -29,7 +29,7 @@ fun ensureSeedIsImportedInTargetContext(phrase: String, level: KeyProtection.Lev
 fun ensureKeyIsImportedInTargetContext(key: ByteArray, level: KeyProtection.Level = KeyProtection.Level.SIMPLE): String {
     val targetContext = InstrumentationRegistry.getTargetContext()
     val latch = CountDownLatch(1)
-    lateinit var handle : String
+    lateinit var handle: String
     UportSigner().saveKey(targetContext, level, key) { err, rootAddress, _ ->
         Assert.assertNull(err)
         handle = rootAddress

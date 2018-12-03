@@ -14,6 +14,6 @@ class EthCall(
                 "latest")
 ) {
 
-    fun toJsonRpc() : String = toJson()
+    fun toJsonRpc(): String = toJson()
 
 }

@@ -3,7 +3,6 @@ package me.uport.sdk.uportdid
 import me.uport.mnid.Account
 import me.uport.sdk.jsonrpc.EthCall
 import me.uport.sdk.universaldid.DelegateType
-import me.uport.sdk.universaldid.PublicKeyEntry
 import org.junit.Assert.*
 import org.junit.Test
 import org.walleth.khex.clean0xPrefix

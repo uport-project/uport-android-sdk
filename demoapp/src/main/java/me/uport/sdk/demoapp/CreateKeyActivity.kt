@@ -14,7 +14,7 @@ class CreateKeyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.simple_result_layout)
 
-        submit_btn_one.setOnClickListener{
+        submit_btn_one.setOnClickListener {
             resetUI()
             UportHDSigner().createHDSeed(this, KeyProtection.Level.SIMPLE) { err, rootAddress, pubKey ->
                 if (err == null) {

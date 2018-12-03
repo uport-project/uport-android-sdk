@@ -36,10 +36,10 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
         submit_btn_one.setOnClickListener {
 
             // use coroutine function to create signed JWT and display results
-            GlobalScope.launch (UI){
+            GlobalScope.launch(UI) {
                 signedJWT = try {
                     JWTTools().createJWT(payload, issuerDID, signer, 5000)
-                } catch (exception: Exception){
+                } catch (exception: Exception) {
                     null
                 }
 

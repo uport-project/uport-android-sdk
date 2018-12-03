@@ -1,8 +1,8 @@
 package me.uport.sdk.signer
 
 import me.uport.sdk.TxRelay
-import me.uport.sdk.core.experimental.urlPost
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.experimental.urlPost
 import me.uport.sdk.jsonrpc.EthCall
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import org.kethereum.extensions.hexToBigInteger
@@ -29,7 +29,7 @@ class TxRelayHelper(private val network: EthNetwork) {
     /**
      * ABI encodes the function and parameters for `relayMetaTx` function call in a TxRelay contract
      */
-    fun abiEncodeRelayMetaTx(sig : SignatureData, destination : String, data : ByteArray, whitelistOwner : String = ZERO_ADDRESS) : String {
+    fun abiEncodeRelayMetaTx(sig: SignatureData, destination: String, data: ByteArray, whitelistOwner: String = ZERO_ADDRESS): String {
 
         val solV = Solidity.UInt8(sig.v.toInt().toBigInteger())
         val solR = Solidity.Bytes32(sig.r.toBytesPadded(32))

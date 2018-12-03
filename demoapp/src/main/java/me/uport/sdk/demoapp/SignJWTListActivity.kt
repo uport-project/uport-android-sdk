@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.simple_list.*
 
-class SignJWTListActivity: AppCompatActivity() {
+class SignJWTListActivity : AppCompatActivity() {
 
     private val features = arrayOf("Use KeyPair Signer", "Use UportHDSigner with Fingerprint")
 

@@ -60,7 +60,7 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
                 val signedJWT: String? = try {
                     JWTTools().createJWT(payload, issuerDID!!, signer!!, 5000)
-                } catch (exception: Exception){
+                } catch (exception: Exception) {
                     null
                 }
 
