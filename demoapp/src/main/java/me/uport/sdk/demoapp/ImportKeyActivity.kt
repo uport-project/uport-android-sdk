@@ -35,7 +35,7 @@ class ImportKeyActivity : AppCompatActivity() {
                         item_details_one.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                         item_details_two.text = "address: $rootAddress"
                     } else {
-                        error_details.text = "error: ${err.toString()}"
+                        error_details.text = "error: $err"
                     }
                 }
             } else {

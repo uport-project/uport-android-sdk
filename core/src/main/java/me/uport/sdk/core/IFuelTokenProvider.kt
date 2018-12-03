@@ -9,7 +9,6 @@ interface IFuelTokenProvider {
 }
 
 
-
 suspend fun IFuelTokenProvider.onCreateFuelToken(deviceAddress: String): String = suspendCoroutine {
     this.onCreateFuelToken(deviceAddress) { err, fuelToken ->
         if (err != null) {

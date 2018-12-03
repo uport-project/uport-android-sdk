@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.simple_result_layout.*
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.uport.sdk.core.UI
 import me.uport.sdk.jwt.JWTTools
 
@@ -31,7 +31,7 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
         val signer = KPSigner("0x1234")
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        item_details_two.text = "Issuer DID: ${issuerDID}"
+        item_details_two.text = "Issuer DID: $issuerDID"
 
         submit_btn_one.setOnClickListener {
 
@@ -43,7 +43,7 @@ class SignJWTKeyPairSignerActivity : AppCompatActivity() {
                     null
                 }
 
-                item_details_one.text = "Signed JWT Token: ${signedJWT}"
+                item_details_one.text = "Signed JWT Token: $signedJWT"
             }
         }
     }
