@@ -1,4 +1,4 @@
-package me.uport.sdk.https_did
+package me.uport.sdk.httpsdid
 
 import org.junit.Test
 import org.junit.Assert.*

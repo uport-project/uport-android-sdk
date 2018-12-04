@@ -1,4 +1,4 @@
-package me.uport.sdk.https_did
+package me.uport.sdk.httpsdid
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter

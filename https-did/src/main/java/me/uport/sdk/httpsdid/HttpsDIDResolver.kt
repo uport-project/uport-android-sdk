@@ -1,4 +1,4 @@
-package me.uport.sdk.https_did
+package me.uport.sdk.httpsdid
 
 import me.uport.sdk.core.urlGet
 import me.uport.sdk.core.urlGetSync
@@ -25,20 +25,10 @@ open class HttpsDIDResolver : DIDResolver {
 
 
     override fun canResolve(potentialDID: String): Boolean {
-        val (method, domain) = parseDIDString(potentialDID)
+        val (method,_) = parseDIDString(potentialDID)
         return (method == this.method)
     }
 
-    /**
-     * Given an [domain], obtains the JSON encoded DID doc then tries to convert it to a [HttpsIdentityDocument] object
-     *
-     * Should return `null` if anything goes wrong
-     */
-    internal fun getProfileDocumentSync(domain: String): HttpsIdentityDocument? {
-        val url = "https://$domain/.well-known/did.json"
-        val ddo = urlGetSync(url)
-        return HttpsIdentityDocument.fromJson(ddo)
-    }
 
     /**
      * Given a [domain], obtains the JSON encoded DID doc then tries to convert it to a [HttpsIdentityDocument] object

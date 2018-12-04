@@ -14,7 +14,7 @@ import me.uport.sdk.identity.*
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
-import me.uport.sdk.https_did.HttpsDIDResolver
+import me.uport.sdk.httpsdid.HttpsDIDResolver
 import kotlin.coroutines.experimental.suspendCoroutine
 
 @SuppressLint("StaticFieldLeak")
