@@ -23,8 +23,6 @@ class DIDResolverTest {
 
         onView(withId(R.id.resolve_btn)).perform(click())
 
-        Thread.sleep(10000)
-
         onView(withId(R.id.ethr_did_doc)).check(matches(withText(containsString("Ethr DID Document"))))
 
         onView(withId(R.id.uport_did_doc)).check(matches(withText(containsString("Uport DID Document"))))
