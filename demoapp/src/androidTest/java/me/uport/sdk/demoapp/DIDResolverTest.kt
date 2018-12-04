@@ -15,13 +15,15 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DIDResolverTest {
 
-    @JvmField
-    @Rule
+    @get:Rule
     val activityRule = ActivityTestRule(DIDResolverActivity::class.java)
 
     @Test
     fun DID_document_is_returned() {
+
         onView(withId(R.id.resolve_btn)).perform(click())
+
+        Thread.sleep(10000)
 
         onView(withId(R.id.ethr_did_doc)).check(matches(withText(containsString("Ethr DID Document"))))
 
