@@ -39,6 +39,7 @@ dependencies {
     api project(":universal-did")
     api project(":ethr-did")
     api project(":uport-did")
+    api project(":https-did")
     api project(":credentials")
     api project(":transport")
 
