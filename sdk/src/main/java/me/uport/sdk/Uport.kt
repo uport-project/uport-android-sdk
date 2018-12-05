@@ -12,11 +12,11 @@ import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.identity.*
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
-import me.uport.sdk.httpsdid.HttpsDIDResolver
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

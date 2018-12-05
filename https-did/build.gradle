@@ -46,13 +46,3 @@ dependencies {
     api project(":core")
     api project(":universal-did")
 }
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
-
-repositories {
-    mavenCentral()
-}
