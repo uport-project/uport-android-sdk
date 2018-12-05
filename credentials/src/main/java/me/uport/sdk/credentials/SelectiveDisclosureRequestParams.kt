@@ -1,6 +1,7 @@
 package me.uport.sdk.credentials
 
 import android.support.annotation.Keep
+import me.uport.sdk.credentials.RequestAccountType.*
 
 /**
  * A class that encapsulates the supported parameter types for creating a SelectiveDisclosureRequest.

@@ -18,6 +18,9 @@ import org.walleth.khex.toHexString
 import pm.gnosis.model.Solidity
 import java.math.BigInteger
 
+/**
+ * Enables interaction with the EthrDID registry contract
+ */
 class EthrDID(
         private val address: String,
         private val rpc: JsonRPC,
@@ -49,9 +52,7 @@ class EthrDID(
                 Solidity.Address(newOwner.hexToBigInteger())
         )
 
-        val txHash = signAndSendContractCall(owner, encodedCall)
-
-        return txHash
+        return signAndSendContractCall(owner, encodedCall)
     }
 
 
@@ -89,27 +90,6 @@ class EthrDID(
         )
         return signAndSendContractCall(owner, encodedCall)
     }
-//
-//    // Create a temporary signing delegate able to sign JWT on behalf of identity
-//    suspend fun createSigningDelegate(delegateType: String = "Secp256k1VerificationKey2018", expiresIn: Long = 86400L) {
-//        val kp = createKeyPair()
-//        this.signer = KPSigner(kp.privateKey)
-//        const txHash = await this.addDelegate(kp.address, { delegateType, expiresIn })
-//        return { kp, txHash }
-//    }
-//
-//    async signJWT (payload, expiresIn)
-//    {
-//        if (typeof this.signer !== 'function') throw new Error('No signer configured')
-//        const options = { signer: this.signer, alg: 'ES256K-R', issuer: this.did }
-//        if (expiresIn) options.expiresIn = expiresIn
-//        return createJWT(payload, options)
-//    }
-//
-//    async verifyJWT (jwt, audience=this.did)
-//    {
-//        return verifyJWT(jwt, { audience })
-//    }
 
     private suspend fun signAndSendContractCall(owner: String, encodedCall: String): String {
         //these requests can be done in parallel
@@ -129,7 +109,6 @@ class EthrDID(
 
         val signedEncodedTx = signer.signRawTx(unsignedTx)
 
-        val txHash = rpc.sendRawTransaction(signedEncodedTx.toHexString())
-        return txHash
+        return rpc.sendRawTransaction(signedEncodedTx.toHexString())
     }
 }

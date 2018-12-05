@@ -8,8 +8,8 @@ import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.importHDSeed
 import kotlinx.android.synthetic.main.simple_result_layout.*
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.uport.sdk.core.UI
 import me.uport.sdk.jwt.JWTTools
 
@@ -60,11 +60,11 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
                 val signedJWT: String? = try {
                     JWTTools().createJWT(payload, issuerDID!!, signer!!, 5000)
-                } catch (exception: Exception){
+                } catch (exception: Exception) {
                     null
                 }
 
-                item_details_one.text = "Signed JWT Token: ${signedJWT}"
+                item_details_one.text = "Signed JWT Token: $signedJWT"
 
             }
         }

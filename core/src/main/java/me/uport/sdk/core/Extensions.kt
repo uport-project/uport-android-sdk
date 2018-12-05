@@ -2,17 +2,16 @@ package me.uport.sdk.core
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.android.Main
+import kotlinx.coroutines.Dispatchers
 import org.kethereum.extensions.toHexStringNoPrefix
 import org.spongycastle.util.encoders.Base64
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 import java.nio.charset.Charset
-import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.coroutines.experimental.EmptyCoroutineContext
-import kotlinx.coroutines.experimental.android.UI as mainLooperContext
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.Dispatchers.Main as mainLooperContext
 
 /**
  * Shorthand for a mockable UI context in unit tests

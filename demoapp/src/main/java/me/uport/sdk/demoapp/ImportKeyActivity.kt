@@ -26,15 +26,17 @@ class ImportKeyActivity : AppCompatActivity() {
             text_input_area.setText(seedPhrase)
         }
 
-        submit_btn_one.setOnClickListener{
+        submit_btn_one.setOnClickListener {
             resetUI()
             val seedPhrase = text_input_area.text.toString().trim()
             if (!seedPhrase.isEmpty()) {
-                UportHDSigner().importHDSeed(this, KeyProtection.Level.SIMPLE, seedPhrase) {err, rootAddress, pubKey ->
+                UportHDSigner().importHDSeed(this, KeyProtection.Level.SIMPLE, seedPhrase) { err, rootAddress, pubKey ->
                     if (err == null) {
                         item_details_one.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                         item_details_two.text = "address: $rootAddress"
-                    } else error_details.text = "error: ${err.toString()}"
+                    } else {
+                        error_details.text = "error: $err"
+                    }
                 }
             } else {
                 Toast.makeText(this, "Enter seed phrase", Toast.LENGTH_SHORT).show()

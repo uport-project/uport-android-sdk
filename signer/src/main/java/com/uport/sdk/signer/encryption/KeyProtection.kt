@@ -6,14 +6,11 @@ import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Context
 import android.hardware.fingerprint.FingerprintManager
-import com.uport.sdk.signer.DecryptionCallback
-import com.uport.sdk.signer.EncryptionCallback
+import com.uport.sdk.signer.*
 import com.uport.sdk.signer.encryption.AndroidKeyStoreHelper.getWrappingCipher
-import com.uport.sdk.signer.hasMarshmallow
-import com.uport.sdk.signer.packCiphertext
-import com.uport.sdk.signer.unpackCiphertext
 import javax.crypto.BadPaddingException
-import javax.crypto.Cipher.*
+import javax.crypto.Cipher.DECRYPT_MODE
+import javax.crypto.Cipher.ENCRYPT_MODE
 import javax.crypto.IllegalBlockSizeException
 
 

@@ -15,8 +15,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CreateAccountTest {
 
-    @JvmField
-    @Rule
+    @get:Rule
     val activityRule = ActivityTestRule(CreateAccountActivity::class.java)
 
     @Test

@@ -5,7 +5,7 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.importHDSeed
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R

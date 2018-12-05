@@ -56,13 +56,13 @@ class Sensui(
      */
     class SensuiResponse(
             @Json(name = "status")
-            val status : String,
+            val status: String,
 
             @Json(name = "data")
-            val data : String,
+            val data: String,
 
             @Json(name = "error")
-            val error : Any?
+            val error: Any?
     ) {
         companion object {
             fun fromJson(json: String): SensuiResponse? =

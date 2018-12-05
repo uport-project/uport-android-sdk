@@ -1,7 +1,7 @@
 package me.uport.sdk.jwt
 
 import com.uport.sdk.signer.KPSigner
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R

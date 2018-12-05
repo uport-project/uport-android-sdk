@@ -1,8 +1,7 @@
 package com.uport.sdk.signer
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 class ExtensionsKtTest {
 

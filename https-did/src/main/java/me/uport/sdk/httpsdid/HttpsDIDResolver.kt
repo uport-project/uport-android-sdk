@@ -1,9 +1,10 @@
 package me.uport.sdk.httpsdid
 
 import me.uport.sdk.core.urlGet
-import me.uport.sdk.core.urlGetSync
 import me.uport.sdk.universaldid.DIDResolver
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 open class HttpsDIDResolver : DIDResolver {
     override val method: String = "https"
@@ -25,7 +26,7 @@ open class HttpsDIDResolver : DIDResolver {
 
 
     override fun canResolve(potentialDID: String): Boolean {
-        val (method,_) = parseDIDString(potentialDID)
+        val (method, _) = parseDIDString(potentialDID)
         return (method == this.method)
     }
 

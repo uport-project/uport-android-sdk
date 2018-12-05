@@ -1,7 +1,7 @@
 package me.uport.sdk.signer
 
-import me.uport.sdk.core.EthNetwork
 import com.uport.sdk.signer.Signer
+import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.signer.TxRelayHelper.Companion.ZERO_ADDRESS
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.functions.encodeRLP

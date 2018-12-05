@@ -242,12 +242,12 @@ open class UportSigner {
     fun signJwt(payloadBytes: ByteArray, keyPair: ECKeyPair) = signMessageHash(payloadBytes.sha256(), keyPair, false)
 
     /**
-     * Builds a simple_list of all the saved eth addresses (that also have encrypted private keys tracked)
+     * Builds a list of all the saved eth addresses (that also have encrypted private keys tracked)
      */
     fun allAddresses(context: Context, callback: (addresses: List<String>) -> Unit) {
 
         val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
-        //simple_list all stored keys, keep a simple_list off what looks like addresses
+        //list all stored keys, keep a list of what looks like addresses
         val addresses = prefs.all.keys
                 .filter { label -> label.startsWith(ADDRESS_PREFIX) }
                 .filter { hasCorrespondingLevelKey(prefs, it) }

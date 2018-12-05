@@ -1,7 +1,7 @@
 package me.uport.sdk.signer
 
-import me.uport.sdk.MetaIdentityManager
 import com.uport.sdk.signer.Signer
+import me.uport.sdk.MetaIdentityManager
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
 import org.kethereum.model.SignatureData

@@ -1,6 +1,8 @@
 package me.uport.sdk.identity
 
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 typealias AccountCreatorCallback = (err: Exception?, acc: Account) -> Unit
 

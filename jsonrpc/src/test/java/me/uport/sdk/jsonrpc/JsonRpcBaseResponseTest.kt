@@ -1,7 +1,8 @@
 package me.uport.sdk.jsonrpc
 
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.math.BigInteger
 

@@ -7,8 +7,8 @@ import com.uport.sdk.signer.computeAddressForPath
 import com.uport.sdk.signer.createHDSeed
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.importHDSeed
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.uport.sdk.core.UI
 
 class KPAccountCreator(private val appContext: Context) : AccountCreator {
@@ -21,7 +21,7 @@ class KPAccountCreator(private val appContext: Context) : AccountCreator {
                 val (handle, _) = if (phrase.isNullOrBlank()) {
                     signer.createHDSeed(appContext, KeyProtection.Level.SIMPLE)
                 } else {
-                    signer.importHDSeed(appContext, KeyProtection.Level.SIMPLE, phrase!!)
+                    signer.importHDSeed(appContext, KeyProtection.Level.SIMPLE, phrase)
                 }
                 val (deviceAddress, _) = signer.computeAddressForPath(appContext,
                         handle,

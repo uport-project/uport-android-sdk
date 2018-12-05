@@ -2,7 +2,7 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import android.support.test.InstrumentationRegistry
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.Networks
 import org.junit.Assert.*
 import org.junit.Before

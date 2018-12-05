@@ -50,9 +50,3 @@ dependencies {
     testImplementation "junit:junit:$junit_version"
 
 }
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}

@@ -4,23 +4,26 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter
 import kotlinx.serialization.Optional
 import me.uport.sdk.serialization.moshi
-import me.uport.sdk.universaldid.*
+import me.uport.sdk.universaldid.AuthenticationEntry
+import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.ServiceEntry
 
 data class HttpsIdentityDocument(
-        @Json(name="@context")
+        @Json(name = "@context")
         override val context: String = "https://w3id.org/did/v1",
 
-        @Json(name="id")
+        @Json(name = "id")
         override val id: String, //ex: "did:https:example.com#owner"
 
-        @Json(name="publicKey")
+        @Json(name = "publicKey")
         override val publicKey: List<PublicKeyEntry> = emptyList(),
 
-        @Json(name="authentication")
+        @Json(name = "authentication")
         override val authentication: List<AuthenticationEntry> = emptyList(),
 
         @Optional
-        @Json(name="service")
+        @Json(name = "service")
         override val service: List<ServiceEntry> = emptyList()
 
 ) : DIDDocument {
@@ -33,8 +36,6 @@ data class HttpsIdentityDocument(
         }
 
         fun fromJson(json: String): HttpsIdentityDocument? = jsonAdapter.fromJson(json)
-
-        val blank = HttpsIdentityDocument(context="", id="")
     }
 
 }

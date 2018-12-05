@@ -4,11 +4,11 @@ buildscript {
 
     ext {
 
-        kotlin_version = '1.2.71'
-        kotlin_serialization_version = '0.6.2'
-        coroutines_version = "0.30.2"
+        kotlin_version = '1.3.10'
+        kotlin_serialization_version = '0.9.1'
+        coroutines_version = "1.0.1"
 
-        android_tools_version = '3.3.0-beta04'
+        android_tools_version = '3.3.0-rc01'
 
         build_tools_version = "28.0.3"
 
@@ -46,7 +46,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$android_tools_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$kotlin_serialization_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.github.gnosis.bivrost-kotlin:bivrost-gradle-plugin:$bivrost_version"
     }
 }
@@ -58,6 +58,24 @@ allprojects {
         maven { url 'https://jitpack.io' }
         maven { url "https://kotlin.bintray.com/kotlinx" }
         mavenLocal()
+    }
+
+//address warnings about multiple kotlin runtimes in classpath
+    configurations.all {
+        resolutionStrategy.dependencySubstitution {
+            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre7") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre8") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+
+        }
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            def requested = details.requested
+            if (requested.group == 'org.jetbrains.kotlin' && requested.name in [
+                    'kotlin-reflect', 'kotlin-stdlib', 'kotlin-stdlib-common',
+                    'kotlin-stdlib-jdk7', 'kotlin-stdlib-jdk8',
+            ]) {
+                details.useVersion kotlin_version
+            }
+        }
     }
 }
 

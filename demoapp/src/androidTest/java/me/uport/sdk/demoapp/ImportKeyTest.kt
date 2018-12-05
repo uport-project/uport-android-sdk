@@ -14,8 +14,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ImportKeyTest {
 
-    @JvmField
-    @Rule
+    @get:Rule
     val activityRule = ActivityTestRule(ImportKeyActivity::class.java)
 
     @Test

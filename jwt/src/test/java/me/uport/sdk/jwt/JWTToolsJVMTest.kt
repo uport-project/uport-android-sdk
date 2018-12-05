@@ -1,7 +1,7 @@
 package me.uport.sdk.jwt
 
 import com.uport.sdk.signer.KPSigner
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.stubUiContext
 import org.junit.Assert.assertNull
 import org.junit.Before

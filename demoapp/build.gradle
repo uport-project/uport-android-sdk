@@ -26,6 +26,10 @@ android {
     dexOptions {
         jumboMode true
     }
+
+    lintOptions {
+        disable 'SetTextI18n'
+    }
 }
 
 configurations.all {
@@ -59,8 +63,4 @@ dependencies {
             "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     )
 
-}
-
-repositories {
-    mavenLocal()
 }

@@ -285,12 +285,12 @@ class UportHDSigner : UportSigner() {
     fun validateMnemonic(phrase: String): Boolean = MnemonicWords(phrase).validate(WORDLIST_ENGLISH)
 
     /**
-     * Returns a simple_list of addresses representing the uport roots used as handles for seeds
+     * Returns a list of addresses representing the uport roots used as handles for seeds
      */
     fun allHDRoots(context: Context): List<String> {
 
         val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
-        //simple_list all stored keys, keep a simple_list off what looks like uport root addresses
+        //list all stored keys, keep a list of what looks like uport root addresses
         return prefs.all.keys
                 .asSequence()
                 .filter { label -> label.startsWith(SEED_PREFIX) }

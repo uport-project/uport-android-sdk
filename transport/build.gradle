@@ -42,9 +42,3 @@ dependencies {
     androidTestImplementation "com.android.support.test:rules:$test_rules_version"
     androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espresso_version"
 }
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
