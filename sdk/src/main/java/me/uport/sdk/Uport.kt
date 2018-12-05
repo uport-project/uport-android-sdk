@@ -16,6 +16,7 @@ import me.uport.sdk.identity.*
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
+import me.uport.sdk.httpsdid.HttpsDIDResolver
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -92,6 +93,7 @@ object Uport {
         UniversalDID.registerResolver(UportDIDResolver())
         val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
         UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+        UniversalDID.registerResolver(HttpsDIDResolver())
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
         initialized = true
