@@ -25,6 +25,7 @@ class MainListActivity : AppCompatActivity() {
             "Key Protection",
             "Create a JWT",
             "Resolve a DID",
+            "Verify JWT",
             "Selective Disclosure")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +49,7 @@ class MainListActivity : AppCompatActivity() {
             3 -> startActivity(Intent(this, KeyProtectionListActivity::class.java))
             4 -> startActivity(Intent(this, SignJWTListActivity::class.java))
             5 -> startActivity(Intent(this, DIDResolverActivity::class.java))
+            6 -> startActivity(Intent(this, VerifyJWTActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }
