@@ -7,8 +7,7 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
-import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,6 +23,6 @@ class VerifyJWTTest {
 
         onView(withId(R.id.verify_btn)).perform(click())
 
-        onView(withId(R.id.jwtPayload)).check(matches(CoreMatchers.not(withText(""))))
+        onView(withId(R.id.jwtPayload)).check(matches(not(withText(""))))
     }
 }
