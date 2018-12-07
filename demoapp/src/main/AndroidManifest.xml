@@ -29,6 +29,8 @@
         <activity android:name=".SignJWTListActivity" />
         <activity android:name=".SignJWTUportHDSignerActivity" />
         <activity android:name=".DIDResolverActivity" />
+        <activity android:name=".VerifyJWTActivity" />
+
     </application>
 
 </manifest>
