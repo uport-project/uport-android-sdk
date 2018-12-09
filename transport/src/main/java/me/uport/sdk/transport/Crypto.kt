@@ -6,7 +6,6 @@ import me.uport.sdk.core.toBase64
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
-@ExperimentalUnsignedTypes
 class Crypto {
 
     data class EncryptedMessage(

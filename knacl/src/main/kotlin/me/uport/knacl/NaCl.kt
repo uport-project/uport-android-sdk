@@ -2,7 +2,6 @@ package me.uport.knacl
 
 import me.uport.knacl.NaClLowLevel.crypto_scalarmult_base
 
-@ExperimentalUnsignedTypes
 object nacl {
 
     val crypto_secretbox_KEYBYTES = 32
@@ -33,53 +32,53 @@ object nacl {
         require(sk.size == crypto_box_SECRETKEYBYTES) { "bad secret key size" }
     }
 
-    fun randomBytes(size: Int) = NaClLowLevel.randombytes(size).toByteArray()
+    fun randomBytes(size: Int) = NaClLowLevel.randombytes(size)
 
     fun secretbox(msg: ByteArray, nonce: ByteArray, key: ByteArray): ByteArray {
         checkLengths(key, nonce)
-        val m = UByteArray(crypto_secretbox_ZEROBYTES + msg.size)
-        val c = UByteArray(m.size)
+        val m = ByteArray(crypto_secretbox_ZEROBYTES + msg.size)
+        val c = ByteArray(m.size)
         for (i in 0 until msg.size) {
-            m[i + crypto_secretbox_ZEROBYTES] = msg[i].toUByte()
+            m[i + crypto_secretbox_ZEROBYTES] = msg[i]
         }
-        NaClLowLevel.crypto_secretbox(c, m, m.size.toULong(), nonce.asUByteArray(), key.asUByteArray())
-        return c.copyOfRange(crypto_secretbox_BOXZEROBYTES, c.size).asByteArray()
+        NaClLowLevel.crypto_secretbox(c, m, m.size.toLong(), nonce, key)
+        return c.copyOfRange(crypto_secretbox_BOXZEROBYTES, c.size)
     }
 
     fun secretboxOpen(box: ByteArray, nonce: ByteArray, key: ByteArray): ByteArray? {
         checkLengths(key, nonce)
-        val ciphertext = UByteArray(crypto_secretbox_BOXZEROBYTES + box.size)
-        val msg = UByteArray(ciphertext.size)
-        box.asUByteArray().copyInto(ciphertext, crypto_secretbox_BOXZEROBYTES)
+        val ciphertext = ByteArray(crypto_secretbox_BOXZEROBYTES + box.size)
+        val msg = ByteArray(ciphertext.size)
+        box.copyInto(ciphertext, crypto_secretbox_BOXZEROBYTES)
         if (ciphertext.size < 32) {
             return null
         }
-        if (NaClLowLevel.crypto_secretbox_open(msg, ciphertext, ciphertext.size.toULong(), nonce.asUByteArray(), key.asUByteArray()) != 0) {
+        if (NaClLowLevel.crypto_secretbox_open(msg, ciphertext, ciphertext.size.toLong(), nonce, key) != 0) {
             return null
         }
-        return msg.copyOfRange(crypto_secretbox_ZEROBYTES, msg.size).asByteArray()
+        return msg.copyOfRange(crypto_secretbox_ZEROBYTES, msg.size)
     }
 
     fun scalarMult(n: ByteArray, p: ByteArray): ByteArray {
         require(n.size == crypto_scalarmult_SCALARBYTES) { "bad n size" }
         require(p.size == crypto_scalarmult_BYTES) { "bad p size" }
-        val q = UByteArray(crypto_scalarmult_BYTES)
-        NaClLowLevel.crypto_scalarmult(q, n.asUByteArray(), p.asUByteArray())
-        return q.asByteArray()
+        val q = ByteArray(crypto_scalarmult_BYTES)
+        NaClLowLevel.crypto_scalarmult(q, n, p)
+        return q
     }
 
     fun scalarMultBase(n: ByteArray): ByteArray {
         require(n.size == crypto_scalarmult_SCALARBYTES) { "bad n size" }
-        val q = UByteArray(crypto_scalarmult_BYTES)
-        NaClLowLevel.crypto_scalarmult_base(q, n.asUByteArray())
-        return q.asByteArray()
+        val q = ByteArray(crypto_scalarmult_BYTES)
+        NaClLowLevel.crypto_scalarmult_base(q, n)
+        return q
     }
 
     fun boxBefore(publicKey: ByteArray, secretKey: ByteArray): ByteArray {
         checkBoxLengths(publicKey, secretKey)
-        val k = UByteArray(crypto_box_BEFORENMBYTES)
-        NaClLowLevel.crypto_box_beforenm(k, publicKey.asUByteArray(), secretKey.asUByteArray())
-        return k.asByteArray()
+        val k = ByteArray(crypto_box_BEFORENMBYTES)
+        NaClLowLevel.crypto_box_beforenm(k, publicKey, secretKey)
+        return k
     }
 
     fun box(msg: ByteArray, nonce: ByteArray, publicKey: ByteArray, secretKey: ByteArray): ByteArray {
@@ -97,17 +96,17 @@ object nacl {
     fun boxOpenAfter(box: ByteArray, nonce: ByteArray, key: ByteArray) = secretboxOpen(box, nonce, key)
 
     fun boxKeyPair(): Pair<ByteArray, ByteArray> {
-        val pk = UByteArray(crypto_box_PUBLICKEYBYTES)
-        val sk = UByteArray(crypto_box_SECRETKEYBYTES)
+        val pk = ByteArray(crypto_box_PUBLICKEYBYTES)
+        val sk = ByteArray(crypto_box_SECRETKEYBYTES)
         NaClLowLevel.crypto_box_keypair(pk, sk)
-        return (pk.asByteArray() to sk.asByteArray())
+        return (pk to sk)
     }
 
     fun boxKeyPairFromSecretKey(secretKey: ByteArray): Pair<ByteArray, ByteArray> {
         require(secretKey.size == crypto_box_SECRETKEYBYTES) { "bad secret key size" }
-        val pk = UByteArray(crypto_box_PUBLICKEYBYTES)
-        crypto_scalarmult_base(pk, secretKey.asUByteArray())
-        return (pk.asByteArray() to secretKey)
+        val pk = ByteArray(crypto_box_PUBLICKEYBYTES)
+        crypto_scalarmult_base(pk, secretKey)
+        return (pk to secretKey)
     }
 //
 //    nacl.box.publicKeyLength = crypto_box_PUBLICKEYBYTES

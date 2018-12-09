@@ -1,6 +1,5 @@
 package me.uport.sdk.transport
 
-import me.uport.knacl.NaClLowLevel
 import me.uport.knacl.NaClLowLevel._9
 import me.uport.knacl.nacl
 import me.uport.sdk.core.decodeBase64
@@ -14,7 +13,6 @@ import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 
-@ExperimentalUnsignedTypes
 class CryptoTest {
 
     private val ASYNC_ENC_ALGORITHM = "x25519-xsalsa20-poly1305"
@@ -56,11 +54,10 @@ class CryptoTest {
 
     @Test
     fun `from scalarmult`() {
-        println(NaClLowLevel._9)
         val n = ByteArray(32)
-        val result = nacl.scalarMult(n, _9.asByteArray())
-        val expected = ubyteArrayOf(47u, 229u, 125u, 163u, 71u, 205u, 98u, 67u, 21u, 40u, 218u, 172u, 95u, 187u, 41u, 7u, 48u, 255u, 246u, 132u, 175u, 196u, 207u, 194u, 237u, 144u, 153u, 95u, 88u, 203u, 59u, 116u)
-        assertArrayEquals(expected.asByteArray(), result)
+        val result = nacl.scalarMult(n, _9)
+        val expected = byteArrayOf(47, -27, 125, -93, 71, -51, 98, 67, 21, 40, -38, -84, 95, -69, 41, 7, 48, -1, -10, -124, -81, -60, -49, -62, -19, -112, -103, 95, 88, -53, 59, 116)
+        assertArrayEquals(expected, result)
     }
 
     @Test
@@ -77,13 +74,8 @@ class CryptoTest {
 
         println("bob pub = ${bobPub.toBase64()}")
         println("bob secret = ${bobSecret.toBase64()}")
-        println("bob secret = ${bobSecretKey.toBase64()}")
         println("nonce = ${nonce.toBase64()}")
         println("aliceSecret = ${aliceSecret.toBase64()}")
-
-        var a = ""
-        (4 downTo 0).forEach { a += " " + it }
-        println(a)
 
         val cipherToBob = nacl.box(msg, nonce, bobPub, aliceSecret)
 
