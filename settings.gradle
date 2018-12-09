@@ -1,4 +1,4 @@
-include ':demoapp'
+include ':demoapp', ':knacl'
 include ':https-did'
 include ':serialization'
 include ':core'
