@@ -8,11 +8,10 @@ import kotlin.experimental.or
 import kotlin.experimental.xor
 
 @Suppress("unused")
-object NaClLowLevel {
+internal object NaClLowLevel {
 
     private val _0: ByteArray = ByteArray(16) { 0 }
 
-    //XXX: check initialization, of this array
     val _9: ByteArray = ByteArray(32).apply { this[0] = 9 }
 
     private val gf0: LongArray = LongArray(16) { 0 }
@@ -23,7 +22,7 @@ object NaClLowLevel {
     private val X: LongArray = longArrayOf(0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169)
     private val Y: LongArray = longArrayOf(0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666)
     private val I: LongArray = longArrayOf(0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83)
-    private fun L32(x: Int, c: Int): Int = ((x shl c) or ((x and 0xffffffff.toInt()) shr (32 - c)))
+    private fun L32(x: Int, c: Int): Int = ((x shl c) or (x ushr (32 - c)))
 
     fun randombytes(size: Int): ByteArray {
         val arr = ByteArray(size)
@@ -36,17 +35,15 @@ object NaClLowLevel {
         SecureRandom().nextBytes(x)
     }
 
-    private fun ld32(x: ByteArray, startFrom: Int = 0): Int {
-        require(x.size >= 4 + startFrom) { "array `x` of length ${x.size} must provide at least 4 elements starting from $startFrom for `UByte`s to `UInt` conversion" }
-        var u: Int = x[3 + startFrom].toInt()
-        u = (u shl 8) or x[2 + startFrom].toInt()
-        u = (u shl 8) or x[1 + startFrom].toInt()
-        u = (u shl 8) or x[0 + startFrom].toInt()
-        return u
+    private fun ld32(x: ByteArray, off: Int = 0): Int {
+        var u: Int = x[off + 3].toInt() and 0xff
+        u = u shl 8 or (x[off + 2].toInt() and 0xff)
+        u = u shl 8 or (x[off + 1].toInt() and 0xff)
+        return u shl 8 or (x[off + 0].toInt() and 0xff)
     }
 
     private fun dl64(x: ByteArray, xi: Int): Long {
-        require(x.size >= 8 + xi) { "array must have at least 8 elements for `UByte`s to `ULong` conversion" }
+        require(x.size >= 8 + xi) { "array must have at least 8 elements for `Byte`s to `Long` conversion" }
         var u: Long = 0
         for (i in 0 until 8) {
             u = (u shl 8) or x[i + xi].toLong()
@@ -55,27 +52,18 @@ object NaClLowLevel {
     }
 
     /**
-     * converts UInt value [u] to array of UBytes and fills the resulting bytes in the output array [x] starting from [startFrom]
+     * converts UInt value [u] to array of UBytes and fills the resulting bytes in the output array [x] starting from [off]
      */
-    private fun st32(x: ByteArray, u: Int, startFrom: Int = 0) {
-        require(x.size >= 4 + startFrom) { "`x` output array is too small to fit 4 bytes starting from $startFrom" }
+    private fun st32(x: ByteArray, off: Int = 0, u: Int) {
+        require(x.size >= 4 + off) { "`x` output array is too small to fit 4 bytes starting from $off" }
         var uu = u
         for (i in 0 until 4) {
-            x[i + startFrom] = (uu and 0xff).toByte()
+            x[i + off] = uu.toByte()
             uu = uu shr 8
         }
     }
 
-    /**
-     * converts UInt to array of UBytes
-     */
-    fun st32(u: Int): ByteArray {
-        val x = ByteArray(4)
-        st32(x, u)
-        return x
-    }
-
-    //XXX: converts ULong to array of UBytes in reverse order
+    //XXX: converts Long to array of Bytes in reverse order
     private fun ts64(x: ByteArray, xi: Int = 0, u: Long) {
         var uu = u
         for (i in 7 downTo 0) {
@@ -144,12 +132,12 @@ object NaClLowLevel {
                 x[6 + i] -= ld32(inArr, 4 * i)
             }
             for (i in 0 until 4) {
-                st32(outArr, x[5 * i], 4 * i)
-                st32(outArr, x[6 + i], 16 + 4 * i)
+                st32(outArr, 4 * i, x[5 * i])
+                st32(outArr, 16 + 4 * i, x[6 + i])
             }
         } else {
             for (i in 0 until 16) {
-                st32(outArr, x[i] + y[i], 4 * i)
+                st32(outArr, 4 * i, x[i] + y[i])
             }
         }
     }
@@ -166,13 +154,13 @@ object NaClLowLevel {
 
     private val sigma: ByteArray = "expand 32-byte k".toByteArray(Charsets.UTF_8)
 
-    fun crypto_stream_salsa20_xor(c: ByteArray, m: ByteArray?, bIn: Long, n: ByteArray, k: ByteArray, nStart: Int = 0): Int {
+    fun crypto_stream_salsa20_xor(c: ByteArray, m: ByteArray?, bIn: Long, n: ByteArray, nOff: Int = 0, k: ByteArray): Int {
         val z = ByteArray(16) { 0 }
         val x = ByteArray(64)
         var u: Int
         if (bIn == 0L) return 0
         for (i in 0 until 8) {
-            z[i] = n[i + nStart]
+            z[i] = n[i + nOff]
         }
         var b = bIn
         var cCounter = 0
@@ -202,7 +190,7 @@ object NaClLowLevel {
     }
 
     fun crypto_stream_salsa20(c: ByteArray, d: Long, n: ByteArray, k: ByteArray, nStart: Int = 0): Int {
-        return crypto_stream_salsa20_xor(c, null, d, n, k, nStart)
+        return crypto_stream_salsa20_xor(c, null, d, n, nStart, k)
     }
 
     fun crypto_stream(c: ByteArray, d: Long, n: ByteArray, k: ByteArray): Int {
@@ -214,7 +202,7 @@ object NaClLowLevel {
     fun crypto_stream_xor(c: ByteArray, m: ByteArray, d: Long, n: ByteArray, k: ByteArray): Int {
         val s = ByteArray(32)
         crypto_core_hsalsa20(s, n, k, sigma)
-        return crypto_stream_salsa20_xor(c, m, d, n, s, 16)
+        return crypto_stream_salsa20_xor(c, m, d, n, 16, s)
     }
 
     private fun add1305(h: IntArray, c: IntArray) {
@@ -340,21 +328,18 @@ object NaClLowLevel {
         for (i in 0 until 16) r[i] = a[i]
     }
 
-    private fun car25519(o: LongArray) {
-        var c: Long
+    private fun car25519(/*gf*/ o: LongArray, oOff: Int = 0) {
         for (i in 0 until 16) {
-            o[i] = o[i] + (1 shl 16)
-            c = (o[i] shr 16)
-            val j = if (i < 15) 1 else 0
-            val k = if (i == 15) 1 else 0
-            o[(i + 1) * j] += (c - 1 + 37 * (c - 1) * k)
-            o[i] -= (c shl 16)
+            o[oOff + i] += (1 shl 16).toLong()
+            val c = o[oOff + i] shr 16
+            o[oOff + (i + 1) * (if (i < 15) 1 else 0)] += c - 1 + 37 * (c - 1) * (if (i == 15) 1 else 0).toLong()
+            o[oOff + i] -= c shl 16
         }
     }
 
     private fun sel25519(p: LongArray, q: LongArray, b: Int) {
         var t: Long
-        val c = ((b - 1).inv()).toLong()
+        val c = (b - 1).inv().toLong()
         for (i in 0 until 16) {
             t = c and (p[i] xor q[i])
             p[i] = p[i] xor t
@@ -362,11 +347,11 @@ object NaClLowLevel {
         }
     }
 
-    private fun pack25519(o: ByteArray, n: LongArray) {
+    private fun pack25519(o: ByteArray, n: LongArray, nOff: Int = 0) {
         var b: Int
         val m = LongArray(16)
         val t = LongArray(16)
-        for (i in 0 until 16) t[i] = n[i]
+        for (i in 0 until 16) t[i] = n[i + nOff]
         car25519(t)
         car25519(t)
         car25519(t)
@@ -382,8 +367,8 @@ object NaClLowLevel {
             sel25519(t, m, 1 - b)
         }
         for (i in 0 until 16) {
-            o[2 * i] = (t[i] and 0xff).toByte()
-            o[2 * i + 1] = ((t[i] shr 8) and 0xff).toByte()
+            o[2 * i] = t[i].toByte()
+            o[2 * i + 1] = (t[i] shr 8).toByte()
         }
     }
 
@@ -403,7 +388,7 @@ object NaClLowLevel {
 
     private fun unpack25519(o: LongArray, n: ByteArray) {
         for (i in 0 until 16) {
-            o[i] = n[2 * i] + ((n[2 * i + 1]).toLong() shl 8)
+            o[i] = (0xff and n[2 * i].toInt()) + (0xffL and n[2 * i + 1].toLong() shl 8)
         }
         o[15] = o[15] and 0x7fff
     }
@@ -483,7 +468,6 @@ object NaClLowLevel {
         for (i in 254 downTo 0) {
             r = ((z[i shr 3].toLong() shr (i and 7)) and 1).toInt()
             sel25519(a, b, r)
-//            println(a.joinToString())
             sel25519(c, d, r)
             A(e, a, c)
             Z(a, a, c)

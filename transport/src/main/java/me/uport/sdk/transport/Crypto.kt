@@ -16,6 +16,14 @@ class Crypto {
     )
 
     /**
+     * Calculates the publicKey usable for encryption corresponding to the given [secretKey]
+     */
+    fun getEncryptionPublicKey(secretKey: ByteArray): ByteArray {
+        val (pk, _) = nacl.boxKeyPairFromSecretKey(secretKey)
+        return pk
+    }
+
+    /**
      *  Encrypts a message
      *
      *  @param      {String}   message    the message to be encrypted

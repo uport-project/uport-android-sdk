@@ -32,15 +32,14 @@ object nacl {
         require(sk.size == crypto_box_SECRETKEYBYTES) { "bad secret key size" }
     }
 
+    //XXX: this should be outsourced to a higher level API
     fun randomBytes(size: Int) = NaClLowLevel.randombytes(size)
 
     fun secretbox(msg: ByteArray, nonce: ByteArray, key: ByteArray): ByteArray {
         checkLengths(key, nonce)
         val m = ByteArray(crypto_secretbox_ZEROBYTES + msg.size)
         val c = ByteArray(m.size)
-        for (i in 0 until msg.size) {
-            m[i + crypto_secretbox_ZEROBYTES] = msg[i]
-        }
+        msg.copyInto(m, crypto_secretbox_ZEROBYTES)
         NaClLowLevel.crypto_secretbox(c, m, m.size.toLong(), nonce, key)
         return c.copyOfRange(crypto_secretbox_BOXZEROBYTES, c.size)
     }
