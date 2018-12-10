@@ -8,7 +8,7 @@ import me.uport.sdk.core.toBase64
  * This class exposes methods to encrypt and decrypt messages according to the uPort spec at
  * https://github.com/uport-project/specs/blob/develop/messages/encryption.md
  */
-class Crypto {
+object Crypto {
 
     /**
      * This class encapsulates an encrypted message that was produced using
@@ -68,10 +68,6 @@ class Crypto {
         return decrypted.toString(Charsets.UTF_8).unpad()
     }
 
-    companion object {
-
-        private const val ASYNC_ENC_ALGORITHM = "x25519-xsalsa20-poly1305"
-
-    }
+    private const val ASYNC_ENC_ALGORITHM = "x25519-xsalsa20-poly1305"
 
 }
