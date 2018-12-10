@@ -57,9 +57,7 @@ class NaClTestQuick {
         val expected = arrayOf(153, 105, 253, 5, 217, 101, 111, 62, 75, 165, 94, 199, 110, 190, 255, 4, 34, 107, 156, 45, 247, 138, 221, 92, 62).map { it.toByte() }.toByteArray()
 
         val ciphertext1 = nacl.secretbox(msg, nonce, key)
-        val ciphertext2 = TweetNaCl.secretbox(msg, nonce, key)
         assertArrayEquals(expected, ciphertext1)
-        assertArrayEquals(expected, ciphertext2)
     }
 
     @Test
