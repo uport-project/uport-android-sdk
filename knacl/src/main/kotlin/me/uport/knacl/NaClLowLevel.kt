@@ -75,7 +75,7 @@ internal object NaClLowLevel {
     private fun vn(x: ByteArray, xi: Int = 0, y: ByteArray, yi: Int, n: Int): Int {
         var d = 0
         for (i in 0 until n) {
-            d = d or (x[i + xi] xor y[i + yi]).toInt()
+            d = d or (0xff and (x[i + xi] xor y[i + yi]).toInt())
         }
         return ((1 and ((d - 1) shr 8)) - 1)
     }
@@ -163,27 +163,27 @@ internal object NaClLowLevel {
             z[i] = n[i + nOff]
         }
         var b = bIn
-        var cCounter = 0
-        var mCounter = 0
+        var cOff = 0
+        var mOff = 0
         while (b >= 64) {
             crypto_core_salsa20(x, z, k, sigma)
             for (i in 0 until 64) {
-                c[i + cCounter] = (if (m != null) m[i + mCounter] else 0) xor x[i]
+                c[cOff + i] = (if (m != null) m[mOff + i] else 0) xor x[i]
             }
             u = 1
             for (i in 8 until 16) {
-                u += z[i]
-                z[i] = (u and 0xff).toByte()
+                u += 0xff and z[i].toInt()
+                z[i] = u.toByte()
                 u = u shr 8
             }
             b -= 64
-            cCounter += 64
-            if (m != null) mCounter += 64
+            cOff += 64
+            if (m != null) mOff += 64
         }
         if (b != 0L) {
             crypto_core_salsa20(x, z, k, sigma)
             for (i in 0 until b.toInt()) {
-                c[i + cCounter] = (if (m != null) m[i + mCounter] else 0) xor x[i]
+                c[cOff + i] = (if (m != null) m[mOff + i] else 0) xor x[i]
             }
         }
         return 0
@@ -229,7 +229,7 @@ internal object NaClLowLevel {
             r[j] = 0; h[j] = 0
         }
         for (j in 0 until 16) {
-            r[j] = k[j].toInt()
+            r[j] = (0xff and k[j].toInt())
         }
         r[3] = r[3] and 15
         r[4] = r[4] and 252
@@ -245,11 +245,12 @@ internal object NaClLowLevel {
             }
             var jj = 0
             while (jj < 16 && jj < nn.toInt()) {
-                c[jj] = m[mpos + jj].toInt()
+                c[jj] = 0xff and m[mpos + jj].toInt()
                 jj++
             }
             c[jj] = 1
-            mpos += jj; nn -= jj
+            mpos += jj
+            nn -= jj
             add1305(h, c)
             for (i in 0 until 17) {
                 x[i] = 0
@@ -277,7 +278,6 @@ internal object NaClLowLevel {
             u += h[16]
             h[16] = u
         }
-
         for (j in 0 until 17) {
             g[j] = h[j]
         }
@@ -288,7 +288,7 @@ internal object NaClLowLevel {
         }
 
         for (j in 0 until 16) {
-            c[j] = k[j + 16].toInt()
+            c[j] = 0xff and k[j + 16].toInt()
         }
         c[16] = 0
         add1305(h, c)
@@ -541,12 +541,13 @@ internal object NaClLowLevel {
         return crypto_box_open_afternm(m, c, d, n, k)
     }
 
+
     /////////////////////////////////////////////////////
     // hash
     /////////////////////////////////////////////////////
 
 
-    fun R(x: Long, c: Int): Long = ((x shr c) or (x shl (64 - c)))
+    private fun R(x: Long, c: Int): Long = ((x shr c) or (x shl (64 - c)))
 
     private fun Ch(x: Long, y: Long, z: Long): Long = (x and y) xor (x.inv() and z)
 
@@ -696,7 +697,7 @@ internal object NaClLowLevel {
         return 0
     }
 
-    fun add(p: Array<LongArray>, q: Array<LongArray>) {
+    private fun add(p: Array<LongArray>, q: Array<LongArray>) {
         val a = LongArray(16)
         val b = LongArray(16)
         val c = LongArray(16)
@@ -769,7 +770,7 @@ internal object NaClLowLevel {
     }
 
     //XXX: check array sizes (32, 64)?
-    fun crypto_sign_keypair(pk: ByteArray, sk: ByteArray): Int {
+    private fun crypto_sign_keypair(pk: ByteArray, sk: ByteArray): Int {
         val d = ByteArray(64)
         val p = Array(4) { LongArray(16) }
 
@@ -834,7 +835,7 @@ internal object NaClLowLevel {
         modL(r, x)
     }
 
-    fun crypto_sign(sm: ByteArray, m: ByteArray, n: Long, sk: ByteArray): Int {
+    private fun crypto_sign(sm: ByteArray, m: ByteArray, n: Long, sk: ByteArray): Int {
         require(sm.size >= n + 64) { "resulting array sm(size=${sm.size}) must be able to fit n+64 bytes (${n + 64})" }
         val d = ByteArray(64)
         val h = ByteArray(64)
@@ -927,7 +928,7 @@ internal object NaClLowLevel {
         return 0
     }
 
-    fun crypto_sign_open(m: ByteArray, sm: ByteArray, n: Long, pk: ByteArray): Int {
+    private fun crypto_sign_open(m: ByteArray, sm: ByteArray, n: Long, pk: ByteArray): Int {
         val nn = (n - 64).toInt()
         require(m.size >= nn) { "resulting array `m` size must be at least $nn but is ${m.size}" }
         val t = ByteArray(32)
