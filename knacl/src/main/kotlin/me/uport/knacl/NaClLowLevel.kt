@@ -7,12 +7,20 @@ import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.experimental.xor
 
+/**
+ * This is a port of the TweetNaCl library
+ * Ported from the original C by Mircea Nistor
+ *
+ * **DISCLAIMER:
+ * This port is not complete and has not gone through a complete audit.
+ * Use at your own risk.**
+ */
 @Suppress("unused")
 internal object NaClLowLevel {
 
     private val _0: ByteArray = ByteArray(16) { 0 }
 
-    val _9: ByteArray = ByteArray(32).apply { this[0] = 9 }
+    private val _9: ByteArray = ByteArray(32).apply { this[0] = 9 }
 
     private val gf0: LongArray = LongArray(16) { 0 }
     private val gf1: LongArray = LongArray(16).apply { this[0] = 1 }
@@ -24,6 +32,7 @@ internal object NaClLowLevel {
     private val I: LongArray = longArrayOf(0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83)
     private fun L32(x: Int, c: Int): Int = ((x shl c) or (x ushr (32 - c)))
 
+    //FIXME: this should be set by a higher level API
     fun randombytes(size: Int): ByteArray {
         val arr = ByteArray(size)
         randombytes(arr, size)
@@ -51,9 +60,6 @@ internal object NaClLowLevel {
         return u
     }
 
-    /**
-     * converts UInt value [u] to array of UBytes and fills the resulting bytes in the output array [x] starting from [off]
-     */
     private fun st32(x: ByteArray, off: Int = 0, u: Int) {
         require(x.size >= 4 + off) { "`x` output array is too small to fit 4 bytes starting from $off" }
         var uu = u
@@ -63,7 +69,6 @@ internal object NaClLowLevel {
         }
     }
 
-    //XXX: converts Long to array of Bytes in reverse order
     private fun ts64(x: ByteArray, xi: Int = 0, u: Long) {
         var uu = u
         for (i in 7 downTo 0) {

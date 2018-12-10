@@ -3,11 +3,17 @@ package me.uport.sdk.transport
 import me.uport.knacl.nacl
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.toBase64
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 
+/**
+ * This class exposes methods to encrypt and decrypt messages according to the uPort spec at
+ * https://github.com/uport-project/specs/blob/develop/messages/encryption.md
+ */
 class Crypto {
 
+    /**
+     * This class encapsulates an encrypted message that was produced using
+     * https://github.com/uport-project/specs/blob/develop/messages/encryption.md
+     */
     data class EncryptedMessage(
             val version: String = ASYNC_ENC_ALGORITHM,
             val nonce: String,
@@ -26,10 +32,9 @@ class Crypto {
     /**
      *  Encrypts a message
      *
-     *  @param      {String}   message    the message to be encrypted
-     *  @param      {String}   boxPub     the public encryption key of the receiver, encoded as base64
-     *  @return     {Object}              the encrypted message as an object containing a `version`, `nonce`, `ephemPublicKey` and `ciphertext`
-     *  @private
+     *  @param message the plaintext message to be encrypted
+     *  @param boxPub  the public encryption key of the receiver, encoded as a base64 [String]
+     *  @return an [EncryptedMessage] containing a `version`, `nonce`, `ephemPublicKey` and `ciphertext`
      */
     fun encryptMessage(message: String, boxPub: String): EncryptedMessage {
 
@@ -48,16 +53,10 @@ class Crypto {
     /**
      *  Decrypts a message
      *
-     *  @param      {Object} encrypted                   The encrypted message object
-     *  @param      {String} encrypted.version           The string `x25519-xsalsa20-poly1305`
-     *  @param      {String} encrypted.nonce             Base64 encoded nonce
-     *  @param      {String} encrypted.ephemPublicKey    Base64 encoded ephemeral public key
-     *  @param      {String} encrypted.ciphertext        Base64 encoded ciphertext
-     *  @param      {String} secretKey                   The secret key as a Uint8Array
-     *  @return     {String}                             The decrypted message
-     *  @private
+     *  @param encrypted The [EncryptedMessage] containing `version`, `nonce`, `ephemPublicKey` and `ciphertext`
+     *  @param secretKey The secret key as a [ByteArray]
+     *  @return The decrypted plaintext [String]
      */
-
     fun decryptMessage(encrypted: EncryptedMessage, secretKey: ByteArray): String {
         if (encrypted.version != ASYNC_ENC_ALGORITHM) throw IllegalArgumentException("Unsupported encryption algorithm: ${encrypted.version}")
         if (encrypted.ciphertext.isBlank() || encrypted.nonce.isBlank() || encrypted.ephemPublicKey.isBlank()) throw IllegalArgumentException("Invalid encrypted message")
@@ -72,17 +71,6 @@ class Crypto {
     companion object {
 
         private const val ASYNC_ENC_ALGORITHM = "x25519-xsalsa20-poly1305"
-        private const val BLOCK_SIZE = 64
-        private val matchNullCharAtEnd = "\u0000+$".toRegex()
-
-        fun String.pad(): String {
-            val paddedSize = (ceil(length.toDouble() / BLOCK_SIZE) * BLOCK_SIZE).roundToInt()
-            return this.padEnd(paddedSize, '\u0000')
-        }
-
-        fun String.unpad(): String {
-            return this.replace(matchNullCharAtEnd, "")
-        }
 
     }
 

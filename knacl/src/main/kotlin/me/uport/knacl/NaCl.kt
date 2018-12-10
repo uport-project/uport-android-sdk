@@ -35,7 +35,7 @@ object nacl {
         require(sk.size == crypto_box_SECRETKEYBYTES) { "bad secret key size" }
     }
 
-    //XXX: this should be outsourced to a higher level API
+    //FIXME: this should be outsourced to a higher level API
     fun randomBytes(size: Int) = NaClLowLevel.randombytes(size)
 
     fun secretbox(msg: ByteArray, nonce: ByteArray, key: ByteArray): ByteArray {
