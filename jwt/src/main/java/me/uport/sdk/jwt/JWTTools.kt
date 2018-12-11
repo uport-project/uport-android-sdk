@@ -6,11 +6,7 @@ import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.decodeJose
 import com.uport.sdk.signer.getJoseEncoded
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import me.uport.sdk.core.*
-import me.uport.sdk.ethrdid.EthrDIDResolver
-import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
@@ -19,13 +15,11 @@ import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.UniversalDID
-import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
 import org.kethereum.crypto.model.PublicKey
 import org.kethereum.crypto.toAddress
 import org.kethereum.encodings.decodeBase58
 import org.kethereum.extensions.toBytesPadded
-import org.kethereum.extensions.toHexStringZeroPadded
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
 import org.spongycastle.asn1.x9.X9IntegerConverter
@@ -34,7 +28,6 @@ import org.spongycastle.math.ec.ECPoint
 import org.spongycastle.math.ec.custom.sec.SecP256K1Curve
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
-import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 import java.security.SignatureException
 import kotlin.experimental.and
