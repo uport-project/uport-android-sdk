@@ -34,7 +34,7 @@ class CryptoTest {
 
     @Test
     fun `can decrypt EIP1098 message`() {
-        val c = Crypto.EncryptedMessage(
+        val c = EncryptedMessage(
                 nonce = "1dvWO7uOnBnO7iNDJ9kO9pTasLuKNlej",
                 ephemPublicKey = "FBH1/pAEHOOW14Lu3FWkgV3qOEcuL78Zy+qW1RwzMXQ=",
                 ciphertext = "f8kBcl/NCyf3sybfbwAKk/np2Bzt9lRVkZejr6uh5FgnNlH/ic62DZzy")
@@ -46,7 +46,7 @@ class CryptoTest {
     fun `can deserialize json string to EncryptedMessage`() {
         //language=JSON
         val json = """{"version":"x25519-xsalsa20-poly1305","nonce":"JAX+g+/e3RnnNXHRS4ct5Sb+XdgYoJeY","ephemPublicKey":"JLBIe7eSVyq6egVexeWrlKQyOukSo66G3N0PlimMUyI","ciphertext":"Yr2o6x831YWFZr6KESzSkBqpMv1wYkxPULbVSZi21J+2vywrVeZnDe/U2GW40wzUpLv4HhFgL1kvt+cORrapsqCfSy2L1ltMtkilX06rJ+Q"}"""
-        val enc = Crypto.EncryptedMessage.fromJson(json)
+        val enc = EncryptedMessage.fromJson(json)
         assertNotNull(enc)
         enc!!
         assertEquals("x25519-xsalsa20-poly1305", enc.version)
@@ -57,7 +57,7 @@ class CryptoTest {
 
     @Test
     fun `can serialize EncryptedMessage to json string`() {
-        val input = Crypto.EncryptedMessage(
+        val input = EncryptedMessage(
                 nonce = "1dvWO7uOnBnO7iNDJ9kO9pTasLuKNlej",
                 ephemPublicKey = "FBH1/pAEHOOW14Lu3FWkgV3qOEcuL78Zy+qW1RwzMXQ=",
                 ciphertext = "f8kBcl/NCyf3sybfbwAKk/np2Bzt9lRVkZejr6uh5FgnNlH/ic62DZzy")
