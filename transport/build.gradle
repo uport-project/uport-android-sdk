@@ -35,6 +35,7 @@ dependencies {
     implementation "com.android.support:support-annotations:$support_lib_version"
 
     api project(":core")
+    api project(":serialization")
     api project(":knacl")
 
     testImplementation "junit:junit:$junit_version"
