@@ -9,6 +9,8 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.importHDSeed
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.jwt.model.JwtPayload
@@ -31,19 +33,22 @@ class JWTToolsTests {
     @Test
     fun testVerifyToken() {
         val latch = CountDownLatch(2)
-        JWTTools().verify(validShareReqToken1) { err, actualPayload ->
-            assertNull(err)
-            assertEquals(expectedShareReqPayload1, actualPayload)
-            Log.d("herehere", "verify1")
-            latch.countDown()
-        }
+
+        GlobalScope.launch {
+            JWTTools().verify(validShareReqToken1) { err, actualPayload ->
+                assertNull(err)
+                assertEquals(expectedShareReqPayload1, actualPayload)
+                Log.d("herehere", "verify1")
+                latch.countDown()
+            }
 
 
-        JWTTools().verify(incomingJwt) { err, actualPayload ->
-            assertNull(err)
-            assertEquals(incomingJwtPayload, actualPayload)
-            Log.d("herehere", "verify2")
-            latch.countDown()
+            JWTTools().verify(incomingJwt) { err, actualPayload ->
+                assertNull(err)
+                assertEquals(incomingJwtPayload, actualPayload)
+                Log.d("herehere", "verify2")
+                latch.countDown()
+            }
         }
 
         latch.await()
@@ -80,19 +85,21 @@ class JWTToolsTests {
         JWTTools().create(context = activity, payload = payload, rootHandle = address, derivationPath = UportHDSigner.UPORT_ROOT_DERIVATION_PATH, prompt = "", callback = { err, newJwt ->
             assertNull(err)
 
-            // but we should be able to verify the newly created token
-            JWTTools().verify(newJwt!!) { ex, verifiedPayload ->
-                assertNull(ex)
-                //XXX: Comparing payloads directly fails because of serialization differences
-                //The expectedToken contains an `"avatar" : null` while the verifiedPayload has `avatar : ""`
-                //moshi doesn't encode nulls by default so it is normal to fail on equals
-                //BUT, the rest of the fields seem to match
-                //
-                // test data or code should be adjusted so that this can pass too:
-                //val (_, expectedPayload, _) = JWTTools().decode(expectedToken)
-                assertNotNull(verifiedPayload)
-                assertEquals(payload, verifiedPayload!!)
-                latch.countDown()
+            GlobalScope.launch {
+                // but we should be able to verify the newly created token
+                JWTTools().verify(newJwt!!) { ex, verifiedPayload ->
+                    assertNull(ex)
+                    //XXX: Comparing payloads directly fails because of serialization differences
+                    //The expectedToken contains an `"avatar" : null` while the verifiedPayload has `avatar : ""`
+                    //moshi doesn't encode nulls by default so it is normal to fail on equals
+                    //BUT, the rest of the fields seem to match
+                    //
+                    // test data or code should be adjusted so that this can pass too:
+                    //val (_, expectedPayload, _) = JWTTools().decode(expectedToken)
+                    assertNotNull(verifiedPayload)
+                    assertEquals(payload, verifiedPayload!!)
+                    latch.countDown()
+                }
             }
 
         })

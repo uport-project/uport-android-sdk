@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.verify_jwt.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import me.uport.sdk.core.UI
 import me.uport.sdk.jwt.JWTTools
 
 class VerifyJWTActivity : AppCompatActivity() {
@@ -22,22 +25,24 @@ class VerifyJWTActivity : AppCompatActivity() {
             jwtPayload.text = ""
             progress.visibility = View.VISIBLE
 
-            try {
+            GlobalScope.launch(UI) {
+                try {
 
-                JWTTools().verify(jwtToken) { err, payload ->
-                    if (err != null) {
-                        errorText.text = err.message
-                    } else {
-                        jwtPayload.text = payload.toString()
+                    JWTTools().verify(jwtToken) { err, payload ->
+                        if (err != null) {
+                            errorText.text = err.message
+                        } else {
+                            jwtPayload.text = payload.toString()
+                        }
+
+                        progress.visibility = View.INVISIBLE
                     }
+                } catch (e: Exception) {
 
+                    errorText.text = e.message
                     progress.visibility = View.INVISIBLE
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-
-                errorText.text = e.message
-                progress.visibility = View.INVISIBLE
-                e.printStackTrace()
             }
         }
     }

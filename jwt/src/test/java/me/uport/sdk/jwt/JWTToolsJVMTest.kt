@@ -1,6 +1,8 @@
 package me.uport.sdk.jwt
 
 import com.uport.sdk.signer.KPSigner
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.stubUiContext
 import org.junit.Assert.assertNull
@@ -26,12 +28,14 @@ class JWTToolsJVMTest {
 
         tokens.forEachIndexed { index, token ->
             val latch = CountDownLatch(tokens.size)
-            JWTTools().verify(token) { err, payload ->
-                assertNull("token $index failed verification", err)
-                println(payload)
-                latch.countDown()
+            GlobalScope.launch {
+                JWTTools().verify(token) { err, payload ->
+                    assertNull("token $index failed verification", err)
+                    println(payload)
+                    latch.countDown()
+                }
+                latch.await(15, TimeUnit.SECONDS)
             }
-            latch.await(15, TimeUnit.SECONDS)
         }
 
     }
