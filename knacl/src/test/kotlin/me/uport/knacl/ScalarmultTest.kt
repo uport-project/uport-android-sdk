@@ -2,7 +2,6 @@ package me.uport.knacl
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
-import java.util.*
 
 class ScalarmultTest {
 
@@ -20,7 +19,6 @@ class ScalarmultTest {
         assertArrayEquals(golden, input)
     }
 
-    private fun String.decodeBase64() = Base64.getDecoder().decode(this)!!
 
     @Test
     fun `scalarmult on random vectors`() {
