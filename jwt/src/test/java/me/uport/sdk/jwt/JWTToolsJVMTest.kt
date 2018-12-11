@@ -5,11 +5,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.stubUiContext
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class JWTToolsJVMTest {
 
@@ -27,14 +25,9 @@ class JWTToolsJVMTest {
     fun verify() {
 
         tokens.forEachIndexed { index, token ->
-            val latch = CountDownLatch(tokens.size)
             GlobalScope.launch {
-                JWTTools().verify(token) { err, payload ->
-                    assertNull("token $index failed verification", err)
-                    println(payload)
-                    latch.countDown()
-                }
-                latch.await(15, TimeUnit.SECONDS)
+                val payload = JWTTools().verify(token)
+                assertNotNull(payload)
             }
         }
 
