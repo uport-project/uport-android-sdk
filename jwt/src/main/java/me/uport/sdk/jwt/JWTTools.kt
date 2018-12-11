@@ -142,7 +142,7 @@ class JWTTools(
      * @throws InvalidSignatureException when public key entries have no valid match
      * @return a callback with an error and jwt payload
      */
-    suspend fun verify(token: String, options: Map<String, Any> = emptyMap(), callback: (err: Exception?, payload: JwtPayload?) -> Unit) {
+    suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
 
         val ddo: DIDDocument = UniversalDID.resolve(payload.iss)
@@ -163,7 +163,10 @@ class JWTTools(
 
         for (sigData in signatures) {
 
-            val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sigData) // recover pubKey
+            var recoveredPubKey: BigInteger = BigInteger.ZERO
+            try {
+                recoveredPubKey = signedJwtToKey(signingInputBytes, sigData)
+            } catch (e: Exception) { }
 
             val pubKeyNoPrefix = recoveredPubKey
                     .toBytesPadded(65)
@@ -181,11 +184,10 @@ class JWTTools(
             }.size
 
             if (numMatches > 0) {
-                callback(null, payload)
-            } else {
-                callback(InvalidSignatureException("Signature invalid: no valid match was found among the publicKey entries"), null)
+                return payload
             }
         }
+        return null
     }
 
     /***
