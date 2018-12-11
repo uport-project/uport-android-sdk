@@ -3,14 +3,23 @@ package me.uport.sdk.transport
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
-private const val BLOCK_SIZE = 64
-private val matchNullCharAtEnd = "\u0000+$".toRegex()
+internal const val BLOCK_SIZE = 64
 
-internal fun String.pad(): String {
-    val paddedSize = (ceil(length.toDouble() / BLOCK_SIZE) * BLOCK_SIZE).roundToInt()
-    return this.padEnd(paddedSize, '\u0000')
+internal fun String.padToBlock(): ByteArray {
+    val bytes = this.toByteArray(Charsets.UTF_8)
+    val paddedSize = (ceil(bytes.size.toDouble() / BLOCK_SIZE) * BLOCK_SIZE).roundToInt()
+    val padding = ByteArray(paddedSize - bytes.size) { '\u0000'.toByte() }
+    return bytes + padding
 }
 
-internal fun String.unpad(): String {
-    return this.replace(matchNullCharAtEnd, "")
+internal fun ByteArray.unpadFromBlock(): String {
+    var lastNonNullIndex = this.size - 1
+    for (i in lastNonNullIndex downTo 0) {
+        if (this[i] != 0.toByte()) {
+            lastNonNullIndex = i
+            break
+        }
+    }
+    val unpaddedBytes = this.copyOfRange(0, lastNonNullIndex + 1)
+    return String(unpaddedBytes, Charsets.UTF_8)
 }

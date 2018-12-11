@@ -30,8 +30,8 @@ object Crypto {
 
         val (publicKey, secretKey) = nacl.boxKeyPair()
         val nonce = nacl.randomBytes(nacl.crypto_box_NONCEBYTES)
-        val padded = message.pad()
-        val ciphertext = nacl.box(padded.toByteArray(Charsets.UTF_8), nonce, boxPub.decodeBase64(), secretKey)
+        val padded = message.padToBlock()
+        val ciphertext = nacl.box(padded, nonce, boxPub.decodeBase64(), secretKey)
         return EncryptedMessage(
                 version = ASYNC_ENC_ALGORITHM,
                 nonce = nonce.toBase64(),
@@ -55,7 +55,7 @@ object Crypto {
                 encrypted.nonce.decodeBase64(),
                 encrypted.ephemPublicKey.decodeBase64(),
                 secretKey) ?: throw RuntimeException("Could not decrypt message")
-        return decrypted.toString(Charsets.UTF_8).unpad()
+        return decrypted.unpadFromBlock()
     }
 
 }
