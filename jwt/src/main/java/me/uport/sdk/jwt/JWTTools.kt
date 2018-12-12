@@ -2,10 +2,7 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.Signer
-import com.uport.sdk.signer.UportHDSigner
-import com.uport.sdk.signer.decodeJose
-import com.uport.sdk.signer.getJoseEncoded
+import com.uport.sdk.signer.*
 import me.uport.sdk.core.*
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
@@ -16,10 +13,11 @@ import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.UniversalDID
 import org.kethereum.crypto.CURVE
+import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
 import org.kethereum.crypto.model.PublicKey
 import org.kethereum.crypto.toAddress
 import org.kethereum.encodings.decodeBase58
-import org.kethereum.extensions.toBytesPadded
+import org.kethereum.extensions.toBigInteger
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
 import org.spongycastle.asn1.x9.X9IntegerConverter
@@ -163,27 +161,34 @@ class JWTTools(
 
         for (sigData in signatures) {
 
-            var recoveredPubKey: BigInteger = BigInteger.ZERO
-            try {
-                recoveredPubKey = signedJwtToKey(signingInputBytes, sigData)
-            } catch (e: Exception) { }
+            val recoveredPubKey: BigInteger = try {
+                signedJwtToKey(signingInputBytes, sigData)
+            } catch (e: Exception) {
+                BigInteger.ZERO
+            }
 
-            val pubKeyNoPrefix = recoveredPubKey
-                    .toBytesPadded(65)
-                    .copyOfRange(1, 65)
-            val recoveredAddress = PublicKey(pubKeyNoPrefix).toAddress().cleanHex
+            val pubKeyNoPrefix = PublicKey(recoveredPubKey).normalize()
+            val recoveredAddress = pubKeyNoPrefix.toAddress().cleanHex.toLowerCase()
 
-            val numMatches = ddo.publicKey.map {
-                val pk = it.publicKeyHex?.hexToByteArray()
-                        ?: it.publicKeyBase64?.decodeBase64()
-                        ?: it.publicKeyBase58?.decodeBase58()
-                        ?: byteArrayOf()
-                (it.ethereumAddress?.clean0xPrefix() ?: PublicKey(pk).toAddress().cleanHex)
-            }.filter {
-                it == recoveredAddress
-            }.size
+            val matches = ddo.publicKey.map { pubKeyEntry ->
 
-            if (numMatches > 0) {
+                val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
+                        ?: pubKeyEntry.publicKeyBase64?.decodeBase64()
+                        ?: pubKeyEntry.publicKeyBase58?.decodeBase58()
+                        ?: ByteArray(PUBLIC_KEY_SIZE)
+                val pubKey = PublicKey(pkBytes.toBigInteger()).normalize()
+
+                (pubKeyEntry.ethereumAddress?.clean0xPrefix() ?: pubKey.toAddress().cleanHex)
+
+            }.filter { ethereumAddress ->
+
+                //this method of validation only works for uPort style JWTs, where the publicKeys
+                // can be converted to ethereum addresses
+                ethereumAddress.toLowerCase() == recoveredAddress
+
+            }
+
+            if (matches.isNotEmpty()) {
                 return payload
             }
         }

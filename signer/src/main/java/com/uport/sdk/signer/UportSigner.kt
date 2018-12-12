@@ -369,6 +369,7 @@ open class UportSigner {
         const val ERR_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST"
 
         const val UNCOMPRESSED_PUBLIC_KEY_SIZE = PUBLIC_KEY_SIZE + 1
+        const val COMPRESSED_PUBLIC_KEY_SIZE = PRIVATE_KEY_SIZE + 1
 
         data class EncryptionCombo(val keyProtection: KeyProtection, val encPayload: String, val err: Exception?)
 
