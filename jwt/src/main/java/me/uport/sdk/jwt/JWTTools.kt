@@ -4,6 +4,8 @@ import android.content.Context
 import com.squareup.moshi.JsonAdapter
 import com.uport.sdk.signer.*
 import me.uport.sdk.core.*
+import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
@@ -12,6 +14,7 @@ import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.UniversalDID
+import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
 import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
 import org.kethereum.crypto.model.PublicKey
@@ -39,6 +42,15 @@ class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
+
+    init {
+        // if no resolvers are registered use default resolvers
+        if (!UniversalDID.hasResolver()) {
+            UniversalDID.registerResolver(UportDIDResolver())
+            val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
+            UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+        }
+    }
 
     /**
      * This coroutine method creates a signed JWT from a [payload] Map and an abstracted [Signer]
