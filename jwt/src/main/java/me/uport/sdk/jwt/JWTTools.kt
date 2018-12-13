@@ -44,11 +44,20 @@ class JWTTools(
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
     init {
-        // if no resolvers are registered use default resolvers
-        if (!UniversalDID.hasResolver()) {
-            UniversalDID.registerResolver(UportDIDResolver())
+
+        // blank did declarations
+        val blankUportDID = "did:uport:2nQs23uc3UN6BBPqGHpbudDxBkeDRn553BB"
+        val blankEthrDID = "did:ethr:0x0000000000000000000000000000000000000000"
+
+        // register default Ethr DID resolver if Universal DID is unable to resolve blank Ethr DID
+        if (!UniversalDID.canResolve(blankEthrDID)) {
             val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
             UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+        }
+
+        // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID
+        if (!UniversalDID.canResolve(blankUportDID)) {
+            UniversalDID.registerResolver(UportDIDResolver())
         }
     }
 
@@ -148,9 +157,8 @@ class JWTTools(
 
     /**
      * Verifies a jwt [token]
-     * @params jwt token, and options
-     * @throws InvalidSignatureException when public key entries have no valid match
-     * @return a callback with an error and jwt payload
+     * @params jwt token
+     * @return the [jwtPaylod] is verification is successful and [null] if it fails
      */
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)

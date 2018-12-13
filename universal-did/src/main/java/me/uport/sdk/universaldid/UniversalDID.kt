@@ -27,13 +27,6 @@ object UniversalDID : DIDResolver {
         resolvers[resolver.method] = resolver
     }
 
-    /**
-     * Check to see if any resolvers are registered
-     */
-    fun hasResolver(): Boolean {
-        return resolvers.isNotEmpty()
-    }
-
     @VisibleForTesting(otherwise = PRIVATE)
     internal fun clearResolvers() = resolvers.clear()
 
