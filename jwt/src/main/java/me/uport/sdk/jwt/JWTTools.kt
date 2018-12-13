@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonAdapter
 import com.uport.sdk.signer.*
 import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
@@ -48,6 +49,7 @@ class JWTTools(
         // blank did declarations
         val blankUportDID = "did:uport:2nQs23uc3UN6BBPqGHpbudDxBkeDRn553BB"
         val blankEthrDID = "did:ethr:0x0000000000000000000000000000000000000000"
+        val blankHttpsDID = "did:https:example.com"
 
         // register default Ethr DID resolver if Universal DID is unable to resolve blank Ethr DID
         if (!UniversalDID.canResolve(blankEthrDID)) {
@@ -58,6 +60,11 @@ class JWTTools(
         // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID
         if (!UniversalDID.canResolve(blankUportDID)) {
             UniversalDID.registerResolver(UportDIDResolver())
+        }
+
+        // register default https DID resolver if Universal DID is unable to resolve blank https DID
+        if (!UniversalDID.canResolve(blankHttpsDID)) {
+            UniversalDID.registerResolver(HttpsDIDResolver())
         }
     }
 
