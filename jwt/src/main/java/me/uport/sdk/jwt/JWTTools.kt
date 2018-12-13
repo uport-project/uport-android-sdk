@@ -165,7 +165,7 @@ class JWTTools(
     /**
      * Verifies a jwt [token]
      * @params jwt token
-     * @return the [jwtPaylod] is verification is successful and [null] if it fails
+     * @return the [jwtPaylod] if the verification is successful and [null] if it fails
      */
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
