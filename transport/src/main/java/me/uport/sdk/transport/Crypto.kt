@@ -15,7 +15,7 @@ object Crypto {
      * Calculates the publicKey usable for encryption corresponding to the given [secretKey]
      */
     fun getEncryptionPublicKey(secretKey: ByteArray): ByteArray {
-        val (pk, _) = nacl.boxKeyPairFromSecretKey(secretKey)
+        val (pk, _) = nacl.box.keyPairFromSecretKey(secretKey)
         return pk
     }
 
@@ -28,10 +28,10 @@ object Crypto {
      */
     fun encryptMessage(message: String, boxPub: String): EncryptedMessage {
 
-        val (publicKey, secretKey) = nacl.boxKeyPair()
+        val (publicKey, secretKey) = nacl.box.keyPair()
         val nonce = nacl.randomBytes(nacl.crypto_box_NONCEBYTES)
         val padded = message.padToBlock()
-        val ciphertext = nacl.box(padded, nonce, boxPub.decodeBase64(), secretKey)
+        val ciphertext = nacl.box.seal(padded, nonce, boxPub.decodeBase64(), secretKey)
         return EncryptedMessage(
                 version = ASYNC_ENC_ALGORITHM,
                 nonce = nonce.toBase64(),
@@ -50,7 +50,7 @@ object Crypto {
     fun decryptMessage(encrypted: EncryptedMessage, secretKey: ByteArray): String {
         if (encrypted.version != ASYNC_ENC_ALGORITHM) throw IllegalArgumentException("Unsupported encryption algorithm: ${encrypted.version}")
         if (encrypted.ciphertext.isBlank() || encrypted.nonce.isBlank() || encrypted.ephemPublicKey.isBlank()) throw IllegalArgumentException("Invalid encrypted message")
-        val decrypted = nacl.boxOpen(
+        val decrypted = nacl.box.open(
                 encrypted.ciphertext.decodeBase64(),
                 encrypted.nonce.decodeBase64(),
                 encrypted.ephemPublicKey.decodeBase64(),
