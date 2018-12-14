@@ -165,7 +165,8 @@ class JWTTools(
     /**
      * Verifies a jwt [token]
      * @params jwt token
-     * @return the [jwtPaylod] if the verification is successful and [null] if it fails
+     * @return a [JwtPayload] if the verification is successful and `null` if it fails
+     * //TODO: this should return or throw to differentiate network errors from invalid signatures
      */
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
@@ -307,7 +308,6 @@ class JWTTools(
      * signature format error.
      */
     @Throws(SignatureException::class)
-//XXX: renamed the method to prevent accidental conflicts with kethereum imports
     fun signedJwtToKey(message: ByteArray, signatureData: SignatureData): BigInteger {
 
         val header = signatureData.v and 0xFF.toByte()
