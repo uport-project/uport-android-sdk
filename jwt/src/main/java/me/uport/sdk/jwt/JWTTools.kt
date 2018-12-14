@@ -224,7 +224,7 @@ class JWTTools(
     }
 
     /***
-     * Adapted from Kethereum
+     * Copied from Kethereum because it is a private method there
      */
     private fun recoverFromSignature(recId: Int, sig: ECDSASignature, message: ByteArray?): BigInteger? {
         require(recId >= 0) { "recId must be positive" }
@@ -281,7 +281,7 @@ class JWTTools(
 
         val qBytes = q.getEncoded(false)
         // We remove the prefix
-        return BigInteger(1, qBytes)//Arrays.copyOfRange(qBytes, 0, qBytes.size))
+        return BigInteger(1, qBytes.copyOfRange(1, qBytes.size))
     }
 
     /**
