@@ -1,7 +1,5 @@
 package me.uport.sdk.transport
 
-import me.uport.sdk.core.padBase64
-import me.uport.sdk.core.toBase64
 import org.junit.Assert.*
 import org.junit.Test
 import org.walleth.khex.hexToByteArray
@@ -43,7 +41,7 @@ class CryptoTest {
     fun `can encrypt and decrypt`() {
         val msg = "Hello EIP1098"
         val bobSecretKey = ByteArray(32) { it.toByte() }
-        val bobPublicKeyBase64 = Crypto.getEncryptionPublicKey(bobSecretKey).toBase64().padBase64()
+        val bobPublicKeyBase64 = Crypto.getEncryptionPublicKey(bobSecretKey)
         val enc = Crypto.encryptMessage(msg, bobPublicKeyBase64)
         val recoveredMessage = Crypto.decryptMessage(enc, bobSecretKey)
         assertEquals(msg, recoveredMessage)
@@ -107,7 +105,7 @@ class CryptoTest {
         """.trimIndent()
 
         val bobSecretKey = ByteArray(32) { it.toByte() }
-        val bobPublicKeyBase64 = Crypto.getEncryptionPublicKey(bobSecretKey).toBase64().padBase64()
+        val bobPublicKeyBase64 = Crypto.getEncryptionPublicKey(bobSecretKey)
         val enc = Crypto.encryptMessage(loremIpsum, bobPublicKeyBase64)
         val recoveredMessage = Crypto.decryptMessage(enc, bobSecretKey)
         assertEquals(loremIpsum, recoveredMessage)

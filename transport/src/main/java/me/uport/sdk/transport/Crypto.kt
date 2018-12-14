@@ -2,6 +2,7 @@ package me.uport.sdk.transport
 
 import me.uport.knacl.nacl
 import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.transport.EncryptedMessage.Companion.ASYNC_ENC_ALGORITHM
 
@@ -13,10 +14,12 @@ object Crypto {
 
     /**
      * Calculates the publicKey usable for encryption corresponding to the given [secretKey]
+     *
+     * @return the base64 encoded public key
      */
-    fun getEncryptionPublicKey(secretKey: ByteArray): ByteArray {
+    fun getEncryptionPublicKey(secretKey: ByteArray): String {
         val (pk, _) = nacl.box.keyPairFromSecretKey(secretKey)
-        return pk
+        return pk.toBase64().padBase64()
     }
 
     /**
