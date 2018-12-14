@@ -21,6 +21,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class JWTToolsTests {
 
@@ -84,10 +85,11 @@ class JWTToolsTests {
                 // but we should be able to verify the newly created token
                 val newJwtPayload = JWTTools().verify(newJwt!!)
                 assertNotNull(newJwtPayload)
+                latch.countDown()
             }
 
         })
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
