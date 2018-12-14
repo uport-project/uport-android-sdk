@@ -19,6 +19,7 @@ import org.kethereum.extensions.hexToBigInteger
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 
 @RunWith(AndroidJUnit4::class)
@@ -57,7 +58,7 @@ class HDSignerTests {
             }
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -78,7 +79,7 @@ class HDSignerTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     //JWT signing something using a derived uPort Root
@@ -124,7 +125,7 @@ class HDSignerTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
 
     }
 
@@ -140,7 +141,7 @@ class HDSignerTests {
             assertEquals(referenceSeedPhrase, phrase)
             latch.countDown()
         }
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test

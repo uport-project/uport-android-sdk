@@ -14,6 +14,7 @@ import org.kethereum.bip39.generateMnemonic
 import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import java.security.SecureRandom
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class UserInteractionContextTests {
 
@@ -37,7 +38,7 @@ class UserInteractionContextTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -55,7 +56,7 @@ class UserInteractionContextTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -73,7 +74,7 @@ class UserInteractionContextTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
 
@@ -92,7 +93,7 @@ class UserInteractionContextTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -110,7 +111,7 @@ class UserInteractionContextTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
 }

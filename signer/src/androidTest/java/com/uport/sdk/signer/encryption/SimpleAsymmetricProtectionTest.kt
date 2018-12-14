@@ -9,6 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class SimpleAsymmetricProtectionTest {
@@ -43,7 +44,7 @@ class SimpleAsymmetricProtectionTest {
                 }
             }
 
-            latch.await()
+            latch.await(20, TimeUnit.SECONDS)
         }
     }
 }

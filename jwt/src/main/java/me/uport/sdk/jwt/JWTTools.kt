@@ -2,12 +2,10 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.Signer
-import com.uport.sdk.signer.UportHDSigner
-import com.uport.sdk.signer.decodeJose
-import com.uport.sdk.signer.getJoseEncoded
+import com.uport.sdk.signer.*
 import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
@@ -15,13 +13,15 @@ import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
+import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
+import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
 import org.kethereum.crypto.model.PublicKey
 import org.kethereum.crypto.toAddress
 import org.kethereum.encodings.decodeBase58
-import org.kethereum.extensions.toBytesPadded
-import org.kethereum.extensions.toHexStringZeroPadded
+import org.kethereum.extensions.toBigInteger
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
 import org.spongycastle.asn1.x9.X9IntegerConverter
@@ -30,7 +30,6 @@ import org.spongycastle.math.ec.ECPoint
 import org.spongycastle.math.ec.custom.sec.SecP256K1Curve
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
-import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 import java.security.SignatureException
 import kotlin.experimental.and
@@ -44,6 +43,30 @@ class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
+
+    init {
+
+        // blank did declarations
+        val blankUportDID = "did:uport:2nQs23uc3UN6BBPqGHpbudDxBkeDRn553BB"
+        val blankEthrDID = "did:ethr:0x0000000000000000000000000000000000000000"
+        val blankHttpsDID = "did:https:example.com"
+
+        // register default Ethr DID resolver if Universal DID is unable to resolve blank Ethr DID
+        if (!UniversalDID.canResolve(blankEthrDID)) {
+            val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
+            UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+        }
+
+        // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID
+        if (!UniversalDID.canResolve(blankUportDID)) {
+            UniversalDID.registerResolver(UportDIDResolver())
+        }
+
+        // register default https DID resolver if Universal DID is unable to resolve blank https DID
+        if (!UniversalDID.canResolve(blankHttpsDID)) {
+            UniversalDID.registerResolver(HttpsDIDResolver())
+        }
+    }
 
     /**
      * This coroutine method creates a signed JWT from a [payload] Map and an abstracted [Signer]
@@ -139,70 +162,65 @@ class JWTTools(
         }
     }
 
-    fun verify(token: String, options: Map<String, Any> = emptyMap(), callback: (err: Exception?, payload: JwtPayload?) -> Unit) {
+    /**
+     * Verifies a jwt [token]
+     * @params jwt token
+     * @return a [JwtPayload] if the verification is successful and `null` if it fails
+     * //TODO: this should return or throw to differentiate network errors from invalid signatures
+     */
+    suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
-        if (payload.iss.startsWith("did:ethr:0x")) {
-            val rpcUrl: String = options["rpcUrl"] as String? ?: Networks.mainnet.rpcUrl
-            val rpc: JsonRPC = options["rpc"] as JsonRPC? ?: JsonRPC(rpcUrl)
-            val registryAddress: String = options["ethrDidRegistry"] as String?
-                    ?: EthrDIDResolver.DEFAULT_REGISTRY_ADDRESS
-            EthrDIDResolver(rpc, registryAddress).resolve(payload.iss) { err, ddo ->
-                if (err !== null)
-                    return@resolve callback(err, null)
 
-                val sigData = signatureBytes.decodeJose()
+        val ddo: DIDDocument = UniversalDID.resolve(payload.iss)
 
-                val signingInputBytes = token.substringBeforeLast('.').toByteArray()
+        // extract header and payload from token and convert to bytes
+        val signingInputBytes = token.substringBeforeLast('.').toByteArray()
 
-                val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sigData)
-                val pubKeyNoPrefix = recoveredPubKey
-                        .toBytesPadded(65)
-                        .copyOfRange(1, 65)
-                val recoveredAddress = PublicKey(pubKeyNoPrefix).toAddress().cleanHex
+        // extract recoveryByte if available or generate a new one
+        val recoveryBytes = if (signatureBytes.size > 64)
+            signatureBytes.sliceArray(64..64) // an array of just the recovery byte
+        else
+            byteArrayOf(27, 28) //try all recovery options
 
-                val numMatches = ddo.publicKey.map {
-                    val pk = it.publicKeyHex?.hexToByteArray()
-                            ?: it.publicKeyBase64?.decodeBase64()
-                            ?: it.publicKeyBase58?.decodeBase58()
-                            ?: byteArrayOf()
-                    (it.ethereumAddress?.clean0xPrefix() ?: PublicKey(pk).toAddress().cleanHex)
-                }.filter {
-                    it == recoveredAddress
-                }.size
+        // Generate signature from recovery byte
+        val signatures = recoveryBytes.map {
+            signatureBytes.decodeJose(it)
+        }
 
-                if (numMatches > 0) {
-                    callback(null, payload)
-                } else {
-                    callback(InvalidSignatureException("Signature invalid: no valid match was found among the publicKey entries"), null)
-                }
+        for (sigData in signatures) {
+
+            val recoveredPubKey: BigInteger = try {
+                signedJwtToKey(signingInputBytes, sigData)
+            } catch (e: Exception) {
+                BigInteger.ZERO
             }
-        } else {
-            UportDIDResolver().getProfileDocument(payload.iss) { err, ddo ->
-                if (err !== null)
-                    return@getProfileDocument callback(err, null)
 
-                val tokenParts = token.split('.')
-                val signingInput = tokenParts[0] + "." + tokenParts[1]
-                val signingInputBytes = signingInput.toByteArray()
+            val pubKeyNoPrefix = PublicKey(recoveredPubKey).normalize()
+            val recoveredAddress = pubKeyNoPrefix.toAddress().cleanHex.toLowerCase()
 
-                val recoveryBytes = if (signatureBytes.size > 64)
-                    signatureBytes.sliceArray(64..64) // an array of just the recovery byte
-                else
-                    byteArrayOf(27, 28) //try all recovery options
+            val matches = ddo.publicKey.map { pubKeyEntry ->
 
-                val signatures = recoveryBytes.map {
-                    signatureBytes.decodeJose(it)
-                }
+                val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
+                        ?: pubKeyEntry.publicKeyBase64?.decodeBase64()
+                        ?: pubKeyEntry.publicKeyBase58?.decodeBase58()
+                        ?: ByteArray(PUBLIC_KEY_SIZE)
+                val pubKey = PublicKey(pkBytes.toBigInteger()).normalize()
 
-                for (sig in signatures) {
-                    val recoveredPubKey: BigInteger = signedJwtToKey(signingInputBytes, sig)
-                    val recoveredPubKeyString = recoveredPubKey.toHexStringZeroPadded(130).prepend0xPrefix()
-                    if (recoveredPubKeyString == ddo.publicKey)
-                        return@getProfileDocument callback(err, payload)
-                }
-                return@getProfileDocument callback(InvalidSignatureException("Signature invalid: Public Key Mismatch"), null)
+                (pubKeyEntry.ethereumAddress?.clean0xPrefix() ?: pubKey.toAddress().cleanHex)
+
+            }.filter { ethereumAddress ->
+
+                //this method of validation only works for uPort style JWTs, where the publicKeys
+                // can be converted to ethereum addresses
+                ethereumAddress.toLowerCase() == recoveredAddress
+
+            }
+
+            if (matches.isNotEmpty()) {
+                return payload
             }
         }
+        return null
     }
 
     /***
@@ -290,7 +308,6 @@ class JWTTools(
      * signature format error.
      */
     @Throws(SignatureException::class)
-    //XXX: renamed the method to prevent accidental conflicts with kethereum imports
     fun signedJwtToKey(message: ByteArray, signatureData: SignatureData): BigInteger {
 
         val header = signatureData.v and 0xFF.toByte()

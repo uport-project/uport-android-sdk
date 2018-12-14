@@ -4,7 +4,6 @@ package me.uport.sdk.jwt
  * Created by aldi on 3/10/18.
  */
 import android.support.test.rule.ActivityTestRule
-import android.util.Log
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
@@ -16,6 +15,7 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class JWTToolsTests {
 
@@ -26,27 +26,15 @@ class JWTToolsTests {
     private val expectedShareReqPayload1 = JwtPayload(iss = "2oeXufHGDpU51bfKBsZDdu7Je9weJ3r7sVG", iat = 1520366432, sub = null, aud = null, exp = 1520367032, callback = "https://chasqui.uport.me/api/v1/topic/XnHfyev51xsdkDtu", type = "shareReq", net = "0x4", act = null, requested = listOf("name", "phone", "country", "avatar"), verified = null, permissions = listOf("notifications"), req = null, nad = null, dad = null, own = null, capabilities = null, claims = null, ctl = null, reg = null, rel = null, fct = null, acc = null)
 
     private val incomingJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb21SSlpMMjNaQ1lnYzFyWnJGVnBGWEpwV29hRUV1SlVjZiIsImlhdCI6MTUxOTM1MDI1NiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vYXBpLnVwb3J0LnNwYWNlL29sb3J1bi9jcmVhdGVJZGVudGl0eSIsIm5ldCI6IjB4MzAzOSIsImFjdCI6ImRldmljZWtleSIsImV4cCI6MTUyMjU0MDgwMCwidHlwZSI6InNoYXJlUmVxIn0.EkqNUyrZhcDbTQl73XpL2tp470lCo2saMXzuOZ91UI2y-XzpcBMzhhSeUORnoJXJhHnkGGpshZlESWUgrbuiVQ"
-    private val incomingJwtPayload = JwtPayload(iss = "2omRJZL23ZCYgc1rZrFVpFXJpWoaEEuJUcf", iat = 1519350256, sub = null, aud = null, exp = 1522540800, callback = "https://api.uport.space/olorun/createIdentity", type = "shareReq", net = "0x3039", act = "devicekey", requested = null, verified = null, permissions = listOf("notifications"), req = null, nad = null, dad = null, own = null, capabilities = null, claims = null, ctl = null, reg = null, rel = null, fct = null, acc = null)
+    private val expectedJwtPayload = JwtPayload(iss = "2omRJZL23ZCYgc1rZrFVpFXJpWoaEEuJUcf", iat = 1519350256, sub = null, aud = null, exp = 1522540800, callback = "https://api.uport.space/olorun/createIdentity", type = "shareReq", net = "0x3039", act = "devicekey", requested = null, verified = null, permissions = listOf("notifications"), req = null, nad = null, dad = null, own = null, capabilities = null, claims = null, ctl = null, reg = null, rel = null, fct = null, acc = null)
 
     @Test
-    fun testVerifyToken() {
-        val latch = CountDownLatch(2)
-        JWTTools().verify(validShareReqToken1) { err, actualPayload ->
-            assertNull(err)
-            assertEquals(expectedShareReqPayload1, actualPayload)
-            Log.d("herehere", "verify1")
-            latch.countDown()
-        }
+    fun testVerifyToken() = runBlocking {
+        val shareReqPayload = JWTTools().verify(validShareReqToken1)
+        assertEquals(expectedShareReqPayload1, shareReqPayload)
 
-
-        JWTTools().verify(incomingJwt) { err, actualPayload ->
-            assertNull(err)
-            assertEquals(incomingJwtPayload, actualPayload)
-            Log.d("herehere", "verify2")
-            latch.countDown()
-        }
-
-        latch.await()
+        val incomingJwtPayload = JWTTools().verify(incomingJwt)
+        assertEquals(expectedJwtPayload, incomingJwtPayload)
     }
 
     @Test
@@ -80,23 +68,15 @@ class JWTToolsTests {
         JWTTools().create(context = activity, payload = payload, rootHandle = address, derivationPath = UportHDSigner.UPORT_ROOT_DERIVATION_PATH, prompt = "", callback = { err, newJwt ->
             assertNull(err)
 
-            // but we should be able to verify the newly created token
-            JWTTools().verify(newJwt!!) { ex, verifiedPayload ->
-                assertNull(ex)
-                //XXX: Comparing payloads directly fails because of serialization differences
-                //The expectedToken contains an `"avatar" : null` while the verifiedPayload has `avatar : ""`
-                //moshi doesn't encode nulls by default so it is normal to fail on equals
-                //BUT, the rest of the fields seem to match
-                //
-                // test data or code should be adjusted so that this can pass too:
-                //val (_, expectedPayload, _) = JWTTools().decode(expectedToken)
-                assertNotNull(verifiedPayload)
-                assertEquals(payload, verifiedPayload!!)
+            runBlocking {
+                // but we should be able to verify the newly created token
+                val newJwtPayload = JWTTools().verify(newJwt!!)
+                assertNotNull(newJwtPayload)
                 latch.countDown()
             }
 
         })
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -132,7 +112,7 @@ class JWTToolsTests {
 
 }
 
-class TestTimeProvider(val currentTime: Long) : ITimeProvider {
+class TestTimeProvider(private val currentTime: Long) : ITimeProvider {
     override fun now(): Long = currentTime
 
 }
