@@ -21,6 +21,7 @@ import org.walleth.khex.toNoPrefixHexString
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class SignerTests {
@@ -51,7 +52,7 @@ class SignerTests {
             }
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -74,7 +75,7 @@ class SignerTests {
             }
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -119,7 +120,7 @@ class SignerTests {
 
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -155,7 +156,7 @@ class SignerTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -248,7 +249,7 @@ class SignerTests {
             assertTrue(result)
             latch.countDown()
         }
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
 
         latch = CountDownLatch(1)
         signer.loadEncryptedPayload(context,
@@ -259,7 +260,7 @@ class SignerTests {
             assertEquals(String(resultBytes), payload)
             latch.countDown()
         }
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -289,7 +290,7 @@ class SignerTests {
             }
         }
 
-        createLatch.await()
+        createLatch.await(20, TimeUnit.SECONDS)
 
         //check if the addresses are read back successfully from storage
         val readLatch = CountDownLatch(1)
@@ -299,7 +300,7 @@ class SignerTests {
             storedAddressList.addAll(list)
             readLatch.countDown()
         }
-        readLatch.await()
+        readLatch.await(20, TimeUnit.SECONDS)
 
         assertTrue(storedAddressList.containsAll(addresses))
 
@@ -319,7 +320,7 @@ class SignerTests {
             keyHandle = addr
             latch.countDown()
         }
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
 
         tested.deleteKey(context, keyHandle)
 
@@ -329,7 +330,7 @@ class SignerTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 }
 

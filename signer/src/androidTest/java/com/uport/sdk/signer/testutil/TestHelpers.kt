@@ -6,6 +6,7 @@ import com.uport.sdk.signer.UportSigner
 import com.uport.sdk.signer.encryption.KeyProtection
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * synchronously imports a given seed phrase at the desired protection level
@@ -19,7 +20,7 @@ fun ensureSeedIsImportedInTargetContext(phrase: String, level: KeyProtection.Lev
         handle = rootAddress
         latch.countDown()
     }
-    latch.await()
+    latch.await(20, TimeUnit.SECONDS)
     return handle
 }
 
@@ -35,6 +36,6 @@ fun ensureKeyIsImportedInTargetContext(key: ByteArray, level: KeyProtection.Leve
         handle = rootAddress
         latch.countDown()
     }
-    latch.await()
+    latch.await(20, TimeUnit.SECONDS)
     return handle
 }
