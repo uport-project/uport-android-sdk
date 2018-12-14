@@ -4,6 +4,9 @@ import android.content.Context
 import com.squareup.moshi.JsonAdapter
 import com.uport.sdk.signer.*
 import me.uport.sdk.core.*
+import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.httpsdid.HttpsDIDResolver
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
@@ -12,6 +15,7 @@ import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.UniversalDID
+import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
 import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
 import org.kethereum.crypto.model.PublicKey
@@ -39,6 +43,30 @@ class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
+
+    init {
+
+        // blank did declarations
+        val blankUportDID = "did:uport:2nQs23uc3UN6BBPqGHpbudDxBkeDRn553BB"
+        val blankEthrDID = "did:ethr:0x0000000000000000000000000000000000000000"
+        val blankHttpsDID = "did:https:example.com"
+
+        // register default Ethr DID resolver if Universal DID is unable to resolve blank Ethr DID
+        if (!UniversalDID.canResolve(blankEthrDID)) {
+            val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
+            UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+        }
+
+        // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID
+        if (!UniversalDID.canResolve(blankUportDID)) {
+            UniversalDID.registerResolver(UportDIDResolver())
+        }
+
+        // register default https DID resolver if Universal DID is unable to resolve blank https DID
+        if (!UniversalDID.canResolve(blankHttpsDID)) {
+            UniversalDID.registerResolver(HttpsDIDResolver())
+        }
+    }
 
     /**
      * This coroutine method creates a signed JWT from a [payload] Map and an abstracted [Signer]
@@ -136,9 +164,8 @@ class JWTTools(
 
     /**
      * Verifies a jwt [token]
-     * @params jwt token, and options
-     * @throws InvalidSignatureException when public key entries have no valid match
-     * @return a callback with an error and jwt payload
+     * @params jwt token
+     * @return the [jwtPaylod] if the verification is successful and [null] if it fails
      */
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)

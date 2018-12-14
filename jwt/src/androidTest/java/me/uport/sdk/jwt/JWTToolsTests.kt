@@ -10,14 +10,8 @@ import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.importHDSeed
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.ITimeProvider
-import me.uport.sdk.core.Networks
-import me.uport.sdk.ethrdid.EthrDIDResolver
-import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtPayload
-import me.uport.sdk.universaldid.UniversalDID
-import me.uport.sdk.uportdid.UportDIDResolver
 import org.junit.Assert.*
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
@@ -33,13 +27,6 @@ class JWTToolsTests {
 
     private val incomingJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb21SSlpMMjNaQ1lnYzFyWnJGVnBGWEpwV29hRUV1SlVjZiIsImlhdCI6MTUxOTM1MDI1NiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vYXBpLnVwb3J0LnNwYWNlL29sb3J1bi9jcmVhdGVJZGVudGl0eSIsIm5ldCI6IjB4MzAzOSIsImFjdCI6ImRldmljZWtleSIsImV4cCI6MTUyMjU0MDgwMCwidHlwZSI6InNoYXJlUmVxIn0.EkqNUyrZhcDbTQl73XpL2tp470lCo2saMXzuOZ91UI2y-XzpcBMzhhSeUORnoJXJhHnkGGpshZlESWUgrbuiVQ"
     private val expectedJwtPayload = JwtPayload(iss = "2omRJZL23ZCYgc1rZrFVpFXJpWoaEEuJUcf", iat = 1519350256, sub = null, aud = null, exp = 1522540800, callback = "https://api.uport.space/olorun/createIdentity", type = "shareReq", net = "0x3039", act = "devicekey", requested = null, verified = null, permissions = listOf("notifications"), req = null, nad = null, dad = null, own = null, capabilities = null, claims = null, ctl = null, reg = null, rel = null, fct = null, acc = null)
-
-    @Before
-    fun setup() {
-        UniversalDID.registerResolver(UportDIDResolver())
-        val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
-        UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
-    }
 
     @Test
     fun testVerifyToken() = runBlocking {
