@@ -20,16 +20,16 @@ In your main `build.gradle` file, add:
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
-        ...
+        //...
     }
 }
 ```
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.3.0"
+def uport_sdk_version = "v0.3.1"
 dependencies {
-    ...
+    //...
     // core SDK
     implementation "com.github.uport-project.uport-android-sdk:sdk:$uport_sdk_version"
 }
@@ -122,9 +122,9 @@ Uport.defaultAccount?.send(activity, destination, amountInWei) { err, txHash ->
 
 //call contract
 val contractAddress = "0x010101..."
-val data = <ABI encoded method call>
+val data : ByteArray = <ABI encoded contract method call>
 
-val txHash = Uport.defaultAccount?.send(activity, contractAddress, data)
+val txHash : String = Uport.defaultAccount?.send(activity, contractAddress, data)
 val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 ```
@@ -135,16 +135,63 @@ Off-chain interaction is essentially signing and verifying JWTs using uport-spec
 Verification of such tokens implies resolving a 
 [Decentralized Identity (DID) document](https://github.com/uport-project/specs/blob/develop/pki/diddocument.md)
 that will contain the keys or address that should match a JWT signature.
-
 To obtain a `DIDDocument` one needs to use a `DIDResolver`.
-`UniversalDID` is a global registry of `DIDResolver`s for apps using the SDK.
-During SDK initialization this registry gets populated with resolvers for
-[uport-did](https://github.com/uport-project/uport-did-resolver) and [ethr-did](https://github.com/uport-project/ethr-did-resolver)
+
+
+The `UniversalDID` is a global registry of `DIDResolver`s for apps using the SDK.
+During SDK initialization this registry gets populated with default resolvers for
+[uport-did](https://github.com/uport-project/uport-did-resolver),
+[ethr-did](https://github.com/uport-project/ethr-did-resolver)
+and [https-did](https://github.com/uport-project/https-did-resolver)
+You can register your own resolver(s) using `UniversalDID.registerResolver(resolver)`
+Registering a new resolver that resolves the same DID method will override the previous one.
+
+These `DIDDocument`s are used during verification of compatible JWT tokens.
+
+##### verify a JWT token
+
+```kotlin
+
+//in a coroutine context:
+val tokenPayload : JWTPayload? = JWTTools().verify(token)
+
+if (tokenPayload != null) {
+    //verified
+} else {
+    //token cannot be verified
+}
 
 ```
-//TODO: Details about how to use these docs for verification of JWTs to be added when
-JWT verification functionality is finalized
-``` 
+
+
+##### create a JWT token
+
+```kotlin
+
+val payload = mapOf( "claims" to mapOf( "name" to "R Daneel Olivaw" ) )
+
+val signer = KPSigner("0x1234")
+val issuer = "did:ethr:0x${signer.getAddress()}"
+
+//in a coroutine context
+val jwt : String = JWTTools().create(payload, issuer, signer)
+
+```
+
+### Encrypted messaging
+
+//compute an encryption publicKey starting from a private key (can be an ethereum private key) 
+val publicKey = Crypto.getEncryptionPublicKey(privateKeyBytes).
+
+//encrypt a message with an intended recipient
+val encryptedBundle = Crypto.encrypt("hello world", recipientPublicKeyBase64)
+val serializedMessage = encryptedBundle.toJson()
+
+//decrypt a message
+val receivedBundle = EncryptedMessage.fromJson(serializedMessage)
+val decryptedMessage = Crypto.decrypt(receivedBundle, recipientSecretKey)
+
+
 
 ### Dependencies
 
@@ -158,7 +205,11 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 ### Changelog
 
-* 0.3.0 - upcoming release with breaking changes
+* 0.3.1
+    * add https DID resolver
+    * use UniversalDID for JWT verification
+    * add encryption/decryption functionality
+* 0.3.0
     * add universal DID resolver
     * add cleaner way of creating JWTs with abstracted signer
     * updated to kethereum 0.63 which has a different key derivation and mnemonic API.
