@@ -34,6 +34,10 @@ dependencies {
 
     implementation "com.android.support:support-annotations:$support_lib_version"
 
+    api project(":core")
+    api project(":serialization")
+    implementation "com.github.uport-project:tweetnacl-k:$tweetnacl_k_version"
+
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.mockito:mockito-inline:$mockito_version"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
