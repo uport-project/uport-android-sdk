@@ -180,6 +180,7 @@ val jwt : String = JWTTools().create(payload, issuer, signer)
 
 ### Encrypted messaging
 
+```kotlin
 //compute an encryption publicKey starting from a private key (can be an ethereum private key) 
 val publicKey = Crypto.getEncryptionPublicKey(privateKeyBytes).
 
@@ -190,6 +191,7 @@ val serializedMessage = encryptedBundle.toJson()
 //decrypt a message
 val receivedBundle = EncryptedMessage.fromJson(serializedMessage)
 val decryptedMessage = Crypto.decrypt(receivedBundle, recipientSecretKey)
+```
 
 
 
@@ -209,6 +211,7 @@ but that may be removed when pure kotlin implementations of the required cryptog
     * add https DID resolver
     * use UniversalDID for JWT verification
     * add encryption/decryption functionality
+    
 * 0.3.0
     * add universal DID resolver
     * add cleaner way of creating JWTs with abstracted signer
