@@ -1,7 +1,5 @@
 package me.uport.sdk.demoapp
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.uport.sdk.signer.KPSigner
@@ -11,6 +9,7 @@ import kotlinx.coroutines.launch
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.RequestAccountType
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
+import me.uport.sdk.transport.Transports
 
 class SelectiveDiscloureActivity : AppCompatActivity() {
 
@@ -43,16 +42,10 @@ class SelectiveDiscloureActivity : AppCompatActivity() {
 
         send_request.setOnClickListener {
             GlobalScope.launch {
-                val signedJWT = try {
-                    cred.createDisclosureRequest(params)
-                } catch (exception: Exception) {
-                    null
-                }
+                val signedJWT = cred.createDisclosureRequest(params)
 
-                // Send a valid signed request to uport via url
-                val uri = Uri.parse("https://id.uport.me/req/$signedJWT}")
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
+                // Send a valid signed request to uport via Transports
+                Transports().send(this@SelectiveDiscloureActivity, signedJWT)
             }
         }
 
