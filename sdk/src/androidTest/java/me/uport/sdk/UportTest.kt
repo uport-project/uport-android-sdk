@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Looper
 import android.support.test.InstrumentationRegistry
 import com.uport.sdk.signer.UportHDSigner
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.Networks
 import me.uport.sdk.identity.Account
 import org.junit.Assert.*
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 class UportTest {
 
-    lateinit var context: Context
+    private lateinit var context: Context
 
     @Before
     fun run_before_every_test() {

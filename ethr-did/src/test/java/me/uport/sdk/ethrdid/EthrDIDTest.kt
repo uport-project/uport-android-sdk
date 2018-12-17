@@ -3,10 +3,10 @@
 package me.uport.sdk.ethrdid
 
 import com.nhaarman.mockitokotlin2.*
-import kotlinx.coroutines.experimental.runBlocking
+import com.uport.sdk.signer.KPSigner
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.DEFAULT_GAS_PRICE
 import me.uport.sdk.jsonrpc.JsonRPC
-import com.uport.sdk.signer.KPSigner
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString

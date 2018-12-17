@@ -3,7 +3,9 @@ package com.uport.sdk.signer
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Callback type for signature results.
@@ -28,7 +30,7 @@ interface Signer {
     /**
      * returns the ethereum address corresponding to the key that does the signing
      */
-    fun getAddress() : String
+    fun getAddress(): String
 
     /**
      *
@@ -49,8 +51,8 @@ interface Signer {
          * A useless signer that calls back with empty signature and has no associated address
          */
         val blank = object : Signer {
-            override fun signETH(rawMessage: ByteArray, callback: SignatureCallback)  = callback(null, SignatureData())
-            override fun signJWT(rawPayload: ByteArray, callback: SignatureCallback)  = callback(null, SignatureData())
+            override fun signETH(rawMessage: ByteArray, callback: SignatureCallback) = callback(null, SignatureData())
+            override fun signJWT(rawPayload: ByteArray, callback: SignatureCallback) = callback(null, SignatureData())
             override fun getAddress(): String = ""
         }
     }

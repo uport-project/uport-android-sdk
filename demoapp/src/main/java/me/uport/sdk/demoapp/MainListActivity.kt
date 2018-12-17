@@ -4,9 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
-import android.widget.ListAdapter
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_list_main.*
+import kotlinx.android.synthetic.main.simple_list.*
 
 /**
  *
@@ -18,17 +17,26 @@ import kotlinx.android.synthetic.main.activity_list_main.*
 
 class MainListActivity : AppCompatActivity() {
 
-    private val features = arrayOf("Create an Account", "Create a Key", "Import a Key", "Key Protection","Create a JWT", "Verify a JWT", "Selective Disclosure")
+
+    private val features = arrayOf(
+            "Create an Account",
+            "Create a Key",
+            "Import a Key",
+            "Key Protection",
+            "Create a JWT",
+            "Resolve a DID",
+            "Verify JWT",
+            "Selective Disclosure")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_list_main)
+        setContentView(R.layout.simple_list)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, features)
 
-        feature_list.adapter = adapter as ListAdapter?
+        item_list.adapter = adapter
 
-        feature_list.setOnItemClickListener { _, _, position, _ ->
+        item_list.setOnItemClickListener { _, _, position, _ ->
             itemSelected(position)
         }
     }
@@ -39,6 +47,9 @@ class MainListActivity : AppCompatActivity() {
             1 -> startActivity(Intent(this, CreateKeyActivity::class.java))
             2 -> startActivity(Intent(this, ImportKeyActivity::class.java))
             3 -> startActivity(Intent(this, KeyProtectionListActivity::class.java))
+            4 -> startActivity(Intent(this, SignJWTListActivity::class.java))
+            5 -> startActivity(Intent(this, DIDResolverActivity::class.java))
+            6 -> startActivity(Intent(this, VerifyJWTActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }

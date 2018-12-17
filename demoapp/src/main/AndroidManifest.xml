@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="me.uport.sdk.demoapp">
 
     <application
@@ -8,8 +9,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".DemoApplication"
-        >
+        android:name="me.uport.sdk.demoapp.DemoApplication"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".MainListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +25,12 @@
         <activity android:name=".KeyProtectionListActivity" />
         <activity android:name=".KeyGuardProtectionActivity" />
         <activity android:name=".FingerPrintProtectionActivity" />
+        <activity android:name=".SignJWTKeyPairSignerActivity" />
+        <activity android:name=".SignJWTListActivity" />
+        <activity android:name=".SignJWTUportHDSignerActivity" />
+        <activity android:name=".DIDResolverActivity" />
+        <activity android:name=".VerifyJWTActivity" />
+
     </application>
 
 </manifest>

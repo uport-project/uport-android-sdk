@@ -4,17 +4,22 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.identity.*
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 @SuppressLint("StaticFieldLeak")
 object Uport {
@@ -88,6 +93,7 @@ object Uport {
         UniversalDID.registerResolver(UportDIDResolver())
         val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
         UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+        UniversalDID.registerResolver(HttpsDIDResolver())
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
         initialized = true
@@ -143,14 +149,14 @@ object Uport {
                 val acc = if (seedPhrase.isNullOrBlank()) {
                     accountCreator.createAccount(networkId)
                 } else {
-                    accountCreator.importAccount(networkId, seedPhrase!!)
+                    accountCreator.importAccount(networkId, seedPhrase)
                 }
                 accountStorage?.upsert(acc)
                 defaultAccount = defaultAccount ?: acc
 
-                launch(UI) { completion(null, if (acc.handle == defaultAccount?.handle) defaultAccount!! else acc) }
+                withContext(UI) { completion(null, if (acc.handle == defaultAccount?.handle) defaultAccount!! else acc) }
             } catch (err: Exception) {
-                launch(UI) { completion(err, Account.blank) }
+                withContext(UI) { completion(err, Account.blank) }
             }
         }
     }
@@ -177,6 +183,7 @@ object Uport {
         lateinit var fuelTokenProvider: IFuelTokenProvider
         lateinit var applicationContext: Context
 
+        @Suppress("unused")
         fun setFuelTokenProvider(provider: IFuelTokenProvider): Configuration {
             this.fuelTokenProvider = provider
             return this

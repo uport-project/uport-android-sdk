@@ -1,10 +1,7 @@
 package me.uport.sdk.extensions
 
 import android.content.Context
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.*
 import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
@@ -72,14 +69,12 @@ suspend fun Account.send(context: Context, contractAddress: String, data: ByteAr
 /**
  * Send [value] amount of WEI ( 1e-18 ETH ) from Account to the address [to]
  */
-fun Account.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.async {
+fun Account.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.launch {
     try {
         val txHash = send(context, to, value)
-        launch(UI) { callback(null, txHash) }
+        withContext(UI) { callback(null, txHash) }
     } catch (ex: Exception) {
-        launch(UI) {
-            callback(ex, "")
-        }
+        withContext(UI) { callback(ex, "") }
     }
 }
 

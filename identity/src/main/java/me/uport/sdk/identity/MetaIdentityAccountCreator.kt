@@ -5,6 +5,7 @@ import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_DEVICE_KEY_DERIVATION_PATH
 import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_RECOVERY_DERIVATION_PATH
 import com.uport.sdk.signer.encryption.KeyProtection
+import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
 import me.uport.sdk.identity.ProgressPersistence.AccountCreationState
 import me.uport.sdk.identity.ProgressPersistence.PersistentBundle
@@ -52,7 +53,7 @@ class MetaIdentityAccountCreator(
                         return@createHDSeed createAccount(networkId, false, callback)
                     }
                 } else {
-                    signer.importHDSeed(context, KeyProtection.Level.SIMPLE, phrase!!) { err, rootAddress, _ ->
+                    signer.importHDSeed(context, KeyProtection.Level.SIMPLE, phrase) { err, rootAddress, _ ->
                         if (err != null) {
                             return@importHDSeed fail(err, callback)
                         }

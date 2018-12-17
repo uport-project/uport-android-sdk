@@ -6,6 +6,7 @@ import com.uport.sdk.signer.UportSigner
 import com.uport.sdk.signer.encryption.KeyProtection
 import org.junit.Assert
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * synchronously imports a given seed phrase at the desired protection level
@@ -13,13 +14,13 @@ import java.util.concurrent.CountDownLatch
 fun ensureSeedIsImportedInTargetContext(phrase: String, level: KeyProtection.Level = KeyProtection.Level.SIMPLE): String {
     val targetContext = InstrumentationRegistry.getTargetContext()
     val latch = CountDownLatch(1)
-    lateinit var handle : String
+    lateinit var handle: String
     UportHDSigner().importHDSeed(targetContext, level, phrase) { err, rootAddress, _ ->
         Assert.assertNull(err)
         handle = rootAddress
         latch.countDown()
     }
-    latch.await()
+    latch.await(20, TimeUnit.SECONDS)
     return handle
 }
 
@@ -29,12 +30,12 @@ fun ensureSeedIsImportedInTargetContext(phrase: String, level: KeyProtection.Lev
 fun ensureKeyIsImportedInTargetContext(key: ByteArray, level: KeyProtection.Level = KeyProtection.Level.SIMPLE): String {
     val targetContext = InstrumentationRegistry.getTargetContext()
     val latch = CountDownLatch(1)
-    lateinit var handle : String
+    lateinit var handle: String
     UportSigner().saveKey(targetContext, level, key) { err, rootAddress, _ ->
         Assert.assertNull(err)
         handle = rootAddress
         latch.countDown()
     }
-    latch.await()
+    latch.await(20, TimeUnit.SECONDS)
     return handle
 }

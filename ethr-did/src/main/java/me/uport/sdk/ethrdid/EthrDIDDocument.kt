@@ -31,7 +31,7 @@ data class EthrDIDDocument(
         @SerialName("@context")
         override val context: String = "https://w3id.org/did/v1"
 ) : DIDDocument {
-    override fun toString(): String = JSON.indented.stringify(this)
+    override fun toString(): String = JSON.indented.stringify(EthrDIDDocument.serializer(), this)
 
     companion object {
         val blank = EthrDIDDocument("")

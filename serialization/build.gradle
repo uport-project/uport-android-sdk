@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: "kotlin-android"
+apply plugin: "kotlinx-serialization"
 apply plugin: "maven"
 
 android {
@@ -37,9 +38,3 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}

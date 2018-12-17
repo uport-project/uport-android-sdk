@@ -290,7 +290,7 @@ class UportHDSigner : UportSigner() {
     fun allHDRoots(context: Context): List<String> {
 
         val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
-        //list all stored keys, keep a list off what looks like uport root addresses
+        //list all stored keys, keep a list of what looks like uport root addresses
         return prefs.all.keys
                 .asSequence()
                 .filter { label -> label.startsWith(SEED_PREFIX) }

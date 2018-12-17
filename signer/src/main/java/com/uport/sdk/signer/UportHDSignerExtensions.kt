@@ -2,7 +2,9 @@ package com.uport.sdk.signer
 
 import android.content.Context
 import com.uport.sdk.signer.encryption.KeyProtection
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  *

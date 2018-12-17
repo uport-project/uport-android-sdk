@@ -2,7 +2,9 @@ package me.uport.sdk.core.experimental
 
 import me.uport.sdk.core.urlGet
 import me.uport.sdk.core.urlPost
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * wraps a [urlPost] in a suspend function

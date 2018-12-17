@@ -12,17 +12,7 @@ import android.security.keystore.KeyProperties
 import com.uport.sdk.signer.hasMarshmallow
 import java.io.IOException
 import java.math.BigInteger
-import java.security.InvalidAlgorithmParameterException
-import java.security.InvalidKeyException
-import java.security.KeyFactory
-import java.security.KeyPairGenerator
-import java.security.KeyStore
-import java.security.KeyStoreException
-import java.security.NoSuchAlgorithmException
-import java.security.NoSuchProviderException
-import java.security.PrivateKey
-import java.security.PublicKey
-import java.security.UnrecoverableKeyException
+import java.security.*
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.RSAKeyGenParameterSpec
 import java.security.spec.X509EncodedKeySpec
@@ -95,7 +85,7 @@ object AndroidKeyStoreHelper {
             Cipher.DECRYPT_MODE, Cipher.UNWRAP_MODE -> {
                 keyStore.getKey(keyAlias, null) as PrivateKey
             }
-        //ENCRYPT_MODE, WRAP_MODE
+            //ENCRYPT_MODE, WRAP_MODE
             else -> {
                 val pubKey = keyStore.getCertificate(keyAlias).publicKey
                 //due to a bug in API23, the public key needs to be separated from the keystore

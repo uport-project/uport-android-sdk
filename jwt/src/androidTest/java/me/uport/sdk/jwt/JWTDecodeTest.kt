@@ -13,7 +13,6 @@ class JWTDecodeTest {
     private val validShareReqTokenSignature = validShareReqToken.split('.')[2]
 
     private val validVerificationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIzNHdqc3h3dmR1YW5vN05GQzh1ak5KbkZqYmFjZ1llV0E4bSIsImlhdCI6MTQ4NTMyMTEzMywiY2xhaW1zIjp7Im5hbWUiOiJCb2IiLCJnZW5kZXIiOiJtYWxlIn0sImV4cCI6MTQ4NTQwNzUzM30.orxkk0gzk0URvAkMM2vNzgW7IRefDCKhfyM9oP4Ye3GhuXko0h4TDMggslS_eIETqrRAqfG4XmcHIX9C-S8DoA"
-    private val validVerificationTokenPayload = validVerificationToken.split('.')[1]
 
     private val invalidTokenOnlyHeader = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ."
     private val invalidTokenEmptyPayload = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ..C8mPCCtWlYAnroduqysXYRl5xvrOdx1r4iq3A3SmGDGZu47UGTnjiZCOrOQ8A5lZ0M9JfDpZDETCKGdJ7KUeWQ"

@@ -28,16 +28,17 @@ class SharedPrefsAccountStorage(
     private val accounts = mapOf<String, Account>().toMutableMap()
 
     init {
-        val set = prefs.getStringSet(KEY_ACCOUNTS, emptySet())
-        set.forEach { serialized ->
-            val acc = try {
-                Account.fromJson(serialized)
-            } catch (ex: Exception) {
-                null
-            }
+        prefs.getStringSet(KEY_ACCOUNTS, emptySet())
+                .orEmpty()
+                .forEach { serialized ->
+                    val acc = try {
+                        Account.fromJson(serialized)
+                    } catch (ex: Exception) {
+                        null
+                    }
 
-            acc?.let { upsert(it) }
-        }
+                    acc?.let { upsert(it) }
+                }
     }
 
 

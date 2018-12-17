@@ -40,7 +40,7 @@ class CryptoUtilTest {
                 val decBlob = CryptoUtil(context, "gigel").decrypt(encBundle)
                 println("decrypted message of size $it")
                 assertArrayEquals(" failed to decrypt blob of size $it:", blob, decBlob)
-            } catch (ex : Exception) {
+            } catch (ex: Exception) {
                 println("failed at message of size $it")
                 throw ex
             }

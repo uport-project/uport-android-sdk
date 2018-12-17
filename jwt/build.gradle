@@ -39,6 +39,7 @@ dependencies {
     api project(":signer")
     api project(':uport-did')
     api project(":ethr-did")
+    api project(":https-did")
     api project(":jsonrpc")
     api project(":core")
     api project(":serialization")
@@ -57,9 +58,3 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}

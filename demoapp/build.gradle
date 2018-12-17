@@ -26,6 +26,10 @@ android {
     dexOptions {
         jumboMode true
     }
+
+    lintOptions {
+        disable 'SetTextI18n'
+    }
 }
 
 configurations.all {
@@ -44,7 +48,7 @@ dependencies {
 
             "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
             "com.android.support:appcompat-v7:$support_lib_version",
-
+            "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version",
             "com.android.support.constraint:constraint-layout:1.0.2"
     )
 
@@ -53,11 +57,10 @@ dependencies {
     )
     androidTestImplementation(
             "com.android.support.test:runner:$test_runner_version",
-            "com.android.support.test.espresso:espresso-core:$espresso_version"
+            "com.android.support.test:rules:$test_runner_version",
+            "com.android.support.test.espresso:espresso-core:$espresso_version",
+            "com.android.support.test.espresso:espresso-intents:$espresso_version",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     )
 
-}
-
-repositories {
-    mavenLocal()
 }

@@ -63,7 +63,7 @@ object Networks {
     /**
      * Gets an [EthNetwork] based on a networkId
      */
-    fun get(networkId: String) : EthNetwork {
+    fun get(networkId: String): EthNetwork {
         val cleanNetId = networkId.clean0xPrefix().padStart(2, '0').prepend0xPrefix()
         return NETWORK_CONFIG[cleanNetId]
                 ?: throw IllegalStateException("network [$networkId] not configured")

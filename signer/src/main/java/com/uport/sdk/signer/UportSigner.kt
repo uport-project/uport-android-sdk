@@ -247,7 +247,7 @@ open class UportSigner {
     fun allAddresses(context: Context, callback: (addresses: List<String>) -> Unit) {
 
         val prefs = context.getSharedPreferences(ETH_ENCRYPTED_STORAGE, MODE_PRIVATE)
-        //list all stored keys, keep a list off what looks like addresses
+        //list all stored keys, keep a list of what looks like addresses
         val addresses = prefs.all.keys
                 .filter { label -> label.startsWith(ADDRESS_PREFIX) }
                 .filter { hasCorrespondingLevelKey(prefs, it) }
@@ -369,6 +369,7 @@ open class UportSigner {
         const val ERR_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST"
 
         const val UNCOMPRESSED_PUBLIC_KEY_SIZE = PUBLIC_KEY_SIZE + 1
+        const val COMPRESSED_PUBLIC_KEY_SIZE = PRIVATE_KEY_SIZE + 1
 
         data class EncryptionCombo(val keyProtection: KeyProtection, val encPayload: String, val err: Exception?)
 

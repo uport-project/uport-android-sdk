@@ -8,10 +8,7 @@ import com.uport.sdk.signer.testutil.ensureSeedIsImportedInTargetContext
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,6 +19,7 @@ import org.kethereum.extensions.hexToBigInteger
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 
 @RunWith(AndroidJUnit4::class)
@@ -34,7 +32,7 @@ class HDSignerTests {
         Security.addProvider(BouncyCastleProvider())
     }
 
-    private lateinit var context : Context
+    private lateinit var context: Context
 
     @Before
     fun runBeforeEachTest() {
@@ -60,7 +58,7 @@ class HDSignerTests {
             }
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test
@@ -81,7 +79,7 @@ class HDSignerTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     //JWT signing something using a derived uPort Root
@@ -118,7 +116,6 @@ class HDSignerTests {
         val referencePayload = "Hello world".toBase64().padBase64()
 
 
-
         val latch = CountDownLatch(1)
 
         UportHDSigner().signJwtBundle(context, referenceRootAddress, UportHDSigner.UPORT_ROOT_DERIVATION_PATH, referencePayload, "") { error, signature ->
@@ -128,7 +125,7 @@ class HDSignerTests {
             latch.countDown()
         }
 
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
 
     }
 
@@ -144,7 +141,7 @@ class HDSignerTests {
             assertEquals(referenceSeedPhrase, phrase)
             latch.countDown()
         }
-        latch.await()
+        latch.await(20, TimeUnit.SECONDS)
     }
 
     @Test

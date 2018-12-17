@@ -1,12 +1,17 @@
 package com.uport.sdk.signer
 
 import android.os.Build
+import com.uport.sdk.signer.UportSigner.Companion.COMPRESSED_PUBLIC_KEY_SIZE
+import com.uport.sdk.signer.UportSigner.Companion.UNCOMPRESSED_PUBLIC_KEY_SIZE
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.core.toBase64UrlSafe
+import org.kethereum.crypto.decompressKey
 import org.kethereum.crypto.model.ECKeyPair
 import org.kethereum.crypto.model.PRIVATE_KEY_SIZE
+import org.kethereum.crypto.model.PublicKey
+import org.kethereum.extensions.toBigInteger
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.model.SignatureData
 import org.spongycastle.asn1.ASN1EncodableVector
@@ -84,6 +89,16 @@ fun ECKeyPair.getUncompressedPublicKeyWithPrefix(): ByteArray {
     val pubBytes = this.publicKey.key.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
     pubBytes[0] = 0x04
     return pubBytes
+}
+
+fun PublicKey.normalize(): PublicKey {
+    val pubBytes = this.key.toByteArray()
+    val normalizedBytes = when (pubBytes.size) {
+        UNCOMPRESSED_PUBLIC_KEY_SIZE -> pubBytes.copyOfRange(1, pubBytes.size)
+        COMPRESSED_PUBLIC_KEY_SIZE -> decompressKey(pubBytes)
+        else -> pubBytes
+    }
+    return PublicKey(normalizedBytes.toBigInteger())
 }
 
 fun BigInteger.keyToBase64(keySize: Int = PRIVATE_KEY_SIZE): String =

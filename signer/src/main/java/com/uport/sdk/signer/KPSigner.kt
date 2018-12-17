@@ -1,7 +1,10 @@
 package com.uport.sdk.signer
 
-import org.kethereum.crypto.*
 import org.kethereum.crypto.model.PrivateKey
+import org.kethereum.crypto.signMessage
+import org.kethereum.crypto.signMessageHash
+import org.kethereum.crypto.toAddress
+import org.kethereum.crypto.toECKeyPair
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData

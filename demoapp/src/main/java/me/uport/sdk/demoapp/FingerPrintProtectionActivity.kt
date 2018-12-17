@@ -46,21 +46,23 @@ class FingerPrintProtectionActivity : AppCompatActivity() {
                 if (err == null) {
                     key_details.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                     address = rootAddress
-                } else error.text = "error: ${err.toString()}"
+                } else {
+                    error.text = "error: $err"
+                }
             }
         }
 
         sign_btn.setOnClickListener {
 
-            val msgBytes = ByteArray(3139).also { Random().nextBytes(it) }
+            val msgBytes = ByteArray(3139).also { resultArray -> Random().nextBytes(resultArray) }
 
             val payload = msgBytes.toBase64().padBase64()
 
-            UportHDSigner().signTransaction(this, address, "m/94'/62'/0'/0/0", payload,"${getString(R.string.app_name)} is requesting your approval to sign a string with a newly minted key") { err, sig ->
+            UportHDSigner().signTransaction(this, address, "m/94'/62'/0'/0/0", payload, "${getString(R.string.app_name)} is requesting your approval to sign a string with a newly minted key") { err, sig ->
                 if (err == null) {
                     signed_string_details.text = "Signed Successfully : $sig"
                 } else {
-                    error.text = "error: ${err.toString()}"
+                    error.text = "error: $err"
                 }
             }
         }

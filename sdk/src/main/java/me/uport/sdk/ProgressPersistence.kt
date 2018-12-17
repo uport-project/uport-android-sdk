@@ -3,12 +3,8 @@ package me.uport.sdk
 import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Json
-import me.uport.sdk.identity.Account
-import me.uport.sdk.moshi
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.Transaction
-import org.kethereum.model.createTransactionWithDefaults
-import java.math.BigInteger
 
 class ProgressPersistence(context: Context) {
 
@@ -66,7 +62,7 @@ class ProgressPersistence(context: Context) {
     }
 
     internal fun save(temp: PersistentBundle = PersistentBundle(),
-            label: String) {
+                      label: String) {
 
         prefs.edit()
                 .putString(label, temp.toJson())
@@ -74,7 +70,7 @@ class ProgressPersistence(context: Context) {
     }
 
     internal fun restore(label: String): Pair<PendingTransactionState, PersistentBundle> {
-        val serialized = prefs.getString(label, "")
+        val serialized = prefs.getString(label, "").orEmpty()
         val ordinal = PersistentBundle.fromJson(serialized).ordinal
         val state = PendingTransactionState.values()[ordinal]
         return (state to PersistentBundle.fromJson(serialized))

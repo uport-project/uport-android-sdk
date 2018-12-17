@@ -1,11 +1,11 @@
 package me.uport.sdk.core
 
-import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.withContext
-import org.junit.Test
-
-import org.junit.Assert.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Test
 
 class ExtensionsKtTest {
 

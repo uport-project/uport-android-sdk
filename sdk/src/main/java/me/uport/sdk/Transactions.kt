@@ -1,9 +1,9 @@
 package me.uport.sdk
 
 import android.content.Context
-import me.uport.sdk.core.Networks
 import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.signRawTx
+import me.uport.sdk.core.Networks
 import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
 import me.uport.sdk.identity.Account
@@ -14,7 +14,9 @@ import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.experimental.getGasPrice
 import me.uport.sdk.jsonrpc.experimental.getTransactionCount
 import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
-import me.uport.sdk.signer.*
+import me.uport.sdk.signer.MetaIdentitySigner
+import me.uport.sdk.signer.TxRelayHelper
+import me.uport.sdk.signer.TxRelaySigner
 import org.kethereum.functions.encodeRLP
 import org.kethereum.model.Address
 import org.kethereum.model.Transaction
@@ -28,8 +30,8 @@ val DEFAULT_GAS_PRICE = 20_000_000_000L.toBigInteger()
 typealias TransactionsCallback = (err: Exception?, txHash: String) -> Unit
 
 class Transactions(
-        private val context: Context,
-        private val account: Account ) {
+        context: Context,
+        private val account: Account) {
 
     private val network = Networks.get(account.network)
     private val progress: ProgressPersistence = ProgressPersistence(context)
@@ -86,7 +88,7 @@ class Transactions(
     suspend fun sendTransaction(signer: Signer, request: Transaction, signerType: AccountType = Proxy): String {
         val txLabel = request.encodeRLP().toHexString()
 
-        var (state, oldBundle) = if(progress.contains(txLabel)) {
+        var (state, oldBundle) = if (progress.contains(txLabel)) {
             (ProgressPersistence.PendingTransactionState.NONE to ProgressPersistence.PersistentBundle())
         } else {
             progress.restore(txLabel)

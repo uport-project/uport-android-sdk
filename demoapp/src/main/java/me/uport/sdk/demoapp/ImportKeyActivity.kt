@@ -6,38 +6,37 @@ import android.view.View
 import android.widget.Toast
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.encryption.KeyProtection
-import kotlinx.android.synthetic.main.create_import_key.*
+import kotlinx.android.synthetic.main.simple_result_layout.*
 import me.uport.sdk.core.decodeBase64
-import org.kethereum.bip39.entropyToMnemonic
 import org.kethereum.bip39.generateMnemonic
-import org.kethereum.bip39.model.MnemonicWords
 import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import org.walleth.khex.toHexString
-import java.security.SecureRandom
 
 class ImportKeyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.create_import_key)
+        setContentView(R.layout.simple_result_layout)
 
-        seed_phrase_layout.visibility = View.VISIBLE
-        create_key_btn.text = "Import Key"
+        inner_simple_layout.visibility = View.VISIBLE
+        submit_btn_one.text = "Import Key"
 
-        generate_seed_phrase.setOnClickListener {
+        submit_btn_two.setOnClickListener {
             val seedPhrase = generateMnemonic(wordList = WORDLIST_ENGLISH)
-            input_seed_phrase.setText(seedPhrase)
+            text_input_area.setText(seedPhrase)
         }
 
-        create_key_btn.setOnClickListener{
+        submit_btn_one.setOnClickListener {
             resetUI()
-            val seedPhrase = input_seed_phrase.text.toString().trim()
+            val seedPhrase = text_input_area.text.toString().trim()
             if (!seedPhrase.isEmpty()) {
-                UportHDSigner().importHDSeed(this, KeyProtection.Level.SIMPLE, seedPhrase) {err, rootAddress, pubKey ->
+                UportHDSigner().importHDSeed(this, KeyProtection.Level.SIMPLE, seedPhrase) { err, rootAddress, pubKey ->
                     if (err == null) {
-                        public_key_details.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
-                        address_details.text = "address: $rootAddress"
-                    } else error_text.text = "error: ${err.toString()}"
+                        item_details_one.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
+                        item_details_two.text = "address: $rootAddress"
+                    } else {
+                        error_details.text = "error: $err"
+                    }
                 }
             } else {
                 Toast.makeText(this, "Enter seed phrase", Toast.LENGTH_SHORT).show()
@@ -46,8 +45,8 @@ class ImportKeyActivity : AppCompatActivity() {
     }
 
     private fun resetUI() {
-        public_key_details.text = ""
-        address_details.text = ""
-        error_text.text = ""
+        item_details_one.text = ""
+        item_details_two.text = ""
+        error_details.text = ""
     }
 }
