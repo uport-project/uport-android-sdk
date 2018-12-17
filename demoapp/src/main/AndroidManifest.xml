@@ -30,6 +30,7 @@
         <activity android:name=".SignJWTUportHDSignerActivity" />
         <activity android:name=".DIDResolverActivity" />
         <activity android:name=".VerifyJWTActivity" />
+        <activity android:name=".SelectiveDiscloureActivity" />
 
     </application>
 
