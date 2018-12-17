@@ -2,16 +2,21 @@ package me.uport.sdk.demoapp
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.selective_disclosure.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.RequestAccountType
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
 import me.uport.sdk.transport.Transports
 
-class SelectiveDiscloureActivity : AppCompatActivity() {
+class SelectiveDisclosureActivity : AppCompatActivity() {
+
+    var signedJWT: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +46,18 @@ class SelectiveDiscloureActivity : AppCompatActivity() {
         issuer_did.text = "Issuer DID $issuerDID"
 
         send_request.setOnClickListener {
+
+            progress.visibility = View.VISIBLE
+
             GlobalScope.launch {
-                val signedJWT = cred.createDisclosureRequest(params)
+                signedJWT = cred.createDisclosureRequest(params)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(this@SelectiveDiscloureActivity, signedJWT)
+                Transports().send(this@SelectiveDisclosureActivity, signedJWT!!)
+
+                withContext(UI) {
+                    progress.visibility = View.GONE
+                }
             }
         }
 
