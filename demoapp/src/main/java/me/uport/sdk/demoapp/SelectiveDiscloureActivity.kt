@@ -1,5 +1,7 @@
 package me.uport.sdk.demoapp
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.uport.sdk.signer.KPSigner
@@ -46,6 +48,11 @@ class SelectiveDiscloureActivity : AppCompatActivity() {
                 } catch (exception: Exception) {
                     null
                 }
+
+                // Send a valid signed request to uport via url
+                val uri = Uri.parse("https://id.uport.me/req/$signedJWT}")
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(intent)
             }
         }
 
