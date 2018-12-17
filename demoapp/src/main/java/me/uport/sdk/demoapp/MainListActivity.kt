@@ -50,6 +50,7 @@ class MainListActivity : AppCompatActivity() {
             4 -> startActivity(Intent(this, SignJWTListActivity::class.java))
             5 -> startActivity(Intent(this, DIDResolverActivity::class.java))
             6 -> startActivity(Intent(this, VerifyJWTActivity::class.java))
+            7 -> startActivity(Intent(this, SelectiveDisclosureActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }
