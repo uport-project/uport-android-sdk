@@ -27,15 +27,6 @@ class DeepLinkActivity : AppCompatActivity() {
                 println("got called with: $link")
                 Toast.makeText(this, link.toString(), Toast.LENGTH_LONG).show()
             } ?: Toast.makeText(this, "no data to parse in intent", Toast.LENGTH_SHORT).show()
-
-//            appLinkData?.lastPathSegment?.also { recipeId ->
-//                Uri.parse("https://uport-project.github.io/uport-android-sdk/")
-//                        .buildUpon()
-//                        .appendPath(recipeId)
-//                        .build().also { appData ->
-//                            showRecipe(appData)
-//                        }
-//            }
         }
     }
 }

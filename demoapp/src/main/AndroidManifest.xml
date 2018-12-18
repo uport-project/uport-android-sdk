@@ -48,6 +48,7 @@
                     android:host="uport-project.github.io"
                     android:pathPrefix="/uport-android-sdk"
                     android:scheme="https" />
+
             </intent-filter>
         </activity>
 

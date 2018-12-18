@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
-import me.uport.sdk.credentials.RequestAccountType
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
 import me.uport.sdk.transport.Transports
 
@@ -22,25 +21,14 @@ class SelectiveDisclosureActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.selective_disclosure)
 
-
         val signer = KPSigner("0x1234")
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
         val cred = Credentials(issuerDID, signer)
 
-        // declare jwtPayload params
         val params = SelectiveDisclosureRequestParams(
-                requested = listOf("name", "country"),
-                callbackUrl = "myapp://get-back-to-me-with-response.url",
-                verified = listOf("email"),
-                networkId = "0x4",
-                accountType = RequestAccountType.keypair,
-                vc = emptyList(),
-                expiresInSeconds = 1234L,
-                extras = mapOf(
-                        "hello" to "world",
-                        "type" to "expect this to be overwritten"
-                )
+                requested = listOf("name"),
+                callbackUrl = "https://uport-project.github.io/uport-android-sdk"
         )
 
         issuer_did.text = "Issuer DID $issuerDID"
