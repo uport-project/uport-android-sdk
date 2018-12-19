@@ -2,7 +2,9 @@ package me.uport.sdk.transport
 
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 
 class ResponseParserTest {
 
@@ -43,12 +45,16 @@ class ResponseParserTest {
         }
     }
 
+    @get:Rule
+    val expectedExceptionRule: ExpectedException = ExpectedException.none()
+
     @Test
     fun `reject invalid URIs`() {
         invalid.forEach { redirect ->
+            expectedExceptionRule.expect(IllegalArgumentException::class.java)
+            expectedExceptionRule.expectMessage("Cannot parse URI")
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
             assertNull("expected parsing to fail at url: $redirect", token)
         }
     }
-
 }

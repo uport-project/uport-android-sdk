@@ -20,11 +20,11 @@ class DeepLinkActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
-        val token = ResponseParser.extractTokenFromIntent(intent)
-        val text = if (token == null) {
-            "nothing can be extracted from the intent:\n${intent?.data}"
-        } else {
+        val text = try {
+            val token = ResponseParser.extractTokenFromIntent(intent)
             "The response we got back from uPort is:\n$token"
+        } catch (exception: RuntimeException) {
+            "we got an error:\n${exception.message}"
         }
         deep_link_token.text = text
     }
