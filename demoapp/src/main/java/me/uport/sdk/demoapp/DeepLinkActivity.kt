@@ -1,10 +1,10 @@
 package me.uport.sdk.demoapp
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_deep_link.*
+import me.uport.sdk.transport.ResponseParser
 
 class DeepLinkActivity : AppCompatActivity() {
 
@@ -19,14 +19,13 @@ class DeepLinkActivity : AppCompatActivity() {
         handleIntent(intent)
     }
 
-    private fun handleIntent(intent: Intent) {
-        val appLinkAction = intent.action
-        val appLinkData: Uri? = intent.data
-        if (Intent.ACTION_VIEW == appLinkAction) {
-            appLinkData?.also { link ->
-                println("got called with: $link")
-                Toast.makeText(this, link.toString(), Toast.LENGTH_LONG).show()
-            } ?: Toast.makeText(this, "no data to parse in intent", Toast.LENGTH_SHORT).show()
+    private fun handleIntent(intent: Intent?) {
+        val token = ResponseParser.extractTokenFromIntent(intent)
+        val text = if (token == null) {
+            "nothing can be extracted from the intent:\n${intent?.data}"
+        } else {
+            "The response we got back from uPort is:\n$token"
         }
+        deep_link_token.text = text
     }
 }
