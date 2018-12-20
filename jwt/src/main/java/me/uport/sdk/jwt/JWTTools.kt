@@ -166,8 +166,8 @@ class JWTTools(
     /**
      * Verifies a jwt [token]
      * @params jwt token
+     * @throws InvalidJWTException when the current time is not within the time range of payload iat and exp
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
-     * //TODO: this should return or throw to differentiate network errors from invalid signatures
      */
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
@@ -175,11 +175,11 @@ class JWTTools(
         val now = timeProvider.now() + IAT_SKEW
 
         if (payload.iat != null && payload.iat > now) {
-            throw Error ("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
+            throw InvalidJWTException ("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
         }
 
         if (payload.exp != null && payload.exp < now) {
-            throw Error("JWT has expired: exp: ${payload.exp}")
+            throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
         }
 
         val ddo: DIDDocument = UniversalDID.resolve(payload.iss)
