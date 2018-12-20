@@ -7,6 +7,9 @@ import java.net.URI
 /**
  * This class should be used when receiving a deeplink callback
  * It contains helpers for interpreting responses
+ *
+ * API volatility: __high__
+ *
  */
 object ResponseParser {
 

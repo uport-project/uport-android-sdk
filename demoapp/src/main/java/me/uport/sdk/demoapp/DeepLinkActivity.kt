@@ -4,6 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_deep_link.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import me.uport.sdk.core.UI
+import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.ResponseParser
 
 class DeepLinkActivity : AppCompatActivity() {
@@ -20,12 +26,25 @@ class DeepLinkActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
-        val text = try {
-            val token = ResponseParser.extractTokenFromIntent(intent)
-            "The response we got back from uPort is:\n$token"
-        } catch (exception: RuntimeException) {
-            "we got an error:\n${exception.message}"
+        GlobalScope.launch(UI) {
+            val text = try {
+                println("got called with ${intent?.data}")
+                val token = ResponseParser.extractTokenFromIntent(intent) ?: ""
+                val payload = withContext(Dispatchers.IO) { JWTTools().verify(token) }
+
+                """
+                The response we got is:
+                name=${payload?.own?.get("name")}
+
+
+                Full JWT response is:
+                $payload
+                """.trimIndent()
+
+            } catch (exception: RuntimeException) {
+                "we got an error:\n${exception.message}"
+            }
+            deep_link_token.text = text
         }
-        deep_link_token.text = text
     }
 }
