@@ -30,10 +30,10 @@ class JWTToolsTests {
 
     @Test
     fun testVerifyToken() = runBlocking {
-        val shareReqPayload = JWTTools(TestTimeProvider(1520366666)).verify(validShareReqToken1)
+        val shareReqPayload = JWTTools(TestTimeProvider(1520366666L)).verify(validShareReqToken1)
         assertEquals(expectedShareReqPayload1, shareReqPayload)
 
-        val incomingJwtPayload = JWTTools(TestTimeProvider(1522540300)).verify(incomingJwt)
+        val incomingJwtPayload = JWTTools(TestTimeProvider(1522540300L)).verify(incomingJwt)
         assertEquals(expectedJwtPayload, incomingJwtPayload)
     }
 
@@ -71,7 +71,7 @@ class JWTToolsTests {
             runBlocking {
                 // but we should be able to verify the newly created token
 
-                val timeProvider = TestTimeProvider(1532095437)
+                val timeProvider = TestTimeProvider(1532095437L)
                 val newJwtPayload = JWTTools(timeProvider).verify(newJwt!!)
                 assertNotNull(newJwtPayload)
                 latch.countDown()
