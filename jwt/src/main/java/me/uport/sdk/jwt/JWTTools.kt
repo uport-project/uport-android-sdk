@@ -43,7 +43,7 @@ class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
-    private val IAT_SKEW = 300
+    private val TIME_SKEW = 300
 
     init {
 
@@ -172,13 +172,11 @@ class JWTTools(
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
 
-        val now = timeProvider.now() + IAT_SKEW
-
-        if (payload.iat != null && payload.iat > now) {
+        if (payload.iat != null && payload.iat > (timeProvider.now() - TIME_SKEW)) {
             throw InvalidJWTException ("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
         }
 
-        if (payload.exp != null && payload.exp < now) {
+        if (payload.exp != null && payload.exp < (timeProvider.now() + TIME_SKEW)) {
             throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
         }
 
