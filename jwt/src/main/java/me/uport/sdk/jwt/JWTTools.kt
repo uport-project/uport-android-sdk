@@ -187,7 +187,7 @@ class JWTTools(
 
         // extract recoveryByte if available or generate a new one
         val recoveryBytes = if (signatureBytes.size > 64)
-            signatureBytes.sliceArray(64..64) // an array of just the recovery byte
+            byteArrayOf(signatureBytes[64])
         else
             byteArrayOf(27, 28) //try all recovery options
 
