@@ -167,7 +167,6 @@ class JWTTools(
      * Verifies a jwt [token]
      * @params jwt token
      * @throws InvalidJWTException when the current time is not within the time range of payload iat and exp
-     *          when no signatures can be generated from the recoveryByte
      *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
      */
@@ -175,7 +174,7 @@ class JWTTools(
         val (_, payload, signatureBytes) = decode(token)
 
         if (payload.iat != null && payload.iat > (timeProvider.now() + TIME_SKEW)) {
-            throw InvalidJWTException ("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
+            throw InvalidJWTException("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
         }
 
         if (payload.exp != null && payload.exp <= (timeProvider.now() - TIME_SKEW)) {
@@ -196,10 +195,6 @@ class JWTTools(
         // Generate signature from recovery byte
         val signatures = recoveryBytes.map {
             signatureBytes.decodeJose(it)
-        }
-
-        if (signatures.isEmpty()) {
-            throw InvalidJWTException ("No signatures found")
         }
 
         for (sigData in signatures) {
