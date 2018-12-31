@@ -167,6 +167,8 @@ class JWTTools(
      * Verifies a jwt [token]
      * @params jwt token
      * @throws InvalidJWTException when the current time is not within the time range of payload iat and exp
+     *          when no signatures can be generated from the recoveryByte
+     *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
      */
     suspend fun verify(token: String): JwtPayload? {
@@ -196,6 +198,10 @@ class JWTTools(
             signatureBytes.decodeJose(it)
         }
 
+        if (signatures.isEmpty()) {
+            throw InvalidJWTException ("No signatures found")
+        }
+
         for (sigData in signatures) {
 
             val recoveredPubKey: BigInteger = try {
@@ -222,14 +228,14 @@ class JWTTools(
                 //this method of validation only works for uPort style JWTs, where the publicKeys
                 // can be converted to ethereum addresses
                 ethereumAddress.toLowerCase() == recoveredAddress
-
             }
 
             if (matches.isNotEmpty()) {
                 return payload
             }
         }
-        return null
+
+        throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
     }
 
     /***
