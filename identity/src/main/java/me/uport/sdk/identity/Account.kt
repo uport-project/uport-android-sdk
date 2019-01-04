@@ -56,6 +56,23 @@ data class Account(
 
     fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
+    /**
+     * This function generates the DID associated with an account based on the account type.
+     *
+     * Limitation: The current implementation only covers KeyPair and MetaIdentity Account types
+     * @return the DID as a string
+     * @throws IllegalStateException if there is no implementation for the Account Type
+     */
+    fun getDID(): String {
+        if (type.equals(AccountType.MetaIdentityManager)) {
+            return "did:uport:${getMnid()}"
+        } else if (type.equals(AccountType.KeyPair)) {
+            return "did:ethr:$publicAddress"
+        } else {
+            throw IllegalStateException("A DID could not be created for the Account Type $type")
+        }
+    }
+
     companion object {
 
         val blank = Account("", "", "", "", "", "", "", AccountType.KeyPair)
