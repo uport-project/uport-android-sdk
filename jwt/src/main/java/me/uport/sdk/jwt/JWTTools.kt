@@ -173,11 +173,11 @@ class JWTTools(
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
 
-        if (payload.iat != null && payload.iat > (timeProvider.now() + TIME_SKEW)) {
+        if (payload.iat != null && payload.iat > (timeProvider.now()/1000 + TIME_SKEW)) {
             throw InvalidJWTException("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
         }
 
-        if (payload.exp != null && payload.exp <= (timeProvider.now() - TIME_SKEW)) {
+        if (payload.exp != null && payload.exp <= (timeProvider.now()/1000 - TIME_SKEW)) {
             throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
         }
 
