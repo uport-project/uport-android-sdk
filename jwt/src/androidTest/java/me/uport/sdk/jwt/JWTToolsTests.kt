@@ -133,6 +133,19 @@ class JWTToolsTests {
         }
     }
 
+    @Test(expected = InvalidJWTException::class)
+    fun throws_exception_when_no_matching_public_key() {
+
+        // JWT token with a Signer that doesn't have anything to do with the issuerDID.
+        val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpYXQiOjE1NDY4NTkxNTksImV4cCI6MTg2MjIxOTE1OSwiaXNzIjoiZGlkOmV0aHI6MHg2OTg1YTExMGRmMzc1NTUyMzVkN2QwZGUwYTBmYjI4Yzk4NDhkZmE5In0.fe1rvAHsoJsJzwSFAmVFTz9uxhncNY65jpbb2cS9jcY08xphpU3rOy1N85_IbEjhIZw-FrPeFgxJLoDLw6itcgE"
+
+        val timeProvider = TestTimeProvider(1547818630L)
+
+        runBlocking {
+            JWTTools(timeProvider).verify(token)
+        }
+    }
+
 
 }
 
