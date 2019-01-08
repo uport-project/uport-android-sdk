@@ -167,16 +167,17 @@ class JWTTools(
      * Verifies a jwt [token]
      * @params jwt token
      * @throws InvalidJWTException when the current time is not within the time range of payload iat and exp
+     *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
      */
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
 
-        if (payload.iat != null && payload.iat > (timeProvider.now() + TIME_SKEW)) {
-            throw InvalidJWTException ("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
+        if (payload.iat != null && payload.iat > (timeProvider.now()/1000 + TIME_SKEW)) {
+            throw InvalidJWTException("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
         }
 
-        if (payload.exp != null && payload.exp <= (timeProvider.now() - TIME_SKEW)) {
+        if (payload.exp != null && payload.exp <= (timeProvider.now()/1000 - TIME_SKEW)) {
             throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
         }
 
@@ -222,14 +223,14 @@ class JWTTools(
                 //this method of validation only works for uPort style JWTs, where the publicKeys
                 // can be converted to ethereum addresses
                 ethereumAddress.toLowerCase() == recoveredAddress
-
             }
 
             if (matches.isNotEmpty()) {
                 return payload
             }
         }
-        return null
+
+        throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
     }
 
     /***

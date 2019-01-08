@@ -30,10 +30,10 @@ class JWTToolsTests {
 
     @Test
     fun testVerifyToken() = runBlocking {
-        val shareReqPayload = JWTTools(TestTimeProvider(1520366666L)).verify(validShareReqToken1)
+        val shareReqPayload = JWTTools(TestTimeProvider(1520366666000L)).verify(validShareReqToken1)
         assertEquals(expectedShareReqPayload1, shareReqPayload)
 
-        val incomingJwtPayload = JWTTools(TestTimeProvider(1522540300L)).verify(incomingJwt)
+        val incomingJwtPayload = JWTTools(TestTimeProvider(1522540300000L)).verify(incomingJwt)
         assertEquals(expectedJwtPayload, incomingJwtPayload)
     }
 
@@ -71,7 +71,7 @@ class JWTToolsTests {
             runBlocking {
                 // but we should be able to verify the newly created token
 
-                val timeProvider = TestTimeProvider(1532095437L)
+                val timeProvider = TestTimeProvider(1532095437000L)
                 val newJwtPayload = JWTTools(timeProvider).verify(newJwt!!)
                 assertNotNull(newJwtPayload)
                 latch.countDown()
@@ -127,6 +127,19 @@ class JWTToolsTests {
         val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkaWQ6ZXRocjoweGE5ZTMyMzJiNjFiZGI2NzI3MTJiOWFlMzMxOTUwNjlkOGQ2NTFjMWEiLCJpYXQiOjE1NDU1Njk1NDEsImV4cCI6MTU0NjA4Nzk0MSwiYXVkIjoiZGlkOmV0aHI6MHgxMDgyMDlmNDI0N2I3ZmU2NjA1YjBmNThmOTE0NWVjMzI2OWQwMTU0Iiwic3ViIjoiIn0.Bt9Frc1QabJfpXYBoU4sns8WPeRLdKU87FncgMFq1lY"
 
         val timeProvider = TestTimeProvider(1576847292000L)
+
+        runBlocking {
+            JWTTools(timeProvider).verify(token)
+        }
+    }
+
+    @Test(expected = InvalidJWTException::class)
+    fun throws_exception_when_no_matching_public_key() {
+
+        // JWT token with a Signer that doesn't have anything to do with the issuerDID.
+        val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpYXQiOjE1NDY4NTkxNTksImV4cCI6MTg2MjIxOTE1OSwiaXNzIjoiZGlkOmV0aHI6MHg2OTg1YTExMGRmMzc1NTUyMzVkN2QwZGUwYTBmYjI4Yzk4NDhkZmE5In0.fe1rvAHsoJsJzwSFAmVFTz9uxhncNY65jpbb2cS9jcY08xphpU3rOy1N85_IbEjhIZw-FrPeFgxJLoDLw6itcgE"
+
+        val timeProvider = TestTimeProvider(1547818630000L)
 
         runBlocking {
             JWTTools(timeProvider).verify(token)

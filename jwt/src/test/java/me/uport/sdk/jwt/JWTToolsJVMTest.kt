@@ -17,7 +17,7 @@ class JWTToolsJVMTest {
     fun verify() = runBlocking {
 
         tokens.forEach { token ->
-            val payload = JWTTools(JVMTestTimeProvider(1535102500L)).verify(token)
+            val payload = JWTTools(JVMTestTimeProvider(1535102500000L)).verify(token)
             assertNotNull(payload)
         }
     }
