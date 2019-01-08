@@ -37,7 +37,7 @@ buildscript {
         khex_version = "0.5"
         tweetnacl_k_version = "0.0.1"
 
-        uport_sdk_version = "0.3.1"
+        uport_sdk_version = "0.3.2"
     }
 
     repositories {
