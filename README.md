@@ -27,7 +27,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.3.1"
+def uport_sdk_version = "v0.3.2"
 dependencies {
     //...
     // core SDK
@@ -207,6 +207,12 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 ### Changelog
 
+* 0.3.2
+    * JWT timestamps are checked with allowance for clock drift
+    * JWT verification is more explicit about failures
+    * added method to extract `shareResp` JWTs from callback URIs
+    * expose `getDID()` method on `Account` objects
+    
 * 0.3.1
     * add https DID resolver
     * use UniversalDID for JWT verification
