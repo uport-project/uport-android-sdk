@@ -30,10 +30,10 @@ class JWTToolsTests {
 
     @Test
     fun testVerifyToken() = runBlocking {
-        val shareReqPayload = JWTTools().verify(validShareReqToken1)
+        val shareReqPayload = JWTTools(TestTimeProvider(1520366666000L)).verify(validShareReqToken1)
         assertEquals(expectedShareReqPayload1, shareReqPayload)
 
-        val incomingJwtPayload = JWTTools().verify(incomingJwt)
+        val incomingJwtPayload = JWTTools(TestTimeProvider(1522540300000L)).verify(incomingJwt)
         assertEquals(expectedJwtPayload, incomingJwtPayload)
     }
 
@@ -56,7 +56,7 @@ class JWTToolsTests {
         val payload = JwtPayload(iss = "2oufEA35y7GiApcdyL87Lp5zTV7NRNCF6HH",
                 iat = 1522100396,
                 aud = "2oeXufHGDpU51bfKBsZDdu7Je9weJ3r7sVG",
-                exp = 1522186796,
+                exp = 1545314699,
                 type = "shareResp",
                 nad = "2oufEA35y7GiApcdyL87Lp5zTV7NRNCF6HH",
                 own = ownObj,
@@ -70,7 +70,9 @@ class JWTToolsTests {
 
             runBlocking {
                 // but we should be able to verify the newly created token
-                val newJwtPayload = JWTTools().verify(newJwt!!)
+
+                val timeProvider = TestTimeProvider(1532095437000L)
+                val newJwtPayload = JWTTools(timeProvider).verify(newJwt!!)
                 assertNotNull(newJwtPayload)
                 latch.countDown()
             }
@@ -109,6 +111,41 @@ class JWTToolsTests {
         UportHDSigner().importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, phrase)
     }
 
+    @Test(expected = InvalidJWTException::class)
+    fun throws_when_iat_is_in_future() {
+        val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkaWQ6ZXRocjoweGE5ZTMyMzJiNjFiZGI2NzI3MTJiOWFlMzMxOTUwNjlkOGQ2NTFjMWEiLCJpYXQiOjE1NDU1Njk1NDEsImV4cCI6MTU0NjA4Nzk0MSwiYXVkIjoiZGlkOmV0aHI6MHgxMDgyMDlmNDI0N2I3ZmU2NjA1YjBmNThmOTE0NWVjMzI2OWQwMTU0Iiwic3ViIjoiIn0.Bt9Frc1QabJfpXYBoU4sns8WPeRLdKU87FncgMFq1lY"
+
+        val timeProvider = TestTimeProvider(977317692000L)
+
+        runBlocking {
+            JWTTools(timeProvider).verify(token)
+        }
+    }
+
+    @Test(expected = InvalidJWTException::class)
+    fun throws_when_exp_is_in_the_past() {
+        val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkaWQ6ZXRocjoweGE5ZTMyMzJiNjFiZGI2NzI3MTJiOWFlMzMxOTUwNjlkOGQ2NTFjMWEiLCJpYXQiOjE1NDU1Njk1NDEsImV4cCI6MTU0NjA4Nzk0MSwiYXVkIjoiZGlkOmV0aHI6MHgxMDgyMDlmNDI0N2I3ZmU2NjA1YjBmNThmOTE0NWVjMzI2OWQwMTU0Iiwic3ViIjoiIn0.Bt9Frc1QabJfpXYBoU4sns8WPeRLdKU87FncgMFq1lY"
+
+        val timeProvider = TestTimeProvider(1576847292000L)
+
+        runBlocking {
+            JWTTools(timeProvider).verify(token)
+        }
+    }
+
+    @Test(expected = InvalidJWTException::class)
+    fun throws_exception_when_no_matching_public_key() {
+
+        // JWT token with a Signer that doesn't have anything to do with the issuerDID.
+        val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpYXQiOjE1NDY4NTkxNTksImV4cCI6MTg2MjIxOTE1OSwiaXNzIjoiZGlkOmV0aHI6MHg2OTg1YTExMGRmMzc1NTUyMzVkN2QwZGUwYTBmYjI4Yzk4NDhkZmE5In0.fe1rvAHsoJsJzwSFAmVFTz9uxhncNY65jpbb2cS9jcY08xphpU3rOy1N85_IbEjhIZw-FrPeFgxJLoDLw6itcgE"
+
+        val timeProvider = TestTimeProvider(1547818630000L)
+
+        runBlocking {
+            JWTTools(timeProvider).verify(token)
+        }
+    }
+
 
 }
 
@@ -116,4 +153,5 @@ class TestTimeProvider(private val currentTime: Long) : ITimeProvider {
     override fun now(): Long = currentTime
 
 }
+
 

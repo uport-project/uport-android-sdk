@@ -27,7 +27,7 @@ allprojects {
 
 In your application `build.gradle`:
 ```groovy
-def uport_sdk_version = "v0.3.1"
+def uport_sdk_version = "v0.3.2"
 dependencies {
     //...
     // core SDK
@@ -180,6 +180,7 @@ val jwt : String = JWTTools().create(payload, issuer, signer)
 
 ### Encrypted messaging
 
+```kotlin
 //compute an encryption publicKey starting from a private key (can be an ethereum private key) 
 val publicKey = Crypto.getEncryptionPublicKey(privateKeyBytes).
 
@@ -190,6 +191,7 @@ val serializedMessage = encryptedBundle.toJson()
 //decrypt a message
 val receivedBundle = EncryptedMessage.fromJson(serializedMessage)
 val decryptedMessage = Crypto.decrypt(receivedBundle, recipientSecretKey)
+```
 
 
 
@@ -205,10 +207,17 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 ### Changelog
 
+* 0.3.2
+    * JWT timestamps are checked with allowance for clock drift
+    * JWT verification is more explicit about failures
+    * added method to extract `shareResp` JWTs from callback URIs
+    * expose `getDID()` method on `Account` objects
+    
 * 0.3.1
     * add https DID resolver
     * use UniversalDID for JWT verification
     * add encryption/decryption functionality
+    
 * 0.3.0
     * add universal DID resolver
     * add cleaner way of creating JWTs with abstracted signer

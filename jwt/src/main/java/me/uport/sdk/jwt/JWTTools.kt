@@ -43,6 +43,7 @@ class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
+    private val TIME_SKEW = 300
 
     init {
 
@@ -165,11 +166,20 @@ class JWTTools(
     /**
      * Verifies a jwt [token]
      * @params jwt token
+     * @throws InvalidJWTException when the current time is not within the time range of payload iat and exp
+     *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
-     * //TODO: this should return or throw to differentiate network errors from invalid signatures
      */
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
+
+        if (payload.iat != null && payload.iat > (timeProvider.now()/1000 + TIME_SKEW)) {
+            throw InvalidJWTException("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
+        }
+
+        if (payload.exp != null && payload.exp <= (timeProvider.now()/1000 - TIME_SKEW)) {
+            throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
+        }
 
         val ddo: DIDDocument = UniversalDID.resolve(payload.iss)
 
@@ -178,7 +188,7 @@ class JWTTools(
 
         // extract recoveryByte if available or generate a new one
         val recoveryBytes = if (signatureBytes.size > 64)
-            signatureBytes.sliceArray(64..64) // an array of just the recovery byte
+            byteArrayOf(signatureBytes[64])
         else
             byteArrayOf(27, 28) //try all recovery options
 
@@ -213,18 +223,18 @@ class JWTTools(
                 //this method of validation only works for uPort style JWTs, where the publicKeys
                 // can be converted to ethereum addresses
                 ethereumAddress.toLowerCase() == recoveredAddress
-
             }
 
             if (matches.isNotEmpty()) {
                 return payload
             }
         }
-        return null
+
+        throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
     }
 
     /***
-     * Adapted from Kethereum
+     * Copied from Kethereum because it is a private method there
      */
     private fun recoverFromSignature(recId: Int, sig: ECDSASignature, message: ByteArray?): BigInteger? {
         require(recId >= 0) { "recId must be positive" }
@@ -281,7 +291,7 @@ class JWTTools(
 
         val qBytes = q.getEncoded(false)
         // We remove the prefix
-        return BigInteger(1, qBytes)//Arrays.copyOfRange(qBytes, 0, qBytes.size))
+        return BigInteger(1, qBytes.copyOfRange(1, qBytes.size))
     }
 
     /**

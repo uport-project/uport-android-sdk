@@ -7,6 +7,7 @@ import kotlinx.android.synthetic.main.verify_jwt.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.UI
 import me.uport.sdk.jwt.JWTTools
 
@@ -27,7 +28,7 @@ class VerifyJWTActivity : AppCompatActivity() {
 
             GlobalScope.launch {
 
-                val payload = JWTTools().verify(jwtToken)
+                val payload = JWTTools(TimeProvider(1520366435000L)).verify(jwtToken)
 
                 withContext(UI) {
                     jwtPayload.text = payload?.toString()
@@ -36,4 +37,8 @@ class VerifyJWTActivity : AppCompatActivity() {
             }
         }
     }
+}
+class TimeProvider(private val currentTime: Long) : ITimeProvider {
+    override fun now(): Long = currentTime
+
 }

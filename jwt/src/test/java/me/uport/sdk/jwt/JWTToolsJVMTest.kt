@@ -2,6 +2,7 @@ package me.uport.sdk.jwt
 
 import com.uport.sdk.signer.KPSigner
 import kotlinx.coroutines.runBlocking
+import me.uport.sdk.core.ITimeProvider
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 
@@ -16,7 +17,7 @@ class JWTToolsJVMTest {
     fun verify() = runBlocking {
 
         tokens.forEach { token ->
-            val payload = JWTTools().verify(token)
+            val payload = JWTTools(JVMTestTimeProvider(1535102500000L)).verify(token)
             assertNotNull(payload)
         }
     }
@@ -34,5 +35,10 @@ class JWTToolsJVMTest {
         val unused = tested.createJWT(payload, issuerDID, signer, algorithm = "some fancy but unknown algorithm")
 
     }
+}
+
+class JVMTestTimeProvider(private val currentTime: Long) : ITimeProvider {
+    override fun now(): Long = currentTime
+
 }
 

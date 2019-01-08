@@ -4,7 +4,7 @@
     package="me.uport.sdk.demoapp">
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -30,6 +30,27 @@
         <activity android:name=".SignJWTUportHDSignerActivity" />
         <activity android:name=".DIDResolverActivity" />
         <activity android:name=".VerifyJWTActivity" />
+        <activity android:name=".SelectiveDisclosureActivity" />
+
+
+
+        <activity android:name=".DeepLinkActivity">
+            <!-- deep links -->
+            <intent-filter
+                android:autoVerify="true"
+                tools:targetApi="23">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="uport-project.github.io"
+                    android:pathPrefix="/uport-android-sdk"
+                    android:scheme="https" />
+
+            </intent-filter>
+        </activity>
 
     </application>
 
