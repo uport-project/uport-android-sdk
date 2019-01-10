@@ -52,7 +52,14 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.github.gnosis.bivrost-kotlin:bivrost-gradle-plugin:$bivrost_version"
+
+        classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
     }
+}
+
+plugins {
+    id "io.errorlab.gradle.vault" version "0.1.0"
 }
 
 allprojects {
@@ -83,32 +90,7 @@ allprojects {
     }
 }
 
-subprojects { subproject ->
-    afterEvaluate {
-        if (subproject.plugins.hasPlugin('maven')) {
-
-            group "me.uport.sdk"
-            version uport_sdk_version
-
-            uploadArchives {
-                repositories {
-                    mavenDeployer {
-                        if (project.hasProperty("MAVEN_REPOSITORY")) {
-                            //nop
-                        } else {
-                            repository(url: mavenLocal().url)
-                        }
-                    }
-                }
-            }
-
-        }
-
-        if (subproject.plugins.hasPlugin("com.android.application") || subproject.plugins.hasPlugin("com.android.library")) {
-            subproject.android.packagingOptions.exclude("META-INF/main.kotlin_module")
-        }
-    }
-}
+apply from: "publishing.gradle"
 
 task clean(type: Delete) {
     delete rootProject.buildDir

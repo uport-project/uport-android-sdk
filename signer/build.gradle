@@ -1,8 +1,7 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "maven"
-
-//apply from: "https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle"
+apply plugin: "com.github.dcendents.android-maven"
+apply plugin: "com.jfrog.bintray"
 
 android {
     compileSdkVersion compile_sdk_version
@@ -53,24 +52,3 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
-
-//
-//task androidJavadocs(type: Javadoc) {
-//    source = android.sourceSets.main.java.srcDirs
-//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-//}
-//
-//task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-//    classifier = "javadoc"
-//    from androidJavadocs.destinationDir
-//}
-
-task androidSourcesJar(type: Jar) {
-    classifier = "sources"
-    from android.sourceSets.main.java.sourceFiles
-}
-
-artifacts {
-    archives androidSourcesJar
-//    archives androidJavadocsJar
-}

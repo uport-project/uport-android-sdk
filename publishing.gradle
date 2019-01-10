@@ -1,0 +1,104 @@
+subprojects { subproject ->
+
+    subproject.group = 'com.github.uport-project.uport-android-sdk'
+    subproject.version = uport_sdk_version
+
+    afterEvaluate {
+
+        if (subproject.plugins.hasPlugin('com.github.dcendents.android-maven')) {
+
+            task sourcesJar(type: Jar) {
+                classifier = 'sources'
+                from android.sourceSets.main.javaDirectories
+            }
+
+            artifacts {
+                archives sourcesJar
+            }
+
+            bintray {
+                user = "uport-project"
+                key = getBintrayApiKey()
+
+                configurations = ['archives']
+
+                pkg {
+                    repo = "uport-project"
+                    name = subproject.name
+                    licenses = ['Apache-2.0']
+                    vcsUrl = 'https://github.com/uport-project/uport-android-sdk.git'
+                    dryRun = true
+                    publish = true
+                    override = true
+                    publicDownloadNumbers = false
+                    version {
+                        name = uport_sdk_version
+                        released = new Date()
+                    }
+                }
+            }
+
+        }
+
+        if (subproject.plugins.hasPlugin("com.android.application") || subproject.plugins.hasPlugin("com.android.library")) {
+            subproject.android.packagingOptions.exclude("META-INF/main.kotlin_module")
+        }
+    }
+}
+
+def getBintrayApiKey() {
+    checkVaultEnvironment()
+    String apiKey
+    if (project.publishProps?.get("bintray_api_key") != null) {
+        apiKey = project.publishProps?.get("bintray_api_key")
+    } else if (project.hasProperty("IGNORE_VAULT")) {
+        apiKey = ""
+    } else {
+        try {
+            apiKey = project?.vault?.get("secret/android_sdk/bintray_api_key")['data']['value']
+        } catch (Exception e) {
+            throw new InvalidUserDataException("There was an error while reading the bintray api key from vault.\n" +
+                    "Make sure to have secret/android_sdk/bintray_api_key in the vault.\n" +
+                    "Run this task with -PIGNORE_VAULT to default to local configuration if available", e)
+        }
+    }
+    return apiKey
+}
+
+def checkVaultEnvironment() {
+
+    checkLocalPublishingProperties()
+
+    if (project.hasProperty("IGNORE_VAULT")) {
+        //use only local data if available
+        return
+    }
+
+    File tokenFile = new File("${System.env.HOME}/.vault-token")
+
+    if (tokenFile.canRead()) {
+        if (System.env.VAULT_TOKEN == null || System.env.VAULT_TOKEN == "") {
+            project?.vault?.token = tokenFile.text
+        }
+    }
+
+    if (System.env.VAULT_ADDR == null || (System.env.VAULT_TOKEN == null && !tokenFile.canRead())) {
+        throw new InvalidUserDataException("Vault coordinates are not configured.\n" +
+                "VAULT_ADDR and VAULT_TOKEN need to be set as environment variables.\n" +
+                "Run this task with -PIGNORE_VAULT to skip secrets and build using local configuration only")
+    }
+}
+
+def checkLocalPublishingProperties() {
+    def propFile = file("${rootDir}/publish.properties")
+    if (propFile.canRead()) {
+
+        Properties publishProps = new Properties()
+        propFile.withInputStream {
+            publishProps.load(it)
+        }
+        project.ext.publishProps = publishProps
+    } else {
+        project.ext.publishProps = null
+    }
+}
