@@ -63,26 +63,28 @@ subprojects { subproject ->
             }
 
             //config for jcenter
-            bintray {
-                user = getBintrayUser()
-                key = getBintrayApiKey()
+            if (gradle.startParameter.taskNames.find { it.contains("bintray") }) {
+                bintray {
+                    user = getBintrayUser()
+                    key = getBintrayApiKey()
 
-                configurations = ['archives']
+                    configurations = ['archives']
 
-                pkg {
-                    repo = "uport-project"
-                    name = subproject.name
-                    licenses = ["Apache-2.0"]
-                    desc = subproject.description
-                    websiteUrl = siteUrl
-                    vcsUrl = gitUrl
-                    dryRun = false
-                    publish = true
-                    override = true
-                    publicDownloadNumbers = false
-                    version {
-                        name = uport_sdk_version
-                        released = new Date()
+                    pkg {
+                        repo = "uport-project"
+                        name = subproject.name
+                        licenses = ["Apache-2.0"]
+                        desc = subproject.description
+                        websiteUrl = siteUrl
+                        vcsUrl = gitUrl
+                        dryRun = false
+                        publish = true
+                        override = true
+                        publicDownloadNumbers = false
+                        version {
+                            name = uport_sdk_version
+                            released = new Date()
+                        }
                     }
                 }
             }
