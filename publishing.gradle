@@ -89,9 +89,6 @@ subprojects { subproject ->
 
         }
 
-        if (subproject.plugins.hasPlugin("com.android.application") || subproject.plugins.hasPlugin("com.android.library")) {
-            subproject.android.packagingOptions.exclude("META-INF/main.kotlin_module")
-        }
     }
 }
 
