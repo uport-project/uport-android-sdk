@@ -4,6 +4,8 @@ apply plugin: "kotlinx-serialization"
 apply plugin: "com.github.dcendents.android-maven"
 apply plugin: "com.jfrog.bintray"
 
+project.ext.description = "tools for communication with other uPort layers or between different client implementations"
+
 android {
     compileSdkVersion compile_sdk_version
     buildToolsVersion build_tools_version

@@ -3,6 +3,8 @@ apply plugin: "kotlin-android"
 apply plugin: "com.github.dcendents.android-maven"
 apply plugin: "com.jfrog.bintray"
 
+project.ext.description = "tools for creating and verifying JWTs that use uPort algorithms"
+
 android {
     compileSdkVersion compile_sdk_version
     buildToolsVersion build_tools_version

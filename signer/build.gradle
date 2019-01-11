@@ -3,6 +3,8 @@ apply plugin: "kotlin-android"
 apply plugin: "com.github.dcendents.android-maven"
 apply plugin: "com.jfrog.bintray"
 
+project.ext.description = "Signer abstractions including key management APIs that rely on AndroidKeyStore to protect keys at rest"
+
 android {
     compileSdkVersion compile_sdk_version
     buildToolsVersion build_tools_version

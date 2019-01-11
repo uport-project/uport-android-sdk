@@ -1,4 +1,4 @@
-// this relies on a vault connection or the presence of a publishing.properties file with:
+// this relies on a vault connection or the presence of a publish.properties file with:
 // bintray_api_key
 // bintray_username
 

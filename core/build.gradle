@@ -3,6 +3,8 @@ apply plugin: "kotlin-android"
 apply plugin: "com.github.dcendents.android-maven"
 apply plugin: "com.jfrog.bintray"
 
+project.ext.description = "core classes of the uPort android SDK"
+
 android {
     compileSdkVersion compile_sdk_version
 

@@ -5,6 +5,8 @@ apply plugin: "bivrost"
 apply plugin: "com.github.dcendents.android-maven"
 apply plugin: "com.jfrog.bintray"
 
+project.ext.description = "DID resolver for the ethr-did (ERC 1056) lightweight identity standard"
+
 android {
     compileSdkVersion compile_sdk_version
     buildToolsVersion build_tools_version

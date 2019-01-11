@@ -4,6 +4,8 @@ apply plugin: "bivrost"
 apply plugin: "com.github.dcendents.android-maven"
 apply plugin: "com.jfrog.bintray"
 
+project.ext.description = "wrapper library for the uPort SDK"
+
 android {
     compileSdkVersion compile_sdk_version
 
