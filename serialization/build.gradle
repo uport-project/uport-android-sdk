@@ -1,7 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: "kotlin-android"
 apply plugin: "kotlinx-serialization"
-apply plugin: "maven"
+apply plugin: "com.github.dcendents.android-maven"
+apply plugin: "com.jfrog.bintray"
+
+project.ext.description = "tools for (de)serializing objects used by the uPort SDK"
 
 android {
     compileSdkVersion compile_sdk_version

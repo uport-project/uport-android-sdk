@@ -1,6 +1,9 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "maven"
+apply plugin: "com.github.dcendents.android-maven"
+apply plugin: "com.jfrog.bintray"
+
+project.ext.description = "wrappers for calling ethereum endpoints using json-rpc"
 
 android {
     compileSdkVersion compile_sdk_version

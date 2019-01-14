@@ -1,3 +1,6 @@
+# repo-specific config
+publish.properties
+
 
 # Created by https://www.gitignore.io/api/linux,macos,gradle,windows,android,androidstudio
 

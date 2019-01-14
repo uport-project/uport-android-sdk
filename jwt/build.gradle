@@ -1,6 +1,9 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'maven'
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "com.github.dcendents.android-maven"
+apply plugin: "com.jfrog.bintray"
+
+project.ext.description = "tools for creating and verifying JWTs that use uPort algorithms"
 
 android {
     compileSdkVersion compile_sdk_version
@@ -21,7 +24,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
 
@@ -37,7 +40,7 @@ dependencies {
     api "com.github.walleth.kethereum:extensions:$kethereum_version"
 
     api project(":signer")
-    api project(':uport-did')
+    api project(":uport-did")
     api project(":ethr-did")
     api project(":https-did")
     api project(":jsonrpc")
