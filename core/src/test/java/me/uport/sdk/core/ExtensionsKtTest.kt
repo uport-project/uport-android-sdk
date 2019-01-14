@@ -1,9 +1,11 @@
+@file:Suppress("ReplaceCallWithBinaryOperator")
+
 package me.uport.sdk.core
 
+import assertk.assert
+import assertk.assertions.isEqualTo
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -20,7 +22,7 @@ class ExtensionsKtTest {
         suspend fun whatever(): String = withContext(UI) { "hello world" }
 
         runBlocking {
-            assertEquals("hello world", whatever())
+            assert(whatever()).isEqualTo("hello world")
         }
     }
 
@@ -41,17 +43,16 @@ class ExtensionsKtTest {
                 "foo bar baz"
         )
         strings.forEach {
-            assertEquals(it, String(it.toBase64().decodeBase64()))
-            assertArrayEquals(it.toByteArray(), it.toBase64().decodeBase64())
-            assertEquals(it, String(it.toBase64().decodeBase64()))
-            assertArrayEquals(it.toByteArray(), it.toBase64UrlSafe().decodeBase64())
+            assert(it).isEqualTo(String(it.toBase64().decodeBase64()))
+            assert(it.toByteArray()).isEqualTo(it.toBase64().decodeBase64())
+            assert(it.toByteArray()).isEqualTo(it.toBase64UrlSafe().decodeBase64())
         }
 
         val bytes = ByteArray(255) { it.toByte() }
         for (i in 0..bytes.size) {
             val tested = bytes.copyOfRange(0, i)
-            assertArrayEquals(tested, tested.toBase64().decodeBase64())
-            assertArrayEquals(tested, tested.toBase64UrlSafe().decodeBase64())
+            assert(tested).isEqualTo(tested.toBase64().decodeBase64())
+            assert(tested).isEqualTo(tested.toBase64UrlSafe().decodeBase64())
         }
     }
 }
