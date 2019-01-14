@@ -51,6 +51,3 @@ dependencies {
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_rules_version"
 }
-
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"

@@ -44,12 +44,10 @@ dependencies {
     api project(":core")
     api project(":serialization")
     implementation "com.github.uport-project:tweetnacl-k:$tweetnacl_k_version"
-
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.mockito:mockito-inline:$mockito_version"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
     testImplementation "org.robolectric:robolectric:$robolectric_version"
-
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_rules_version"
     androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espresso_version"

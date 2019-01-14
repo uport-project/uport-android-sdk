@@ -31,13 +31,13 @@ buildscript {
         moshi_version = "1.7.0"
         okhttp_version = "3.10.0"
 
-        bivrost_version = "1c0efeb7f3"//"v0.6.2"
+        bivrost_version = "1c0efeb7f3"//"v0.7.0"
         kmnid_version = "0.2.1"
         kethereum_version = "0.63"
         khex_version = "0.5"
         tweetnacl_k_version = "0.0.1"
 
-        uport_sdk_version = "0.3.2"
+        uport_sdk_version = "v0.3.2"
     }
 
     repositories {
