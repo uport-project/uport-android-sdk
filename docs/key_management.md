@@ -1,6 +1,7 @@
 ## Uport android signer
 
-This library is used to create and manage keys for uport account.
+The `signer` library is used to create and manage keys for uport accounts.
+It can be used independently but it is ultimately meant to be used as part of the android SDK, wrapped behind easier to use abstractions (like the `Signer` interface, or an `Account` object).
 It supports creating keyPairs from seed phrases,
 protecting these keys with authenticated encryption (android lock-screen / fingerprint),
 signing ETH transactions and signing uPort specific JWTs.
