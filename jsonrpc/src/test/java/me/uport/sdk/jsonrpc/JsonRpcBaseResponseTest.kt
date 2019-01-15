@@ -1,8 +1,8 @@
 package me.uport.sdk.jsonrpc
 
-
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import org.junit.Test
 import java.math.BigInteger
 
@@ -31,11 +31,12 @@ class JsonRpcBaseResponseTest {
         val adapter = moshi.adapter<JsonRpcLogItem>(JsonRpcLogItem::class.java)
         val item = adapter.fromJson(logItemJson)
 
-        assertNotNull(item)
+
+        assert(item).isNotNull()
         item!!
 
-        assertEquals("0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", item.address)
-        assertEquals(2, item.topics.size)
-        assertEquals(BigInteger.ONE, item.transactionIndex)
+        assert(item.address).isEqualTo("0xdca7ef03e98e0dc2b855be647c39abe984fcf21b")
+        assert(item.topics.size).isEqualTo(2)
+        assert(item.transactionIndex).isEqualTo(BigInteger.ONE)
     }
 }
