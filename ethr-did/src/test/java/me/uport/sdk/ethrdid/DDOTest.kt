@@ -1,7 +1,8 @@
 package me.uport.sdk.ethrdid
 
+import assertk.assert
+import assertk.assertions.isEqualTo
 import kotlinx.serialization.json.JSON
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DDOTest {
@@ -10,9 +11,9 @@ class DDOTest {
     fun `can serialize minimal doc`() {
         val doc = EthrDIDDocument("hello")
         val docText = JSON.stringify(EthrDIDDocument.serializer(), doc)
-        assertEquals("""
+        assert(docText).isEqualTo("""
             {"id":"hello","publicKey":[],"authentication":[],"service":[],"@context":"https://w3id.org/did/v1"}
-        """.trimIndent(), docText)
+        """.trimIndent())
     }
 
     @Test
@@ -35,9 +36,11 @@ class DDOTest {
             }
         """.trimIndent()
 
-        val obj: EthrDIDDocument = JSON.parse(EthrDIDDocument.serializer(), docText)
+        assert {
+            val obj: EthrDIDDocument = JSON.parse(EthrDIDDocument.serializer(), docText)
+            println(obj)
+        }.doesNotThrowAnyException()
 
-        println(obj)
     }
 
 }

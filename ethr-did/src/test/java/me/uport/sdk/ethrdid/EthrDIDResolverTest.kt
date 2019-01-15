@@ -2,6 +2,9 @@
 
 package me.uport.sdk.ethrdid
 
+import assertk.all
+import assertk.assert
+import assertk.assertions.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.Networks
@@ -10,7 +13,6 @@ import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDOwnerChanged
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.experimental.getLogs
-import org.junit.Assert.*
 import org.junit.Test
 import org.kethereum.extensions.hexToBigInteger
 import pm.gnosis.model.Solidity
@@ -25,7 +27,7 @@ class EthrDIDResolverTest {
         val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
         val imaginaryAddress = "0x1234"
         val lastChanged = EthrDIDResolver(rpc).lastChanged(imaginaryAddress)
-        assertEquals(BigInteger.ZERO, lastChanged.hexToBigInteger())
+        assert(lastChanged.hexToBigInteger()).isEqualTo(BigInteger.ZERO)
     }
 
     @Test
@@ -34,7 +36,7 @@ class EthrDIDResolverTest {
         val realAddress = "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"
         val lastChanged = EthrDIDResolver(rpc).lastChanged(realAddress)
         println(lastChanged)
-        assertNotEquals(BigInteger.ZERO, lastChanged.hexToBigInteger())
+        assert(lastChanged.hexToBigInteger()).isNotEqualTo(BigInteger.ZERO)
     }
 
 
@@ -43,10 +45,14 @@ class EthrDIDResolverTest {
         val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
         val realAddress = "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"
         val resolver = EthrDIDResolver(rpc)
+        //TODO: mock server responses, use canned responses
         val lastChanged = resolver.lastChanged(realAddress).hexToBigInteger()
         val logResponse = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.hexToBytes32()), lastChanged, lastChanged)
-        assertNotNull(logResponse)
-        assertTrue(logResponse.isNotEmpty())
+
+        assert(logResponse).all {
+            isNotNull()
+            isNotEmpty()
+        }
     }
 
     @Test
@@ -57,7 +63,7 @@ class EthrDIDResolverTest {
         val lastChanged = 2784036L.toBigInteger()
         val logs = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.hexToBytes32()), lastChanged, lastChanged)
 
-        assertTrue(logs.isNotEmpty())
+        assert(logs).isNotEmpty()
 
         //topics should be 0x prefixed hex strings
         val topics: List<String> = logs[0].topics
@@ -66,7 +72,7 @@ class EthrDIDResolverTest {
         //no assertion about args but it should not crash
         val previousBlock = args.previouschange.value
 
-        assertTrue(previousBlock > BigInteger.ZERO)
+        assert(previousBlock).isGreaterThan(BigInteger.ZERO)
     }
 
     @Test
@@ -76,7 +82,7 @@ class EthrDIDResolverTest {
         val resolver = EthrDIDResolver(rpc)
         val events = resolver.getHistory(realAddress)
         println(events)
-        assertTrue(events.isNotEmpty())
+        assert(events).isNotEmpty()
     }
 
     // "did/pub/(Secp256k1|Rsa|Ed25519)/(veriKey|sigAuth)/(hex|base64)",
@@ -110,11 +116,13 @@ class EthrDIDResolverTest {
         val regex = "^did/(pub|auth|svc)/(\\w+)(/(\\w+))?(/(\\w+))?$".toRegex()
         attributeRegexes.forEach {
             val matchResult = regex.find(it)
-            assertNotNull("expected to match \"$it\"", matchResult)
+
+            assert(matchResult).isNotNull()
+
             val (section, algo, _, rawType, _, encoding) = matchResult!!.destructured
 
-            assertTrue(section.isNotBlank())
-            assertTrue(algo.isNotBlank())
+            assert(section).isNotEmpty()
+            assert(algo).isNotEmpty()
         }
     }
 
@@ -134,11 +142,10 @@ class EthrDIDResolverTest {
 
         val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
 
-        val ddo = EthrDIDResolver(rpc).wrapDidDocument("did:ethr:$identity", owner, listOf(event))
-        println(ddo)
-
-        //did not crash
-        assertTrue(true)
+        assert {
+            val ddo = EthrDIDResolver(rpc).wrapDidDocument("did:ethr:$identity", owner, listOf(event))
+            println(ddo)
+        }.doesNotThrowAnyException()
     }
 
     @Test
@@ -151,7 +158,7 @@ class EthrDIDResolverTest {
 
         //this should work no matter what
         val decodedStr = sol.bytes.toString(utf8)
-        assertEquals(str, decodedStr)
+        assert(decodedStr).isEqualTo(str)
     }
 
     @Test
@@ -179,7 +186,7 @@ class EthrDIDResolverTest {
         val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
         val resolver = EthrDIDResolver(rpc)
         val ddo = resolver.resolve(realAddress)
-        assertEquals(referenceDDO, ddo)
+        assert(ddo).isEqualTo(referenceDDO)
         println(ddo)
     }
 
@@ -204,13 +211,12 @@ class EthrDIDResolverTest {
 
         validDids.forEach {
             val normalizedDid = EthrDIDResolver.normalizeDid(it)
-            assertTrue("failed to normalize $it", normalizedDid.isNotBlank())
-            assertEquals("did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a", normalizedDid.toLowerCase())
+            assert(normalizedDid.toLowerCase()).isEqualTo("did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a")
         }
 
         invalidDids.forEach {
             val normalizedDid = EthrDIDResolver.normalizeDid(it)
-            assertTrue("should have failed to normalize $it but got $normalizedDid", normalizedDid.isBlank())
+            assert(normalizedDid).isEmpty()
         }
     }
 
