@@ -1,7 +1,7 @@
 package me.uport.sdk.uportdid
 
-import android.os.Handler
-import android.os.Looper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.uport.mnid.Account
 import me.uport.mnid.MNID
 import me.uport.sdk.core.Networks
@@ -16,9 +16,6 @@ import org.kethereum.extensions.hexToBigInteger
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import pm.gnosis.model.Solidity
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * This is a DID resolver implementation that supports the "uport" DID method.
@@ -31,18 +28,15 @@ import kotlin.coroutines.suspendCoroutine
 class UportDIDResolver : DIDResolver {
     override val method: String = "uport"
 
-    override suspend fun resolve(did: String): DIDDocument = suspendCoroutine { continuation ->
+    override suspend fun resolve(did: String): DIDDocument = withContext(Dispatchers.IO) {
         if (canResolve(did)) {
             val (_, mnid) = parseDIDString(did)
-            getProfileDocument(mnid) { err, ddo ->
-                if (err != null) {
-                    continuation.resumeWithException(err)
-                } else {
-                    continuation.resume(ddo.convertToDIDDocument(did))
-                }
-            }
+            val ddo = getProfileDocumentSync(mnid)!!
+
+            ddo.convertToDIDDocument(did)
+
         } else {
-            continuation.resumeWithException(java.lang.IllegalArgumentException("The DID('$did') cannot be resolved by the uPort DID resolver"))
+            throw IllegalArgumentException("The DID('$did') cannot be resolved by the uPort DID resolver")
         }
     }
 
@@ -122,25 +116,6 @@ class UportDIDResolver : DIDResolver {
         val rawJsonDDO = getJsonProfileSync(mnid)
 
         return UportIdentityDocument.fromJson(rawJsonDDO)
-    }
-
-    /**
-     * Given an [mnid], obtains the JSON encoded DID doc then tries to convert it to a [UportIdentityDocument] object
-     *
-     * TODO: Should [callback] with non-`null` error if anything goes wrong
-     */
-    fun getProfileDocument(mnid: String, callback: (err: Exception?, ddo: UportIdentityDocument) -> Unit) {
-
-        Thread {
-            //safe to call networks
-            val ddo = getProfileDocumentSync(mnid)
-
-            //return to UI thread
-            Handler(Looper.getMainLooper()).post {
-                callback(null, ddo!!)
-            }
-        }.run()
-
     }
 
     companion object {
