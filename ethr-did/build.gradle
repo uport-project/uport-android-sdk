@@ -54,6 +54,6 @@ dependencies {
     api project(":universal-did")
 
     testImplementation "junit:junit:$junit_version"
-    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
     testImplementation "io.mockk:mockk:$mockk_version"
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 }
