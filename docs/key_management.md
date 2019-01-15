@@ -26,7 +26,7 @@ allprojects {
 ```
 in your app `build.gradle`:
 ```groovy
-uport_sdk_version = "v0.2.2"
+uport_sdk_version = "v0.3.2"
 dependencies {
     ...
     implementation "com.github.uport-project.uport-android-sdk:signer:$uport_sdk_version"
