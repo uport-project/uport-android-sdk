@@ -3,7 +3,8 @@ package me.uport.sdk.jwt
 /**
  * Created by aldi on 3/10/18.
  */
-import android.support.test.rule.ActivityTestRule
+import android.content.Context
+import android.support.test.InstrumentationRegistry
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
@@ -12,21 +13,25 @@ import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.jwt.model.JwtPayload
 import org.junit.Assert.*
-import org.junit.Rule
+import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class JWTToolsTests {
 
-    @get:Rule
-    val mActivityRule: ActivityTestRule<TestDummyActivity> = ActivityTestRule(TestDummyActivity::class.java)
+    private lateinit var appContext: Context
 
     private val validShareReqToken1 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTUyMDM2NjQzMiwicmVxdWVzdGVkIjpbIm5hbWUiLCJwaG9uZSIsImNvdW50cnkiLCJhdmF0YXIiXSwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vY2hhc3F1aS51cG9ydC5tZS9hcGkvdjEvdG9waWMvWG5IZnlldjUxeHNka0R0dSIsIm5ldCI6IjB4NCIsImV4cCI6MTUyMDM2NzAzMiwidHlwZSI6InNoYXJlUmVxIn0.C8mPCCtWlYAnroduqysXYRl5xvrOdx1r4iq3A3SmGDGZu47UGTnjiZCOrOQ8A5lZ0M9JfDpZDETCKGdJ7KUeWQ"
     private val expectedShareReqPayload1 = JwtPayload(iss = "2oeXufHGDpU51bfKBsZDdu7Je9weJ3r7sVG", iat = 1520366432, sub = null, aud = null, exp = 1520367032, callback = "https://chasqui.uport.me/api/v1/topic/XnHfyev51xsdkDtu", type = "shareReq", net = "0x4", act = null, requested = listOf("name", "phone", "country", "avatar"), verified = null, permissions = listOf("notifications"), req = null, nad = null, dad = null, own = null, capabilities = null, claims = null, ctl = null, reg = null, rel = null, fct = null, acc = null)
 
     private val incomingJwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb21SSlpMMjNaQ1lnYzFyWnJGVnBGWEpwV29hRUV1SlVjZiIsImlhdCI6MTUxOTM1MDI1NiwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vYXBpLnVwb3J0LnNwYWNlL29sb3J1bi9jcmVhdGVJZGVudGl0eSIsIm5ldCI6IjB4MzAzOSIsImFjdCI6ImRldmljZWtleSIsImV4cCI6MTUyMjU0MDgwMCwidHlwZSI6InNoYXJlUmVxIn0.EkqNUyrZhcDbTQl73XpL2tp470lCo2saMXzuOZ91UI2y-XzpcBMzhhSeUORnoJXJhHnkGGpshZlESWUgrbuiVQ"
     private val expectedJwtPayload = JwtPayload(iss = "2omRJZL23ZCYgc1rZrFVpFXJpWoaEEuJUcf", iat = 1519350256, sub = null, aud = null, exp = 1522540800, callback = "https://api.uport.space/olorun/createIdentity", type = "shareReq", net = "0x3039", act = "devicekey", requested = null, verified = null, permissions = listOf("notifications"), req = null, nad = null, dad = null, own = null, capabilities = null, claims = null, ctl = null, reg = null, rel = null, fct = null, acc = null)
+
+    @Before
+    fun run_before_every_test() {
+        appContext = InstrumentationRegistry.getTargetContext()
+    }
 
     @Test
     fun testVerifyToken() = runBlocking {
@@ -39,7 +44,6 @@ class JWTToolsTests {
 
     @Test
     fun testCreateToken() {
-        val activity = mActivityRule.activity
         val latch = CountDownLatch(1)
 
         val address = "0x4123cbd143b55c06e451ff253af09286b687a950"
@@ -65,7 +69,7 @@ class JWTToolsTests {
         ensureSeedIsImported(referenceSeedPhrase)
 
 
-        JWTTools().create(context = activity, payload = payload, rootHandle = address, derivationPath = UportHDSigner.UPORT_ROOT_DERIVATION_PATH, prompt = "", callback = { err, newJwt ->
+        JWTTools().create(context = appContext, payload = payload, rootHandle = address, derivationPath = UportHDSigner.UPORT_ROOT_DERIVATION_PATH, prompt = "", callback = { err, newJwt ->
             assertNull(err)
 
             runBlocking {
@@ -90,9 +94,9 @@ class JWTToolsTests {
                 "claims" to mapOf("name" to "R Daneel Olivaw")
         )
         val baseSigner = UportHDSigner()
-        val (rootHandle, _) = baseSigner.importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, "notice suffer eagle style exclude burst write mechanic junior crater crystal seek")
+        val (rootHandle, _) = baseSigner.importHDSeed(appContext, KeyProtection.Level.SIMPLE, "notice suffer eagle style exclude burst write mechanic junior crater crystal seek")
         val signer = UportHDSignerImpl(
-                mActivityRule.activity,
+                appContext,
                 baseSigner,
                 rootHandle,
                 rootHandle
@@ -108,7 +112,7 @@ class JWTToolsTests {
 
     private fun ensureSeedIsImported(phrase: String) = runBlocking {
         //ensure seed is imported
-        UportHDSigner().importHDSeed(mActivityRule.activity, KeyProtection.Level.SIMPLE, phrase)
+        UportHDSigner().importHDSeed(appContext, KeyProtection.Level.SIMPLE, phrase)
     }
 
     @Test(expected = InvalidJWTException::class)
