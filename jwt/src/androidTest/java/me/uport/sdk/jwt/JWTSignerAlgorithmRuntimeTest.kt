@@ -3,31 +3,34 @@ package me.uport.sdk.jwt
 import android.support.test.InstrumentationRegistry
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
-import com.uport.sdk.signer.encryption.KeyProtection
-import com.uport.sdk.signer.importHDSeed
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 
 class JWTSignerAlgorithmRuntimeTest {
 
+    private val referenceSeed = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
+    private var appContext = InstrumentationRegistry.getTargetContext()
+    private lateinit var rootAddress: String
+
+    @Before
+    fun run_before_every_test() {
+        val (handle, _) = runBlocking { ensureSeedIsImported(appContext, referenceSeed) }
+        rootAddress = handle
+    }
+
     @Test
     fun can_sign_using_non_recoverable_alg() = runBlocking {
 
-        val targetContext = InstrumentationRegistry.getTargetContext()
-
-        val referenceSeed = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
         val referencePayload = "Hello, world!"
 
-        val baseSigner = UportHDSigner()
-        val (rootAddress, _) = baseSigner.importHDSeed(targetContext, KeyProtection.Level.SIMPLE, referenceSeed)
-
         val testedSigner = UportHDSignerImpl(
-                context = targetContext,
-                uportHDSigner = baseSigner,
+                context = appContext,
+                uportHDSigner = UportHDSigner(),
                 rootAddress = rootAddress,
                 deviceAddress = rootAddress
         )
@@ -39,21 +42,14 @@ class JWTSignerAlgorithmRuntimeTest {
         assertEquals(64, signature.decodeBase64().size)
     }
 
-
     @Test
     fun can_sign_using_recoverable_alg() = runBlocking {
 
-        val targetContext = InstrumentationRegistry.getTargetContext()
-
-        val referenceSeed = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
         val referencePayload = "Hello, world!"
 
-        val baseSigner = UportHDSigner()
-        val (rootAddress, _) = baseSigner.importHDSeed(targetContext, KeyProtection.Level.SIMPLE, referenceSeed)
-
         val testedSigner = UportHDSignerImpl(
-                context = targetContext,
-                uportHDSigner = baseSigner,
+                context = appContext,
+                uportHDSigner = UportHDSigner(),
                 rootAddress = rootAddress,
                 deviceAddress = rootAddress
         )
