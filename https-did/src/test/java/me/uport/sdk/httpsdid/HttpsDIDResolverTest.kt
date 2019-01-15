@@ -3,11 +3,10 @@ package me.uport.sdk.httpsdid
 import assertk.assert
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import io.mockk.every
-import io.mockk.just
-import io.mockk.runs
-import io.mockk.spyk
+import io.mockk.coEvery
+import io.mockk.mockkStatic
 import kotlinx.coroutines.runBlocking
+import me.uport.sdk.core.experimental.urlGet
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.PublicKeyEntry
@@ -48,19 +47,16 @@ class HttpsDIDResolverTest {
         ).forEach {
             assert(HttpsDIDResolver().canResolve(it)).isFalse()
         }
-
-
     }
 
     @Test
     fun `resolves document`() = runBlocking {
 
-        val https = spyk<HttpsDIDResolver>()
+        mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
 
-        //Stubbing network call to domain well-known path, providing did doc JSON
-        every { https.getProfileDocument(any(), invoke(null, exampleDidDoc.toJson())) } just runs
+        coEvery { urlGet(any()) } returns exampleDidDoc.toJson()
 
-        val response = https.resolve("did:https:example.com")
+        val response = HttpsDIDResolver().resolve("did:https:example.com")
         assert(response).isEqualTo(exampleDidDoc)
     }
 
