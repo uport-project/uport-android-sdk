@@ -47,7 +47,6 @@ dependencies {
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"
-    androidTestImplementation project(path: ':fuelingservice')
     androidTestImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 
     testImplementation "junit:junit:$junit_version"
