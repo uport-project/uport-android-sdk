@@ -43,16 +43,16 @@ class ExtensionsKtTest {
                 "foo bar baz"
         )
         strings.forEach {
-            assert(it).isEqualTo(String(it.toBase64().decodeBase64()))
-            assert(it.toByteArray()).isEqualTo(it.toBase64().decodeBase64())
-            assert(it.toByteArray()).isEqualTo(it.toBase64UrlSafe().decodeBase64())
+            assert(String(it.toBase64().decodeBase64())).isEqualTo(it)
+            assert(it.toBase64().decodeBase64()).isEqualTo(it.toByteArray())
+            assert(it.toBase64UrlSafe().decodeBase64()).isEqualTo(it.toByteArray())
         }
 
         val bytes = ByteArray(255) { it.toByte() }
         for (i in 0..bytes.size) {
             val tested = bytes.copyOfRange(0, i)
-            assert(tested).isEqualTo(tested.toBase64().decodeBase64())
-            assert(tested).isEqualTo(tested.toBase64UrlSafe().decodeBase64())
+            assert(tested.toBase64().decodeBase64()).isEqualTo(tested)
+            assert(tested.toBase64UrlSafe().decodeBase64()).isEqualTo(tested)
         }
     }
 }
