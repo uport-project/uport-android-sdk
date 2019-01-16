@@ -41,6 +41,6 @@ dependencies {
     api project(":core")
     api project(":universal-did")
 
-    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
-    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 }
