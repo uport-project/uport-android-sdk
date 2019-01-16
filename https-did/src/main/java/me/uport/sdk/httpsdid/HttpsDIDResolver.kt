@@ -26,7 +26,7 @@ open class HttpsDIDResolver : DIDResolver {
      * Given a [domain], obtains the JSON encoded DID doc then tries to convert it to a [HttpsIdentityDocument] object
      *
      */
-    suspend fun getProfileDocument(domain: String): String {
+    private suspend fun getProfileDocument(domain: String): String {
         val url = "https://$domain/.well-known/did.json"
         return urlGet(url)
     }

@@ -31,7 +31,7 @@ class HttpsDIDResolverTest {
                             publicKey = "did:https:example.com#owner")
             ),
             service = emptyList()
-    ).toJson()
+    )
 
 
     @Test
@@ -60,7 +60,7 @@ class HttpsDIDResolverTest {
 
         mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
 
-        coEvery { urlGet(any()) } returns exampleDidDoc
+        coEvery { urlGet(any()) } returns exampleDidDoc.toJson()
 
         val response = HttpsDIDResolver().resolve("did:https:example.com")
         assert(response).isEqualTo(exampleDidDoc)
