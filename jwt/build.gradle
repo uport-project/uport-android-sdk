@@ -48,6 +48,7 @@ dependencies {
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
+    testImplementation project(":test-helpers")
 
     androidTestImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
