@@ -113,4 +113,16 @@ data class UportDIDDocument(
         override val context: String = "https://w3id.org/did/v1",
 
         val uportProfile: UportIdentityDocument
-) : DIDDocument
+) : DIDDocument {
+
+    fun toJson(): String = jsonAdapter.toJson(this)
+
+    companion object {
+
+        private val jsonAdapter: JsonAdapter<UportDIDDocument> by lazy {
+            moshi.adapter(UportDIDDocument::class.java)
+        }
+
+        fun fromJson(json: String) = jsonAdapter.fromJson(json)
+    }
+}
