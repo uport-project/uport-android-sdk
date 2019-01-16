@@ -37,8 +37,7 @@ class DDOTest {
         """.trimIndent()
 
         assert {
-            val obj: EthrDIDDocument = JSON.parse(EthrDIDDocument.serializer(), docText)
-            println(obj)
+            JSON.parse(EthrDIDDocument.serializer(), docText)
         }.doesNotThrowAnyException()
 
     }
