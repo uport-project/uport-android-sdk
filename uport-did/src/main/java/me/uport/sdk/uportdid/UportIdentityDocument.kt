@@ -115,6 +115,9 @@ data class UportDIDDocument(
         val uportProfile: UportIdentityDocument
 ) : DIDDocument {
 
+    /**
+     * Serializes this DID document to a JSON string
+     */
     fun toJson(): String = jsonAdapter.toJson(this)
 
     companion object {
@@ -123,6 +126,9 @@ data class UportDIDDocument(
             moshi.adapter(UportDIDDocument::class.java)
         }
 
+        /**
+         * Attempts to deserialize a given [json] string into a [UportDIDDocument]
+         */
         fun fromJson(json: String) = jsonAdapter.fromJson(json)
     }
 }

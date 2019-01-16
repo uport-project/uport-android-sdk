@@ -9,6 +9,7 @@ import me.uport.sdk.core.urlGetSync
 import me.uport.sdk.core.urlPostSync
 import me.uport.sdk.jsonrpc.EthCall
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DIDResolver
 import org.kethereum.encodings.encodeToBase58String
@@ -31,9 +32,10 @@ class UportDIDResolver : DIDResolver {
     override suspend fun resolve(did: String): DIDDocument = withContext(Dispatchers.IO) {
         if (canResolve(did)) {
             val (_, mnid) = parseDIDString(did)
-            val ddo = getProfileDocumentSync(mnid)!!
+            val ddo = getProfileDocumentSync(mnid)
 
-            ddo.convertToDIDDocument(did)
+            ddo?.convertToDIDDocument(did)
+                    ?: throw BlankDocumentError("unable to fetch profile document for $did")
 
         } else {
             throw IllegalArgumentException("The DID('$did') cannot be resolved by the uPort DID resolver")

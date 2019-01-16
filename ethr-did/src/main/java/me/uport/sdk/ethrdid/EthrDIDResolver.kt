@@ -74,7 +74,9 @@ class EthrDIDResolver(
         val jrpcResponse = rpc.ethCall(registryAddress, encodedCall)
         val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
 
-        if (parsedResponse.error != null) throw parsedResponse.error?.toException()!!
+        parsedResponse.error?.let {
+            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged", it.toException())
+        }
 
         return parsedResponse.result.toString()
     }

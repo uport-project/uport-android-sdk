@@ -17,7 +17,7 @@ import java.io.IOException
 
 class HttpsDIDResolverTest {
 
-    private val exampleDidDoc = HttpsIdentityDocument(context = "https://w3id.org/did/v1",
+    private val exampleDidDoc = HttpsDIDDocument(context = "https://w3id.org/did/v1",
             id = "did:https:example.com",
             publicKey = listOf(
                     PublicKeyEntry(id = "did:https:example.com",

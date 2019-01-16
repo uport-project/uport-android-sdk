@@ -1,20 +1,22 @@
 package me.uport.sdk.httpsdid
 
 import me.uport.sdk.core.experimental.urlGet
+import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDResolver
+import me.uport.sdk.universaldid.DidResolverError
 
 open class HttpsDIDResolver : DIDResolver {
     override val method: String = "https"
 
-    override suspend fun resolve(did: String): HttpsIdentityDocument {
+    override suspend fun resolve(did: String): HttpsDIDDocument {
         if (canResolve(did)) {
             val (_, domain) = parseDIDString(did)
             val ddoString = getProfileDocument(domain)
-            val ddo = HttpsIdentityDocument.fromJson(ddoString)
+            val ddo = HttpsDIDDocument.fromJson(ddoString)
             return ddo
-                    ?: throw IllegalArgumentException("no profile document found for `$did`")
+                    ?: throw BlankDocumentError("no profile document found for `$did`")
         } else {
-            throw IllegalArgumentException("The DID('$did') cannot be resolved by the HTTPS DID resolver")
+            throw DidResolverError("The DID('$did') cannot be resolved by the HTTPS DID resolver")
         }
     }
 
@@ -24,10 +26,6 @@ open class HttpsDIDResolver : DIDResolver {
     }
 
 
-    /**
-     * Given a [domain], obtains the JSON encoded DID doc then tries to convert it to a [HttpsIdentityDocument] object
-     *
-     */
     private suspend fun getProfileDocument(domain: String): String {
         val url = "https://$domain/.well-known/did.json"
         return urlGet(url)

@@ -146,15 +146,19 @@ object Uport {
 
         GlobalScope.launch {
             try {
-                val acc = if (seedPhrase.isNullOrBlank()) {
+                val newAccount = if (seedPhrase.isNullOrBlank()) {
                     accountCreator.createAccount(networkId)
                 } else {
                     accountCreator.importAccount(networkId, seedPhrase)
                 }
-                accountStorage?.upsert(acc)
-                defaultAccount = defaultAccount ?: acc
-
-                withContext(UI) { completion(null, if (acc.handle == defaultAccount?.handle) defaultAccount!! else acc) }
+                accountStorage?.upsert(newAccount)
+                defaultAccount = defaultAccount ?: newAccount
+                val result = if (newAccount.handle == defaultAccount?.handle) {
+                    defaultAccount ?: newAccount
+                } else {
+                    newAccount
+                }
+                withContext(UI) { completion(null, result) }
             } catch (err: Exception) {
                 withContext(UI) { completion(err, Account.blank) }
             }

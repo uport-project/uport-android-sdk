@@ -9,7 +9,10 @@ import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.PublicKeyEntry
 import me.uport.sdk.universaldid.ServiceEntry
 
-data class HttpsIdentityDocument(
+/**
+ * Encapsulates the fields of a Decentralized Identity Document
+ */
+data class HttpsDIDDocument(
         @Json(name = "@context")
         override val context: String = "https://w3id.org/did/v1",
 
@@ -28,14 +31,20 @@ data class HttpsIdentityDocument(
 
 ) : DIDDocument {
 
+    /**
+     * Serializes this [HttpsDIDDocument] into a JSON string
+     */
     fun toJson(): String = jsonAdapter.toJson(this)
 
     companion object {
-        private val jsonAdapter: JsonAdapter<HttpsIdentityDocument> by lazy {
-            moshi.adapter(HttpsIdentityDocument::class.java)
+        private val jsonAdapter: JsonAdapter<HttpsDIDDocument> by lazy {
+            moshi.adapter(HttpsDIDDocument::class.java)
         }
 
-        fun fromJson(json: String): HttpsIdentityDocument? = jsonAdapter.fromJson(json)
+        /**
+         * Attempts to deserialize a given [json] string into a [HttpsDIDDocument]
+         */
+        fun fromJson(json: String): HttpsDIDDocument? = jsonAdapter.fromJson(json)
     }
 
 }
