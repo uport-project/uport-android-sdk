@@ -1,9 +1,10 @@
 package me.uport.sdk.jwt
 
-import org.junit.Assert.assertEquals
+import assertk.assert
+import assertk.assertions.hasMessage
+import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import org.junit.Test
-import kotlin.test.assertFails
-import kotlin.test.assertFailsWith
 
 
 class JWTDecodeTest {
@@ -19,71 +20,76 @@ class JWTDecodeTest {
     private val invalidTokenEmptyHeader = ".eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTUyMDM2NjQzMiwicmVxdWVzdGVkIjpbIm5hbWUiLCJwaG9uZSIsImNvdW50cnkiLCJhdmF0YXIiXSwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vY2hhc3F1aS51cG9ydC5tZS9hcGkvdjEvdG9waWMvWG5IZnlldjUxeHNka0R0dSIsIm5ldCI6IjB4NCIsImV4cCI6MTUyMDM2NzAzMiwidHlwZSI6InNoYXJlUmVxIn0.C8mPCCtWlYAnroduqysXYRl5xvrOdx1r4iq3A3SmGDGZu47UGTnjiZCOrOQ8A5lZ0M9JfDpZDETCKGdJ7KUeWQ"
 
     @Test
-    fun splitCompleteToken() {
+    fun `can split complete token`() {
         val parts = splitToken(validShareReqToken)
         val expected = SplitEncodedToken(
                 validTokenHeader,
                 validShareReqTokenPayload,
                 validShareReqTokenSignature)
 
-        assertEquals(expected, parts)
+        assert(parts).isEqualTo(expected)
     }
 
     @Test
-    fun splitEmptyToken() {
-        assertFails("Token must have 3 parts: Header, Payload, and Signature") {
-            splitToken("")
-        }
+    fun `throws when splitting empty token`() {
+        assert { splitToken("") }
+                .thrownError { isInstanceOf(IllegalArgumentException::class) }
     }
 
     @Test
-    fun splitIncompleteToken() {
-        assertFails("Token must have 3 parts: Header, Payload, and signature") {
-            splitToken(invalidTokenOnlyHeader)
-        }
+    fun `throws when splitting incomplete token`() {
+        assert { splitToken(invalidTokenOnlyHeader) }
+                .thrownError { isInstanceOf(IllegalArgumentException::class) }
     }
 
     @Test
-    fun decodesCompleteToken() {
+    fun `decodes complete token`() {
         val (header, payload) = JWTTools().decode(validShareReqToken)
-        assertEquals("JWT", header.typ)
-        assertEquals("2oeXufHGDpU51bfKBsZDdu7Je9weJ3r7sVG", payload.iss)
-        assertEquals("name", payload.requested!![0])
+        assert(header.typ).isEqualTo("JWT")
+        assert(payload.iss).isEqualTo("2oeXufHGDpU51bfKBsZDdu7Je9weJ3r7sVG")
+        assert(payload.requested!![0]).isEqualTo("name")
     }
 
     @Test
-    fun decodesVerificationToken() {
+    fun `decodes token with claims`() {
         val (header, payload) = JWTTools().decode(validVerificationToken)
         val nameClaim = mapOf("name" to "Bob", "gender" to "male")
-        assertEquals("JWT", header.typ)
-        assertEquals(nameClaim, payload.claims)
-        assertEquals("34wjsxwvduano7NFC8ujNJnFjbacgYeWA8m", payload.iss)
+        assert(header.typ).isEqualTo("JWT")
+        assert(payload.claims).isEqualTo(nameClaim)
+        assert(payload.iss).isEqualTo("34wjsxwvduano7NFC8ujNJnFjbacgYeWA8m")
     }
 
     @Test
-    fun decodesIncompleteToken() {
-        assertFailsWith<InvalidJWTException>("JWT Payload cannot be empty") {
-            JWTTools().decode((invalidTokenEmptyPayload))
-        }
+    fun `throws when decoding incomplete token`() {
+        assert { JWTTools().decode((invalidTokenEmptyPayload)) }
+                .thrownError {
+                    isInstanceOf(InvalidJWTException::class)
+                    hasMessage("Payload cannot be empty")
+                }
 
-        assertFailsWith<InvalidJWTException>("JWT Headder cannot be empty") {
-            JWTTools().decode((invalidTokenEmptyHeader))
-        }
+        assert { JWTTools().decode((invalidTokenEmptyHeader)) }
+                .thrownError {
+                    isInstanceOf(InvalidJWTException::class)
+                    hasMessage("Header cannot be empty")
+                }
     }
 
     @Test
-    fun decodesRandomStuff() {
-        assertFailsWith<InvalidJWTException>("Invalid JSON format") {
-            JWTTools().decode("blahhh.blahhh.blahhh")
-        }
+    fun `throws on random token parts`() {
+        assert { JWTTools().decode("blahhh.blahhh.blahhh") }
+                .thrownError {
+                    isInstanceOf(InvalidJWTException::class)
+                }
 
-        assertFailsWith<InvalidJWTException>("Invalid JSON format") {
-            JWTTools().decode("$validTokenHeader.blahhh.blahhh")
-        }
+        assert { JWTTools().decode("$validTokenHeader.blahhh.blahhh") }
+                .thrownError {
+                    isInstanceOf(InvalidJWTException::class)
+                }
 
-        assertFailsWith<InvalidJWTException>("Invalid JSON format") {
-            JWTTools().decode("blahhh.$validShareReqTokenPayload.blahhh")
-        }
+        assert { JWTTools().decode("blahhh.$validShareReqTokenPayload.blahhh") }
+                .thrownError {
+                    isInstanceOf(InvalidJWTException::class)
+                }
 
     }
 

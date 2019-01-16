@@ -5,12 +5,15 @@ package me.uport.sdk.jwt
  */
 import android.content.Context
 import android.support.test.InstrumentationRegistry
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.jwt.model.JwtPayload
-import org.junit.Assert.*
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
@@ -62,7 +65,7 @@ class JWTToolsTests {
 
                 val timeProvider = TestTimeProvider(1532095437000L)
                 val newJwtPayload = JWTTools(timeProvider).verify(newJwt!!)
-                assertNotNull(newJwtPayload)
+                assert(newJwtPayload).isNotNull()
                 latch.countDown()
             }
 
@@ -88,9 +91,9 @@ class JWTToolsTests {
 
         val jwt = tested.createJWT(payload, issuerDID, signer)
         val expected = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbXMiOnsibmFtZSI6IlIgRGFuZWVsIE9saXZhdyJ9LCJpYXQiOjEyMzQ1Njc4LCJleHAiOjEyMzQ1OTc4LCJpc3MiOiJkaWQ6ZXRocjoweDQxMjNjYmQxNDNiNTVjMDZlNDUxZmYyNTNhZjA5Mjg2YjY4N2E5NTAifQ.o6eDKYjHJnak1ylkpe9g8krxvK9UEhKf-1T0EYhH8pGyb8MjOEepRJi8DYlVEnZno0DkVYXQCf3u1i_HThBKtAA"
-        assertEquals(expected, jwt)
+        assert(jwt).isEqualTo(expected)
         val tt = tested.decode(expected)
-        assertEquals(12345678L, tt.second.iat)
+        assert(tt.second.iat).isEqualTo(12345678L)
     }
 
     class TestTimeProvider(private val currentTime: Long) : ITimeProvider {

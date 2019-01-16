@@ -1,11 +1,13 @@
 package me.uport.sdk.jwt
 
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
 import com.uport.sdk.signer.KPSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.jwt.model.JwtPayload
-import org.junit.Assert
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class JWTToolsJVMTest {
@@ -16,11 +18,11 @@ class JWTToolsJVMTest {
     )
 
     @Test
-    fun verify() = runBlocking {
+    fun `verifies simple tokens`() = runBlocking {
 
         tokens.forEach { token ->
             val payload = JWTTools(TestTimeProvider(1535102500000L)).verify(token)
-            assertNotNull(payload)
+            assert(payload).isNotNull()
         }
     }
 
@@ -31,54 +33,62 @@ class JWTToolsJVMTest {
     private val expectedJwtPayload = JwtPayload(iss = "2omRJZL23ZCYgc1rZrFVpFXJpWoaEEuJUcf", iat = 1519350256, sub = null, aud = null, exp = 1522540800, callback = "https://api.uport.space/olorun/createIdentity", type = "shareReq", net = "0x3039", act = "devicekey", requested = null, verified = null, permissions = listOf("notifications"), req = null, nad = null, dad = null, own = null, capabilities = null, claims = null, ctl = null, reg = null, rel = null, fct = null, acc = null)
 
     @Test
-    fun testVerifyToken() = runBlocking {
+    fun `returns correct payload after successful verification`() = runBlocking {
         val shareReqPayload = JWTTools(TestTimeProvider(1520366666000L)).verify(validShareReqToken1)
-        Assert.assertEquals(expectedShareReqPayload1, shareReqPayload)
+        assert(shareReqPayload).isEqualTo(expectedShareReqPayload1)
 
         val incomingJwtPayload = JWTTools(TestTimeProvider(1522540300000L)).verify(incomingJwt)
-        Assert.assertEquals(expectedJwtPayload, incomingJwtPayload)
+        assert(incomingJwtPayload).isEqualTo(expectedJwtPayload)
     }
 
-    @Suppress("UNUSED_VARIABLE")
-    @Test(expected = JWTEncodingException::class)
-    fun throws_when_algorithm_is_wrong() = runBlocking {
+    @Test
+    fun `throws when given an unknown algorithm to create tokens`() {
         val tested = JWTTools()
 
         val payload = emptyMap<String, Any>()
         val signer = KPSigner("0x1234")
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        //should throw a JWTEncodingException
-        val unused = tested.createJWT(payload, issuerDID, signer, algorithm = "some fancy but unknown algorithm")
-
+        coAssert {
+            tested.createJWT(payload, issuerDID, signer, algorithm = "some fancy but unknown algorithm")
+        }.thrownError {
+            isInstanceOf(JWTEncodingException::class)
+        }
     }
 
-    @Test(expected = InvalidJWTException::class)
-    fun throws_when_iat_is_in_future() {
+
+    @Test
+    fun `throws when a token is issued in the future`() {
         val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkaWQ6ZXRocjoweGE5ZTMyMzJiNjFiZGI2NzI3MTJiOWFlMzMxOTUwNjlkOGQ2NTFjMWEiLCJpYXQiOjE1NDU1Njk1NDEsImV4cCI6MTU0NjA4Nzk0MSwiYXVkIjoiZGlkOmV0aHI6MHgxMDgyMDlmNDI0N2I3ZmU2NjA1YjBmNThmOTE0NWVjMzI2OWQwMTU0Iiwic3ViIjoiIn0.Bt9Frc1QabJfpXYBoU4sns8WPeRLdKU87FncgMFq1lY"
 
-        runBlocking {
+        coAssert {
             JWTTools(TestTimeProvider(977317692000L)).verify(token)
+        }.thrownError {
+            isInstanceOf(InvalidJWTException::class)
         }
     }
 
-    @Test(expected = InvalidJWTException::class)
-    fun throws_when_exp_is_in_the_past() {
+    @Test
+    fun `throws when a token is expired`() {
         val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkaWQ6ZXRocjoweGE5ZTMyMzJiNjFiZGI2NzI3MTJiOWFlMzMxOTUwNjlkOGQ2NTFjMWEiLCJpYXQiOjE1NDU1Njk1NDEsImV4cCI6MTU0NjA4Nzk0MSwiYXVkIjoiZGlkOmV0aHI6MHgxMDgyMDlmNDI0N2I3ZmU2NjA1YjBmNThmOTE0NWVjMzI2OWQwMTU0Iiwic3ViIjoiIn0.Bt9Frc1QabJfpXYBoU4sns8WPeRLdKU87FncgMFq1lY"
 
-        runBlocking {
+        coAssert {
             JWTTools(TestTimeProvider(1576847292000L)).verify(token)
+        }.thrownError {
+            isInstanceOf(InvalidJWTException::class)
         }
     }
 
-    @Test(expected = InvalidJWTException::class)
-    fun throws_exception_when_no_matching_public_key() {
+    @Test
+    fun `throws when the signature does not match any public keys belonging to the issuer`() {
 
         // JWT token with a Signer that doesn't have anything to do with the issuerDID.
         val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpYXQiOjE1NDY4NTkxNTksImV4cCI6MTg2MjIxOTE1OSwiaXNzIjoiZGlkOmV0aHI6MHg2OTg1YTExMGRmMzc1NTUyMzVkN2QwZGUwYTBmYjI4Yzk4NDhkZmE5In0.fe1rvAHsoJsJzwSFAmVFTz9uxhncNY65jpbb2cS9jcY08xphpU3rOy1N85_IbEjhIZw-FrPeFgxJLoDLw6itcgE"
 
-        runBlocking {
+        coAssert {
             JWTTools(TestTimeProvider(1547818630000L)).verify(token)
+        }.thrownError {
+            isInstanceOf(InvalidJWTException::class)
         }
     }
 
