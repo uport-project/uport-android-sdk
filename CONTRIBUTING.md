@@ -1,7 +1,17 @@
-#### Guidlines for writing User Stories and Pull Requests
+---
+title: "Contributing"
+index: 2
+category: "android-sdk"
+type: "content"
+---
+
+# Contributing
+
+## Guidelines for writing User Stories and Pull Requests
 This is the first draft of this documents which be continuous revised. 
 
-# User Stories:
+### User Stories:
+
 #### Goal 
 
 This should be 1 - 2 sentences max and should clearly state what the User Story ie expected to achieve. A user story should have just one goal
@@ -19,12 +29,12 @@ Each story must have a minimum 2 and a maximum of 5 acceptance criteria. These a
 A User Story should have at least one test case. This is a scenario or example which can validates the acceptance criteria above
 
 
-# Pull Requests: 
+### Pull Requests: 
 
 Every PR should have:
 
 1. Brief explanation of what was actually done
-2. Screenshots if applicable
+2. Screenshots (if applicable)
 3. Unit tests for new code
 4. Testing instructions in PR description
 5. Comments (dokka, javadoc) for new methods
