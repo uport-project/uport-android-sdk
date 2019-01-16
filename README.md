@@ -107,6 +107,10 @@ It can be instructed to start from scratch, but that may cost additional fuel.
 The handle right now is an ethereum address but it should be treated as an opaque string, as it will change in a future release.
 You should not send funds to that address.
 
+### Key management
+
+The `signer` library is used to create and manage keys for uport accounts. Read full details in [key management documentation](./key_management.md)
+
 ### Ethereum interaction
 
 uPort SDK lets you create, sign, and submit Ethereum transactions.
@@ -215,6 +219,10 @@ The smart-contract binding code is generated using [bivrost-kotlin](https://gith
 
 Currently there is a transient dependency on [spongycastle](https://rtyley.github.io/spongycastle/)
 but that may be removed when pure kotlin implementations of the required cryptographic primitives become available. 
+
+
+## Contributing
+Want to contribute to uport-android-sdk? Cool, please read our [contribution guidelines](./CONTRIBUTING.md) to get an understanding of the process we use for making changes to this repo.
 
 
 ## Changelog
