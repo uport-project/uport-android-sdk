@@ -12,12 +12,11 @@ import android.support.test.espresso.intent.matcher.UriMatchers.hasPath
 import android.support.test.espresso.intent.rule.IntentsTestRule
 import org.hamcrest.Matchers.*
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-
+//TODO: move this to JVM once robolectric works properly with espresso intents
 class TransportsAndroidTests {
 
     //only used for testing
@@ -40,11 +39,6 @@ class TransportsAndroidTests {
     @After
     fun run_after_every_test() {
         instrumentation?.removeMonitor(monitor)
-    }
-
-    @Test
-    fun setup_is_ok() {
-        assertTrue(true)
     }
 
     @Test
