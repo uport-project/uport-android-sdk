@@ -7,10 +7,13 @@ import io.mockk.coEvery
 import io.mockk.mockkStatic
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.experimental.urlGet
+import me.uport.sdk.testhelpers.coAssert
+import me.uport.sdk.testhelpers.isInstanceOf
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.PublicKeyEntry
 import org.junit.Test
+import java.io.IOException
 
 class HttpsDIDResolverTest {
 
@@ -20,11 +23,8 @@ class HttpsDIDResolverTest {
                     PublicKeyEntry(id = "did:https:example.com",
                             type = DelegateType.Secp256k1VerificationKey2018,
                             owner = "did:https:example.com",
-                            ethereumAddress = "0x3c7d65d6daf5df62378874d35fa3626100af9d85",
-                            publicKeyHex = null,
-                            publicKeyBase64 = null,
-                            publicKeyBase58 = null,
-                            value = null)
+                            ethereumAddress = "0x3c7d65d6daf5df62378874d35fa3626100af9d85"
+                    )
             ),
             authentication = listOf(
                     AuthenticationEntry(type = DelegateType.Secp256k1SignatureAuthentication2018,
@@ -56,6 +56,18 @@ class HttpsDIDResolverTest {
     }
 
     @Test
+    fun `fails when the endpoint doesn't provide a DID document`() = runBlocking {
+        mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
+        coEvery { urlGet(any()) } returns ""
+
+        coAssert {
+            HttpsDIDResolver().resolve("did:https:example.com")
+        }.thrownError {
+            isInstanceOf(listOf(IllegalArgumentException::class, IOException::class))
+        }
+    }
+
+    @Test
     fun `resolves document`() = runBlocking {
 
         mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
@@ -67,3 +79,5 @@ class HttpsDIDResolverTest {
     }
 
 }
+
+

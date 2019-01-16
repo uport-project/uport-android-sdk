@@ -9,10 +9,12 @@ open class HttpsDIDResolver : DIDResolver {
     override suspend fun resolve(did: String): HttpsIdentityDocument {
         if (canResolve(did)) {
             val (_, domain) = parseDIDString(did)
-            val ddo = getProfileDocument(domain)
-            return HttpsIdentityDocument.fromJson(ddo)!!
+            val ddoString = getProfileDocument(domain)
+            val ddo = HttpsIdentityDocument.fromJson(ddoString)
+            return ddo
+                    ?: throw IllegalArgumentException("no profile document found for `$did`")
         } else {
-            throw IllegalArgumentException("The DID('$did') cannot be resolved by the uPort DID resolver")
+            throw IllegalArgumentException("The DID('$did') cannot be resolved by the HTTPS DID resolver")
         }
     }
 

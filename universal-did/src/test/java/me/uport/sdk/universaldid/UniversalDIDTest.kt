@@ -5,7 +5,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import kotlinx.coroutines.runBlocking
-import me.uport.sdk.jwt.coAssert
+import me.uport.sdk.testhelpers.coAssert
 import org.junit.Test
 
 class UniversalDIDTest {

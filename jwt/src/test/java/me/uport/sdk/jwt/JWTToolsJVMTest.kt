@@ -12,6 +12,7 @@ import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.ethrdid.EthrDIDDocument
 import me.uport.sdk.jwt.model.JwtPayload
+import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDDocument
 import org.junit.Test
