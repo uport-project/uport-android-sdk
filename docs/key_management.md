@@ -1,4 +1,11 @@
-## Uport android signer
+---
+title: "Key Management"
+index: 1
+category: "android-sdk"
+type: "content"
+---
+
+# uPort Android Signer
 
 The `signer` library is used to create and manage keys for uport accounts.
 It can be used independently but it is ultimately meant to be used as part of the android SDK, wrapped behind easier to use abstractions (like the `Signer` interface, or an `Account` object).
@@ -12,10 +19,11 @@ encryption backed by ARM Trusted Execution Environment (TEE).
 Note: The curve used for ETH signing is not backed by the TEE,
 therefore private keys exist in memory while in use but are encrypted with TEE keys while on storage.
 
-### Import
+## Import
 
 in your main `build.gradle`:
-```groovy
+```
+groovy
 
 allprojects {
     repositories {
@@ -24,8 +32,10 @@ allprojects {
     }
 }
 ```
+
 in your app `build.gradle`:
-```groovy
+```
+groovy
 uport_sdk_version = "v0.3.2"
 dependencies {
     ...
@@ -33,9 +43,9 @@ dependencies {
 }
 ```
 
-### Usage
+## Usage
 
-#### Key protection
+### Key protection
 
 When creating or importing keys/seeds, you must specify the protection `KeyProtection.Level` desired.
 When using such a key/seed, the protection level is enforced based on the option used during creation.
@@ -55,7 +65,7 @@ The options are:
 > * On KitKat, all `KeyProtection.Level` options default to `SIMPLE`
 > * On Lolipop, the 30 second timeout window for `SINGLE_PROMPT` is not enforced by the AndroidKeyStore API, it is emulated by this library
 
-#### Create a seed:
+### Create a seed:
 
 This creates a seed that is used for future key derivation and signing:
 The seed is representable by a bip39 mnemonic phrase.
@@ -92,7 +102,7 @@ UportHDSigner().importHDSeed(activity, KeyProtection.Level.SIMPLE, phrase, { err
             })
 ```
 
-#### Signing
+### Signing
 
 You can use this lib to calculate ETH transaction signatures.
 Building and encoding transaction objects into `ByteArray`s is not in the scope of this lib.
@@ -102,7 +112,8 @@ To refer to that seed you must use the `rootAddress` from the seed creation/impo
 Based on the `KeyProtection.Level` used during seed import/creation, a prompt may be shown to the user
 on the lock-screen / fingerprint dialog.
 
-```kotlin
+```
+kotlin
 
 val rootAddress = "0x123..." //rootAddress received when creating/importing the seed
 
@@ -127,7 +138,7 @@ UportHDSigner().signTransaction(activity, rootAddress, derivationPath, txPayload
 
 Note: The requirement to encode the transaction payload as a base64 string is subject to change in future releases
 
-##### uPort specific JWTs
+### uPort specific JWTs
 
 This lib can also produce signatures for uPort specific JWTs:
 The method signature is the same but the signing method differs.
@@ -135,7 +146,8 @@ The method signature is the same but the signing method differs.
 Also, do note that in the current version of this API,
  `data` is a Base64 encoded string (not a serialized JSON) - this is subject to change in future releases
 
-```kotlin
+```
+kotlin
 
 UportHDSigner().signJwtBundle(activity, rootAddress, derivationPath, data, prompt, { err, sigData ->
     if (err != null) {
