@@ -24,7 +24,6 @@ android {
 }
 
 dependencies {
-
     implementation(
             "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
             "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version",
@@ -35,14 +34,6 @@ dependencies {
 
             project(":core")
     )
-
-    testImplementation(
-            "junit:junit:$junit_version",
-    )
-
-    androidTestImplementation(
-            "com.android.support.test:runner:$test_runner_version",
-    )
-
-
+    testImplementation "junit:junit:$junit_version"
+    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
 }

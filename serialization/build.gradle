@@ -32,12 +32,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     api "com.squareup.moshi:moshi-kotlin:$moshi_version"
-//    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+    //    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
     api "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlin_serialization_version"
     api "com.squareup.moshi:moshi-adapters:$moshi_version"
-
     testImplementation "junit:junit:$junit_version"
 }
-
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
