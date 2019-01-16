@@ -1,14 +1,21 @@
+---
+title: "uPort Android SDK"
+index: 1
+category: "android-sdk"
+type: "content"
+---
+
 # uPort Android SDK
 
 Identity for your Android dApps.
 
 **This is a preview version of the uPort android SDK.
 Many intended features are still missing, and the ones already present are under heavy development.
-Expect breaking changes!**
+Expect some breaking changes**
 
-Planning is done at https://www.pivotaltracker.com/n/projects/2198688
+Development planning is done at https://www.pivotaltracker.com/n/projects/2198688
 
-### Installation
+## Installation
 
 This SDK is available through [jitpack](https://jitpack.io/)
 
@@ -16,7 +23,8 @@ This SDK is available through [jitpack](https://jitpack.io/)
 
 In your main `build.gradle` file, add:
 
-```groovy
+```
+groovy
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
@@ -25,8 +33,10 @@ allprojects {
 }
 ```
 
-In your application `build.gradle`:
-```groovy
+In your application `build.gradle` file, add:
+
+```
+groovy
 def uport_sdk_version = "v0.3.2"
 dependencies {
     //...
@@ -35,12 +45,13 @@ dependencies {
 }
 ```
 
-### Usage
+## Usage
 
 
-##### Configure uPort in your Application class
+### Configure uPort in your Application class
 
-```kotlin
+```
+kotlin
 
 override fun onCreate() {
     
@@ -52,12 +63,13 @@ override fun onCreate() {
 
 ```
 
-#### defaultAccount
+### defaultAccount
 
 This preview version of the SDK has the concept of `defaultAccount` as a nullable field in the `Uport` object.
 If there is no default account when a new one is created, it becomes the default.
 
-```kotlin
+```
+kotlin
 
 Uport.defaultAccount?.address // Returns the mnid address of the default account
 Uport.defaultAccount?.publicAddress // Returns the hex address of the default account
@@ -73,7 +85,7 @@ val balanceInWei = Uport.defaultAccount?.getBalance()
 
 ```
 
-#### Account Creation
+### Account Creation
 
 ```kotlin
 
@@ -89,13 +101,13 @@ if (Uport.defaultAccount == null) {
 In case the app gets killed during the account creation process, the `createAccount` method will try to resume the process where it left off.
 It can be instructed to start from scratch, but that may cost additional fuel.
 
-#### Account management
+### Account management
 
 `Account` objects have a `handle` field that can be used to refer to them in the future.
 The handle right now is an ethereum address but it should be treated as an opaque string, as it will change in a future release.
 You should not send funds to that address.
 
-#### Ethereum interaction
+### Ethereum interaction
 
 uPort SDK lets you create, sign, and submit Ethereum transactions.
 
@@ -129,7 +141,7 @@ val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 ```
 
-#### off-chain interaction
+### off-chain interaction
 
 Off-chain interaction is essentially signing and verifying JWTs using uport-specific JWT algorithms.
 Verification of such tokens implies resolving a 
@@ -148,7 +160,7 @@ Registering a new resolver that resolves the same DID method will override the p
 
 These `DIDDocument`s are used during verification of compatible JWT tokens.
 
-##### verify a JWT token
+#### verify a JWT token
 
 ```kotlin
 
@@ -164,7 +176,7 @@ if (tokenPayload != null) {
 ```
 
 
-##### create a JWT token
+#### create a JWT token
 
 ```kotlin
 
@@ -195,7 +207,7 @@ val decryptedMessage = Crypto.decrypt(receivedBundle, recipientSecretKey)
 
 
 
-### Dependencies
+## Dependencies
 
 This library uses [kethereum](https://github.com/walleth/kethereum) for a lot of ethereum related work.
 
@@ -205,7 +217,7 @@ Currently there is a transient dependency on [spongycastle](https://rtyley.githu
 but that may be removed when pure kotlin implementations of the required cryptographic primitives become available. 
 
 
-### Changelog
+## Changelog
 
 * 0.3.2
     * JWT timestamps are checked with allowance for clock drift
