@@ -31,3 +31,4 @@ fun <T : Any> Assert<T>.isInstanceOf(classes: List<KClass<*>>) {
         expected("to be instance of one of:[${show(classes)}] but had class:${show(actual::class)}")
     }
 }
+

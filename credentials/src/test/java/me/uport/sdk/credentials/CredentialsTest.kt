@@ -68,7 +68,7 @@ class CredentialsTest {
 
     @Test
     fun `selective disclosure request contains required fields`() = runBlocking {
-        val nowSeconds = Math.floor(SystemTimeProvider.now() / 1000.0).toLong()
+        val nowSeconds = Math.floor(SystemTimeProvider.nowMs() / 1000.0).toLong()
         val cred = Credentials("did:example:issuer", KPSigner("0x1234"))
 
         val jwt = cred.createDisclosureRequest(SelectiveDisclosureRequestParams(emptyList(), ""))
