@@ -105,7 +105,7 @@ You should not send funds to that address.
 
 ### Key management
 
-The `signer` library is used to create and manage keys for uport accounts. Read full details in [key management documentation](./key_management.md)
+The `signer` library is used to create and manage keys for uport accounts. Read full details in [key management documentation](./docs/overview/key_management.md)
 
 ### Ethereum interaction
 
