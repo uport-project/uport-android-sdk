@@ -22,8 +22,7 @@ therefore private keys exist in memory while in use but are encrypted with TEE k
 ## Import
 
 in your main `build.gradle`:
-```
-groovy
+```groovy
 
 allprojects {
     repositories {
@@ -34,8 +33,7 @@ allprojects {
 ```
 
 in your app `build.gradle`:
-```
-groovy
+```groovy
 uport_sdk_version = "v0.3.2"
 dependencies {
     ...
@@ -112,8 +110,7 @@ To refer to that seed you must use the `rootAddress` from the seed creation/impo
 Based on the `KeyProtection.Level` used during seed import/creation, a prompt may be shown to the user
 on the lock-screen / fingerprint dialog.
 
-```
-kotlin
+```kotlin
 
 val rootAddress = "0x123..." //rootAddress received when creating/importing the seed
 
@@ -146,8 +143,7 @@ The method signature is the same but the signing method differs.
 Also, do note that in the current version of this API,
  `data` is a Base64 encoded string (not a serialized JSON) - this is subject to change in future releases
 
-```
-kotlin
+```kotlin
 
 UportHDSigner().signJwtBundle(activity, rootAddress, derivationPath, data, prompt, { err, sigData ->
     if (err != null) {

@@ -23,8 +23,7 @@ This SDK is available through [jitpack](https://jitpack.io/)
 
 In your main `build.gradle` file, add:
 
-```
-groovy
+```groovy
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
@@ -35,8 +34,7 @@ allprojects {
 
 In your application `build.gradle` file, add:
 
-```
-groovy
+```groovy
 def uport_sdk_version = "v0.3.2"
 dependencies {
     //...
@@ -50,8 +48,7 @@ dependencies {
 
 ### Configure uPort in your Application class
 
-```
-kotlin
+```kotlin
 
 override fun onCreate() {
     
@@ -68,8 +65,7 @@ override fun onCreate() {
 This preview version of the SDK has the concept of `defaultAccount` as a nullable field in the `Uport` object.
 If there is no default account when a new one is created, it becomes the default.
 
-```
-kotlin
+```kotlin
 
 Uport.defaultAccount?.address // Returns the mnid address of the default account
 Uport.defaultAccount?.publicAddress // Returns the hex address of the default account

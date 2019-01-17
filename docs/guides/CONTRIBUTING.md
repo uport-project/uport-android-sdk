@@ -1,6 +1,6 @@
 ---
 title: "Contributing"
-index: 2
+index: 3
 category: "android-sdk"
 type: "content"
 ---
