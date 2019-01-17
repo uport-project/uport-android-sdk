@@ -48,7 +48,6 @@ class AccountStorageTest {
         )
 
         storage.upsert(refAccount)
-        storage.upsert(refAccount)
         assert(storage.get(refAccount.handle)).isEqualTo(refAccount)
 
         storage.delete(refAccount.handle)

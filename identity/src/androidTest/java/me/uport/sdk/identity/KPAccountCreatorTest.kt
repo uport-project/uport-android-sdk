@@ -32,7 +32,7 @@ class KPAccountCreatorTest {
                 isNotNull()
                 isNotEqualTo(Account.blank)
             }
-            assert(account.type == AccountType.KeyPair)
+            assert(account.type).isEqualTo(AccountType.KeyPair)
             assert(account.address).isNotEmpty()
             assert(account.publicAddress).isNotEmpty()
             assert(account.deviceAddress).isNotEmpty()
