@@ -30,7 +30,7 @@ fun urlPostSync(url: String, jsonBody: String): String {
  * HTTP posts a [jsonBody] to the given [url] and calls back with the response body as string or an exception
  * Takes an optional [authToken] that will be sent as `Bearer` token on an `Authorization` header
  *
- * Calls back with IOException if the request could not be executed due to cancellation, disconnect or timeout
+ * Calls back with [IOException] if the request could not be executed due to cancellation, disconnect or timeout
  */
 fun urlPost(url: String, jsonBody: String, authToken: String? = null, callback: (err: Exception?, payload: String) -> Unit) {
     val contentType = MediaType.parse("application/json")
