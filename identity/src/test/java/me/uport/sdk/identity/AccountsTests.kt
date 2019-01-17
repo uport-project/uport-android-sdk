@@ -1,10 +1,7 @@
 package me.uport.sdk.identity
 
 import assertk.assert
-import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
-import assertk.assertions.isInstanceOf
-import assertk.assertions.isNotNull
+import assertk.assertions.*
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -92,8 +89,8 @@ class AccountsTests {
             }""".trimIndent()
 
         val account = Account.fromJson(serializedAccount)
-        val canResolve = UportDIDResolver().canResolve(account!!.getDID())
-        assert(canResolve)
+        val tested = UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl))
+        assert(tested.canResolve(account!!.getDID())).isTrue()
     }
 
     @Test

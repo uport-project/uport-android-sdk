@@ -60,7 +60,8 @@ class JWTTools(
 
         // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID
         if (!UniversalDID.canResolve(blankUportDID)) {
-            UniversalDID.registerResolver(UportDIDResolver())
+            val defaultRPC = JsonRPC(Networks.rinkeby.rpcUrl)
+            UniversalDID.registerResolver(UportDIDResolver(defaultRPC))
         }
 
         // register default https DID resolver if Universal DID is unable to resolve blank https DID

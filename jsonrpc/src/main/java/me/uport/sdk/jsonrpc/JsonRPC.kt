@@ -13,6 +13,7 @@ import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
 import org.walleth.khex.prepend0xPrefix
 import org.walleth.khex.toHexString
+import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.math.BigInteger
 
@@ -63,6 +64,7 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, emptyList())
             }
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+                    ?: return@urlPost callback(IOException("RPC endpoint response can't be parsed as JSON"), emptyList())
             if (parsedResponse.error != null) {
                 return@urlPost callback(parsedResponse.error.toException(), emptyList())
             }
@@ -94,6 +96,7 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, BigInteger.ZERO)
             }
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+                    ?: return@urlPost callback(IOException("RPC endpoint response can't be parsed as JSON"), BigInteger.ZERO)
             if (parsedResponse.error != null) {
                 return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
             }
@@ -124,6 +127,7 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, BigInteger.ZERO)
             }
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+                    ?: return@urlPost callback(IOException("RPC endpoint response can't be parsed as JSON"), BigInteger.ZERO)
             if (parsedResponse.error != null) {
                 return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
             }
@@ -152,6 +156,7 @@ class JsonRPC(private val rpcUrl: String) {
                 return@urlPost callback(err, BigInteger.ZERO)
             }
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+                    ?: return@urlPost callback(IOException("RPC endpoint response can't be parsed as JSON"), BigInteger.ZERO)
             if (parsedResponse.error != null) {
                 return@urlPost callback(parsedResponse.error.toException(), BigInteger.ZERO)
             }
@@ -329,6 +334,7 @@ class JsonRPC(private val rpcUrl: String) {
             }
 
             val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+                    ?: return@urlPost callback(IOException("RPC endpoint response can't be parsed as JSON"), "")
             if (parsedResponse.error != null) {
                 return@urlPost callback(parsedResponse.error.toException(), "")
             } else {

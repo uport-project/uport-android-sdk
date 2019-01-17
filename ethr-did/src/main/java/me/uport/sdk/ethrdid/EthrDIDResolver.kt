@@ -21,6 +21,7 @@ import org.walleth.khex.hexToByteArray
 import org.walleth.khex.prepend0xPrefix
 import org.walleth.khex.toHexString
 import pm.gnosis.model.Solidity
+import java.io.IOException
 import java.math.BigInteger
 import java.util.*
 
@@ -73,9 +74,9 @@ class EthrDIDResolver(
         val encodedCall = EthereumDIDRegistry.Changed.encode(Solidity.Address(identity.hexToBigInteger()))
         val jrpcResponse = rpc.ethCall(registryAddress, encodedCall)
         val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
-
+                ?: throw IOException("RPC endpoint response can't be parsed as JSON")
         parsedResponse.error?.let {
-            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged", it.toException())
+            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged because RPC endpoint responded with an error", it.toException())
         }
 
         return parsedResponse.result.toString()

@@ -90,9 +90,8 @@ object Uport {
                     prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
                 }
 
-        UniversalDID.registerResolver(UportDIDResolver())
-        val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
-        UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+        UniversalDID.registerResolver(UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl)))
+        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(Networks.mainnet.rpcUrl)))
         UniversalDID.registerResolver(HttpsDIDResolver())
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured

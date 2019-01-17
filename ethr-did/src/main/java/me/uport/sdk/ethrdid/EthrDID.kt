@@ -16,6 +16,7 @@ import org.walleth.khex.hexToByteArray
 import org.walleth.khex.prepend0xPrefix
 import org.walleth.khex.toHexString
 import pm.gnosis.model.Solidity
+import java.io.IOException
 import java.math.BigInteger
 
 /**
@@ -40,7 +41,12 @@ class EthrDID(
         if (cache && this.owner != null) return this.owner
         val encodedCall = EthereumDIDRegistry.IdentityOwner.encode(Solidity.Address(address.hexToBigInteger()))
         val jrpcResponse = rpc.ethCall(registry, encodedCall)
-        val rawResult = JsonRpcBaseResponse.fromJson(jrpcResponse).result.toString()
+        val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
+                ?: throw IOException("RPC endpoint response can't be parsed as JSON")
+        if (parsedResponse.error != null) {
+            throw IOException("RPC endpoint responded with error during owner lookup", parsedResponse.error?.toException())
+        }
+        val rawResult = parsedResponse.result.toString()
         return rawResult.substring(rawResult.length - 40).prepend0xPrefix()
     }
 

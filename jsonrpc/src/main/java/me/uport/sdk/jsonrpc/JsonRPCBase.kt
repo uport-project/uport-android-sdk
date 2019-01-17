@@ -49,8 +49,7 @@ open class JsonRpcBaseResponse(
 
     companion object {
 
-        fun fromJson(json: String): JsonRpcBaseResponse = jsonAdapter?.fromJson(json)
-                ?: JsonRpcBaseResponse()
+        fun fromJson(json: String): JsonRpcBaseResponse? = jsonAdapter?.fromJson(json)
 
         private val jsonAdapter = moshi.adapter<JsonRpcBaseResponse>(JsonRpcBaseResponse::class.java)
     }

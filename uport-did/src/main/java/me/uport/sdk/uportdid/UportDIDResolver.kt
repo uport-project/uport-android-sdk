@@ -6,17 +6,19 @@ import me.uport.mnid.Account
 import me.uport.mnid.MNID
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.urlGet
-import me.uport.sdk.core.urlPost
-import me.uport.sdk.jsonrpc.EthCall
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.jsonrpc.experimental.ethCall
 import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DIDResolver
+import me.uport.sdk.universaldid.DidResolverError
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import pm.gnosis.model.Solidity
+import java.io.IOException
 
 /**
  * This is a DID resolver implementation that supports the "uport" DID method.
@@ -26,7 +28,9 @@ import pm.gnosis.model.Solidity
  * Example uport did: "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX#owner"
  * Example mnid: "2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX"
  */
-class UportDIDResolver : DIDResolver {
+class UportDIDResolver(
+        private val rpc: JsonRPC
+) : DIDResolver {
     override val method: String = "uport"
 
     override suspend fun resolve(did: String): DIDDocument = withContext(Dispatchers.IO) {
@@ -67,11 +71,15 @@ class UportDIDResolver : DIDResolver {
 
         val encodedFunctionCall = encodeRegistryGetCall(registrationIdentifier, issuer, subject)
 
-        val jsonPayload = EthCall(registryAddress, encodedFunctionCall).toJsonRpc()
+        val jrpcResponse = rpc.ethCall(registryAddress, encodedFunctionCall)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
+                ?: throw IOException("the response from the RPC endpoint could not be parsed as JSON")
 
-        //can be async
-        val jrpcResponse = urlPost(network.rpcUrl, jsonPayload)
-        return JsonRpcBaseResponse.fromJson(jrpcResponse).result.toString()
+        parsedResponse.error?.let {
+            throw DidResolverError("The RPC endpoint returned an error while obtaining the doc address from the uPort registry", parsedResponse.error?.toException())
+        }
+
+        return parsedResponse.result.toString()
     }
 
     internal fun encodeRegistryGetCall(registrationIdentifier: String, issuer: Account, subject: Account): String {
