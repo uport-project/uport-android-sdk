@@ -218,7 +218,7 @@ but that may be removed when pure kotlin implementations of the required cryptog
 
 
 ## Contributing
-Want to contribute to uport-android-sdk? Cool, please read our [contribution guidelines](./CONTRIBUTING.md) to get an understanding of the process we use for making changes to this repo.
+Want to contribute to uport-android-sdk? Cool, please read our [contribution guidelines](./docs/guides/CONTRIBUTING.md) to get an understanding of the process we use for making changes to this repo.
 
 
 ## Changelog
