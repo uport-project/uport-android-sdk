@@ -1,6 +1,6 @@
 package me.uport.sdk.httpsdid
 
-import me.uport.sdk.core.experimental.urlGet
+import me.uport.sdk.core.urlGet
 import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDResolver
 import me.uport.sdk.universaldid.DidResolverError

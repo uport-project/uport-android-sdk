@@ -5,23 +5,39 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.unmockkAll
+import kotlinx.coroutines.runBlocking
 import me.uport.mnid.Account
-import me.uport.sdk.core.urlGetSync
-import me.uport.sdk.core.urlPostSync
+import me.uport.sdk.core.urlGet
+import me.uport.sdk.core.urlPost
 import me.uport.sdk.jsonrpc.EthCall
 import me.uport.sdk.universaldid.DelegateType
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.walleth.khex.clean0xPrefix
 
 class UportDIDResolverTest {
 
-    @Test
-    fun encapsulates_json_rpc() {
+    @Before
+    fun `setup mocks`() {
+        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
+        mockkStatic("me.uport.sdk.core.CoroutineExtensionsKt")
+    }
 
-        val expectedPayload = "{\"method\":\"eth_call\",\"params\":[{\"to\":\"0xaddress\",\"data\":\"some0xdatastring\"},\"latest\"],\"id\":1,\"jsonrpc\":\"2.0\"}"
+    @After
+    fun `clear mocks`() {
+        unmockkAll()
+    }
+
+    @Test
+    fun `can encapsulate eth_call RPC`() {
+
+        //language=json
+        val expectedPayload = """{"method":"eth_call","params":[{"to":"0xaddress","data":"some0xdatastring"},"latest"],"id":1,"jsonrpc":"2.0"}"""
 
         val payload = EthCall("0xaddress", "some0xdatastring").toJsonRpc()
 
@@ -29,23 +45,22 @@ class UportDIDResolverTest {
     }
 
     @Test
-    fun encodes_eth_call() {
+    fun `can encode a uPort registry Get method call`() {
         val expectedEncoding = "0x447885f075506f727450726f66696c654950465331323230000000000000000000000000000000000000000000000000f12c30cd32b4a027710c150ae742f50db0749213000000000000000000000000f12c30cd32b4a027710c150ae742f50db0749213"
         val acc = Account.from(network = "0x04", address = "0xf12c30cd32b4a027710c150ae742f50db0749213")
-        val encoding = UportDIDResolver().encodeRegistryFunctionCall("uPortProfileIPFS1220", acc, acc)
+        val encoding = UportDIDResolver().encodeRegistryGetCall("uPortProfileIPFS1220", acc, acc)
 
         assert(encoding).isEqualTo(expectedEncoding)
     }
 
     @Test
-    fun calls_registry() {
+    fun `calls registry with correct payload`() = runBlocking {
         val registryPayload = slot<String>()
 
-        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
         //language=json
-        every { urlPostSync(any(), capture(registryPayload)) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
+        coEvery { urlPost(any(), capture(registryPayload)) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
 
-        val docAddressHex = UportDIDResolver().getIpfsHashSync("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
+        val docAddressHex = UportDIDResolver().getIpfsHash("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
         //language=json
         assert(registryPayload.captured).isEqualTo("""{"method":"eth_call","params":[{"to":"0x2cc31912b2b0f3075a87b3640923d45a26cef3ee","data":"0x447885f075506f727450726f66696c654950465331323230000000000000000000000000000000000000000000000000f12c30cd32b4a027710c150ae742f50db0749213000000000000000000000000f12c30cd32b4a027710c150ae742f50db0749213"},"latest"],"id":1,"jsonrpc":"2.0"}""")
@@ -53,7 +68,7 @@ class UportDIDResolverTest {
     }
 
     @Test
-    fun `can convert legacy DDO`() {
+    fun `can convert legacy UportIdentityDocument to DIDDocument`() {
         val publicKeyHex = "0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f"
         val publicEncKey = "k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="
         val legacyDDO = UportIdentityDocument(
@@ -89,7 +104,7 @@ class UportDIDResolverTest {
     }
 
     @Test
-    fun getJsonDIDSync() {
+    fun `can get profile document for mnid`() = runBlocking {
 
         val expectedDDO = UportIdentityDocument(
                 context = "http://schema.org",
@@ -101,15 +116,12 @@ class UportDIDResolverTest {
                 name = null
         )
 
-        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
-
         //language=json
-        every { urlPostSync(any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
-
+        coEvery { urlPost(any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
         //language=json
-        every { urlGetSync(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
+        coEvery { urlGet(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
 
-        val ddo = UportDIDResolver().getProfileDocumentSync("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
+        val ddo = UportDIDResolver().getProfileDocumentFor(mnid = "2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
         assert(ddo).isEqualTo(expectedDDO)
     }

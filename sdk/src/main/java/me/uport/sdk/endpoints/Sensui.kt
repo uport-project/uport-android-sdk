@@ -3,7 +3,7 @@ package me.uport.sdk.endpoints
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import me.uport.sdk.core.experimental.urlPost
+import me.uport.sdk.core.urlPost
 
 class Sensui(
         private val fundUrl: String = SENSUI_DEFAULT_FUND_URL,

@@ -6,27 +6,6 @@ import java.io.IOException
 val okClient by lazy { OkHttpClient() }
 
 /**
- * HTTP posts a payload and returns the raw response
- *
- * @throws IOException if the request could not be executed due to cancellation, disconnect or timeout
- * Because networks can fail during an exchange,
- * it is possible that the remote server accepted the request before the failure.
- */
-@Throws(IOException::class)
-fun urlPostSync(url: String, jsonBody: String): String {
-    val contentType = MediaType.parse("application/json")
-    val body = RequestBody.create(contentType, jsonBody)
-    val request = Request.Builder()
-            .url(url)
-            .addHeader("Accept", "application/json")
-            .addHeader("Content-Type", "application/json")
-            .post(body)
-            .build()
-    val response = okClient.newCall(request).execute()
-    return response.body()?.string() ?: ""
-}
-
-/**
  * HTTP posts a [jsonBody] to the given [url] and calls back with the response body as string or an exception
  * Takes an optional [authToken] that will be sent as `Bearer` token on an `Authorization` header
  *
@@ -65,14 +44,12 @@ fun urlPost(url: String, jsonBody: String, authToken: String? = null, callback: 
     })
 }
 
-fun urlGetSync(url: String): String {
-    val request = Request.Builder()
-            .url(url)
-            .build()
-    val response = okClient.newCall(request).execute()
-    return response.body()?.string() ?: ""
-}
-
+/**
+ * Does a HTTP GET with given [url] and calls back with the response body as string or an exception
+ * Takes an optional [authToken] that will be sent as `Bearer` token on an `Authorization` header
+ *
+ * Calls back with [IOException] if the request could not be executed due to cancellation, disconnect or timeout.
+ */
 fun urlGet(url: String, authToken: String? = null, callback: (err: Exception?, payload: String) -> Unit) {
     val request = Request.Builder().apply {
         url(url)

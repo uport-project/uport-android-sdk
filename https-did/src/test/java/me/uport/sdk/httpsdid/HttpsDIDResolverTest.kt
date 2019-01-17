@@ -6,7 +6,7 @@ import assertk.assertions.isFalse
 import io.mockk.coEvery
 import io.mockk.mockkStatic
 import kotlinx.coroutines.runBlocking
-import me.uport.sdk.core.experimental.urlGet
+import me.uport.sdk.core.urlGet
 import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.testhelpers.isInstanceOf
 import me.uport.sdk.universaldid.AuthenticationEntry
@@ -57,7 +57,7 @@ class HttpsDIDResolverTest {
 
     @Test
     fun `fails when the endpoint doesn't provide a DID document`() = runBlocking {
-        mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
+        mockkStatic("me.uport.sdk.core.CoroutineExtensionsKt")
         coEvery { urlGet(any()) } returns ""
 
         coAssert {
@@ -70,7 +70,7 @@ class HttpsDIDResolverTest {
     @Test
     fun `resolves document`() = runBlocking {
 
-        mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
+        mockkStatic("me.uport.sdk.core.CoroutineExtensionsKt")
 
         coEvery { urlGet(any()) } returns exampleDidDoc.toJson()
 

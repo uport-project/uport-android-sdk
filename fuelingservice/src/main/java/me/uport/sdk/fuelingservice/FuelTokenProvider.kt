@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.UI
-import me.uport.sdk.core.experimental.urlPost
+import me.uport.sdk.core.urlPost
 import org.json.JSONObject
 import java.io.IOException
 
