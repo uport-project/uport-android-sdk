@@ -1,8 +1,10 @@
 package me.uport.sdk
 
+import assertk.all
+import assertk.assert
+import assertk.assertions.*
 import me.uport.sdk.fakes.InMemorySharedPrefs
 import me.uport.sdk.identity.Account
-import org.junit.Assert.*
 import org.junit.Test
 
 class AccountStorageTest {
@@ -12,7 +14,7 @@ class AccountStorageTest {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
         val newAcc = Account("0xnewaccount", "", "", "", "", "", "")
         storage.upsert(newAcc)
-        assertEquals(newAcc, storage.get("0xnewaccount"))
+        assert(storage.get("0xnewaccount")).isEqualTo(newAcc)
     }
 
     @Test
@@ -28,14 +30,14 @@ class AccountStorageTest {
 
         val allAccounts = storage.all()
 
-        assertTrue(allAccounts.containsAll(accounts))
+        assert(allAccounts.containsAll(accounts))
     }
 
     @Test
     fun `can delete account`() {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
-        val account = Account(
+        val refAccount = Account(
                 "0xmyAccount",
                 "device",
                 "0x1",
@@ -45,22 +47,20 @@ class AccountStorageTest {
                 ""
         )
 
-        storage.upsert(account)
+        storage.upsert(refAccount)
+        assert(storage.get(refAccount.handle)).isEqualTo(refAccount)
 
-        storage.upsert(account)
-        assertEquals(account, storage.get(account.handle))
+        storage.delete(refAccount.handle)
 
-        storage.delete(account.handle)
-
-        assertNull(storage.get(account.handle))
-        assertFalse(storage.all().contains(account))
+        assert(storage.get(refAccount.handle)).isNull()
+        assert(storage.all()).doesNotContain(refAccount)
     }
 
     @Test
     fun `can overwrite account`() {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
-        val account = Account(
+        val refAccount = Account(
                 "0xmyAccount",
                 "device",
                 "0x1",
@@ -70,17 +70,20 @@ class AccountStorageTest {
                 ""
         )
 
-        storage.upsert(account)
+        storage.upsert(refAccount)
 
-        val newAccount = account.copy(isDefault = true)
+        val newAccount = refAccount.copy(isDefault = true)
 
         storage.upsert(newAccount)
 
-        assertNotEquals(account, storage.get(account.handle))
-        assertEquals(newAccount, storage.get(account.handle))
-
-        assertFalse(storage.all().contains(account))
-        assertTrue(storage.all().contains(newAccount))
+        assert(storage.get(refAccount.handle)).all {
+            isNotEqualTo(refAccount)
+            isEqualTo(newAccount)
+        }
+        assert(storage.all()).all {
+            doesNotContain(refAccount)
+            contains(newAccount)
+        }
     }
 
     @Test
@@ -95,7 +98,7 @@ class AccountStorageTest {
 
         val allAccounts = storage.all()
 
-        assertTrue(allAccounts.containsAll(accounts))
+        assert(allAccounts.containsAll(accounts))
     }
 
 }

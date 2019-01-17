@@ -87,8 +87,8 @@ class JsonRPCSerializers {
 }
 
 
-val moshi = Moshi.Builder()
+val moshi: Moshi = Moshi.Builder()
         .add(JsonRPCSerializers())
         .add(KotlinJsonAdapterFactory())
-        .build()!!
+        .build()
 

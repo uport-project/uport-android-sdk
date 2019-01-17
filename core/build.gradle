@@ -35,5 +35,5 @@ dependencies {
     api "com.github.uport-project:kmnid:$kmnid_version"
     api "com.github.walleth.kethereum:functions:$kethereum_version"
     testImplementation "junit:junit:$junit_version"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 }

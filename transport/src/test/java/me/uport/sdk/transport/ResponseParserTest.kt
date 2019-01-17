@@ -1,7 +1,8 @@
 package me.uport.sdk.transport
 
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
+import assertk.assert
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
@@ -40,8 +41,7 @@ class ResponseParserTest {
     fun `parse jwt from URL`() {
         valid.forEach { redirect ->
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            println(token)
-            assertNotNull(token)
+            assert(token).isNotNull()
         }
     }
 
@@ -54,7 +54,7 @@ class ResponseParserTest {
             expectedExceptionRule.expect(IllegalArgumentException::class.java)
             expectedExceptionRule.expectMessage("Cannot parse URI")
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assertNull("expected parsing to fail at url: $redirect", token)
+            assert(token).isNull()
         }
     }
 }

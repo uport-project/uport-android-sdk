@@ -1,11 +1,12 @@
 package me.uport.sdk.jwt
 
+import assertk.assert
+import assertk.assertions.isEqualTo
 import com.uport.sdk.signer.KPSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class JWTSignerAlgorithmTest {
@@ -18,8 +19,8 @@ class JWTSignerAlgorithmTest {
         val expectedSignature = "a82BRGGDrxk8pKFy1cXCY0WQOyR3DZC115D3Sp3sH2jiuFs8ksm0889Y3kbnmX2O-24UsuUy0T36Iu4C86Q9XQ"
         val signature = JWTSignerAlgorithm(ES256K).sign("Hello, world!", signer)
 
-        assertEquals(expectedSignature, signature)
-        assertEquals(64, signature.decodeBase64().size)
+        assert(signature).isEqualTo(expectedSignature)
+        assert(signature.decodeBase64().size).isEqualTo(64)
 
     }
 
@@ -31,8 +32,8 @@ class JWTSignerAlgorithmTest {
         val expectedSignature = "a82BRGGDrxk8pKFy1cXCY0WQOyR3DZC115D3Sp3sH2jiuFs8ksm0889Y3kbnmX2O-24UsuUy0T36Iu4C86Q9XQE"
         val signature = JWTSignerAlgorithm(ES256K_R).sign("Hello, world!", signer)
 
-        assertEquals(expectedSignature, signature)
-        assertEquals(65, signature.decodeBase64().size)
+        assert(signature).isEqualTo(expectedSignature)
+        assert(signature.decodeBase64().size).isEqualTo(65)
 
     }
 
@@ -47,6 +48,6 @@ class JWTSignerAlgorithmTest {
 
         val signature = JWTSignerAlgorithm(ES256K_R).sign("thequickbrownfoxjumpedoverthelazyprogrammer", signer)
 
-        assertEquals(expectedSignature, signature)
+        assert(signature).isEqualTo(expectedSignature)
     }
 }

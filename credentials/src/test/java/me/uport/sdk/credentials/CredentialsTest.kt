@@ -1,21 +1,19 @@
 package me.uport.sdk.credentials
 
+import assertk.assert
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isGreaterThanOrEqualTo
+import assertk.assertions.isNotNull
 import com.uport.sdk.signer.KPSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CredentialsTest {
-
-    @Test
-    fun `setup works`() {
-        assertTrue(true)
-    }
 
     @Test
     fun `can normalize a known string format to a DID format`() {
@@ -42,7 +40,7 @@ class CredentialsTest {
         )
 
         transformations.forEach { (orig, expected) ->
-            assertEquals(expected, Credentials.normalizeKnownDID(orig))
+            assert(Credentials.normalizeKnownDID(orig)).isEqualTo(expected)
         }
     }
 
@@ -53,7 +51,7 @@ class CredentialsTest {
         val jwt = cred.signJWT(emptyMap())
 
         val (header, _, _) = JWTTools().decode(jwt)
-        assertEquals(ES256K, header.alg)
+        assert(header.alg).isEqualTo(ES256K)
 
     }
 
@@ -64,21 +62,23 @@ class CredentialsTest {
         val jwt = cred.signJWT(emptyMap())
 
         val (header, _, _) = JWTTools().decode(jwt)
-        assertEquals(ES256K_R, header.alg)
+        assert(header.alg).isEqualTo(ES256K_R)
 
     }
 
     @Test
     fun `selective disclosure request contains required fields`() = runBlocking {
-        val now = Math.floor(SystemTimeProvider.now() / 1000.0).toLong()
+        val nowSeconds = Math.floor(SystemTimeProvider.now() / 1000.0).toLong()
         val cred = Credentials("did:example:issuer", KPSigner("0x1234"))
 
         val jwt = cred.createDisclosureRequest(SelectiveDisclosureRequestParams(emptyList(), ""))
         val (_, payload, _) = JWTTools().decode(jwt)
 
-        assertEquals("did:example:issuer", payload.iss)
-        assertTrue("payload.iat(${payload.iat}) should be greater than currentTime ($now)", payload.iat!! >= now)
-        assertEquals(RequestType.shareReq.name, payload.type)
+        assert(payload.iss).isEqualTo("did:example:issuer")
+        assert(payload.iat).isNotNull {
+            it.isGreaterThanOrEqualTo(nowSeconds)
+        }
+        assert(payload.type).isEqualTo(RequestType.shareReq.name)
     }
 
     @Test
@@ -100,14 +100,17 @@ class CredentialsTest {
 
         val load = buildPayloadForShareReq(params)
 
-        assertTrue((load["requested"] as List<*>).containsAll(listOf("name", "country")))
-        assertTrue((load["verified"] as List<*>).containsAll(listOf("email")))
-        assertEquals("myapp://get-back-to-me-with-response.url", load["callback"])
-        assertEquals("0x4", load["net"])
-        assertEquals("keypair", load["act"])
-        assertTrue((load["vc"] as List<*>).isEmpty())
-        assertEquals("world", load["hello"])
-        assertEquals("shareReq", load["type"])
+        assert((load["requested"] as List<*>).containsAll(listOf("name", "country")))
+        assert((load["verified"] as List<*>).containsAll(listOf("email")))
+
+        assert(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
+        assert(load["net"]).isEqualTo("0x4")
+        assert(load["act"]).isEqualTo("keypair")
+        assert(load["hello"]).isEqualTo("world")
+        assert(load["type"]).isEqualTo("shareReq")
+
+        assert((load["vc"] as List<*>)).isEmpty()
+
     }
 
 }

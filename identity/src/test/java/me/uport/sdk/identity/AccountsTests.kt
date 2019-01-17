@@ -1,17 +1,21 @@
 package me.uport.sdk.identity
 
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.uportdid.UportDIDResolver
-import org.junit.Assert.*
 import org.junit.Test
 
 class AccountsTests {
 
     @Test
     fun `can serialize and deserialize account`() {
-        val acc = Account(
+        val refAccount = Account(
                 "0xroot",
                 "0xdevice",
                 "0x1",
@@ -21,13 +25,11 @@ class AccountsTests {
                 ""
         )
 
-        val serialized = acc.toJson()
-
-        println(serialized)
+        val serialized = refAccount.toJson()
 
         val other = Account.fromJson(serialized)
 
-        assertEquals(acc, other)
+        assert(other).isEqualTo(refAccount)
     }
 
     @Test
@@ -48,17 +50,12 @@ class AccountsTests {
 
         val account = Account.fromJson(serializedAccount)
 
-        assertNotNull(account)
-
-        account!!
-
-        assertNotNull(account.isDefault)
-
-        assertFalse(account.isDefault!!)
+        assert(account).isNotNull()
+        assert(account!!.isDefault!!).isFalse()
     }
 
     @Test
-    fun validate_did_from_keypair_account() {
+    fun `validates did from keypair account`() {
 
         val serializedAccount = """
             {
@@ -76,11 +73,11 @@ class AccountsTests {
         val account = Account.fromJson(serializedAccount)
         val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
         val canResolve = EthrDIDResolver(defaultRPC).canResolve(account!!.getDID())
-        assertTrue(canResolve)
+        assert(canResolve)
     }
 
     @Test
-    fun validate_did_from_meta_identity_account() {
+    fun `validates did from meta identity account`() {
 
         val serializedAccount = """
             {
@@ -96,11 +93,11 @@ class AccountsTests {
 
         val account = Account.fromJson(serializedAccount)
         val canResolve = UportDIDResolver().canResolve(account!!.getDID())
-        assertTrue(canResolve)
+        assert(canResolve)
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun throws_error_for_invalid_account_type() {
+    @Test
+    fun `throws error for invalid account type`() {
 
         val serializedAccount = """
             {
@@ -115,7 +112,11 @@ class AccountsTests {
             }""".trimIndent()
 
         val account = Account.fromJson(serializedAccount)
-        account!!.getDID()
+        assert {
+            account!!.getDID()
+        }.thrownError {
+            isInstanceOf(IllegalStateException::class)
+        }
     }
 
 

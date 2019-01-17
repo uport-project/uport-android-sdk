@@ -157,9 +157,11 @@ class JWTTools(
         if (headerString[0] != '{' || payloadString[0] != '{')
             throw InvalidJWTException("Invalid JSON format, should start with {")
         else {
-            val header = JwtHeader.fromJson(headerString) // JSONObject(headerString)
-            val payload = jwtPayloadAdapter.fromJson(payloadString) //JSONObject(payloadString
-            return Triple(header!!, payload!!, signatureBytes)
+            val header = JwtHeader.fromJson(headerString)
+                    ?: throw InvalidJWTException("unable to parse the JWT header for $token")
+            val payload = jwtPayloadAdapter.fromJson(payloadString)
+                    ?: throw InvalidJWTException("unable to parse the JWT payload for $token")
+            return Triple(header, payload, signatureBytes)
         }
     }
 

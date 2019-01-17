@@ -1,25 +1,31 @@
 package me.uport.sdk.uportdid
 
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.slot
 import me.uport.mnid.Account
+import me.uport.sdk.core.urlGetSync
+import me.uport.sdk.core.urlPostSync
 import me.uport.sdk.jsonrpc.EthCall
 import me.uport.sdk.universaldid.DelegateType
-import org.junit.Assert.*
 import org.junit.Test
 import org.walleth.khex.clean0xPrefix
 
 class UportDIDResolverTest {
 
-    //TODO: add tests that call mock server instead of actually calling IPFS and ETH nets
-
     @Test
-    @Throws(Exception::class)
     fun encapsulates_json_rpc() {
 
         val expectedPayload = "{\"method\":\"eth_call\",\"params\":[{\"to\":\"0xaddress\",\"data\":\"some0xdatastring\"},\"latest\"],\"id\":1,\"jsonrpc\":\"2.0\"}"
 
         val payload = EthCall("0xaddress", "some0xdatastring").toJsonRpc()
 
-        assertEquals(expectedPayload, payload)
+        assert(payload).isEqualTo(expectedPayload)
     }
 
     @Test
@@ -28,16 +34,22 @@ class UportDIDResolverTest {
         val acc = Account.from(network = "0x04", address = "0xf12c30cd32b4a027710c150ae742f50db0749213")
         val encoding = UportDIDResolver().encodeRegistryFunctionCall("uPortProfileIPFS1220", acc, acc)
 
-        assertEquals(expectedEncoding, encoding)
+        assert(encoding).isEqualTo(expectedEncoding)
     }
 
     @Test
     fun calls_registry() {
+        val registryPayload = slot<String>()
 
-        val expectedDocAddress = "QmWzBDtv8m21ph1aM57yVDWxdG7LdQd3rNf5xrRiiV2D2E"
+        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
+        //language=json
+        every { urlPostSync(any(), capture(registryPayload)) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
+
         val docAddressHex = UportDIDResolver().getIpfsHashSync("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
-        assertEquals(expectedDocAddress, docAddressHex)
+        //language=json
+        assert(registryPayload.captured).isEqualTo("""{"method":"eth_call","params":[{"to":"0x2cc31912b2b0f3075a87b3640923d45a26cef3ee","data":"0x447885f075506f727450726f66696c654950465331323230000000000000000000000000000000000000000000000000f12c30cd32b4a027710c150ae742f50db0749213000000000000000000000000f12c30cd32b4a027710c150ae742f50db0749213"},"latest"],"id":1,"jsonrpc":"2.0"}""")
+        assert(docAddressHex).isEqualTo("QmWzBDtv8m21ph1aM57yVDWxdG7LdQd3rNf5xrRiiV2D2E")
     }
 
     @Test
@@ -57,19 +69,23 @@ class UportDIDResolverTest {
         val convertedDDO = legacyDDO.convertToDIDDocument("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
         val expectedOwner = "did:uport:2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC"
-        assertTrue(convertedDDO.id == expectedOwner)
-        assertNotNull(convertedDDO.publicKey.find { it ->
+        assert(convertedDDO.id).isEqualTo(expectedOwner)
+
+        val verificationPkMatch = convertedDDO.publicKey.find { it ->
             it.id.startsWith(expectedOwner) &&
                     it.owner == expectedOwner &&
                     it.type == DelegateType.Secp256k1VerificationKey2018 &&
                     it.publicKeyHex == publicKeyHex.clean0xPrefix()
-        })
-        assertNotNull(convertedDDO.publicKey.find { it ->
+        }
+        assert(verificationPkMatch).isNotNull()
+
+        val encPkMatch = convertedDDO.publicKey.find { it ->
             it.id.startsWith(expectedOwner) &&
                     it.owner == expectedOwner &&
                     it.type == DelegateType.Curve25519EncryptionPublicKey &&
                     it.publicKeyBase64 == publicEncKey
-        })
+        }
+        assert(encPkMatch).isNotNull()
     }
 
     @Test
@@ -85,9 +101,17 @@ class UportDIDResolverTest {
                 name = null
         )
 
+        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
+
+        //language=json
+        every { urlPostSync(any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
+
+        //language=json
+        every { urlGetSync(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
+
         val ddo = UportDIDResolver().getProfileDocumentSync("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
-        assertEquals(expectedDDO, ddo)
+        assert(ddo).isEqualTo(expectedDDO)
     }
 
 
@@ -99,7 +123,7 @@ class UportDIDResolverTest {
                 "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
                 "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX#owner"
         ).forEach {
-            assertTrue("fails to resolve resolve '$it'", UportDIDResolver().canResolve(it))
+            assert(UportDIDResolver().canResolve(it)).isTrue()
         }
 
     }
@@ -115,7 +139,7 @@ class UportDIDResolverTest {
                 "did:uport:", //missing mnid
                 "did:uport" //missing mnid and colon
         ).forEach {
-            assertFalse("claims to be able to resolve '$it", UportDIDResolver().canResolve(it))
+            assert(UportDIDResolver().canResolve(it)).isFalse()
         }
 
 

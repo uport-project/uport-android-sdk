@@ -1,6 +1,10 @@
 package me.uport.sdk.transport
 
-import org.junit.Assert.*
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isZero
 import org.junit.Test
 import org.walleth.khex.hexToByteArray
 
@@ -28,11 +32,11 @@ class CryptoTest {
 
         messages.forEach { original ->
             val padded = original.padToBlock()
-            assertNotEquals(original.toByteArray(), padded)
-            assertTrue(padded.size % BLOCK_SIZE == 0)
+            assert(padded).isNotEqualTo(original.toByteArray())
+            assert(padded.size % BLOCK_SIZE).isZero()
 
             val unpadded = padded.unpadFromBlock()
-            assertEquals(original, unpadded)
+            assert(unpadded).isEqualTo(original)
         }
 
     }
@@ -44,17 +48,17 @@ class CryptoTest {
         val bobPublicKeyBase64 = Crypto.getEncryptionPublicKey(bobSecretKey)
         val enc = Crypto.encryptMessage(msg, bobPublicKeyBase64)
         val recoveredMessage = Crypto.decryptMessage(enc, bobSecretKey)
-        assertEquals(msg, recoveredMessage)
+        assert(recoveredMessage).isEqualTo(msg)
     }
 
     @Test
-    fun `can decrypt EIP1098 message`() {
+    fun `can decrypt EIP1024 message`() {
         val c = EncryptedMessage(
                 nonce = "1dvWO7uOnBnO7iNDJ9kO9pTasLuKNlej",
                 ephemPublicKey = "FBH1/pAEHOOW14Lu3FWkgV3qOEcuL78Zy+qW1RwzMXQ=",
                 ciphertext = "f8kBcl/NCyf3sybfbwAKk/np2Bzt9lRVkZejr6uh5FgnNlH/ic62DZzy")
         val decryptedMessage = Crypto.decryptMessage(c, "7e5374ec2ef0d91761a6e72fdf8f6ac665519bfdf6da0a2329cf0d804514b816".hexToByteArray())
-        assertEquals("My name is Satoshi Buterin", decryptedMessage)
+        assert(decryptedMessage).isEqualTo("My name is Satoshi Buterin")
     }
 
     @Test
@@ -62,12 +66,12 @@ class CryptoTest {
         //language=JSON
         val json = """{"version":"x25519-xsalsa20-poly1305","nonce":"JAX+g+/e3RnnNXHRS4ct5Sb+XdgYoJeY","ephemPublicKey":"JLBIe7eSVyq6egVexeWrlKQyOukSo66G3N0PlimMUyI","ciphertext":"Yr2o6x831YWFZr6KESzSkBqpMv1wYkxPULbVSZi21J+2vywrVeZnDe/U2GW40wzUpLv4HhFgL1kvt+cORrapsqCfSy2L1ltMtkilX06rJ+Q"}"""
         val enc = EncryptedMessage.fromJson(json)
-        assertNotNull(enc)
+        assert(enc).isNotNull()
         enc!!
-        assertEquals("x25519-xsalsa20-poly1305", enc.version)
-        assertEquals("JAX+g+/e3RnnNXHRS4ct5Sb+XdgYoJeY", enc.nonce)
-        assertEquals("JLBIe7eSVyq6egVexeWrlKQyOukSo66G3N0PlimMUyI", enc.ephemPublicKey)
-        assertEquals("Yr2o6x831YWFZr6KESzSkBqpMv1wYkxPULbVSZi21J+2vywrVeZnDe/U2GW40wzUpLv4HhFgL1kvt+cORrapsqCfSy2L1ltMtkilX06rJ+Q", enc.ciphertext)
+        assert(enc.version).isEqualTo("x25519-xsalsa20-poly1305")
+        assert(enc.nonce).isEqualTo("JAX+g+/e3RnnNXHRS4ct5Sb+XdgYoJeY")
+        assert(enc.ephemPublicKey).isEqualTo("JLBIe7eSVyq6egVexeWrlKQyOukSo66G3N0PlimMUyI")
+        assert(enc.ciphertext).isEqualTo("Yr2o6x831YWFZr6KESzSkBqpMv1wYkxPULbVSZi21J+2vywrVeZnDe/U2GW40wzUpLv4HhFgL1kvt+cORrapsqCfSy2L1ltMtkilX06rJ+Q")
     }
 
     @Test
@@ -81,7 +85,7 @@ class CryptoTest {
         val expected = """{"version":"x25519-xsalsa20-poly1305","nonce":"1dvWO7uOnBnO7iNDJ9kO9pTasLuKNlej","ephemPublicKey":"FBH1/pAEHOOW14Lu3FWkgV3qOEcuL78Zy+qW1RwzMXQ=","ciphertext":"f8kBcl/NCyf3sybfbwAKk/np2Bzt9lRVkZejr6uh5FgnNlH/ic62DZzy"}"""
 
         val json = input.toJson()
-        assertEquals(expected, json)
+        assert(json).isEqualTo(expected)
     }
 
     @Test
@@ -108,7 +112,7 @@ class CryptoTest {
         val bobPublicKeyBase64 = Crypto.getEncryptionPublicKey(bobSecretKey)
         val enc = Crypto.encryptMessage(loremIpsum, bobPublicKeyBase64)
         val recoveredMessage = Crypto.decryptMessage(enc, bobSecretKey)
-        assertEquals(loremIpsum, recoveredMessage)
+        assert(recoveredMessage).isEqualTo(loremIpsum)
     }
 
 }

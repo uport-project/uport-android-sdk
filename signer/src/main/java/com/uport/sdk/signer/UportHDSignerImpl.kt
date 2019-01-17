@@ -9,7 +9,11 @@ import org.kethereum.model.SignatureData
  * Wraps a [UportHDSigner] into a [Signer] interface.
  *
  * The HD key provider it wraps needs an activity context for keys that are linked to user-auth.
- * This object should not be long-lived
+ *
+ *
+ * **This object should not be long-lived**
+ *
+ * FIXME: This implementation only uses the UPORT_ROOT_DERIVATION_PATH derivation path. The path should be a parameter and the resulting device address should be calculated after the key is unlocked.
  */
 class UportHDSignerImpl(
         private val context: Context,

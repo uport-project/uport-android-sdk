@@ -53,6 +53,7 @@ class EthrDIDResolver(
      * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      * Calls back on the main thread with the result or an exception
      */
+    @Deprecated("This method is going away after v0.4.*. please use the suspend variant")
     fun resolve(did: String, callback: (err: Exception?, ddo: EthrDIDDocument) -> Unit) {
         GlobalScope.launch {
             try {
@@ -73,7 +74,9 @@ class EthrDIDResolver(
         val jrpcResponse = rpc.ethCall(registryAddress, encodedCall)
         val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
 
-        if (parsedResponse.error != null) throw parsedResponse.error?.toException()!!
+        parsedResponse.error?.let {
+            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged", it.toException())
+        }
 
         return parsedResponse.result.toString()
     }

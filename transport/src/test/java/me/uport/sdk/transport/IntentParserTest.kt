@@ -2,64 +2,72 @@ package me.uport.sdk.transport
 
 import android.content.Intent
 import android.net.Uri
-import org.junit.Assert
-import org.junit.Rule
+import assertk.assert
+import assertk.assertions.hasMessage
+import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import org.junit.Test
-import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class IntentParserTest {
 
-    @get:Rule
-    val expectedExceptionRule: ExpectedException = ExpectedException.none()
-
     @Test
     fun `extracts token from simple intent`() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("myapp:my-dapp.com#access_token=header.payload.signature"))
         val token = ResponseParser.extractTokenFromIntent(intent)
-        Assert.assertEquals("header.payload.signature", token)
+        assert(token).isEqualTo("header.payload.signature")
     }
 
     @Test
     fun `reject null intent`() {
-        expectedExceptionRule.expect(IllegalArgumentException::class.java)
-        val token = ResponseParser.extractTokenFromIntent(null)
-        Assert.assertNull(token)
+        assert {
+            ResponseParser.extractTokenFromIntent(null)
+        }.thrownError {
+            isInstanceOf(IllegalArgumentException::class)
+        }
     }
 
     @Test
     fun `reject null data`() {
-        expectedExceptionRule.expect(IllegalArgumentException::class.java)
-        val token = ResponseParser.extractTokenFromIntent(Intent(Intent.ACTION_VIEW, null))
-        Assert.assertNull(token)
+        assert {
+            ResponseParser.extractTokenFromIntent(Intent(Intent.ACTION_VIEW, null))
+        }.thrownError {
+            isInstanceOf(IllegalArgumentException::class)
+        }
     }
 
 
     @Test
     fun `rejects wrong action`() {
-        expectedExceptionRule.expect(IllegalArgumentException::class.java)
         val intent = Intent("view my intent", Uri.parse("myapp:my-dapp.com#access_token=header.payload.signature"))
-        val token = ResponseParser.extractTokenFromIntent(intent)
-        Assert.assertNull(token)
+        assert {
+            ResponseParser.extractTokenFromIntent(intent)
+        }.thrownError {
+            isInstanceOf(IllegalArgumentException::class)
+        }
     }
 
     @Test
     fun `rejects malformed uri`() {
-        expectedExceptionRule.expect(IllegalArgumentException::class.java)
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("access_token=header.payload.signature"))
-        val token = ResponseParser.extractTokenFromIntent(intent)
-        Assert.assertNull(token)
+        assert {
+            ResponseParser.extractTokenFromIntent(intent)
+        }.thrownError {
+            isInstanceOf(IllegalArgumentException::class)
+        }
     }
 
     @Test
     fun `rejects with correct error message`() {
-        expectedExceptionRule.expect(RuntimeException::class.java)
-        expectedExceptionRule.expectMessage("access_denied")
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("myapp:my-dapp.com#error=access_denied"))
-        val token = ResponseParser.extractTokenFromIntent(intent)
-        Assert.assertNull(token)
+        assert {
+            ResponseParser.extractTokenFromIntent(intent)
+        }.thrownError {
+            isInstanceOf(RuntimeException::class)
+            hasMessage("access_denied")
+        }
     }
 
 }
