@@ -1,19 +1,22 @@
 package me.uport.sdk.uportdid
 
-import android.support.annotation.Keep
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter
 import me.uport.sdk.serialization.moshi
-import me.uport.sdk.universaldid.*
+import me.uport.sdk.universaldid.AuthenticationEntry
+import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.PublicKeyEntry
 import me.uport.sdk.uportdid.UportDIDResolver.Companion.parseDIDString
 import org.walleth.khex.clean0xPrefix
 
 /**
- * A class that encapsulates the DID document
+ * A class that encapsulates the legacy uport-did profile document
  *
  * See [identity_document spec](https://github.com/uport-project/specs/blob/develop/pki/identitydocument.md)
  *
  */
+@Deprecated(message = "this was replaced by UportDIDDocument. use `convertToDIDDocument` to make the transition")
 data class UportIdentityDocument(
         @Json(name = "@context")
         val context: String?, //ex: "http://schema.org"
@@ -37,6 +40,9 @@ data class UportIdentityDocument(
         val description: String? // ex: "uPort Attestation"
 ) {
 
+    /**
+     * Converts the deprecated profile document model to a DID standard compliant [DIDDocument]
+     */
     fun convertToDIDDocument(did: String): DIDDocument {
 
         val normalizedDid = normalizeDID(did)
@@ -80,6 +86,9 @@ data class UportIdentityDocument(
         return "did:uport:$mnid"
     }
 
+    /**
+     * serialize to a json string
+     */
     fun toJson(): String = jsonAdapter.toJson(this)
 
     companion object {
@@ -87,10 +96,16 @@ data class UportIdentityDocument(
             moshi.adapter(UportIdentityDocument::class.java)
         }
 
+        /**
+         * Attempts to deserialize a json string into a profile document
+         */
         fun fromJson(json: String): UportIdentityDocument? = jsonAdapter.fromJson(json)
     }
 }
 
+/**
+ * encapsulates a profile picture field of a profile document
+ */
 class ProfilePicture(
         @Json(name = "@type")
         val type: String? = "ImageObject",
@@ -102,33 +117,3 @@ class ProfilePicture(
         val contentUrl: String? = ""
 )
 
-@Keep
-data class UportDIDDocument(
-        override val id: String,
-        override val publicKey: List<PublicKeyEntry>,
-        override val authentication: List<AuthenticationEntry>,
-        override val service: List<ServiceEntry> = emptyList(),
-
-        @Json(name = "@context")
-        override val context: String = "https://w3id.org/did/v1",
-
-        val uportProfile: UportIdentityDocument
-) : DIDDocument {
-
-    /**
-     * Serializes this DID document to a JSON string
-     */
-    fun toJson(): String = jsonAdapter.toJson(this)
-
-    companion object {
-
-        private val jsonAdapter: JsonAdapter<UportDIDDocument> by lazy {
-            moshi.adapter(UportDIDDocument::class.java)
-        }
-
-        /**
-         * Attempts to deserialize a given [json] string into a [UportDIDDocument]
-         */
-        fun fromJson(json: String) = jsonAdapter.fromJson(json)
-    }
-}
