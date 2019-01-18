@@ -78,7 +78,7 @@ object Networks {
  */
 data class EthNetwork(
         val name: String,           //  ex: "kovan"
-        val network_id: String,     //  ex: "0x2a"
+        val networkId: String,     //  ex: "0x2a"
         val registry: String,       //  ex: MNID.encode({address: '0x5f8e9351dc2d238fb878b6ae43aa740d62fc9758', network: '0x2a'})
         val rpcUrl: String,         //  ex: "https://kovan.infura.io/uport"
         val explorerUrl: String,    //  ex: "https://kovan.etherscan.io"

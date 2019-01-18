@@ -55,8 +55,7 @@ class UportDIDResolver(
         }
     }
 
-    private suspend fun getDocAddressFromUportRegistry(subjectId: String?, issuerId: String? = null, registrationIdentifier: String = "uPortProfileIPFS1220"): String {
-
+    private fun decodeMnidTargets(issuerId: String?, subjectId: String?): Pair<Account, Account> {
         val issuer = MNID.decode(issuerId ?: subjectId ?: "")
 
         val subject = MNID.decode(subjectId ?: "")
@@ -64,6 +63,16 @@ class UportDIDResolver(
         if (issuer.network != subject.network) {
             throw(IllegalArgumentException("Issuer and subject must be on the same network"))
         }
+        return Pair(issuer, subject)
+    }
+
+    private suspend fun getDocAddressFromUportRegistry(
+            subjectId: String?,
+            issuerId: String? = null,
+            registrationIdentifier: String = "uPortProfileIPFS1220"
+    ): String {
+
+        val (issuer, subject) = decodeMnidTargets(issuerId, subjectId)
 
         val network = Networks.get(issuer.network)
 
@@ -76,7 +85,10 @@ class UportDIDResolver(
                 ?: throw IOException("the response from the RPC endpoint could not be parsed as JSON")
 
         parsedResponse.error?.let {
-            throw DidResolverError("The RPC endpoint returned an error while obtaining the doc address from the uPort registry", parsedResponse.error?.toException())
+            throw DidResolverError(
+                    "RPC endpoint returned an error during uPort registry query",
+                    parsedResponse.error?.toException()
+            )
         }
 
         return parsedResponse.result.toString()
@@ -116,6 +128,7 @@ class UportDIDResolver(
      *
      * Should return `null` if anything goes wrong
      */
+    @Suppress("DEPRECATION")
     internal suspend fun getProfileDocumentFor(mnid: String): UportIdentityDocument? {
         val rawJsonDDO = getJsonProfile(mnid)
 

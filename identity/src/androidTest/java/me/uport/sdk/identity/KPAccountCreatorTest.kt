@@ -26,7 +26,7 @@ class KPAccountCreatorTest {
     @Test
     fun createAccount() {
         runBlocking {
-            val account = KPAccountCreator(appContext).createAccount(Networks.rinkeby.network_id)
+            val account = KPAccountCreator(appContext).createAccount(Networks.rinkeby.networkId)
 
             assert(account).all {
                 isNotNull()
@@ -45,7 +45,7 @@ class KPAccountCreatorTest {
         val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
 
         runBlocking {
-            val account = KPAccountCreator(appContext).importAccount(Networks.rinkeby.network_id, referenceSeedPhrase)
+            val account = KPAccountCreator(appContext).importAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
             assert(account).all {
                 isNotNull()
                 isNotEqualTo(Account.blank)

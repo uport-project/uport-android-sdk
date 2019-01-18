@@ -13,7 +13,13 @@ import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
-import me.uport.sdk.identity.*
+import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.AccountCreator
+import me.uport.sdk.identity.AccountCreatorCallback
+import me.uport.sdk.identity.KPAccountCreator
+import me.uport.sdk.identity.createAccount
+import me.uport.sdk.identity.deleteAccount
+import me.uport.sdk.identity.importAccount
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
@@ -108,7 +114,7 @@ object Uport {
      * To really create a new account, call [deleteAccount] first.
      */
     fun createAccount(network: EthNetwork, seedPhrase: String? = null, completion: AccountCreatorCallback) {
-        return createAccount(network.network_id, seedPhrase, completion)
+        return createAccount(network.networkId, seedPhrase, completion)
     }
 
     /**

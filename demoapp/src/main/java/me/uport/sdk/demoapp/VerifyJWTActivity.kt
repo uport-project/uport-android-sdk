@@ -38,6 +38,7 @@ class VerifyJWTActivity : AppCompatActivity() {
         }
     }
 }
+
 class TimeProvider(private val currentTime: Long) : ITimeProvider {
     override fun now(): Long = currentTime
 
