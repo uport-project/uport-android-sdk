@@ -62,6 +62,7 @@ buildscript {
 
 plugins {
     id "io.errorlab.gradle.vault" version "0.1.0"
+    id "io.gitlab.arturbosch.detekt" version "1.0.0-RC12"
 }
 
 allprojects {
@@ -94,12 +95,18 @@ allprojects {
 
 subprojects { subproject ->
 
+    subproject.apply plugin: "io.gitlab.arturbosch.detekt"
+
     afterEvaluate {
 
         if (subproject.plugins.hasPlugin("com.android.application") || subproject.plugins.hasPlugin("com.android.library")) {
             subproject.android.packagingOptions.exclude("META-INF/main.kotlin_module")
         }
+
+        subproject.detekt.config = files("detekt.yml")
     }
+
+
 }
 
 apply from: "publishing.gradle"
