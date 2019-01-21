@@ -12,8 +12,6 @@ const val UNNU_URL = "https://api.uport.me/unnu"
 const val identityCreationUrl = "$UNNU_URL/createIdentity"
 const val identityCheckUrl = "$UNNU_URL/lookup"
 
-typealias IdentityInfoCallback = (err: Exception?, identityInfo: UnnuIdentityInfo) -> Unit
-
 /**
  * Encapsulates the payload data for an "Identity creation request" made to Unnu
  */
@@ -92,47 +90,36 @@ data class UnnuJRPCResponse(
 /**
  * Queries Unnu for the address of the proxy contract created with the [deviceKeyAddress] as owner
  */
-fun lookupIdentityInfo(deviceKeyAddress: String, callback: IdentityInfoCallback) {
+suspend fun lookupIdentityInfo(deviceKeyAddress: String): UnnuIdentityInfo {
 
-    urlPost(identityCheckUrl, UnnuLookupRequest(deviceKeyAddress).toJson(), null)
-    { err, rawResponse ->
-        if (err != null) {
-            return@urlPost callback(err, UnnuIdentityInfo.blank)
-        }
-        val parsedResponse = UnnuJRPCResponse.fromJson(rawResponse)
-        if (parsedResponse.status == "success") {
-            return@urlPost callback(null, parsedResponse.data)
-        } else {
-            return@urlPost callback(IOException("${parsedResponse.message}"), UnnuIdentityInfo.blank)
-        }
+    val rawResponse = urlPost(identityCheckUrl, UnnuLookupRequest(deviceKeyAddress).toJson(), null)
+    val parsedResponse = UnnuJRPCResponse.fromJson(rawResponse)
+    if (parsedResponse.status == "success") {
+        return parsedResponse.data
+    } else {
+        throw IOException("${parsedResponse.message}")
     }
-
 }
 
 /**
  * Calls Unnu with the necessary params to deploy an identity proxy contract
  */
-fun requestIdentityCreation(deviceKeyAddress: String,
-                            recoveryAddress: String,
-                            networkId: String,
-                            fuelToken: String,
-                            callback: IdentityInfoCallback) {
+suspend fun requestIdentityCreation(deviceKeyAddress: String,
+                                    recoveryAddress: String,
+                                    networkId: String,
+                                    fuelToken: String): UnnuIdentityInfo {
 
     val unnuPayload = UnnuCreationRequest(
             deviceKeyAddress,
             recoveryAddress,
             Networks.get(networkId).name).toJson()
 
-    urlPost(identityCreationUrl, unnuPayload, fuelToken) { err, rawResponse ->
-        if (err != null) {
-            return@urlPost callback(err, UnnuIdentityInfo.blank)
-        }
-        val parsedResponse = UnnuJRPCResponse.fromJson(rawResponse)
-        if (parsedResponse.status == "success") {
-            return@urlPost callback(null, parsedResponse.data)
-        } else {
-            return@urlPost callback(IOException("${parsedResponse.message}"), UnnuIdentityInfo.blank)
-        }
+    val rawResponse = urlPost(identityCreationUrl, unnuPayload, fuelToken)
+    val parsedResponse = UnnuJRPCResponse.fromJson(rawResponse)
+    if (parsedResponse.status == "success") {
+        return parsedResponse.data
+    } else {
+        throw IOException("${parsedResponse.message}")
     }
 }
 
