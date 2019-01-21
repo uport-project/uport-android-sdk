@@ -15,9 +15,7 @@ import me.uport.sdk.core.Networks
 import me.uport.sdk.core.onCreateFuelToken
 import me.uport.sdk.identity.ProgressPersistence.AccountCreationState
 import me.uport.sdk.identity.ProgressPersistence.PersistentBundle
-import me.uport.sdk.identity.endpoints.UnnuIdentityInfo
-import me.uport.sdk.identity.endpoints.lookupIdentityInfo
-import me.uport.sdk.identity.endpoints.requestIdentityCreation
+import me.uport.sdk.identity.endpoints.Unnu
 
 /**
  * [Account] manager backed by a [UportHDSigner] that controls a
@@ -91,7 +89,7 @@ class MetaIdentityAccountCreator(
 
                 AccountCreationState.FUEL_TOKEN_OBTAINED -> {
 
-                    val identityInfo = requestIdentityCreation(
+                    val identityInfo = Unnu().requestIdentityCreation(
                             oldBundle.deviceAddress,
                             oldBundle.recoveryAddress,
                             networkId,
@@ -106,13 +104,13 @@ class MetaIdentityAccountCreator(
                     var pollingDelay = POLLING_INTERVAL
                     while (state != AccountCreationState.COMPLETE) {
 
-                        val identityInfo = lookupIdentityInfo(oldBundle.deviceAddress)
+                        val identityInfo = Unnu().lookupIdentityInfo(oldBundle.deviceAddress)
 
                         //if (err != null) {
                         //    //FIXME: an error here does not necessarily mean a failure; the flow splits here based on type of failure, for example Unnu returns 404 if the proxy hasn't been mined yet
                         //}
 
-                        if (identityInfo != UnnuIdentityInfo.blank) {
+                        if (identityInfo != Unnu.IdentityInfo.blank) {
                             val proxyAddress = identityInfo.proxyAddress ?: ""
                             val acc = Account(
                                     oldBundle.rootAddress,

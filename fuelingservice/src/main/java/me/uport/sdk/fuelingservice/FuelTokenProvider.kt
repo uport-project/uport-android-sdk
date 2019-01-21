@@ -8,9 +8,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.uport.sdk.core.HttpClient
 import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.UI
-import me.uport.sdk.core.urlPost
 import org.json.JSONObject
 import java.io.IOException
 
@@ -36,7 +36,7 @@ class FuelTokenProvider(private val context: Context, private val dAppMnid: Stri
 
     private suspend fun getFuelToken(deviceAddress: String, uportInstanceToken: String): String {
 
-        val rawResponse = urlPost(FUELING_SERVICE_URL, "{\"iid_token\":\"$uportInstanceToken\", \"deviceAddress\":\"$deviceAddress\"}")
+        val rawResponse = HttpClient().urlPost(FUELING_SERVICE_URL, "{\"iid_token\":\"$uportInstanceToken\", \"deviceAddress\":\"$deviceAddress\"}")
 
         val response = JSONObject(rawResponse)
 

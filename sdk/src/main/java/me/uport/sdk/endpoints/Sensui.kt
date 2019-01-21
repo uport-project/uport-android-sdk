@@ -3,17 +3,18 @@ package me.uport.sdk.endpoints
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import me.uport.sdk.core.urlPost
+import me.uport.sdk.core.HttpClient
 
 class Sensui(
         private val fundUrl: String = SENSUI_DEFAULT_FUND_URL,
-        private val relayUrl: String = SENSUI_DEFAULT_RELAY_URL) {
+        private val relayUrl: String = SENSUI_DEFAULT_RELAY_URL,
+        private val httpClient: HttpClient = HttpClient()) {
 
     suspend fun maybeRefuel(signedEncodedTx: String, blockchainName: String, fuelToken: String): String {
         val jsonPayload = SensuiFundRequest(signedEncodedTx, blockchainName).toJson()
 
         //TODO: saner error checking
-        val rawResponse = urlPost(fundUrl, jsonPayload, fuelToken)
+        val rawResponse = httpClient.urlPost(fundUrl, jsonPayload, fuelToken)
         return SensuiResponse.fromJson(rawResponse)?.data ?: ""
     }
 
@@ -21,7 +22,7 @@ class Sensui(
         val jsonPayload = SensuiRelayRequest(tx, name).toJson()
 
         //TODO: saner error checking
-        val rawResponse = urlPost(relayUrl, jsonPayload, fuelToken)
+        val rawResponse = httpClient.urlPost(relayUrl, jsonPayload, fuelToken)
         return SensuiResponse.fromJson(rawResponse)?.data ?: ""
     }
 

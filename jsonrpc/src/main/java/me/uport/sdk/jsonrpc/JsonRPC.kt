@@ -5,7 +5,7 @@ package me.uport.sdk.jsonrpc
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Types
-import me.uport.sdk.core.urlPost
+import me.uport.sdk.core.HttpClient
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
 import org.walleth.khex.prepend0xPrefix
@@ -13,8 +13,10 @@ import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.math.BigInteger
 
-
-class JsonRPC(private val rpcUrl: String) {
+/**
+ * Partial wrapper for JsonRPC methods supported by ethereum nodes.
+ */
+class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient = HttpClient()) {
 
 //=============================
 // eth_call
@@ -33,7 +35,7 @@ class JsonRPC(private val rpcUrl: String) {
                         "latest")
         ).toJson()
 
-        return urlPost(rpcUrl, payloadRequest, null)
+        return httpClient.urlPost(rpcEndpoint, payloadRequest, null)
     }
 
 
@@ -54,7 +56,7 @@ class JsonRPC(private val rpcUrl: String) {
                 )
         ).toJson()
 
-        val rawResult = urlPost(rpcUrl, payloadRequest, null)
+        val rawResult = httpClient.urlPost(rpcEndpoint, payloadRequest, null)
         val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
                 ?: throw IOException("RPC endpoint response can't be parsed as JSON")
         if (parsedResponse.error != null) {
@@ -82,7 +84,7 @@ class JsonRPC(private val rpcUrl: String) {
                 params = emptyList()
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcUrl, payloadRequest)
+        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
         val priceInWei = parsedResponse.result.toString().hexToBigInteger()
         return priceInWei
     }
@@ -104,7 +106,7 @@ class JsonRPC(private val rpcUrl: String) {
                 params = listOf(address, "latest")
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcUrl, payloadRequest)
+        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
         val count = parsedResponse.result.toString().hexToBigInteger()
         return count
     }
@@ -124,7 +126,7 @@ class JsonRPC(private val rpcUrl: String) {
                 params = listOf(address, "latest")
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcUrl, payloadRequest)
+        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
         val balanceInWei = parsedResponse.result.toString().hexToBigInteger()
         return balanceInWei
     }
@@ -181,7 +183,7 @@ class JsonRPC(private val rpcUrl: String) {
                 params = arrayListOf(txHash)
         ).toJson()
 
-        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val rawResult = httpClient.urlPost(rpcEndpoint, payloadRequest)
         val parsedResponse = JsonRpcReceiptResponse.fromJson(rawResult)
                 ?: throw IOException("RPC endpoint response can't be parsed as JSON")
         if (parsedResponse.error != null) {
@@ -217,7 +219,7 @@ class JsonRPC(private val rpcUrl: String) {
                 params = arrayListOf(txHash)
         ).toJson()
 
-        val rawResult = urlPost(rpcUrl, payloadRequest)
+        val rawResult = httpClient.urlPost(rpcEndpoint, payloadRequest)
         val parsedResponse = JsonRpcTxByHashResponse.fromJson(rawResult)
                 ?: throw IOException("RPC endpoint response can't be parsed as JSON")
         if (parsedResponse.error != null) {
@@ -280,26 +282,24 @@ class JsonRPC(private val rpcUrl: String) {
                 params = listOf(signedTx)
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcUrl, payloadRequest)
+        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
         return parsedResponse.result.toString()
     }
 
-    companion object {
-        /**
-         * Make a base JsonRPCRequest to the [url] with the given [payloadRequest]
-         * and attempt to parse the response string into a [JsonRpcBaseResponse]
-         * @throws IOException if response is null or if it can't be parsed from JSON
-         * @throws JsonRpcException if the response was parsed and an error field was present
-         */
-        internal suspend fun jsonRpcBaseCall(url: String, payloadRequest: String): JsonRpcBaseResponse {
-            val rawResult = urlPost(url, payloadRequest)
-            val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-                    ?: throw IOException("RPC endpoint response can't be parsed as JSON")
-            parsedResponse.error?.let {
-                throw it.toException()
-            }
-            return parsedResponse
+    /**
+     * Make a base JsonRPCRequest to the [url] with the given [payloadRequest]
+     * and attempt to parse the response string into a [JsonRpcBaseResponse]
+     * @throws IOException if response is null or if it can't be parsed from JSON
+     * @throws JsonRpcException if the response was parsed and an error field was present
+     */
+    private suspend fun jsonRpcBaseCall(url: String, payloadRequest: String): JsonRpcBaseResponse {
+        val rawResult = httpClient.urlPost(url, payloadRequest)
+        val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
+                ?: throw IOException("RPC endpoint response can't be parsed as JSON")
+        parsedResponse.error?.let {
+            throw it.toException()
         }
+        return parsedResponse
     }
 
 }

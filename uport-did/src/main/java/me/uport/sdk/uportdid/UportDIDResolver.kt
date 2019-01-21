@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import me.uport.mnid.Account
 import me.uport.mnid.MNID
 import me.uport.sdk.core.Networks
-import me.uport.sdk.core.urlGet
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import me.uport.sdk.universaldid.BlankDocumentError
@@ -119,7 +118,7 @@ class UportDIDResolver(
 
         val url = "https://ipfs.infura.io/ipfs/$ipfsHash"
 
-        return urlGet(url)
+        return rpc.httpClient.urlGet(url)
     }
 
     /**

@@ -1,11 +1,11 @@
 package me.uport.sdk.httpsdid
 
-import me.uport.sdk.core.urlGet
+import me.uport.sdk.core.HttpClient
 import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDResolver
 import me.uport.sdk.universaldid.DidResolverError
 
-open class HttpsDIDResolver : DIDResolver {
+open class HttpsDIDResolver(private val httpClient: HttpClient = HttpClient()) : DIDResolver {
     override val method: String = "https"
 
     override suspend fun resolve(did: String): HttpsDIDDocument {
@@ -28,7 +28,7 @@ open class HttpsDIDResolver : DIDResolver {
 
     private suspend fun getProfileDocument(domain: String): String {
         val url = "https://$domain/.well-known/did.json"
-        return urlGet(url)
+        return httpClient.urlGet(url)
     }
 
     companion object {

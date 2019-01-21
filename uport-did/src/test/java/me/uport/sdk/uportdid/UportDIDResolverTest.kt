@@ -9,32 +9,18 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.spyk
-import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import me.uport.mnid.Account
+import me.uport.sdk.core.HttpClient
 import me.uport.sdk.core.Networks
-import me.uport.sdk.core.urlGet
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.DelegateType
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.walleth.khex.clean0xPrefix
 
 class UportDIDResolverTest {
-
-    @Before
-    fun `setup mocks`() {
-        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
-    }
-
-    @After
-    fun `clear mocks`() {
-        unmockkAll()
-    }
 
     @Test
     fun `can encode a uPort registry Get method call`() {
@@ -49,7 +35,7 @@ class UportDIDResolverTest {
     @Test
     fun `calls registry with correct payload`() = runBlocking {
 
-        val rpc = spyk(JsonRPC(Networks.rinkeby.rpcUrl))
+        val rpc = mockk<JsonRPC>()
         val encodedCallSlot = slot<String>()
 
         coEvery { rpc.ethCall(any(), capture(encodedCallSlot)) }
@@ -100,7 +86,8 @@ class UportDIDResolverTest {
 
     @Test
     fun `can get profile document for mnid`() = runBlocking {
-        val rpc = spyk(JsonRPC(Networks.rinkeby.rpcUrl))
+        val http = mockk<HttpClient>()
+        val rpc = spyk(JsonRPC(Networks.rinkeby.rpcUrl, http))
 
         val expectedDDO = UportIdentityDocument(
                 context = "http://schema.org",
@@ -115,7 +102,7 @@ class UportDIDResolverTest {
         //language=json
         coEvery { rpc.ethCall(any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
         //language=json
-        coEvery { urlGet(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
+        coEvery { http.urlGet(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
 
         val ddo = UportDIDResolver(rpc).getProfileDocumentFor(mnid = "2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
