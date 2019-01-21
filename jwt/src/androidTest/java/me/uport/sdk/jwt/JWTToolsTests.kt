@@ -10,9 +10,17 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
+import io.mockk.coEvery
+import io.mockk.mockk
+import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
+import me.uport.sdk.core.HttpClient
+import me.uport.sdk.core.Networks
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.testhelpers.TestTimeProvider
+import me.uport.sdk.universaldid.UniversalDID
+import me.uport.sdk.uportdid.UportDIDResolver
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
@@ -35,6 +43,16 @@ class JWTToolsTests {
 
     @Test
     fun can_create_token_with_typed_payload() {
+
+        val http = mockk<HttpClient>()
+        val rpc = spyk(JsonRPC(Networks.rinkeby.rpcUrl, http))
+        UniversalDID.registerResolver(UportDIDResolver(rpc))
+
+        //language=json
+        coEvery { rpc.ethCall(any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
+        //language=json
+        coEvery { http.urlGet(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
+
         val latch = CountDownLatch(1)
 
         val ownObj = mapOf(
