@@ -8,12 +8,12 @@ import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
 import me.uport.sdk.identity.Account
 import me.uport.sdk.identity.AccountType
-import me.uport.sdk.identity.AccountType.*
+import me.uport.sdk.identity.AccountType.Device
+import me.uport.sdk.identity.AccountType.IdentityManager
+import me.uport.sdk.identity.AccountType.KeyPair
 import me.uport.sdk.identity.AccountType.MetaIdentityManager
+import me.uport.sdk.identity.AccountType.Proxy
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.experimental.getGasPrice
-import me.uport.sdk.jsonrpc.experimental.getTransactionCount
-import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
 import me.uport.sdk.signer.MetaIdentitySigner
 import me.uport.sdk.signer.TxRelayHelper
 import me.uport.sdk.signer.TxRelaySigner
@@ -26,8 +26,6 @@ import java.math.BigInteger
 
 val DEFAULT_GAS_LIMIT = 3_000_000L.toBigInteger()
 val DEFAULT_GAS_PRICE = 20_000_000_000L.toBigInteger()
-
-typealias TransactionsCallback = (err: Exception?, txHash: String) -> Unit
 
 class Transactions(
         context: Context,

@@ -4,7 +4,6 @@ import me.uport.sdk.TxRelay
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
-import me.uport.sdk.jsonrpc.experimental.ethCall
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.model.SignatureData

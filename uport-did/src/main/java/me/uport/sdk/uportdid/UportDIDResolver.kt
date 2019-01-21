@@ -8,7 +8,6 @@ import me.uport.sdk.core.Networks
 import me.uport.sdk.core.urlGet
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
-import me.uport.sdk.jsonrpc.experimental.ethCall
 import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DIDResolver

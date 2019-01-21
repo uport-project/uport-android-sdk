@@ -57,7 +57,7 @@ class HttpsDIDResolverTest {
 
     @Test
     fun `fails when the endpoint doesn't provide a DID document`() = runBlocking {
-        mockkStatic("me.uport.sdk.core.CoroutineExtensionsKt")
+        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
         coEvery { urlGet(any()) } returns ""
 
         coAssert {
@@ -70,7 +70,7 @@ class HttpsDIDResolverTest {
     @Test
     fun `resolves document`() = runBlocking {
 
-        mockkStatic("me.uport.sdk.core.CoroutineExtensionsKt")
+        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
 
         coEvery { urlGet(any()) } returns exampleDidDoc.toJson()
 

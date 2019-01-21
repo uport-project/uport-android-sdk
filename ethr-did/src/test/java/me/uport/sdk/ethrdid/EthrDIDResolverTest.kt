@@ -4,8 +4,18 @@ package me.uport.sdk.ethrdid
 
 import assertk.all
 import assertk.assert
-import assertk.assertions.*
-import io.mockk.*
+import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isGreaterThan
+import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.Networks
@@ -15,8 +25,6 @@ import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDOwnerChanged
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcLogItem
-import me.uport.sdk.jsonrpc.experimental.ethCall
-import me.uport.sdk.jsonrpc.experimental.getLogs
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -30,7 +38,6 @@ class EthrDIDResolverTest {
 
     @Before
     fun `run before every test`() {
-        mockkStatic("me.uport.sdk.jsonrpc.experimental.CoroutineExtensionsKt")
         mockkStatic("me.uport.sdk.core.UrlUtilsKt")
     }
 
@@ -80,7 +87,7 @@ class EthrDIDResolverTest {
 
         //language=json
         val cannedLogsResponse = """{"jsonrpc":"2.0","id":1,"result":[{"address":"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b","blockHash":"0x10b9345e8c8ba8f5fbd164fc104e4959abb010ddcc38b164ac1c62c55e75856e","blockNumber":"0x2a8a7d","data":"0x536563703235366b31566572696669636174696f6e4b6579323031380000000000000000000000000000000045c4ebd7ffb86891ba6f9f68452f9f0815aacd8b0000000000000000000000000000000000000000000000000000000117656a2f00000000000000000000000000000000000000000000000000000000002a7b24","logIndex":"0x16","removed":false,"topics":["0x5a5084339536bcab65f20799fcc58724588145ca054bd2be626174b27ba156f7","0x000000000000000000000000f3beac30c498d9e26865f34fcaa57dbb935b0d74"],"transactionHash":"0x59180d9f3257a538ef77ba7363ec55ed76b609bf0c90cdf7fb710d695ebaa5c0","transactionIndex":"0x17"}]}"""
-        every { urlPost(any(), any(), any(), invoke(null, cannedLogsResponse)) } just runs
+        coEvery { urlPost(any(), any(), any()) } returns cannedLogsResponse
 
         val logResponse = rpc.getLogs(resolver.registryAddress, listOf(null, realAddress.hexToBytes32()), lastChanged, lastChanged)
 
@@ -232,7 +239,7 @@ class EthrDIDResolverTest {
         //canned response for last changed query
         coEvery { rpc.ethCall(any(), eq("0xf96d0f9f000000000000000000000000$addressHex")) } returns """{"jsonrpc":"2.0","id":1,"result":"0x0000000000000000000000000000000000000000000000000000000000000000"}"""
         //canned response for getLogs
-        every { urlPost(any(), any(), any(), invoke(null, """{"jsonrpc":"2.0","id":1,"result":[]}""")) } just runs
+        coEvery { urlPost(any(), any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":[]}"""
 
         val resolver = EthrDIDResolver(rpc)
         val ddo = resolver.resolve("did:ethr:0x$addressHex")

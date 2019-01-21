@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package me.uport.sdk.uportdid
 
 import assertk.assert
@@ -5,13 +7,17 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.spyk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import me.uport.mnid.Account
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.urlGet
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.experimental.ethCall
 import me.uport.sdk.universaldid.DelegateType
 import org.junit.After
 import org.junit.Before
@@ -23,8 +29,6 @@ class UportDIDResolverTest {
     @Before
     fun `setup mocks`() {
         mockkStatic("me.uport.sdk.core.UrlUtilsKt")
-        mockkStatic("me.uport.sdk.core.CoroutineExtensionsKt")
-        mockkStatic("me.uport.sdk.jsonrpc.experimental.CoroutineExtensionsKt")
     }
 
     @After

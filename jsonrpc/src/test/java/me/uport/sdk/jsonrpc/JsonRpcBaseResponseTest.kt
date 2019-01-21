@@ -3,6 +3,11 @@ package me.uport.sdk.jsonrpc
 import assertk.assert
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import io.mockk.coEvery
+import io.mockk.mockkStatic
+import kotlinx.coroutines.runBlocking
+import me.uport.sdk.core.Networks
+import me.uport.sdk.core.urlPost
 import org.junit.Test
 import java.math.BigInteger
 
@@ -38,5 +43,18 @@ class JsonRpcBaseResponseTest {
         assert(item.address).isEqualTo("0xdca7ef03e98e0dc2b855be647c39abe984fcf21b")
         assert(item.topics.size).isEqualTo(2)
         assert(item.transactionIndex).isEqualTo(BigInteger.ONE)
+    }
+
+    @Test
+    fun `can parse transaction receipt`() = runBlocking {
+        mockkStatic("me.uport.sdk.core.UrlUtilsKt")
+
+        //language=json
+        coEvery { urlPost(any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":{"blockHash":"0x5619e5036d2288fbda3298be5d9003f2622993465945ad4d25377dd9f6c15646","blockNumber":"0x38ecec","contractAddress":null,"cumulativeGasUsed":"0x14510c","from":"0xbe1085bc3e0812f3df63deced87e29b3bc2db524","gasUsed":"0x1230f","logs":[{"address":"0x40af244c94e679aebf897512720a41d843954a29","blockHash":"0x5619e5036d2288fbda3298be5d9003f2622993465945ad4d25377dd9f6c15646","blockNumber":"0x38ecec","data":"0x00000000000000000000000000000000000000000000000000000000549adbf85915ab705f44b3c43ecc0c2d34834a863132cc200c23016acd57d47b8aa8cf0d000000000000000000000000000000000000000000000000000000005c45f692","logIndex":"0xa","removed":false,"topics":["0x6d91cd6ccac8368394df514e6aee19a55264f5ab49a891af91ca86da27bedd4f"],"transactionHash":"0x1dab51a1127c0294359193b1e0b7f2c8e414efe7e9a85dee59fca21d9b179dcb","transactionIndex":"0x7"}],"logsBloom":"0x00000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000010000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000080000000000","status":"0x1","to":"0x40af244c94e679aebf897512720a41d843954a29","transactionHash":"0x1dab51a1127c0294359193b1e0b7f2c8e414efe7e9a85dee59fca21d9b179dcb","transactionIndex":"0x7"}}"""
+
+        val tested = JsonRPC(Networks.rinkeby.rpcUrl)
+
+        val receipt = tested.getTransactionReceipt("0x1dab51a1127c0294359193b1e0b7f2c8e414efe7e9a85dee59fca21d9b179dcb")
+        assert(receipt).isNotNull()
     }
 }

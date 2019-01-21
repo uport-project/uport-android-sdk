@@ -2,8 +2,17 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.*
-import me.uport.sdk.core.*
+import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.decodeJose
+import com.uport.sdk.signer.getJoseEncoded
+import com.uport.sdk.signer.normalize
+import me.uport.sdk.core.ITimeProvider
+import me.uport.sdk.core.Networks
+import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.toBase64
+import me.uport.sdk.core.toBase64UrlSafe
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -32,7 +41,6 @@ import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
 import java.security.SignatureException
-import kotlin.experimental.and
 
 /**
  * Tools for Verifying, Creating, and Decoding uport JWTs
@@ -43,7 +51,6 @@ class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
-    private val TIME_SKEW = 300
 
     init {
 
@@ -323,7 +330,7 @@ class JWTTools(
     @Throws(SignatureException::class)
     fun signedJwtToKey(message: ByteArray, signatureData: SignatureData): BigInteger {
 
-        val header = signatureData.v and 0xFF.toByte()
+        val header = signatureData.v
         // The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
         //                  0x1D = second key with even y, 0x1E = second key with odd y
         if (header < 27 || header > 34) {
@@ -346,6 +353,8 @@ class JWTTools(
          * 5 minutes. The default number of seconds of validity of a JWT, in case no other interval is specified.
          */
         const val DEFAULT_JWT_VALIDITY_SECONDS = 300L
+
+        private const val TIME_SKEW = 300L
     }
 
 }

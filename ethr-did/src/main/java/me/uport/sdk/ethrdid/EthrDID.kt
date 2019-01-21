@@ -4,10 +4,6 @@ import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
-import me.uport.sdk.jsonrpc.experimental.ethCall
-import me.uport.sdk.jsonrpc.experimental.getGasPrice
-import me.uport.sdk.jsonrpc.experimental.getTransactionCount
-import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
 import me.uport.sdk.universaldid.DelegateType
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
