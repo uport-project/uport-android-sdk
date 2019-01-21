@@ -53,5 +53,6 @@ dependencies {
 
     androidTestImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
+    androidTestImplementation "io.mockk:mockk-android:$mockk_version"
     androidTestImplementation project(":test-helpers")
 }

@@ -23,7 +23,9 @@ data class UportDIDDocument(
         @Json(name = "@context")
         override val context: String = "https://w3id.org/did/v1",
 
+        @Suppress("DEPRECATION")
         val uportProfile: UportIdentityDocument
+
 ) : DIDDocument {
 
     /**
