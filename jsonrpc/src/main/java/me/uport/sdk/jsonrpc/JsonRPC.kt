@@ -229,7 +229,7 @@ class JsonRPC(private val rpcUrl: String) {
             if (parsedResponse?.result != null) {
                 return@urlPost callback(null, parsedResponse.result)
             } else {
-                return@urlPost callback(TransactionNotFound(txHash), TransactionReceipt(transactionHash = txHash))
+                return@urlPost callback(TransactionNotFoundException(txHash), TransactionReceipt(transactionHash = txHash))
             }
         }
     }
@@ -266,7 +266,7 @@ class JsonRPC(private val rpcUrl: String) {
             if (parsedResponse?.result != null) {
                 return@urlPost callback(null, parsedResponse.result)
             } else {
-                return@urlPost callback(TransactionNotFound(txHash), TransactionInformation(txHash = txHash))
+                return@urlPost callback(TransactionNotFoundException(txHash), TransactionInformation(txHash = txHash))
             }
         }
     }
@@ -346,7 +346,7 @@ class JsonRPC(private val rpcUrl: String) {
 
 }
 
-class TransactionNotFound(txHash: String) : RuntimeException("The transaction with hash=$txHash has not been mined yet")
+class TransactionNotFoundException(txHash: String) : RuntimeException("The transaction with hash=$txHash has not been mined yet")
 
 
 
