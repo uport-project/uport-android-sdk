@@ -11,6 +11,7 @@ import java.io.IOException
 /**
  * Wraps common endpoint requests into suspend methods that also accept an optional bearer token
  */
+@Suppress("StringLiteralDuplication")
 class HttpClient {
 
     private val okClient by lazy { OkHttpClient() }

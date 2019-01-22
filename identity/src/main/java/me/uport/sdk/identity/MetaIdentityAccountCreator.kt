@@ -44,6 +44,7 @@ class MetaIdentityAccountCreator(
      *
      * To force the creation of a new identity, use [forceRestart]
      */
+    @Suppress("LabeledExpression")
     private fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean): Account = runBlocking {
 
         var (state, oldBundle) = if (forceRestart) {

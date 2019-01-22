@@ -106,6 +106,7 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
+    @Suppress("TooGenericExceptionCaught")
     @Deprecated("use the suspend variant of this method")
     fun createAccount(network: EthNetwork, seedPhrase: String? = null, completion: AccountCreatorCallback) {
         GlobalScope.launch {
