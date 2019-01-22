@@ -122,7 +122,7 @@ class JWTTools(
     }
 
     @Deprecated("This method has been deprecated in favor of `createJWT` because it is too coupled to the UportHDSigner mechanics", ReplaceWith("createJWT()"))
-    fun create(context: Context, payload: JwtPayload, rootHandle: String, derivationPath: String, prompt: String = "", recoverable: Boolean = false, callback: (err: Exception?, encodedJWT: String?) -> Unit) {
+    fun create(context: Context, payload: JwtPayload, rootHandle: String, derivationPath: String, prompt: String = "", recoverable: Boolean = false, callback: (err: Exception?, encodedJWT: String) -> Unit) {
         //create header and convert the parts to json strings
         val header = if (!recoverable) {
             JwtHeader(alg = ES256K)

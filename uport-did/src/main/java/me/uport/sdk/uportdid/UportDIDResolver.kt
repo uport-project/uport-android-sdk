@@ -26,7 +26,7 @@ import java.io.IOException
  * Example uport did: "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX#owner"
  * Example mnid: "2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX"
  */
-class UportDIDResolver(
+open class UportDIDResolver(
         private val rpc: JsonRPC
 ) : DIDResolver {
     override val method: String = "uport"

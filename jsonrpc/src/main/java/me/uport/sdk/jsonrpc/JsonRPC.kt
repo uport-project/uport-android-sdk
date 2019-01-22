@@ -16,7 +16,7 @@ import java.math.BigInteger
 /**
  * Partial wrapper for JsonRPC methods supported by ethereum nodes.
  */
-class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient = HttpClient()) {
+open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient = HttpClient()) {
 
 //=============================
 // eth_call
@@ -26,7 +26,7 @@ class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient = Http
      * performs an eth_call
      * the result is returned as raw string and has to be parsed into a Json that can make sense of the expected result
      */
-    suspend fun ethCall(address: String, data: String): String {
+    open suspend fun ethCall(address: String, data: String): String {
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_call",
                 params = listOf(
@@ -303,8 +303,6 @@ class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient = Http
     }
 
 }
-
-class TransactionNotFoundException(txHash: String) : RuntimeException("The transaction with hash=$txHash has not been mined yet")
 
 
 

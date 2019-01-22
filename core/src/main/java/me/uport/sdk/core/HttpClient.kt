@@ -8,9 +8,9 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import java.io.IOException
 
-class HttpClient() {
+class HttpClient {
 
-    val okClient by lazy { OkHttpClient() }
+    private val okClient by lazy { OkHttpClient() }
 
     /**
      * Suspend method that does a HTTP POST with a a [jsonBody] to the given [url]
