@@ -32,18 +32,17 @@ android {
     }
 }
 
-//configurations.all {
-//    resolutionStrategy {
-//        dependencySubstitution {
-//            substitute module("com.github.uport-project.uport-android-sdk:sdk:v$uport_sdk_version") with project(':sdk')
-//        }
-//    }
-//}
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            substitute module("com.github.uport-project.uport-android-sdk:sdk:v$uport_sdk_version") with project(':sdk')
+        }
+    }
+}
 
 dependencies {
 
-//    implementation "com.github.uport-project.uport-android-sdk:sdk:$uport_sdk_version"
-    implementation project(":sdk")
+    implementation "com.github.uport-project.uport-android-sdk:sdk:$uport_sdk_version"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
