@@ -15,7 +15,7 @@ import me.uport.sdk.transport.Transports
 
 class SelectiveDisclosureActivity : AppCompatActivity() {
 
-    var signedJWT: String? = null
+    var requestJWT: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,10 +38,10 @@ class SelectiveDisclosureActivity : AppCompatActivity() {
             progress.visibility = View.VISIBLE
 
             GlobalScope.launch {
-                signedJWT = cred.createDisclosureRequest(params)
+                requestJWT = cred.createDisclosureRequest(params)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(this@SelectiveDisclosureActivity, signedJWT!!)
+                Transports().send(this@SelectiveDisclosureActivity, requestJWT!!)
 
                 withContext(UI) {
                     progress.visibility = View.GONE
