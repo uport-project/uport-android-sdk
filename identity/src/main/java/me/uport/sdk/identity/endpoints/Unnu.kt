@@ -7,12 +7,15 @@ import me.uport.sdk.core.HttpClient
 import me.uport.sdk.core.Networks
 import java.io.IOException
 
+/**
+ * Wraps method calls to the meta-identity creation and lookup service
+ */
 class Unnu(private val httpClient: HttpClient = HttpClient()) {
 
     companion object {
-        const val UNNU_URL = "https://api.uport.me/unnu"
-        const val identityCreationUrl = "$UNNU_URL/createIdentity"
-        const val identityCheckUrl = "$UNNU_URL/lookup"
+        private const val UNNU_URL = "https://api.uport.me/unnu"
+        private const val identityCreationUrl = "$UNNU_URL/createIdentity"
+        private const val identityCheckUrl = "$UNNU_URL/lookup"
     }
 
     /**
@@ -30,20 +33,13 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
             val blockchain: String,
 
             @SerialName("managerType")
-            val managerType: String = "MetaIdentityManager") {
-
-        fun toJson() = JSON.stringify(UnnuCreationRequest.serializer(), this)
-    }
+            val managerType: String = "MetaIdentityManager")
 
     /**
      * Wraps the data needed for a Unnu lookup request
      */
     @Serializable
-    data class LookupRequest(val deviceKey: String) {
-
-        fun toJson() = JSON.stringify(LookupRequest.serializer(), this)
-
-    }
+    data class LookupRequest(val deviceKey: String)
 
     /**
      * Encapsulates the response data for identity creation or lookup
@@ -86,6 +82,9 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
             val data: IdentityInfo = IdentityInfo()) {
 
         companion object {
+            /**
+             * parses a JsonRPC response into an [IdentityInfoJRPCResponse] object
+             */
             fun fromJson(json: String): IdentityInfoJRPCResponse = JSON.nonstrict.parse(IdentityInfoJRPCResponse.serializer(), json)
         }
     }
@@ -95,7 +94,8 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
      */
     suspend fun lookupIdentityInfo(deviceKeyAddress: String): IdentityInfo {
 
-        val rawResponse = httpClient.urlPost(identityCheckUrl, LookupRequest(deviceKeyAddress).toJson(), null)
+        val payloadBody = JSON.stringify(LookupRequest.serializer(), LookupRequest(deviceKeyAddress))
+        val rawResponse = httpClient.urlPost(identityCheckUrl, payloadBody, null)
         val parsedResponse = IdentityInfoJRPCResponse.fromJson(rawResponse)
         if (parsedResponse.status == "success") {
             return parsedResponse.data
@@ -112,10 +112,12 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
                                         networkId: String,
                                         fuelToken: String): IdentityInfo {
 
-        val unnuPayload = UnnuCreationRequest(
-                deviceKeyAddress,
-                recoveryAddress,
-                Networks.get(networkId).name).toJson()
+        val unnuPayload = JSON.stringify(UnnuCreationRequest.serializer(),
+                UnnuCreationRequest(
+                        deviceKeyAddress,
+                        recoveryAddress,
+                        Networks.get(networkId).name)
+        )
 
         val rawResponse = httpClient.urlPost(identityCreationUrl, unnuPayload, fuelToken)
         val parsedResponse = IdentityInfoJRPCResponse.fromJson(rawResponse)
