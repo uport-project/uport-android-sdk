@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package me.uport.sdk
 
 import android.content.Context
@@ -5,7 +7,11 @@ import android.os.Looper
 import android.support.test.InstrumentationRegistry
 import assertk.all
 import assertk.assert
-import assertk.assertions.*
+import assertk.assertions.doesNotContain
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import com.uport.sdk.signer.UportHDSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.Networks
@@ -36,7 +42,7 @@ class UportTest {
         tested.defaultAccount?.let { tested.deleteAccount(it) }
 
         runBlocking {
-            val acc = tested.createAccount(Networks.rinkeby)
+            val acc = tested.createAccount(Networks.rinkeby.networkId)
 
             assert(acc).all {
                 isNotNull()
@@ -56,12 +62,12 @@ class UportTest {
 
         runBlocking {
 
-            val acc1 = tested.createAccount(Networks.rinkeby)
+            val acc1 = tested.createAccount(Networks.rinkeby.networkId)
 
             assert(tested.defaultAccount).isEqualTo(acc1) //first account gets to be default
             assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1)
 
-            val acc2 = tested.createAccount(Networks.rinkeby)
+            val acc2 = tested.createAccount(Networks.rinkeby.networkId)
 
             assert(tested.defaultAccount).isNotEqualTo(acc2) //default isn't overwritten
             assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1) //still one default
@@ -92,7 +98,7 @@ class UportTest {
         tested.defaultAccount?.let { tested.deleteAccount(it) }
 
         runBlocking {
-            val account = tested.createAccount(Networks.rinkeby, referenceSeedPhrase)
+            val account = tested.createAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
             assert(account).all {
                 isNotNull()
                 isNotEqualTo(Account.blank)
@@ -110,7 +116,7 @@ class UportTest {
         val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
 
         runBlocking {
-            val refAccount = tested.createAccount(Networks.rinkeby, referenceSeedPhrase)
+            val refAccount = tested.createAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
             assert(tested.getAccount("0x794adde0672914159c1b77dd06d047904fe96ac8")).isEqualTo(refAccount)
         }
     }
@@ -122,7 +128,7 @@ class UportTest {
         tested.defaultAccount?.let { tested.deleteAccount(it) }
 
         runBlocking {
-            val account = tested.createAccount(Networks.rinkeby)
+            val account = tested.createAccount(Networks.rinkeby.networkId)
             assert(account).all {
                 isNotNull()
                 isNotEqualTo(Account.blank)

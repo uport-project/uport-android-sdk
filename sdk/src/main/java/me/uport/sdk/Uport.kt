@@ -128,7 +128,7 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    private suspend fun createAccount(networkId: String, seedPhrase: String?): Account {
+    suspend fun createAccount(networkId: String, seedPhrase: String? = null): Account {
         if (!initialized) {
             throw UportNotInitializedException()
         }
