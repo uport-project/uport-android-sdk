@@ -31,6 +31,13 @@ import pm.gnosis.model.Solidity
 import java.math.BigInteger
 import java.util.*
 
+/**
+ * This is a DID resolver implementation that supports the "ethr" DID method.
+ * It accepts ethr-dids or simple ethereum addresses and produces a document described at:
+ * https://w3c-ccg.github.io/did-spec/#did-documents
+ *
+ * Example ethr did: "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a"
+ */
 open class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration

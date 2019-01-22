@@ -8,6 +8,9 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import java.io.IOException
 
+/**
+ * Wraps common endpoint requests into suspend methods that also accept an optional bearer token
+ */
 class HttpClient {
 
     private val okClient by lazy { OkHttpClient() }

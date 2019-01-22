@@ -20,7 +20,7 @@ import pm.gnosis.model.Solidity
 /**
  * This is a DID resolver implementation that supports the "uport" DID method.
  * It accepts uport dids or simple mnids and produces a document described at:
- * https://github.com/uport-project/specs/blob/develop/pki/identitydocument.md
+ * https://w3c-ccg.github.io/did-spec/#did-documents
  *
  * Example uport did: "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX#owner"
  * Example mnid: "2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX"
