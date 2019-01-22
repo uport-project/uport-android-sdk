@@ -136,11 +136,16 @@ class MetaIdentityAccountCreator(
                     return@runBlocking oldBundle.partialAccount
                 }
                 else ->
-                    throw RuntimeException("Exhausted account creation options, ${state.name}")
+                    throw AccountCreationError(state)
             }
         }
-        throw RuntimeException("Exhausted account creation options, ${state.name}")
+        throw AccountCreationError(state)
     }
+
+    /**
+     * Signal a known error encountered during account creation
+     */
+    class AccountCreationError(state: AccountCreationState) : RuntimeException("Exhausted account creation options, ${state.name}")
 
     override suspend fun createAccount(networkId: String, forceRecreate: Boolean): Account {
         return createOrImportAccount(networkId, null, forceRecreate)
