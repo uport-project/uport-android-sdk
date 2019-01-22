@@ -35,7 +35,8 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
                         "latest")
         ).toJson()
 
-        return httpClient.urlPost(rpcEndpoint, payloadRequest, null)
+        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
+        return parsedResponse.result.toString()
     }
 
 

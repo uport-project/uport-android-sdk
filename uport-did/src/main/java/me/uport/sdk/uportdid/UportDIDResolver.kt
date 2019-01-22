@@ -6,7 +6,7 @@ import me.uport.mnid.Account
 import me.uport.mnid.MNID
 import me.uport.sdk.core.Networks
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.jsonrpc.JsonRpcException
 import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DIDResolver
@@ -16,7 +16,6 @@ import org.kethereum.extensions.hexToBigInteger
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import pm.gnosis.model.Solidity
-import java.io.IOException
 
 /**
  * This is a DID resolver implementation that supports the "uport" DID method.
@@ -78,18 +77,11 @@ open class UportDIDResolver(
 
         val encodedFunctionCall = encodeRegistryGetCall(registrationIdentifier, issuer, subject)
 
-        val jrpcResponse = rpc.ethCall(registryAddress, encodedFunctionCall)
-        val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
-                ?: throw IOException("the response from the RPC endpoint could not be parsed as JSON")
-
-        parsedResponse.error?.let {
-            throw DidResolverError(
-                    "RPC endpoint returned an error during uPort registry query",
-                    parsedResponse.error?.toException()
-            )
+        return try {
+            rpc.ethCall(registryAddress, encodedFunctionCall)
+        } catch (err: JsonRpcException) {
+            throw DidResolverError("RPC endpoint returned an error during uPort registry query", err)
         }
-
-        return parsedResponse.result.toString()
     }
 
     internal fun encodeRegistryGetCall(registrationIdentifier: String, issuer: Account, subject: Account): String {

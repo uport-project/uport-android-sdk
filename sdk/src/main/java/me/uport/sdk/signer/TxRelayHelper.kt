@@ -3,12 +3,10 @@ package me.uport.sdk.signer
 import me.uport.sdk.TxRelay
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.model.SignatureData
 import pm.gnosis.model.Solidity
-import java.io.IOException
 import java.math.BigInteger
 
 class TxRelayHelper(private val network: EthNetwork) {
@@ -20,16 +18,9 @@ class TxRelayHelper(private val network: EthNetwork) {
         val solidityDeviceAddress = Solidity.Address(deviceAddress.hexToBigInteger())
         val encodedFunctionCall = TxRelay.GetNonce.encode(solidityDeviceAddress)
 
-        val jrpcResponse = JsonRPC(network.rpcUrl).ethCall(network.txRelayAddress, encodedFunctionCall)
+        val nonceHex = JsonRPC(network.rpcUrl).ethCall(network.txRelayAddress, encodedFunctionCall)
 
-        val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
-                ?: throw IOException("RPC endpoint response could not be parsed as JSON")
-
-        parsedResponse.error?.let {
-            throw IOException("RPC endpoint responded with error while resolving meta nonce", parsedResponse.error?.toException())
-        }
-
-        return parsedResponse.result.toString().hexToBigInteger()
+        return nonceHex.hexToBigInteger()
     }
 
     /**

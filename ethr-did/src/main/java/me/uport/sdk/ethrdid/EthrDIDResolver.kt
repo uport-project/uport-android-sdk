@@ -14,7 +14,7 @@ import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDAttributeChanged
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDDelegateChanged
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.jsonrpc.JsonRpcException
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDResolver
 import me.uport.sdk.universaldid.DelegateType
@@ -28,7 +28,6 @@ import org.walleth.khex.hexToByteArray
 import org.walleth.khex.prepend0xPrefix
 import org.walleth.khex.toHexString
 import pm.gnosis.model.Solidity
-import java.io.IOException
 import java.math.BigInteger
 import java.util.*
 
@@ -79,14 +78,11 @@ open class EthrDIDResolver(
     @VisibleForTesting(otherwise = PRIVATE)
     suspend fun lastChanged(identity: String): String {
         val encodedCall = EthereumDIDRegistry.Changed.encode(Solidity.Address(identity.hexToBigInteger()))
-        val jrpcResponse = rpc.ethCall(registryAddress, encodedCall)
-        val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
-                ?: throw IOException("RPC endpoint response can't be parsed as JSON")
-        parsedResponse.error?.let {
-            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged because RPC endpoint responded with an error", it.toException())
+        return try {
+            rpc.ethCall(registryAddress, encodedCall)
+        } catch (err: JsonRpcException) {
+            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged because RPC endpoint responded with an error", err)
         }
-
-        return parsedResponse.result.toString()
     }
 
     /**

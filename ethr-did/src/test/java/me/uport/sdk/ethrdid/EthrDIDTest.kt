@@ -27,11 +27,9 @@ class EthrDIDTest {
     @Test
     fun `lookup owner works for new identity`() {
 
-        val rpc = mockk<JsonRPC>()
-
-        //language=json
-        coEvery { rpc.ethCall(any(), any()) } returns """{"result":"0x0000000000000000000000001122334455667788990011223344556677889900"}"""
-
+        val rpc = mockk<JsonRPC>() {
+            coEvery { ethCall(any(), any()) } returns "0x0000000000000000000000001122334455667788990011223344556677889900"
+        }
         val ethrDid = EthrDID("0x11", rpc, rinkebyRegistry, KPSigner(originalPrivKey))
         val owner = runBlocking {
             ethrDid.lookupOwner()
@@ -47,14 +45,12 @@ class EthrDIDTest {
             val signer = KPSigner(originalPrivKey)
             val address = signer.getAddress().prepend0xPrefix()
 
-            val rpc = mockk<JsonRPC>()
-
-            coEvery { rpc.getTransactionCount(any()) } returns BigInteger.ZERO
-            coEvery { rpc.getGasPrice() } returns 20_000_000_000L.toBigInteger()
-            //language=json
-            coEvery { rpc.ethCall(any(), any()) } returns """{"result":"0x0000000000000000000000001122334455667788990011223344556677889900"}"""
-
-            coEvery { rpc.sendRawTransaction(any()) } returns "mockedTxHash"
+            val rpc = mockk<JsonRPC> {
+                coEvery { getTransactionCount(any()) } returns BigInteger.ZERO
+                coEvery { getGasPrice() } returns 20_000_000_000L.toBigInteger()
+                coEvery { ethCall(any(), any()) } returns "0x0000000000000000000000001122334455667788990011223344556677889900"
+                coEvery { sendRawTransaction(any()) } returns "mockedTxHash"
+            }
 
             val ethrDid = EthrDID(address, rpc, rinkebyRegistry, signer)
 

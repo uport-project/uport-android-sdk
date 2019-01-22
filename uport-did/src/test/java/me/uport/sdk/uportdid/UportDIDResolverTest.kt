@@ -35,12 +35,11 @@ class UportDIDResolverTest {
     @Test
     fun `calls registry with correct payload`() = runBlocking {
 
-        val rpc = mockk<JsonRPC>()
         val encodedCallSlot = slot<String>()
 
-        coEvery { rpc.ethCall(any(), capture(encodedCallSlot)) }
-                //language=json
-                .returns("""{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}""")
+        val rpc = mockk<JsonRPC>() {
+            coEvery { ethCall(any(), capture(encodedCallSlot)) } returns "0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"
+        }
 
         val docAddressHex = UportDIDResolver(rpc).getIpfsHash("2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
@@ -86,8 +85,13 @@ class UportDIDResolverTest {
 
     @Test
     fun `can get profile document for mnid`() = runBlocking {
-        val http = mockk<HttpClient>()
-        val rpc = spyk(JsonRPC(Networks.rinkeby.rpcUrl, http))
+        val http = mockk<HttpClient>() {
+            //language=json
+            coEvery { urlGet(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
+        }
+        val rpc = spyk(JsonRPC(Networks.rinkeby.rpcUrl, http)) {
+            coEvery { ethCall(any(), any()) } returns "0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"
+        }
 
         val expectedDDO = UportIdentityDocument(
                 context = "http://schema.org",
@@ -98,11 +102,6 @@ class UportDIDResolverTest {
                 image = null,
                 name = null
         )
-
-        //language=json
-        coEvery { rpc.ethCall(any(), any()) } returns """{"jsonrpc":"2.0","id":1,"result":"0x807a7cb8b670125774d70cf94d35e2355bb18bb51cf604f376c9996057f92fbf"}"""
-        //language=json
-        coEvery { http.urlGet(any()) } returns """{"@context":"http://schema.org","@type":"Person","publicKey":"0x04e8989d1826cd6258906cfaa71126e2db675eaef47ddeb9310ee10db69b339ab960649e1934dc1e1eac1a193a94bd7dc5542befc5f7339845265ea839b9cbe56f","publicEncKey":"k8q5G4YoIMP7zvqMC9q84i7xUBins6dXGt8g5H007F0="}"""
 
         val ddo = UportDIDResolver(rpc).getProfileDocumentFor(mnid = "2ozs2ntCXceKkAQKX4c9xp2zPS8pvkJhVqC")
 
