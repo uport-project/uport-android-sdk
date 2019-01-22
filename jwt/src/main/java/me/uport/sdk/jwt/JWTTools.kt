@@ -23,6 +23,7 @@ import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
@@ -218,7 +219,10 @@ class JWTTools(
             val pubKeyNoPrefix = PublicKey(recoveredPubKey).normalize()
             val recoveredAddress = pubKeyNoPrefix.toAddress().cleanHex.toLowerCase()
 
-            val matches = ddo.publicKey.map { pubKeyEntry ->
+            //TODO: this check needs to be adapted to the logic from [did-jwt](https://github.com/uport-project/did-jwt/blob/3ea977934e844598b2bc6576369335fd1972a12a/src/JWT.js#L118)
+            val matches = ddo.publicKey.filter {
+                it.type != DelegateType.Curve25519EncryptionPublicKey
+            }.map { pubKeyEntry ->
 
                 val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
                         ?: pubKeyEntry.publicKeyBase64?.decodeBase64()
