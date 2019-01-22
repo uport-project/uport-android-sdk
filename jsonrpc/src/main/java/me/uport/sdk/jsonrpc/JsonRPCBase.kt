@@ -12,6 +12,9 @@ import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
 
+/**
+ * Data class that encapsulates a basic JsonRPC request
+ */
 @Keep
 open class JsonRpcBaseRequest(
         @Json(name = "method")
@@ -26,6 +29,9 @@ open class JsonRpcBaseRequest(
         @Json(name = "jsonrpc")
         val jsonrpc: String = "2.0") {
 
+    /**
+     * serializer for this [JsonRpcBaseRequest]
+     */
     fun toJson(): String = jsonAdapter.toJson(this) ?: ""
 
     companion object {
@@ -33,6 +39,9 @@ open class JsonRpcBaseRequest(
     }
 }
 
+/**
+ * Data class that encapsulates a generic JsonRPC response
+ */
 @Keep
 open class JsonRpcBaseResponse(
         @Json(name = "result")
@@ -49,21 +58,36 @@ open class JsonRpcBaseResponse(
 
     companion object {
 
+        /**
+         * Deserializer for [JsonRpcBaseResponse]
+         */
         fun fromJson(json: String): JsonRpcBaseResponse? = jsonAdapter?.fromJson(json)
 
         private val jsonAdapter = moshi.adapter<JsonRpcBaseResponse>(JsonRpcBaseResponse::class.java)
     }
 }
 
+/**
+ * Class that represents an error returned by a JsonRPC endpoint
+ */
 class JsonRpcError(val code: Int, val message: String) {
+    /**
+     * Convert this to an [JsonRpcException] so it can be thrown
+     */
     fun toException() = JsonRpcException(code, message)
 }
 
+/**
+ * Exception equivalent of a [JsonRpcError]
+ */
 class JsonRpcException(
         val code: Int = -32603,
         override val message: String = "Internal error"
 ) : Exception(message)
 
+/**
+ * Data class that encapsulates a log item for eth_getLogs
+ */
 data class JsonRpcLogItem(
         val address: String,
         val topics: List<String>,
@@ -77,6 +101,9 @@ data class JsonRpcLogItem(
 
 )
 
+/**
+ * Helper class to convert between hex strings and [BigInteger] in JSON (de)serialization
+ */
 class JsonRPCSerializers {
     @FromJson
     fun fromJson(hexString: String): BigInteger = hexString.maybeHexToBigInteger()
@@ -85,7 +112,9 @@ class JsonRPCSerializers {
     fun toJson(number: BigInteger): String = number.toHexStringNoPrefix().prepend0xPrefix()
 }
 
-
+/**
+ * global used to hook into JSON (de)serialization
+ */
 val moshi: Moshi = Moshi.Builder()
         .add(JsonRPCSerializers())
         .add(KotlinJsonAdapterFactory())
