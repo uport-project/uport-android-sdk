@@ -32,7 +32,7 @@ import java.io.IOException
 import java.math.BigInteger
 import java.util.*
 
-class EthrDIDResolver(
+open class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration
         val registryAddress: String = DEFAULT_REGISTRY_ADDRESS
