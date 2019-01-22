@@ -43,8 +43,7 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
                         "latest")
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
-        return parsedResponse.result.toString()
+        return jsonRpcGenericCall(rpcEndpoint, payloadRequest)
     }
 
 
@@ -73,18 +72,11 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
                 )
         ).toJson()
 
-        val rawResult = httpClient.urlPost(rpcEndpoint, payloadRequest, null)
-        val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
-                ?: throw IOException("RPC endpoint response can't be parsed as JSON")
-        if (parsedResponse.error != null) {
-            throw parsedResponse.error.toException()
-        }
-        val logItemsRaw = parsedResponse.result.toString()
+        val logItemsRaw = jsonRpcGenericCall(rpcEndpoint, payloadRequest)
         val type: ParameterizedType = Types.newParameterizedType(List::class.java, JsonRpcLogItem::class.java)
         val jsonAdapter: JsonAdapter<List<JsonRpcLogItem>> = moshi.adapter(type)
         val logs = jsonAdapter.lenient().fromJson(logItemsRaw) ?: emptyList()
         return logs
-
 
     }
 
@@ -103,9 +95,8 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
                 params = emptyList()
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
-        val priceInWei = parsedResponse.result.toString().hexToBigInteger()
-        return priceInWei
+        val priceHex = jsonRpcGenericCall(rpcEndpoint, payloadRequest)
+        return priceHex.hexToBigInteger()
     }
 
 
@@ -127,9 +118,8 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
                 params = listOf(address, "latest")
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
-        val count = parsedResponse.result.toString().hexToBigInteger()
-        return count
+        val nonceHex = jsonRpcGenericCall(rpcEndpoint, payloadRequest)
+        return nonceHex.hexToBigInteger()
     }
 
 
@@ -148,9 +138,8 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
                 params = listOf(address, "latest")
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
-        val balanceInWei = parsedResponse.result.toString().hexToBigInteger()
-        return balanceInWei
+        val weiCountHex = jsonRpcGenericCall(rpcEndpoint, payloadRequest)
+        return weiCountHex.hexToBigInteger()
     }
 
 
@@ -218,7 +207,7 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
 
         val rawResult = httpClient.urlPost(rpcEndpoint, payloadRequest)
         val parsedResponse = JsonRpcReceiptResponse.fromJson(rawResult)
-                ?: throw IOException("RPC endpoint response can't be parsed as JSON")
+                ?: throw IOException("RPC endpoint response for transaction receipt query cannot be parsed")
         if (parsedResponse.error != null) {
             throw parsedResponse.error.toException()
         }
@@ -262,7 +251,7 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
 
         val rawResult = httpClient.urlPost(rpcEndpoint, payloadRequest)
         val parsedResponse = JsonRpcTxByHashResponse.fromJson(rawResult)
-                ?: throw IOException("RPC endpoint response can't be parsed as JSON")
+                ?: throw IOException("RPC endpoint response for transaction information query cannot be parsed")
         if (parsedResponse.error != null) {
             throw parsedResponse.error.toException()
         }
@@ -318,22 +307,23 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
 //=============================
 
     /**
-     * Sends a hex string representing a [signedTx] to be mined by the ETH network.
+     * Sends a hex string representing a [signedTransactionHex] to be mined by the ETH network.
+     *
+     * @return the txHash of the transaction if it is accepted by the JsonRPC node.
      *
      * @throws JsonRpcException for error replies coming from the [rpcEndpoint]
      * @throws IOException for network errors or unexpected reply formats
      */
     suspend fun sendRawTransaction(
-            signedTx: String
+            signedTransactionHex: String
     ): String {
 
         val payloadRequest = JsonRpcBaseRequest(
                 method = "eth_sendRawTransaction",
-                params = listOf(signedTx)
+                params = listOf(signedTransactionHex)
         ).toJson()
 
-        val parsedResponse = jsonRpcBaseCall(rpcEndpoint, payloadRequest)
-        return parsedResponse.result.toString()
+        return jsonRpcGenericCall(rpcEndpoint, payloadRequest)
     }
 
     /**
@@ -343,14 +333,14 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
      * @throws JsonRpcException if the response was parsed and an error field was present
      */
     @VisibleForTesting(otherwise = PRIVATE)
-    suspend fun jsonRpcBaseCall(url: String, payloadRequest: String): JsonRpcBaseResponse {
+    suspend fun jsonRpcGenericCall(url: String, payloadRequest: String): String {
         val rawResult = httpClient.urlPost(url, payloadRequest)
         val parsedResponse = JsonRpcBaseResponse.fromJson(rawResult)
                 ?: throw IOException("RPC endpoint response can't be parsed as JSON")
         parsedResponse.error?.let {
             throw it.toException()
         }
-        return parsedResponse
+        return parsedResponse.result.toString()
     }
 
 }
