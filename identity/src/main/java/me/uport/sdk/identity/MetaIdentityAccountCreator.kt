@@ -4,16 +4,28 @@ import android.content.Context
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_DEVICE_KEY_DERIVATION_PATH
 import com.uport.sdk.signer.UportHDSigner.Companion.GENERIC_RECOVERY_DERIVATION_PATH
+import com.uport.sdk.signer.computeAddressForPath
+import com.uport.sdk.signer.createHDSeed
 import com.uport.sdk.signer.encryption.KeyProtection
+import com.uport.sdk.signer.importHDSeed
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
+import me.uport.sdk.core.onCreateFuelToken
 import me.uport.sdk.identity.ProgressPersistence.AccountCreationState
 import me.uport.sdk.identity.ProgressPersistence.PersistentBundle
-import me.uport.sdk.identity.endpoints.UnnuIdentityInfo
-import me.uport.sdk.identity.endpoints.lookupIdentityInfo
-import me.uport.sdk.identity.endpoints.requestIdentityCreation
+import me.uport.sdk.identity.endpoints.Unnu
 
-
+/**
+ * [Account] manager backed by a [UportHDSigner] that controls a
+ * [uPort proxy account](https://github.com/uport-project/uport-identity).
+ *
+ * This type of account supports meta-transactions but require fuel-tokens
+ *
+ * **Work on this identity model is on hold and no support is available. Please use [KPAccountCreator]**
+ */
+@Deprecated("Work on this identity model is on hold and no support is available. Please use [KPAccountCreator]")
 class MetaIdentityAccountCreator(
         private val context: Context,
         private val fuelTokenProvider: IFuelTokenProvider) : AccountCreator {
@@ -32,7 +44,8 @@ class MetaIdentityAccountCreator(
      *
      * To force the creation of a new identity, use [forceRestart]
      */
-    private fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean, callback: AccountCreatorCallback) {
+    @Suppress("LabeledExpression")
+    private fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean): Account = runBlocking {
 
         var (state, oldBundle) = if (forceRestart) {
             (AccountCreationState.NONE to PersistentBundle())
@@ -40,144 +53,111 @@ class MetaIdentityAccountCreator(
             progress.restore()
         }
 
-        when (state) {
+        advanceCreationState@ while (state != AccountCreationState.COMPLETE) {
+            when (state) {
 
-            AccountCreationState.NONE -> {
-                if (phrase.isNullOrEmpty()) {
-                    signer.createHDSeed(context, KeyProtection.Level.SIMPLE) { err, rootAddress, _ ->
-                        if (err != null) {
-                            return@createHDSeed fail(err, callback)
-                        }
-                        val bundle = oldBundle.copy(rootAddress = rootAddress)
-                        progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
-                        return@createHDSeed createAccount(networkId, false, callback)
+                AccountCreationState.NONE -> {
+                    val (rootAddress, _) = if (phrase.isNullOrEmpty()) {
+                        signer.createHDSeed(context, KeyProtection.Level.SIMPLE)
+                    } else {
+                        signer.importHDSeed(context, KeyProtection.Level.SIMPLE, phrase)
                     }
-                } else {
-                    signer.importHDSeed(context, KeyProtection.Level.SIMPLE, phrase) { err, rootAddress, _ ->
-                        if (err != null) {
-                            return@importHDSeed fail(err, callback)
-                        }
-                        val bundle = oldBundle.copy(rootAddress = rootAddress)
-                        progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
-                        return@importHDSeed createAccount(networkId, false, callback)
-                    }
+                    val bundle = oldBundle.copy(rootAddress = rootAddress)
+                    progress.save(AccountCreationState.ROOT_KEY_CREATED, bundle)
+                    continue@advanceCreationState
                 }
-            }
 
-            AccountCreationState.ROOT_KEY_CREATED -> {
-                signer.computeAddressForPath(context, oldBundle.rootAddress, GENERIC_DEVICE_KEY_DERIVATION_PATH, "") { err, deviceAddress, _ ->
-                    if (err != null) {
-                        return@computeAddressForPath fail(err, callback)
-                    }
+                AccountCreationState.ROOT_KEY_CREATED -> {
+                    val (deviceAddress, _) = signer.computeAddressForPath(context, oldBundle.rootAddress, GENERIC_DEVICE_KEY_DERIVATION_PATH, "")
                     val bundle = oldBundle.copy(deviceAddress = deviceAddress)
                     progress.save(AccountCreationState.DEVICE_KEY_CREATED, bundle)
-                    return@computeAddressForPath createAccount(networkId, false, callback)
+                    continue@advanceCreationState
                 }
-            }
 
-            AccountCreationState.DEVICE_KEY_CREATED -> {
-                signer.computeAddressForPath(context, oldBundle.rootAddress, GENERIC_RECOVERY_DERIVATION_PATH, "") { err, recoveryAddress, _ ->
-                    if (err != null) {
-                        return@computeAddressForPath fail(err, callback)
-                    }
+                AccountCreationState.DEVICE_KEY_CREATED -> {
+                    val (recoveryAddress, _) = signer.computeAddressForPath(context, oldBundle.rootAddress, GENERIC_RECOVERY_DERIVATION_PATH, "")
                     val detail = oldBundle.copy(recoveryAddress = recoveryAddress)
                     progress.save(AccountCreationState.RECOVERY_KEY_CREATED, detail)
-                    return@computeAddressForPath createAccount(networkId, false, callback)
+                    continue@advanceCreationState
                 }
-            }
 
-            AccountCreationState.RECOVERY_KEY_CREATED -> {
-                fuelTokenProvider.onCreateFuelToken(oldBundle.deviceAddress) { err, fuelToken ->
-                    if (err != null) {
-                        return@onCreateFuelToken fail(err, callback)
-                    }
-
+                AccountCreationState.RECOVERY_KEY_CREATED -> {
+                    val fuelToken = fuelTokenProvider.onCreateFuelToken(oldBundle.deviceAddress)
                     val bundle = oldBundle.copy(fuelToken = fuelToken)
                     progress.save(AccountCreationState.FUEL_TOKEN_OBTAINED, bundle)
-                    return@onCreateFuelToken createAccount(networkId, false, callback)
+                    continue@advanceCreationState
                 }
-            }
 
-            AccountCreationState.FUEL_TOKEN_OBTAINED -> {
+                AccountCreationState.FUEL_TOKEN_OBTAINED -> {
 
-                requestIdentityCreation(
-                        oldBundle.deviceAddress,
-                        oldBundle.recoveryAddress,
-                        networkId,
-                        oldBundle.fuelToken
-                ) { err, identityInfo ->
-                    if (err != null) {
-                        return@requestIdentityCreation fail(err, callback)
-                    }
+                    val identityInfo = Unnu().requestIdentityCreation(
+                            oldBundle.deviceAddress,
+                            oldBundle.recoveryAddress,
+                            networkId,
+                            oldBundle.fuelToken
+                    )
                     val bundle = oldBundle.copy(txHash = identityInfo.txHash ?: "")
                     progress.save(AccountCreationState.PROXY_CREATION_SENT, bundle)
-
-                    return@requestIdentityCreation createAccount(networkId, false, callback)
+                    continue@advanceCreationState
                 }
 
-            }
-
-            AccountCreationState.PROXY_CREATION_SENT -> {
-                Thread {
+                AccountCreationState.PROXY_CREATION_SENT -> {
                     var pollingDelay = POLLING_INTERVAL
                     while (state != AccountCreationState.COMPLETE) {
 
-                        lookupIdentityInfo(oldBundle.deviceAddress) { _, identityInfo ->
+                        val identityInfo = Unnu().lookupIdentityInfo(oldBundle.deviceAddress)
 
-                            //if (err != null) {
-                            //    //FIXME: an error here does not necessarily mean a failure; the flow splits here based on type of failure, for example Unnu returns 404 if the proxy hasn't been mined yet
-                            //    return@lookupIdentityInfo fail(context, err, callback)
-                            //}
+                        //if (err != null) {
+                        //    //FIXME: an error here does not necessarily mean a failure; the flow splits here based on type of failure, for example Unnu returns 404 if the proxy hasn't been mined yet
+                        //}
 
-                            if (identityInfo != UnnuIdentityInfo.blank) {
-                                val proxyAddress = identityInfo.proxyAddress ?: ""
-                                val acc = Account(
-                                        oldBundle.rootAddress,
-                                        oldBundle.deviceAddress,
-                                        networkId,
-                                        proxyAddress,
-                                        identityInfo.managerAddress,
-                                        Networks.get(networkId).txRelayAddress,
-                                        oldBundle.fuelToken,
-                                        AccountType.MetaIdentityManager
-                                )
-                                state = AccountCreationState.COMPLETE
-                                progress.save(state, oldBundle.copy(partialAccount = acc))
+                        if (identityInfo != Unnu.IdentityInfo.blank) {
+                            val proxyAddress = identityInfo.proxyAddress ?: ""
+                            val acc = Account(
+                                    oldBundle.rootAddress,
+                                    oldBundle.deviceAddress,
+                                    networkId,
+                                    proxyAddress,
+                                    identityInfo.managerAddress,
+                                    Networks.get(networkId).txRelayAddress,
+                                    oldBundle.fuelToken,
+                                    AccountType.MetaIdentityManager
+                            )
+                            state = AccountCreationState.COMPLETE
+                            progress.save(state, oldBundle.copy(partialAccount = acc))
 
-                                return@lookupIdentityInfo callback(null, acc)
-                            }
-
+                            return@runBlocking acc
                         }
 
                         pollingDelay = Math.round(pollingDelay * BACKOFF_FACTOR).toLong()
-                        //FIXME: use saner polling model.. coroutines maybe?
-                        Thread.sleep(pollingDelay)
+                        delay(pollingDelay)
                     }
-                }.start()
+                }
+                AccountCreationState.COMPLETE -> {
+                    return@runBlocking oldBundle.partialAccount
+                }
+                else ->
+                    throw AccountCreationError(state)
             }
-            AccountCreationState.COMPLETE -> {
-                return callback(null, oldBundle.partialAccount)
-            }
-            else ->
-                return callback(RuntimeException("Exhausted account creation options, ${state.name}"), Account.blank)
         }
+        throw AccountCreationError(state)
     }
 
-    override fun createAccount(networkId: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
-        createOrImportAccount(networkId, null, forceRestart, callback)
+    /**
+     * Signal a known error encountered during account creation
+     */
+    class AccountCreationError(state: AccountCreationState) : RuntimeException("Exhausted account creation options, ${state.name}")
+
+    override suspend fun createAccount(networkId: String, forceRecreate: Boolean): Account {
+        return createOrImportAccount(networkId, null, forceRecreate)
     }
 
-    override fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean, callback: AccountCreatorCallback) {
-        createOrImportAccount(networkId, seedPhrase, forceRestart, callback)
+    override suspend fun importAccount(networkId: String, seedPhrase: String, forceRecreate: Boolean): Account {
+        return createOrImportAccount(networkId, seedPhrase, forceRecreate)
     }
 
-    override fun deleteAccount(handle: String) {
+    override suspend fun deleteAccount(handle: String) {
         signer.deleteSeed(context, handle)
-    }
-
-    private fun fail(err: Exception, callback: AccountCreatorCallback) {
-        progress.save(AccountCreationState.NONE)
-        return callback(err, Account.blank)
     }
 
     companion object {

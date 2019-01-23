@@ -2,8 +2,17 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.*
-import me.uport.sdk.core.*
+import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.decodeJose
+import com.uport.sdk.signer.getJoseEncoded
+import com.uport.sdk.signer.normalize
+import me.uport.sdk.core.ITimeProvider
+import me.uport.sdk.core.Networks
+import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.toBase64
+import me.uport.sdk.core.toBase64UrlSafe
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -14,6 +23,7 @@ import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
@@ -32,7 +42,6 @@ import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
 import java.security.SignatureException
-import kotlin.experimental.and
 
 /**
  * Tools for Verifying, Creating, and Decoding uport JWTs
@@ -43,7 +52,6 @@ class JWTTools(
         private val timeProvider: ITimeProvider = SystemTimeProvider
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
-    private val TIME_SKEW = 300
 
     init {
 
@@ -60,7 +68,8 @@ class JWTTools(
 
         // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID
         if (!UniversalDID.canResolve(blankUportDID)) {
-            UniversalDID.registerResolver(UportDIDResolver())
+            val defaultRPC = JsonRPC(Networks.rinkeby.rpcUrl)
+            UniversalDID.registerResolver(UportDIDResolver(defaultRPC))
         }
 
         // register default https DID resolver if Universal DID is unable to resolve blank https DID
@@ -95,7 +104,7 @@ class JWTTools(
 
         val header = JwtHeader(alg = algorithm)
 
-        val iatSeconds = Math.floor(timeProvider.now() / 1000.0).toLong()
+        val iatSeconds = Math.floor(timeProvider.nowMs() / 1000.0).toLong()
         val expSeconds = iatSeconds + expiresInSeconds
 
         mutablePayload["iat"] = iatSeconds
@@ -112,8 +121,12 @@ class JWTTools(
         return listOf(signingInput, signature).joinToString(".")
     }
 
-    @Deprecated("This method has been deprecated in favor of `createJWT` because it is too coupled to the UportHDSigner mechanics", ReplaceWith("createJWT()"))
-    fun create(context: Context, payload: JwtPayload, rootHandle: String, derivationPath: String, prompt: String = "", recoverable: Boolean = false, callback: (err: Exception?, encodedJWT: String?) -> Unit) {
+    /**
+     * @Deprecated Please use [createJWT]
+     */
+    @Suppress("LongParameterList")
+    @Deprecated("This method has been deprecated in favor of `createJWT`", ReplaceWith("createJWT()"))
+    fun create(context: Context, payload: JwtPayload, rootHandle: String, derivationPath: String, prompt: String = "", recoverable: Boolean = false, callback: (err: Exception?, encodedJWT: String) -> Unit) {
         //create header and convert the parts to json strings
         val header = if (!recoverable) {
             JwtHeader(alg = ES256K)
@@ -175,11 +188,11 @@ class JWTTools(
     suspend fun verify(token: String): JwtPayload? {
         val (_, payload, signatureBytes) = decode(token)
 
-        if (payload.iat != null && payload.iat > (timeProvider.now()/1000 + TIME_SKEW)) {
+        if (payload.iat != null && payload.iat > (timeProvider.nowMs() / 1000 + TIME_SKEW)) {
             throw InvalidJWTException("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
         }
 
-        if (payload.exp != null && payload.exp <= (timeProvider.now()/1000 - TIME_SKEW)) {
+        if (payload.exp != null && payload.exp <= (timeProvider.nowMs() / 1000 - TIME_SKEW)) {
             throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
         }
 
@@ -210,7 +223,10 @@ class JWTTools(
             val pubKeyNoPrefix = PublicKey(recoveredPubKey).normalize()
             val recoveredAddress = pubKeyNoPrefix.toAddress().cleanHex.toLowerCase()
 
-            val matches = ddo.publicKey.map { pubKeyEntry ->
+            //TODO: this check needs to be adapted to the logic from [did-jwt](https://github.com/uport-project/did-jwt/blob/3ea977934e844598b2bc6576369335fd1972a12a/src/JWT.js#L118)
+            val matches = ddo.publicKey.filter {
+                it.type != DelegateType.Curve25519EncryptionPublicKey
+            }.map { pubKeyEntry ->
 
                 val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
                         ?: pubKeyEntry.publicKeyBase64?.decodeBase64()
@@ -322,7 +338,7 @@ class JWTTools(
     @Throws(SignatureException::class)
     fun signedJwtToKey(message: ByteArray, signatureData: SignatureData): BigInteger {
 
-        val header = signatureData.v and 0xFF.toByte()
+        val header = signatureData.v
         // The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
         //                  0x1D = second key with even y, 0x1E = second key with odd y
         if (header < 27 || header > 34) {
@@ -345,6 +361,8 @@ class JWTTools(
          * 5 minutes. The default number of seconds of validity of a JWT, in case no other interval is specified.
          */
         const val DEFAULT_JWT_VALIDITY_SECONDS = 300L
+
+        private const val TIME_SKEW = 300L
     }
 
 }

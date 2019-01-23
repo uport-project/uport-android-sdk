@@ -2,9 +2,7 @@ package me.uport.sdk.signer
 
 import me.uport.sdk.TxRelay
 import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.core.experimental.urlPost
-import me.uport.sdk.jsonrpc.EthCall
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.jsonrpc.JsonRPC
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.model.SignatureData
@@ -20,10 +18,9 @@ class TxRelayHelper(private val network: EthNetwork) {
         val solidityDeviceAddress = Solidity.Address(deviceAddress.hexToBigInteger())
         val encodedFunctionCall = TxRelay.GetNonce.encode(solidityDeviceAddress)
 
-        val jsonPayload = EthCall(network.txRelayAddress, encodedFunctionCall).toJsonRpc()
+        val nonceHex = JsonRPC(network.rpcUrl).ethCall(network.txRelayAddress, encodedFunctionCall)
 
-        val jrpcResponse = urlPost(network.rpcUrl, jsonPayload)
-        return JsonRpcBaseResponse.fromJson(jrpcResponse).result.toString().hexToBigInteger()
+        return nonceHex.hexToBigInteger()
     }
 
     /**

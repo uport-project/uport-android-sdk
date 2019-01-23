@@ -6,14 +6,21 @@ import com.uport.sdk.signer.Signer
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.uport.sdk.core.*
+import me.uport.sdk.core.UI
+import me.uport.sdk.core.bytes32ToString
+import me.uport.sdk.core.hexToBytes32
+import me.uport.sdk.core.toBase64
+import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDAttributeChanged
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDDelegateChanged
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
-import me.uport.sdk.jsonrpc.experimental.ethCall
-import me.uport.sdk.jsonrpc.experimental.getLogs
-import me.uport.sdk.universaldid.*
+import me.uport.sdk.jsonrpc.JsonRpcException
+import me.uport.sdk.universaldid.AuthenticationEntry
+import me.uport.sdk.universaldid.DIDResolver
+import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.DidResolverError
+import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.ServiceEntry
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
@@ -24,7 +31,14 @@ import pm.gnosis.model.Solidity
 import java.math.BigInteger
 import java.util.*
 
-class EthrDIDResolver(
+/**
+ * This is a DID resolver implementation that supports the "ethr" DID method.
+ * It accepts ethr-dids or simple ethereum addresses and produces a document described at:
+ * https://w3c-ccg.github.io/did-spec/#did-documents
+ *
+ * Example ethr did: "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a"
+ */
+open class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration
         val registryAddress: String = DEFAULT_REGISTRY_ADDRESS
@@ -71,14 +85,11 @@ class EthrDIDResolver(
     @VisibleForTesting(otherwise = PRIVATE)
     suspend fun lastChanged(identity: String): String {
         val encodedCall = EthereumDIDRegistry.Changed.encode(Solidity.Address(identity.hexToBigInteger()))
-        val jrpcResponse = rpc.ethCall(registryAddress, encodedCall)
-        val parsedResponse = JsonRpcBaseResponse.fromJson(jrpcResponse)
-
-        parsedResponse.error?.let {
-            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged", it.toException())
+        return try {
+            rpc.ethCall(registryAddress, encodedCall)
+        } catch (err: JsonRpcException) {
+            throw DidResolverError("Unable to evaluate when or if the $identity was lastChanged because RPC endpoint responded with an error", err)
         }
-
-        return parsedResponse.result.toString()
     }
 
     /**

@@ -9,9 +9,9 @@ import io.mockk.coEvery
 import io.mockk.mockkObject
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JSON
-import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.ethrdid.EthrDIDDocument
 import me.uport.sdk.jwt.model.JwtPayload
+import me.uport.sdk.testhelpers.TestTimeProvider
 import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDDocument
@@ -109,10 +109,6 @@ class JWTToolsJVMTest {
         }.thrownError {
             isInstanceOf(InvalidJWTException::class)
         }
-    }
-
-    class TestTimeProvider(private val currentTime: Long) : ITimeProvider {
-        override fun now(): Long = currentTime
     }
 }
 

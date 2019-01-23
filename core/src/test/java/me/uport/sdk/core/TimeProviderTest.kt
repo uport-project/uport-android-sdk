@@ -11,6 +11,6 @@ class TimeProviderTest {
         val systemTime = System.currentTimeMillis()
         val defaultProvider = SystemTimeProvider
         //some systems have tens of milliseconds as the lowest granularity
-        assert(defaultProvider.now()).isLessThan(100L + systemTime)
+        assert(defaultProvider.nowMs()).isLessThan(100L + systemTime)
     }
 }

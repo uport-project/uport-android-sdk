@@ -55,7 +55,11 @@ subprojects { subproject ->
 
             task sourcesJar(type: Jar) {
                 classifier = 'sources'
-                from android.sourceSets.main.javaDirectories
+                if (subproject.hasProperty("android")) {
+                    from android.sourceSets.main.javaDirectories
+                } else {
+                    from sourceSets.main.java.srcDirs
+                }
             }
 
             artifacts {

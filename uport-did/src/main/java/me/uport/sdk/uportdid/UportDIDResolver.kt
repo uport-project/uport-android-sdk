@@ -5,13 +5,12 @@ import kotlinx.coroutines.withContext
 import me.uport.mnid.Account
 import me.uport.mnid.MNID
 import me.uport.sdk.core.Networks
-import me.uport.sdk.core.urlGetSync
-import me.uport.sdk.core.urlPostSync
-import me.uport.sdk.jsonrpc.EthCall
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
+import me.uport.sdk.jsonrpc.JsonRPC
+import me.uport.sdk.jsonrpc.JsonRpcException
 import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DIDResolver
+import me.uport.sdk.universaldid.DidResolverError
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.walleth.khex.clean0xPrefix
@@ -21,18 +20,20 @@ import pm.gnosis.model.Solidity
 /**
  * This is a DID resolver implementation that supports the "uport" DID method.
  * It accepts uport dids or simple mnids and produces a document described at:
- * https://github.com/uport-project/specs/blob/develop/pki/identitydocument.md
+ * https://w3c-ccg.github.io/did-spec/#did-documents
  *
  * Example uport did: "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX#owner"
  * Example mnid: "2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX"
  */
-class UportDIDResolver : DIDResolver {
+open class UportDIDResolver(
+        private val rpc: JsonRPC
+) : DIDResolver {
     override val method: String = "uport"
 
     override suspend fun resolve(did: String): DIDDocument = withContext(Dispatchers.IO) {
         if (canResolve(did)) {
             val (_, mnid) = parseDIDString(did)
-            val ddo = getProfileDocumentSync(mnid)
+            val ddo = getProfileDocumentFor(mnid)
 
             ddo?.convertToDIDDocument(did)
                     ?: throw BlankDocumentError("unable to fetch profile document for $did")
@@ -51,11 +52,7 @@ class UportDIDResolver : DIDResolver {
         }
     }
 
-    /**
-     * Given an MNID, calls the uport registry and returns the raw json
-     */
-    private fun callRegistrySync(subjectId: String?, issuerId: String? = null, registrationIdentifier: String = "uPortProfileIPFS1220"): String {
-
+    private fun decodeMnidTargets(issuerId: String?, subjectId: String?): Pair<Account, Account> {
         val issuer = MNID.decode(issuerId ?: subjectId ?: "")
 
         val subject = MNID.decode(subjectId ?: "")
@@ -63,21 +60,31 @@ class UportDIDResolver : DIDResolver {
         if (issuer.network != subject.network) {
             throw(IllegalArgumentException("Issuer and subject must be on the same network"))
         }
+        return Pair(issuer, subject)
+    }
+
+    private suspend fun getDocAddressFromUportRegistry(
+            subjectId: String?,
+            issuerId: String? = null,
+            registrationIdentifier: String = "uPortProfileIPFS1220"
+    ): String {
+
+        val (issuer, subject) = decodeMnidTargets(issuerId, subjectId)
 
         val network = Networks.get(issuer.network)
 
         val registryAddress = MNID.decode(network.registry).address
 
-        val encodedFunctionCall = encodeRegistryFunctionCall(registrationIdentifier, issuer, subject)
+        val encodedFunctionCall = encodeRegistryGetCall(registrationIdentifier, issuer, subject)
 
-        val jsonPayload = EthCall(registryAddress, encodedFunctionCall).toJsonRpc()
-
-        //can be async
-        val jrpcResponse = urlPostSync(network.rpcUrl, jsonPayload)
-        return JsonRpcBaseResponse.fromJson(jrpcResponse).result.toString()
+        return try {
+            rpc.ethCall(registryAddress, encodedFunctionCall)
+        } catch (err: JsonRpcException) {
+            throw DidResolverError("RPC endpoint returned an error during uPort registry query", err)
+        }
     }
 
-    internal fun encodeRegistryFunctionCall(registrationIdentifier: String, issuer: Account, subject: Account): String {
+    internal fun encodeRegistryGetCall(registrationIdentifier: String, issuer: Account, subject: Account): String {
         val solRegistryIdentifier = Solidity.Bytes32(registrationIdentifier.toByteArray())
         val solIssuer = Solidity.Address(issuer.address.hexToBigInteger())
         val solSubject = Solidity.Address(subject.address.hexToBigInteger())
@@ -88,8 +95,8 @@ class UportDIDResolver : DIDResolver {
     /**
      * Given an MNID, obtains the IPFS hash of the UportDIDResolver document by eth_call to the uport registry
      */
-    internal fun getIpfsHashSync(mnid: String): String {
-        val docAddressHex = callRegistrySync(mnid)
+    internal suspend fun getIpfsHash(mnid: String): String {
+        val docAddressHex = getDocAddressFromUportRegistry(mnid)
         return if (docAddressHex.isBlank()) {
             return ""
         } else {
@@ -97,16 +104,13 @@ class UportDIDResolver : DIDResolver {
         }
     }
 
-    /**
-     * Obtains the JSON encoded UportDIDResolver doc given an mnid
-     */
-    private fun getJsonProfileSync(mnid: String): String {
+    private suspend fun getJsonProfile(mnid: String): String {
 
-        val ipfsHash = getIpfsHashSync(mnid)
+        val ipfsHash = getIpfsHash(mnid)
 
         val url = "https://ipfs.infura.io/ipfs/$ipfsHash"
 
-        return urlGetSync(url)
+        return rpc.httpClient.urlGet(url)
     }
 
     /**
@@ -114,8 +118,9 @@ class UportDIDResolver : DIDResolver {
      *
      * Should return `null` if anything goes wrong
      */
-    internal fun getProfileDocumentSync(mnid: String): UportIdentityDocument? {
-        val rawJsonDDO = getJsonProfileSync(mnid)
+    @Suppress("DEPRECATION")
+    internal suspend fun getProfileDocumentFor(mnid: String): UportIdentityDocument? {
+        val rawJsonDDO = getJsonProfile(mnid)
 
         return UportIdentityDocument.fromJson(rawJsonDDO)
     }

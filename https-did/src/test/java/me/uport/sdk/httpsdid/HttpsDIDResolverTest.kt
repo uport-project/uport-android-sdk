@@ -4,9 +4,9 @@ import assertk.assert
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import io.mockk.coEvery
-import io.mockk.mockkStatic
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import me.uport.sdk.core.experimental.urlGet
+import me.uport.sdk.core.HttpClient
 import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.testhelpers.isInstanceOf
 import me.uport.sdk.universaldid.AuthenticationEntry
@@ -57,11 +57,12 @@ class HttpsDIDResolverTest {
 
     @Test
     fun `fails when the endpoint doesn't provide a DID document`() = runBlocking {
-        mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
-        coEvery { urlGet(any()) } returns ""
+        val http = mockk<HttpClient>()
+        val tested = HttpsDIDResolver(http)
+        coEvery { http.urlGet(any()) } returns ""
 
         coAssert {
-            HttpsDIDResolver().resolve("did:https:example.com")
+            tested.resolve("did:https:example.com")
         }.thrownError {
             isInstanceOf(listOf(IllegalArgumentException::class, IOException::class))
         }
@@ -70,11 +71,12 @@ class HttpsDIDResolverTest {
     @Test
     fun `resolves document`() = runBlocking {
 
-        mockkStatic("me.uport.sdk.core.experimental.CoroutineExtensionsKt")
+        val http = mockk<HttpClient>()
+        val tested = HttpsDIDResolver(http)
 
-        coEvery { urlGet(any()) } returns exampleDidDoc.toJson()
+        coEvery { http.urlGet(any()) } returns exampleDidDoc.toJson()
 
-        val response = HttpsDIDResolver().resolve("did:https:example.com")
+        val response = tested.resolve("did:https:example.com")
         assert(response).isEqualTo(exampleDidDoc)
     }
 

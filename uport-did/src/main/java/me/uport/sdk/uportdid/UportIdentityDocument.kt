@@ -16,6 +16,7 @@ import org.walleth.khex.clean0xPrefix
  * See [identity_document spec](https://github.com/uport-project/specs/blob/develop/pki/identitydocument.md)
  *
  */
+@Suppress("DEPRECATION")
 @Deprecated(message = "this was replaced by UportDIDDocument. use `convertToDIDDocument` to make the transition")
 data class UportIdentityDocument(
         @Json(name = "@context")
@@ -113,6 +114,7 @@ class ProfilePicture(
         @Json(name = "name")
         val name: String? = "avatar",
 
+        @Suppress("unused")
         @Json(name = "contentUrl")
         val contentUrl: String? = ""
 )
