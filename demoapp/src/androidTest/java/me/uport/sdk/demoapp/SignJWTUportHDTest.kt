@@ -6,6 +6,7 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import assertk.assert
 import assertk.assertions.isNotEqualTo
+import me.uport.sdk.demoapp.managing_jwt.SignJWTUportHDSignerActivity
 import org.junit.Rule
 import org.junit.Test
 

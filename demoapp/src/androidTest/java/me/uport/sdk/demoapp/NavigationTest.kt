@@ -10,6 +10,12 @@ import android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import android.support.test.espresso.intent.rule.IntentsTestRule
 import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
+import me.uport.sdk.demoapp.key_protection.FingerPrintProtectionActivity
+import me.uport.sdk.demoapp.key_protection.KeyGuardProtectionActivity
+import me.uport.sdk.demoapp.key_protection.KeyProtectionListActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTKeyPairSignerActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTListActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTUportHDSignerActivity
 import org.hamcrest.CoreMatchers.anything
 import org.junit.Rule
 import org.junit.Test

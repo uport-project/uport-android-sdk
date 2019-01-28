@@ -6,6 +6,10 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import kotlinx.android.synthetic.main.simple_list.*
+import me.uport.sdk.demoapp.key_protection.KeyProtectionListActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTListActivity
+import me.uport.sdk.demoapp.managing_jwt.VerifyJWTActivity
+import me.uport.sdk.demoapp.request_flows.RequestFlowListActivity
 
 /**
  *

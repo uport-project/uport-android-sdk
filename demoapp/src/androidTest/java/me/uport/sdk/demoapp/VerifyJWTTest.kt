@@ -10,6 +10,7 @@ import io.mockk.coEvery
 import io.mockk.spyk
 import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.Networks
+import me.uport.sdk.demoapp.managing_jwt.VerifyJWTActivity
 import me.uport.sdk.ethrdid.EthrDIDDocument
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC

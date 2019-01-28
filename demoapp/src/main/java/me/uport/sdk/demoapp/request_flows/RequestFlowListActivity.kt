@@ -1,4 +1,4 @@
-package me.uport.sdk.demoapp
+package me.uport.sdk.demoapp.request_flows
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import kotlinx.android.synthetic.main.simple_list.*
+import me.uport.sdk.demoapp.R
 
 class RequestFlowListActivity : AppCompatActivity() {
 
@@ -27,7 +28,7 @@ class RequestFlowListActivity : AppCompatActivity() {
     private fun itemSelected(position: Int) {
         when (position) {
             0 -> startActivity(Intent(this, SelectiveDisclosureActivity::class.java))
-            1 -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+            1 -> startActivity(Intent(this, VerifiedClaimRequestActivity::class.java))
             2 -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             3 -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             4 -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()

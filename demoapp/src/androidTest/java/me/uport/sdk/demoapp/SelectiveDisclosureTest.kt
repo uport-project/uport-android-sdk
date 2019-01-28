@@ -12,7 +12,7 @@ import android.support.test.espresso.intent.matcher.UriMatchers
 import android.support.test.espresso.intent.rule.IntentsTestRule
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import assertk.assert
-import assertk.assertions.isNotNull
+import me.uport.sdk.demoapp.request_flows.SelectiveDisclosureActivity
 import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
