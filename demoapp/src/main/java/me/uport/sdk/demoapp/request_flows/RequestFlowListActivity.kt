@@ -29,7 +29,7 @@ class RequestFlowListActivity : AppCompatActivity() {
         when (position) {
             0 -> startActivity(Intent(this, SelectiveDisclosureActivity::class.java))
             1 -> startActivity(Intent(this, VerifiedClaimRequestActivity::class.java))
-            2 -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+            2 -> startActivity(Intent(this, PersonalSignRequestActivity::class.java))
             3 -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             4 -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()

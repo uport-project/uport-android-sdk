@@ -1,5 +1,6 @@
 package me.uport.sdk.demoapp.request_flows
 
+
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -13,7 +14,7 @@ import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.Transports
 
-class VerifiedClaimRequestActivity : AppCompatActivity() {
+class PersonalSignRequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,20 +29,18 @@ class VerifiedClaimRequestActivity : AppCompatActivity() {
         // create the request JWT payload
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
-                "type" to "verReq",
+                "type" to "personalSignReq",
                 "iss" to issuerDID,
                 "iat" to System.currentTimeMillis(),
-                "unsignedClaim" to mapOf(
-                        "name" to "Steve Austin"
-                )
+                "data" to "0xdeaddeadbeefbeef"
         )
 
         request_details.text = "" +
-                "Request Type: Verification" +
+                "Request Type: Personal Signature Request" +
                 "\n" +
                 "Issuer DID: $issuerDID" +
                 "\n" +
-                "Unsigned Claim: ${payload["unsignedClaim"]}"
+                "Data to be signed: ${payload["data"]}"
 
         // make request
         send_request.setOnClickListener {
@@ -52,7 +51,7 @@ class VerifiedClaimRequestActivity : AppCompatActivity() {
                 val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(this@VerifiedClaimRequestActivity, requestJWT)
+                Transports().send(this@PersonalSignRequestActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE

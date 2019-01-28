@@ -33,6 +33,7 @@
         <activity android:name=".request_flows.RequestFlowListActivity" />
         <activity android:name=".request_flows.SelectiveDisclosureActivity" />
         <activity android:name=".request_flows.VerifiedClaimRequestActivity" />
+        <activity android:name=".request_flows.PersonalSignRequestActivity" />
 
 
 
