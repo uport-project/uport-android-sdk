@@ -10,7 +10,7 @@ import me.uport.sdk.demoapp.R
 
 class RequestFlowListActivity : AppCompatActivity() {
 
-    private val features = arrayOf("Selective Disclosure", "Verified Claim Request", "Personal Signature Request", "Send Verification Flow", "Ethereum Transaction Flow")
+    private val features = arrayOf("Selective Disclosure", "Verified Claim Request", "Personal Signature Request", "Typed Data Signature Request", "Ethereum Transaction Flow")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
