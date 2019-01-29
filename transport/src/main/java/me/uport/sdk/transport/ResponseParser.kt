@@ -14,7 +14,7 @@ import java.net.URI
 object ResponseParser {
 
     //language=RegExp
-    private val fragmentMatcher = ".*[&#]*(access_token=([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+))&*.*$".toRegex()
+    private val fragmentMatcher = ".*[&#]*((?:access_token=|verification=|typedDataSig=|personalSig=|tx=)([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+))&*.*$".toRegex()
 
     //language=RegExp
     private val errorMatcher = ".*[&#]*(error=(.*))&*.*$".toRegex()
