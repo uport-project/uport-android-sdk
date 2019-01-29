@@ -29,10 +29,11 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         // create the request JWT payload
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
-                "type" to "personalSignReq",
+                "type" to "personalSigReq",
                 "iss" to issuerDID,
+                "net" to "0x4",
                 "iat" to System.currentTimeMillis(),
-                "data" to "0xdeaddeadbeefbeef"
+                "data" to "This is a message I need you to sign"
         )
 
         request_details.text = "" +

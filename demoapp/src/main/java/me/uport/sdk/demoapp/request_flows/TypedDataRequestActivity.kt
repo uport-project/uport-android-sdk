@@ -8,6 +8,7 @@ import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.uport.sdk.Uport
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
@@ -63,6 +64,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "eip712Req",
+                "net" to "0x4",
                 "iss" to issuerDID,
                 "iat" to System.currentTimeMillis(),
                 "typedData" to typedData
