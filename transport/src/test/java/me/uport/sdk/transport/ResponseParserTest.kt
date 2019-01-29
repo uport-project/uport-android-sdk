@@ -1,19 +1,13 @@
 package me.uport.sdk.transport
 
 import assertk.assert
+import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExpectedException
 
 class ResponseParserTest {
 
-    @get:Rule
-    val expectedExceptionRule: ExpectedException = ExpectedException.none()
-
-
-    private val validAccessTokenTypeURLs= listOf(
+    private val validAccessTokenTypeURLs = listOf(
             "https://example.com#access_token=header.payload.signature",
             "https://example.com#access_token=header.payload.signature&something=else",
             "https://example.com#something=else&access_token=header.payload.signature",
@@ -32,7 +26,7 @@ class ResponseParserTest {
             "my.app://my-dapp.com/some/path?something=else#access_token=header.payload.signature"
     )
 
-    private val invalidAccessTokenTypeURLs= listOf(
+    private val invalidAccessTokenTypeURLs = listOf(
             "my.app://my-dapp.com#access_token=header.payload.signature#degenerate-fragment",
             "my.app://my-dapp.com?access_token=header.payload.signature",
             "my.app://my-dapp.com#access_token=header.payload",
@@ -52,15 +46,16 @@ class ResponseParserTest {
     @Test
     fun `reject invalid URIs with access_token key`() {
         invalidAccessTokenTypeURLs.forEach { redirect ->
-            expectedExceptionRule.expect(IllegalArgumentException::class.java)
-            expectedExceptionRule.expectMessage("Cannot parse URI")
-            val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNull()
+            assert {
+                ResponseParser.extractTokenFromRedirectUri(redirect)
+            }.thrownError {
+                isInstanceOf(IllegalArgumentException::class)
+            }
         }
     }
 
 
-    private val validVerificationTypeURLs= listOf(
+    private val validVerificationTypeURLs = listOf(
             "https://example.com#verification=header.payload.signature",
             "https://example.com#verification=header.payload.signature&something=else",
             "https://example.com#something=else&verification=header.payload.signature",
@@ -79,7 +74,7 @@ class ResponseParserTest {
             "my.app://my-dapp.com/some/path?something=else#verification=header.payload.signature"
     )
 
-    private val invalidVerificationTypeURLs= listOf(
+    private val invalidVerificationTypeURLs = listOf(
             "my.app://my-dapp.com#verification=header.payload.signature#degenerate-fragment",
             "my.app://my-dapp.com?verification=header.payload.signature",
             "my.app://my-dapp.com#verification=header.payload",
@@ -99,15 +94,16 @@ class ResponseParserTest {
     @Test
     fun `reject invalid URIs with verification key`() {
         invalidVerificationTypeURLs.forEach { redirect ->
-            expectedExceptionRule.expect(IllegalArgumentException::class.java)
-            expectedExceptionRule.expectMessage("Cannot parse URI")
-            val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNull()
+            assert {
+                ResponseParser.extractTokenFromRedirectUri(redirect)
+            }.thrownError {
+                isInstanceOf(IllegalArgumentException::class)
+            }
         }
     }
 
 
-    private val validTypedDataSigTypeURLs= listOf(
+    private val validTypedDataSigTypeURLs = listOf(
             "https://example.com#typedDataSig=header.payload.signature",
             "https://example.com#typedDataSig=header.payload.signature&something=else",
             "https://example.com#something=else&typedDataSig=header.payload.signature",
@@ -126,7 +122,7 @@ class ResponseParserTest {
             "my.app://my-dapp.com/some/path?something=else#typedDataSig=header.payload.signature"
     )
 
-    private val invalidTypedDataSigTypeURLs= listOf(
+    private val invalidTypedDataSigTypeURLs = listOf(
             "my.app://my-dapp.com#typedDataSig=header.payload.signature#degenerate-fragment",
             "my.app://my-dapp.com?typedDataSig=header.payload.signature",
             "my.app://my-dapp.com#typedDataSig=header.payload",
@@ -146,16 +142,16 @@ class ResponseParserTest {
     @Test
     fun `reject invalid URIs with typedDataSig key`() {
         invalidTypedDataSigTypeURLs.forEach { redirect ->
-            expectedExceptionRule.expect(IllegalArgumentException::class.java)
-            expectedExceptionRule.expectMessage("Cannot parse URI")
-            val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNull()
+            assert {
+                ResponseParser.extractTokenFromRedirectUri(redirect)
+            }.thrownError {
+                isInstanceOf(IllegalArgumentException::class)
+            }
         }
     }
 
 
-
-    private val validPersonalSigTypeURLs= listOf(
+    private val validPersonalSigTypeURLs = listOf(
             "https://example.com#personalSig=header.payload.signature",
             "https://example.com#personalSig=header.payload.signature&something=else",
             "https://example.com#something=else&personalSig=header.payload.signature",
@@ -174,7 +170,7 @@ class ResponseParserTest {
             "my.app://my-dapp.com/some/path?something=else#personalSig=header.payload.signature"
     )
 
-    private val invalidPersonalSigTypeURLs= listOf(
+    private val invalidPersonalSigTypeURLs = listOf(
             "my.app://my-dapp.com#personalSig=header.payload.signature#degenerate-fragment",
             "my.app://my-dapp.com?personalSig=header.payload.signature",
             "my.app://my-dapp.com#personalSig=header.payload",
@@ -194,16 +190,16 @@ class ResponseParserTest {
     @Test
     fun `reject invalid URIs with personalSig key`() {
         invalidPersonalSigTypeURLs.forEach { redirect ->
-            expectedExceptionRule.expect(IllegalArgumentException::class.java)
-            expectedExceptionRule.expectMessage("Cannot parse URI")
-            val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNull()
+            assert {
+                ResponseParser.extractTokenFromRedirectUri(redirect)
+            }.thrownError {
+                isInstanceOf(IllegalArgumentException::class)
+            }
         }
     }
 
 
-
-    private val validTxTypeURLs= listOf(
+    private val validTxTypeURLs = listOf(
             "https://example.com#tx=header.payload.signature",
             "https://example.com#tx=header.payload.signature&something=else",
             "https://example.com#something=else&tx=header.payload.signature",
@@ -222,7 +218,7 @@ class ResponseParserTest {
             "my.app://my-dapp.com/some/path?something=else#tx=header.payload.signature"
     )
 
-    private val invalidTxTypeURLs= listOf(
+    private val invalidTxTypeURLs = listOf(
             "my.app://my-dapp.com#tx=header.payload.signature#degenerate-fragment",
             "my.app://my-dapp.com?tx=header.payload.signature",
             "my.app://my-dapp.com#tx=header.payload",
@@ -242,10 +238,11 @@ class ResponseParserTest {
     @Test
     fun `reject invalid URIs with tx key`() {
         invalidTxTypeURLs.forEach { redirect ->
-            expectedExceptionRule.expect(IllegalArgumentException::class.java)
-            expectedExceptionRule.expectMessage("Cannot parse URI")
-            val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNull()
+            assert {
+                ResponseParser.extractTokenFromRedirectUri(redirect)
+            }.thrownError {
+                isInstanceOf(IllegalArgumentException::class)
+            }
         }
     }
 }
