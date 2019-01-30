@@ -21,10 +21,14 @@ class CreateAccountActivity : AppCompatActivity() {
             val acc = runBlocking { Uport.createAccount(Networks.rinkeby.networkId) }
             progressBarView.visibility = View.INVISIBLE
 
-            defaultAccountView.text = "${acc.toJson(true)} \nAccount DID: ${acc.getDID()}"
+            defaultAccountView.text = "${acc.toJson(true)} \nAccount DID: ${acc.getDID()}" +
+                    "\n" +
+                    "Account DID: ${acc.getMnid()}"
         } else {
             defaultAccountView.text =
-                    "${Uport.defaultAccount?.toJson(true)} \nAccount DID: ${Uport.defaultAccount?.getDID()}"
+                    "${Uport.defaultAccount?.toJson(true)} \nAccount DID: ${Uport.defaultAccount?.getDID()}" +
+                    "\n" +
+                    "MNID: ${Uport.defaultAccount?.getMnid()}"
         }
 
     }

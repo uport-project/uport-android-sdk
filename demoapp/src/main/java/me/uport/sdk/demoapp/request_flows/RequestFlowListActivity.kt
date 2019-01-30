@@ -8,6 +8,14 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.simple_list.*
 import me.uport.sdk.demoapp.R
 
+/**
+ *
+ * Main screen for the demo app
+ * This lists all the features to be demonstrated within the app
+ * Clicking on an item opens up a new activity for the specific feature
+ *
+ **/
+
 class RequestFlowListActivity : AppCompatActivity() {
 
     private val features = arrayOf("Selective Disclosure", "Verified Claim Request", "Personal Signature Request", "Typed Data Signature Request")

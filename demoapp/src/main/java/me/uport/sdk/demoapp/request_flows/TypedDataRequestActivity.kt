@@ -7,12 +7,20 @@ import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import me.uport.sdk.Uport
+import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.Transports
+
+/**
+ *
+ * This activity demonstrates the flow for creating and sending a [Typed Data Request]
+ *
+ **/
 
 class TypedDataRequestActivity : AppCompatActivity() {
 
@@ -61,10 +69,15 @@ class TypedDataRequestActivity : AppCompatActivity() {
             }""".trimIndent()
 
 
+        if (Uport.defaultAccount == null) {
+            runBlocking { Uport.createAccount(Networks.rinkeby.networkId) }
+        }
+
+
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "eip712Req",
-                "net" to "0x4",
+                "net" to Uport.defaultAccount!!.network,
                 "iss" to issuerDID,
                 "iat" to System.currentTimeMillis(),
                 "typedData" to typedData

@@ -8,11 +8,20 @@ import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import me.uport.sdk.Uport
+import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.Transports
+
+/**
+ *
+ * This activity demonstrates the flow for creating and sending a [Personal Signature Request]
+ *
+ **/
 
 class PersonalSignRequestActivity : AppCompatActivity() {
 
@@ -26,12 +35,16 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+
+        if (Uport.defaultAccount == null) {
+            runBlocking { Uport.createAccount(Networks.rinkeby.networkId) }
+        }
+
         // create the request JWT payload
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "personalSigReq",
                 "iss" to issuerDID,
-                "net" to "0x4",
                 "iat" to System.currentTimeMillis(),
                 "data" to "This is a message I need you to sign"
         )

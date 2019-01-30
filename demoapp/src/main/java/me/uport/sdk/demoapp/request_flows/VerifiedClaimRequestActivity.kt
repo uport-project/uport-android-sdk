@@ -13,6 +13,12 @@ import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.Transports
 
+/**
+ *
+ * This activity demonstrates the flow for creating and sending a [Verified Claim Request]
+ *
+ **/
+
 class VerifiedClaimRequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -14,6 +14,12 @@ import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.transport.Transports
 
+/**
+ *
+ * This activity demonstrates the flow for making creating and sending a [Selective Disclosure Request]
+ *
+ **/
+
 class SelectiveDisclosureActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
