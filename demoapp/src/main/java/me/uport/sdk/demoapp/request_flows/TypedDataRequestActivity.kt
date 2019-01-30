@@ -7,10 +7,7 @@ import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import me.uport.sdk.Uport
-import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
@@ -69,11 +66,6 @@ class TypedDataRequestActivity : AppCompatActivity() {
             }""".trimIndent()
 
 
-        if (Uport.defaultAccount == null) {
-            runBlocking { Uport.createAccount(Networks.rinkeby.networkId) }
-        }
-
-
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "eip712Req",
@@ -99,7 +91,8 @@ class TypedDataRequestActivity : AppCompatActivity() {
                 val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(applicationContext, requestJWT)
+                @Suppress
+                Transports().send(this@TypedDataRequestActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE

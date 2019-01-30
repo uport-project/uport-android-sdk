@@ -58,7 +58,8 @@ class VerifiedClaimRequestActivity : AppCompatActivity() {
                 val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(applicationContext, requestJWT)
+                @Suppress
+                Transports().send(this@VerifiedClaimRequestActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE

@@ -55,6 +55,7 @@ class SelectiveDisclosureActivity : AppCompatActivity() {
                 val requestJWT = cred.createDisclosureRequest(params)
 
                 // Send a valid signed request to uport via Transports
+                @Suppress
                 Transports().send(this@SelectiveDisclosureActivity, requestJWT)
 
                 withContext(UI) {

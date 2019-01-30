@@ -8,10 +8,7 @@ import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import me.uport.sdk.Uport
-import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
@@ -34,11 +31,6 @@ class PersonalSignRequestActivity : AppCompatActivity() {
 
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
-
-
-        if (Uport.defaultAccount == null) {
-            runBlocking { Uport.createAccount(Networks.rinkeby.networkId) }
-        }
 
         // create the request JWT payload
         val payload = mapOf<String, Any>(
@@ -66,7 +58,8 @@ class PersonalSignRequestActivity : AppCompatActivity() {
                 val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(applicationContext, requestJWT)
+                @Suppress
+                Transports().send(this@PersonalSignRequestActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE
