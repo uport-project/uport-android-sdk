@@ -44,6 +44,7 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "personalSigReq",
+                "net" to "0x4",
                 "iss" to issuerDID,
                 "iat" to System.currentTimeMillis(),
                 "data" to "This is a message I need you to sign"
@@ -65,7 +66,7 @@ class PersonalSignRequestActivity : AppCompatActivity() {
                 val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(this@PersonalSignRequestActivity, requestJWT)
+                Transports().send(applicationContext, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE

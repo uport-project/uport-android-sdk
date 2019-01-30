@@ -77,7 +77,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "eip712Req",
-                "net" to Uport.defaultAccount!!.network,
+                "net" to "0x4",
                 "iss" to issuerDID,
                 "iat" to System.currentTimeMillis(),
                 "typedData" to typedData
@@ -99,7 +99,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
                 val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
 
                 // Send a valid signed request to uport via Transports
-                Transports().send(this@TypedDataRequestActivity, requestJWT)
+                Transports().send(applicationContext, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE
