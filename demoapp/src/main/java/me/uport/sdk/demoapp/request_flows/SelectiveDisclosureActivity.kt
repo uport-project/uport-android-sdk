@@ -22,6 +22,8 @@ import me.uport.sdk.transport.Transports
 
 class SelectiveDisclosureActivity : AppCompatActivity() {
 
+    var requestJWT = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.request_flow)
@@ -52,7 +54,7 @@ class SelectiveDisclosureActivity : AppCompatActivity() {
             progress.visibility = View.VISIBLE
 
             GlobalScope.launch {
-                val requestJWT = cred.createDisclosureRequest(params)
+                requestJWT = cred.createDisclosureRequest(params)
 
                 // Send a valid signed request to uport via Transports
                 @Suppress("LabeledExpression")
