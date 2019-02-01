@@ -33,6 +33,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
         // create the request JWT payload
+        @Suppress("StringLiteralDuplication")
         val payload = mapOf<String, Any>(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "eip712Req",
