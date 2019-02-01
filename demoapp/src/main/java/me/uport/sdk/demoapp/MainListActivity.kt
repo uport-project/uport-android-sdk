@@ -13,9 +13,9 @@ import me.uport.sdk.demoapp.request_flows.RequestFlowListActivity
 
 /**
  *
- * Main request flow screen for the demo app
- * This lists all the request flows to be demonstrated within the app
- * Clicking on an item opens up a new activity for the specific flow
+ * Main screen for the demo app
+ * This lists all the features to be demonstrated within the app
+ * Clicking on an item opens up a new activity for the specific feature
  *
  **/
 
