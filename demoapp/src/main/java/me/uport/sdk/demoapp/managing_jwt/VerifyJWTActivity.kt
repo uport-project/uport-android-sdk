@@ -1,4 +1,4 @@
-package me.uport.sdk.demoapp
+package me.uport.sdk.demoapp.managing_jwt
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -8,6 +8,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
+import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 
 class VerifyJWTActivity : AppCompatActivity() {

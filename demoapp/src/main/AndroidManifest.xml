@@ -22,15 +22,19 @@
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".CreateKeyActivity" />
         <activity android:name=".ImportKeyActivity" />
-        <activity android:name=".KeyProtectionListActivity" />
-        <activity android:name=".KeyGuardProtectionActivity" />
-        <activity android:name=".FingerPrintProtectionActivity" />
-        <activity android:name=".SignJWTKeyPairSignerActivity" />
-        <activity android:name=".SignJWTListActivity" />
-        <activity android:name=".SignJWTUportHDSignerActivity" />
+        <activity android:name=".key_protection.KeyProtectionListActivity" />
+        <activity android:name=".key_protection.KeyGuardProtectionActivity" />
+        <activity android:name=".key_protection.FingerPrintProtectionActivity" />
+        <activity android:name=".managing_jwt.SignJWTKeyPairSignerActivity" />
+        <activity android:name=".managing_jwt.SignJWTListActivity" />
+        <activity android:name=".managing_jwt.SignJWTUportHDSignerActivity" />
         <activity android:name=".DIDResolverActivity" />
-        <activity android:name=".VerifyJWTActivity" />
-        <activity android:name=".SelectiveDisclosureActivity" />
+        <activity android:name=".managing_jwt.VerifyJWTActivity" />
+        <activity android:name=".request_flows.RequestFlowListActivity" />
+        <activity android:name=".request_flows.SelectiveDisclosureActivity" />
+        <activity android:name=".request_flows.VerifiedClaimRequestActivity" />
+        <activity android:name=".request_flows.PersonalSignRequestActivity" />
+        <activity android:name=".request_flows.TypedDataRequestActivity" />
 
 
 

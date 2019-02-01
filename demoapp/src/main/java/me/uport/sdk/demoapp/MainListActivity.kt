@@ -6,6 +6,10 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import kotlinx.android.synthetic.main.simple_list.*
+import me.uport.sdk.demoapp.key_protection.KeyProtectionListActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTListActivity
+import me.uport.sdk.demoapp.managing_jwt.VerifyJWTActivity
+import me.uport.sdk.demoapp.request_flows.RequestFlowListActivity
 
 /**
  *
@@ -26,7 +30,7 @@ class MainListActivity : AppCompatActivity() {
             "Create a JWT",
             "Resolve a DID",
             "Verify JWT",
-            "Selective Disclosure")
+            "Request Flows")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +54,7 @@ class MainListActivity : AppCompatActivity() {
             4 -> startActivity(Intent(this, SignJWTListActivity::class.java))
             5 -> startActivity(Intent(this, DIDResolverActivity::class.java))
             6 -> startActivity(Intent(this, VerifyJWTActivity::class.java))
-            7 -> startActivity(Intent(this, SelectiveDisclosureActivity::class.java))
+            7 -> startActivity(Intent(this, RequestFlowListActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }

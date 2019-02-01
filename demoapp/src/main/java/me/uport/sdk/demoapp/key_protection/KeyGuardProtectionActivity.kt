@@ -1,4 +1,4 @@
-package me.uport.sdk.demoapp
+package me.uport.sdk.demoapp.key_protection
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -8,11 +8,12 @@ import kotlinx.android.synthetic.main.key_protection_activity.*
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
+import me.uport.sdk.demoapp.R
 import org.walleth.khex.toHexString
 import java.util.*
 
 
-class FingerPrintProtectionActivity : AppCompatActivity() {
+class KeyGuardProtectionActivity : AppCompatActivity() {
 
     private var address: String = ""
 
@@ -22,27 +23,16 @@ class FingerPrintProtectionActivity : AppCompatActivity() {
 
         var errorMessage = ""
 
-        // checks to see if device has the required fingerprint hardware
-        UportHDSigner().hasFingerprintHardware(this) {
-            errorMessage += "\nFingerPrint Hardware: $it"
+        // checks if the user has setup any keyguard on the device
+        UportHDSigner().hasSecuredKeyguard(this) {
+            errorMessage += "\nSecured Keyguard: $it"
             error.text = errorMessage
         }
-
-        // checks to see if the user has setup fingerprint authentication
-        UportHDSigner().hasSetupFingerprints(this) {
-            errorMessage += "\nFingerPrint Setup: $it"
-            error.text = errorMessage
-        }
-
-        /**
-         *
-         * Note: If none of the above are true the system will default to using single prompt protection level
-         *
-         **/
 
         create_key.setOnClickListener {
-            // creating a seed using prompt protection level which prompts the user for fingerprint authentication
-            UportHDSigner().createHDSeed(this, KeyProtection.Level.PROMPT) { err, rootAddress, pubKey ->
+
+            // creating a seed using single prompt protection level which prompts the user for a keycode
+            UportHDSigner().createHDSeed(this, KeyProtection.Level.SINGLE_PROMPT) { err, rootAddress, pubKey ->
                 if (err == null) {
                     key_details.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                     address = rootAddress
@@ -58,6 +48,7 @@ class FingerPrintProtectionActivity : AppCompatActivity() {
 
             val payload = msgBytes.toBase64().padBase64()
 
+            // creating a seed using single prompt protection level which prompts the user for a keycode
             UportHDSigner().signTransaction(this, address, "m/94'/62'/0'/0/0", payload, "${getString(R.string.app_name)} is requesting your approval to sign a string with a newly minted key") { err, sig ->
                 if (err == null) {
                     signed_string_details.text = "Signed Successfully : $sig"
