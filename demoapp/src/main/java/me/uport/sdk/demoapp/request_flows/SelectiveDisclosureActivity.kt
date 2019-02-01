@@ -17,7 +17,7 @@ import me.uport.sdk.transport.Transports
 /**
  *
  * This activity demonstrates the flow for making creating and sending a [Selective Disclosure Request]
- *
+ * The response comes back to `https://uport-project.github.io/uport-android-sdk` deep link, which in the case of this demoapp is handled by `DeepLinkActivity.kt`
  **/
 
 class SelectiveDisclosureActivity : AppCompatActivity() {
