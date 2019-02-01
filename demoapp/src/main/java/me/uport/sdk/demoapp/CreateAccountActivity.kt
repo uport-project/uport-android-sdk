@@ -23,7 +23,7 @@ class CreateAccountActivity : AppCompatActivity() {
 
             defaultAccountView.text = "${acc.toJson(true)} \nAccount DID: ${acc.getDID()}" +
                     "\n" +
-                    "Account DID: ${acc.getMnid()}"
+                    "Account MNID: ${acc.getMnid()}"
         } else {
             defaultAccountView.text =
                     "${Uport.defaultAccount?.toJson(true)} \nAccount DID: ${Uport.defaultAccount?.getDID()}" +
