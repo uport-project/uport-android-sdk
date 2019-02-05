@@ -78,7 +78,7 @@ class CredentialsTest {
         assert(payload.iat).isNotNull {
             it.isGreaterThanOrEqualTo(nowSeconds)
         }
-        assert(payload.type).isEqualTo(RequestType.shareReq.name)
+        assert(payload.type).isEqualTo(JWTType.shareReq.name)
     }
 
     @Test
