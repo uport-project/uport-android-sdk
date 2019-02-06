@@ -25,7 +25,11 @@ enum class JWTType {
      */
     verReq,
 
-    //FIXME: there is no `verResp` type coming back from the uPort app. It has to be inferred from the presence of the `claim` field
+    /**
+     * FIXME: there is no `verResp` type coming back from the uPort app. It has to be inferred from the presence of the `claim` field
+     * This is a synthetic JWTType
+     */
+    verResp,
 
     /**
      * See also:  https://github.com/uport-project/specs/blob/develop/messages/signtypeddata.md

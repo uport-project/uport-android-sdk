@@ -1,3 +1,5 @@
+@file:Suppress("KDocUnresolvedReference")
+
 package me.uport.sdk.credentials
 
 import android.support.annotation.Keep

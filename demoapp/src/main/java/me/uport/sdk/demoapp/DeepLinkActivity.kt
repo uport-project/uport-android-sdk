@@ -9,6 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
+import me.uport.sdk.credentials.JWTType
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.ResponseParser
 
@@ -31,14 +32,24 @@ class DeepLinkActivity : AppCompatActivity() {
                 println("got called with ${intent?.data}")
                 val token = ResponseParser.extractTokenFromIntent(intent) ?: ""
                 val payload = withContext(Dispatchers.IO) { JWTTools().verify(token) }
+                val (_, payloadRaw, _) = JWTTools().decodeRaw(token)
 
+                val knownType = JWTType.valueOf(payload.type ?: JWTType.verResp.name)
+
+                val response = when (knownType) {
+                    JWTType.shareResp -> "name=${payload.own?.get("name")}"
+                    JWTType.personalSignResp -> "message was signed: '${payloadRaw["data"]}'"
+                    JWTType.eip712Resp -> "signature=${payloadRaw["signature"]}"
+                    JWTType.verResp -> "signed claim=${payloadRaw["claim"]}"
+                    else -> "unknown response type"
+                }
                 """
                 The response we got is:
-                name=${payload?.own?.get("name")}
+                $response
 
 
                 Full JWT response is:
-                $payload
+                $payloadRaw
                 """.trimIndent()
 
             } catch (exception: RuntimeException) {
