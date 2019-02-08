@@ -24,6 +24,7 @@ import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.PublicKeyEntry
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
@@ -42,6 +43,7 @@ import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
 import java.security.InvalidAlgorithmParameterException
+import java.security.InvalidKeyException
 import java.security.SignatureException
 
 /**
@@ -289,19 +291,13 @@ class JWTTools(
      * This method uses the [auth] param to determine how to filter the list of publicKeys and authenticators
      *
      */
-    private suspend fun resolveAuthenticator(alg: String, mnidOrDid: String, auth: Boolean) {
+    private suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean, doc: DIDDocument): List<PublicKeyEntry> {
 
-        if (!alg.equals(JwtHeader.ES256K) || !alg.equals(JwtHeader.ES256K_R))
-            throw InvalidAlgorithmParameterException("No supported signature types for algorithm ${alg}")
-
-        // Assumes DIDs are already normalized
-
-        val doc: DIDDocument = UniversalDID.resolve(mnidOrDid)
+        if (alg != JwtHeader.ES256K || alg != JwtHeader.ES256K_R)
+            throw InvalidAlgorithmParameterException("No supported signature types for algorithm $alg")
 
         val authenticationKeys = if (auth) {
-            doc.authentication.map { authenticationEntry ->
-                authenticationEntry.publicKey
-            }
+            doc.authentication.map { it.publicKey }
         }
         else null
 
@@ -309,14 +305,19 @@ class JWTTools(
 
             // filter public keys which belong to the list of supported key types
             //TODO: Make supported types a list to allow for more expressive and manageable checking
-            it.type == DelegateType.Curve25519EncryptionPublicKey ||
-                    it.type == DelegateType.Ed25519VerificationKey2018 ||
-                    it.type == DelegateType.RsaVerificationKey2018 ||
-                    it.type == DelegateType.Secp256k1SignatureAuthentication2018 ||
-                    it.type == DelegateType.Secp256k1VerificationKey2018
-        }.find { }
+            ((
+                    it.type == DelegateType.Curve25519EncryptionPublicKey ||
+                            it.type == DelegateType.Ed25519VerificationKey2018 ||
+                            it.type == DelegateType.RsaVerificationKey2018 ||
+                            it.type == DelegateType.Secp256k1SignatureAuthentication2018 ||
+                            it.type == DelegateType.Secp256k1VerificationKey2018
+                    ) && (!auth || (authenticationKeys!!.indexOf(it.id) >= 0)))
+        }
 
+        if (auth && (authenticators.isEmpty())) throw InvalidJWTException("DID document for $issuer does not have public keys suitable for authenticating user")
+        if (authenticators.isEmpty()) throw InvalidJWTException("DID document for $issuer does not have public keys for $alg")
 
+        return authenticators
     }
 
     /***
