@@ -41,6 +41,7 @@ import org.spongycastle.math.ec.custom.sec.SecP256K1Curve
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
+import java.security.InvalidAlgorithmParameterException
 import java.security.SignatureException
 
 /**
@@ -130,7 +131,8 @@ class JWTTools(
         //create header and convert the parts to json strings
         val header = if (!recoverable) {
             JwtHeader(alg = ES256K)
-        } else {
+        }
+        else {
             JwtHeader(alg = ES256K_R)
         }
         val headerJsonString = header.toJson()
@@ -249,6 +251,40 @@ class JWTTools(
         }
 
         throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
+    }
+
+    /**
+     * This method uses the [auth] param to determine how to filter the list of publicKeys and authenticators
+     *
+     */
+    private suspend fun resolveAuthenticator(alg: String, mnidOrDid: String, auth: Boolean) {
+
+        if (!alg.equals(JwtHeader.ES256K) || !alg.equals(JwtHeader.ES256K_R))
+            throw InvalidAlgorithmParameterException("No supported signature types for algorithm ${alg}")
+
+        // Assumes DIDs are already normalized
+
+        val doc: DIDDocument = UniversalDID.resolve(mnidOrDid)
+
+        val authenticationKeys = if (auth) {
+            doc.authentication.map { authenticationEntry ->
+                authenticationEntry.publicKey
+            }
+        }
+        else null
+
+        val authenticators = doc.publicKey.filter {
+
+            // filter public keys which belong to the list of supported key types
+            //TODO: Make supported types a list to allow for more expressive and manageable checking
+            it.type == DelegateType.Curve25519EncryptionPublicKey ||
+                    it.type == DelegateType.Ed25519VerificationKey2018 ||
+                    it.type == DelegateType.RsaVerificationKey2018 ||
+                    it.type == DelegateType.Secp256k1SignatureAuthentication2018 ||
+                    it.type == DelegateType.Secp256k1VerificationKey2018
+        }.find { }
+
+
     }
 
     /***
