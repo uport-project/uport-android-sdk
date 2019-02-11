@@ -10,6 +10,7 @@ import io.mockk.mockkObject
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JSON
 import me.uport.sdk.ethrdid.EthrDIDDocument
+import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.testhelpers.TestTimeProvider
 import me.uport.sdk.testhelpers.coAssert
@@ -109,6 +110,40 @@ class JWTToolsJVMTest {
         }.thrownError {
             isInstanceOf(InvalidJWTException::class)
         }
+    }
+
+
+    @Test
+    fun `finds public key`() = runBlocking {
+
+        val alg = "ES256K"
+        val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
+        val auth = true
+        val doc = JSON.nonstrict.parse(EthrDIDDocument.serializer(), """
+            {
+                "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                "publicKey": [{
+                    "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#owner",
+                    "type": "Secp256k1VerificationKey2018",
+                    "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                    "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
+                }],
+                "authentication": [{
+                    "type": "Secp256k1SignatureAuthentication2018",
+                    "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#owner"
+                }],
+                "service": [],
+                "@context": "https://w3id.org/did/v1"
+            }
+            """)
+
+        mockkObject(UniversalDID)
+
+        coEvery { UniversalDID.resolve(issuer) }.returns(doc)
+
+        val authenticators = JWTTools().resolveAuthenticator(alg, issuer, auth)
+        assert(authenticators).isEqualTo(doc.publicKey)
+
     }
 }
 
