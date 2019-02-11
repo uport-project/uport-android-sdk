@@ -2,17 +2,8 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.Signer
-import com.uport.sdk.signer.UportHDSigner
-import com.uport.sdk.signer.decodeJose
-import com.uport.sdk.signer.getJoseEncoded
-import com.uport.sdk.signer.normalize
-import me.uport.sdk.core.ITimeProvider
-import me.uport.sdk.core.Networks
-import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.core.decodeBase64
-import me.uport.sdk.core.toBase64
-import me.uport.sdk.core.toBase64UrlSafe
+import com.uport.sdk.signer.*
+import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -22,7 +13,10 @@ import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
-import me.uport.sdk.universaldid.*
+import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
 import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
@@ -40,7 +34,6 @@ import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
 import java.security.InvalidAlgorithmParameterException
-import java.security.InvalidKeyException
 import java.security.SignatureException
 
 /**
@@ -266,23 +259,17 @@ class JWTTools(
 
         val authenticationKeys: List<String> = if (auth) {
             doc.authentication.map { it.publicKey }
-        } else {
-            listOf<String>() // return an empty list
+        }
+        else {
+            emptyList() // return an empty list
         }
 
+        val supportedTypes = DelegateType.values()
 
         val authenticators = doc.publicKey.filter {
 
             // filter public keys which belong to the list of supported key types
-            //TODO: Make supported types a list to allow for more expressive and manageable checking
-            ((it.type == DelegateType.Curve25519EncryptionPublicKey ||
-                    it.type == DelegateType.Ed25519VerificationKey2018 ||
-                    it.type == DelegateType.RsaVerificationKey2018 ||
-                    it.type == DelegateType.Secp256k1SignatureAuthentication2018 ||
-                    it.type == DelegateType.Secp256k1VerificationKey2018
-                    )
-                    && (!auth || (authenticationKeys.indexOf(it.id) >= 0))
-            )
+            supportedTypes.contains(it.type) && (!auth || (authenticationKeys.indexOf(it.id) >= 0))
         }
 
         if (auth && (authenticators.isEmpty())) throw InvalidJWTException("DID document for $issuer does not have public keys suitable for authenticating user")
