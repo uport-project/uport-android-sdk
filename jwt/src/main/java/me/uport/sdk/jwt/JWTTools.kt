@@ -178,6 +178,11 @@ class JWTTools(
         }
     }
 
+    /**
+     * Decodes a JWT into it's 3 components, keeping the payload as a Map type
+     *
+     * This is useful for situations where the known [JwtPayload] fields are not enough.
+     */
     fun decodeRaw(token: String): Triple<JwtHeader, Map<String, Any?>, ByteArray> {
         //Split token by . from jwtUtils
         val (encodedHeader, encodedPayload, encodedSignature) = splitToken(token)
