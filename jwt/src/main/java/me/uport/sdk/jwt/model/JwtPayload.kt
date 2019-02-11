@@ -42,7 +42,7 @@ data class JwtPayload(
          * Also includes iss, sub, iat, exp, claim
          */
         //val claims: Map<String, Any>?, //An object containing one or more claims about sub eg: {"name":"Carol Crypteau"}
-        @Json(name = "claim") val claims: Map<String, String>? = null,
+        @Json(name = "claim") val claims: Map<String, Any>? = null,
         /**
          * Specific to Private Chain
          * Also includes dad
