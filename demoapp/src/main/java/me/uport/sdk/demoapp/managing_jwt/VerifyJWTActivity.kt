@@ -31,7 +31,7 @@ class VerifyJWTActivity : AppCompatActivity() {
                 val payload = JWTTools().verify(jwtToken)
 
                 withContext(UI) {
-                    jwtPayload.text = payload?.toString()
+                    jwtPayload.text = payload.toString()
                     progress.visibility = View.INVISIBLE
                 }
             }
