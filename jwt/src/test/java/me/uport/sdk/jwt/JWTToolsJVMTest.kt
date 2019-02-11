@@ -116,6 +116,39 @@ class JWTToolsJVMTest {
     @Test
     fun `finds public key`() = runBlocking {
 
+                val alg = "ES256K"
+                val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
+                val auth = true
+                val doc = JSON.nonstrict.parse(EthrDIDDocument.serializer(), """
+                    {
+                        "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                        "publicKey": [{
+                            "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-1",
+                            "type": "Secp256k1VerificationKey2018",
+                            "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                            "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
+                        }],
+                        "authentication": [{
+                            "type": "Secp256k1SignatureAuthentication2018",
+                            "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-1"
+                        }],
+                        "service": [],
+                        "@context": "https://w3id.org/did/v1"
+                    }
+                    """)
+
+                mockkObject(UniversalDID)
+
+                coEvery { UniversalDID.resolve(issuer) }.returns(doc)
+
+                val authenticators = JWTTools().resolveAuthenticator(alg, issuer, auth)
+                assert(authenticators).isEqualTo(doc.publicKey)
+
+            }
+
+    @Test
+    fun `filters out irrelevant public keys`() = runBlocking {
+
         val alg = "ES256K"
         val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
         val auth = true
@@ -123,14 +156,32 @@ class JWTToolsJVMTest {
             {
                 "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
                 "publicKey": [{
-                    "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#owner",
+                    "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-1",
                     "type": "Secp256k1VerificationKey2018",
+                    "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                    "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
+                }, {
+                    "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-2",
+                    "type": "Secp256k1SignatureAuthentication2018",
+                    "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                    "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
+                }, {
+                    "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-3",
+                    "type": "Secp256k1SignatureAuthentication2018",
+                    "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                    "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
+                }, {
+                    "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-3",
+                    "type": "Curve25519EncryptionPublicKey",
                     "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
                     "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
                 }],
                 "authentication": [{
                     "type": "Secp256k1SignatureAuthentication2018",
-                    "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#owner"
+                    "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-1"
+                }, {
+                    "type": "Secp256k1SignatureAuthentication2018",
+                    "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-2"
                 }],
                 "service": [],
                 "@context": "https://w3id.org/did/v1"
@@ -142,7 +193,8 @@ class JWTToolsJVMTest {
         coEvery { UniversalDID.resolve(issuer) }.returns(doc)
 
         val authenticators = JWTTools().resolveAuthenticator(alg, issuer, auth)
-        assert(authenticators).isEqualTo(doc.publicKey)
+
+        assert(authenticators).isEqualTo(listOf(doc.publicKey[0], doc.publicKey[1]))
 
     }
 }
