@@ -42,6 +42,57 @@ class Credentials(
     }
 
     /**
+     * Create a JWT requesting an eth_sign/personal_sign from a user of another uPort client app.
+     *
+     * See https://github.com/uport-project/specs/blob/develop/messages/personalsignreq.md
+     *
+     * Example:
+     * ```
+     *  val reqParams = PersonalSignRequestParams(
+     *                      data = "This is the message to be signed",
+     *                      callbackUrl = "https://myserver.com"
+     *                  )
+     *  val jwt = credentials.createPersonalSignRequest(reqParams)
+     *
+     *  // ... send jwt to the relevant party and expect a callback with the response at https://myserver.com
+     *
+     *  ```
+     */
+    suspend fun createPersonalSignRequest(params: PersonalSignRequestParams): String {
+        val payload = buildPayloadForPersonalSignReq(params)
+        return this.signJWT(payload, params.expiresInSeconds
+                ?: DEFAULT_PERSONAL_SIGN_REQ_VALIDITY_SECONDS)
+    }
+
+    /**
+     * Create a JWT requesting a verified claim from a user of another uPort client app.
+     *
+     * See https://github.com/uport-project/specs/blob/develop/messages/verificationreq.md
+     *
+     * Example:
+     * ```
+     *  val reqParams = VerifiedClaimRequestParams(
+     *                      unsignedClaim = mapOf(
+     *                          "Citizen of city X" to mapOf(
+     *                              "Allowed to vote" to true,
+     *                              "Document" to "QmZZBBKPS2NWc6PMZbUk9zUHCo1SHKzQPPX4ndfwaYzmPW"
+     *                          )
+     *                      ),
+     *                      callbackUrl = "https://myserver.com"
+     *                  )
+     *  val jwt = credentials.createVerificationSignatureRequest(reqParams)
+     *
+     *  // ... send jwt to the relevant party and expect a callback with the response at https://myserver.com
+     *
+     *  ```
+     */
+    suspend fun createVerificationSignatureRequest(params: VerifiedClaimRequestParams): String {
+        val payload = buildPayloadForVerifiedClaimReq(params)
+        return this.signJWT(payload, params.expiresInSeconds
+                ?: DEFAULT_VERIFIED_CLAIM_REQ_VALIDITY_SECONDS)
+    }
+
+    /**
      *  Creates a JWT using the given [payload], issued and signed using the [did] and [signer]
      *  fields of this [Credentials] instance.
      *

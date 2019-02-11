@@ -78,7 +78,7 @@ class CredentialsTest {
         assert(payload.iat).isNotNull {
             it.isGreaterThanOrEqualTo(nowSeconds)
         }
-        assert(payload.type).isEqualTo(JWTType.shareReq.name)
+        assert(payload.type).isEqualTo(JWTTypes.shareReq.name)
     }
 
     @Test
@@ -111,6 +111,69 @@ class CredentialsTest {
 
         assert((load["vc"] as List<*>)).isEmpty()
 
+    }
+
+    @Test
+    fun `personal sign request payload contains relevant fields`() = runBlocking {
+
+        val params = PersonalSignRequestParams(
+                data = "sign this message",
+                callbackUrl = "myapp://get-back-to-me-with-response.url",
+                from = "0x1122334455667788990011223344556677889900",
+                riss = "did:ethr:0x1122334455667788990011223344556677889900",
+                networkId = "0x4",
+                vc = emptyList(),
+                expiresInSeconds = 1234L,
+                extras = mapOf(
+                        "hello" to "world",
+                        "type" to "expect this to be overwritten"
+                )
+        )
+
+        val load = buildPayloadForPersonalSignReq(params)
+
+        assert(load["type"]).isEqualTo("personalSigReq")
+        assert(load["data"]).isEqualTo("sign this message")
+        assert(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
+        assert(load["riss"]).isEqualTo("did:ethr:0x1122334455667788990011223344556677889900")
+        assert(load["from"]).isEqualTo("0x1122334455667788990011223344556677889900")
+        assert(load["net"]).isEqualTo("0x4")
+        assert((load["vc"] as List<*>)).isEmpty()
+        assert(load["hello"]).isEqualTo("world")
+
+    }
+
+    @Test
+    fun `verified claim request payload contains relevant fields`() = runBlocking {
+
+        val params = VerifiedClaimRequestParams(
+                unsignedClaim = mapOf("name" to "John Doe"),
+                callbackUrl = "myapp://get-back-to-me-with-response.url",
+                riss = "did:ethr:0x1122334455667788990011223344556677889900",
+                rexp = 1234L,
+                aud = "did:ethr:0x9988776655443322110099887766554433221100",
+                sub = "did:ethr:0xFFEEDDCCBBAA9988776655443322110099887766",
+                issc = mapOf("dappName" to "testing"),
+                vc = emptyList(),
+                expiresInSeconds = 1234L,
+                extras = mapOf(
+                        "hello" to "world",
+                        "type" to "expect this to be overwritten"
+                )
+        )
+
+        val load = buildPayloadForVerifiedClaimReq(params)
+
+        assert(load["type"]).isEqualTo("verReq")
+        assert(load["unsignedClaim"]).isEqualTo(mapOf("name" to "John Doe"))
+        assert(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
+        assert(load["riss"]).isEqualTo("did:ethr:0x1122334455667788990011223344556677889900")
+        assert((load["vc"] as List<*>)).isEmpty()
+        assert(load["hello"]).isEqualTo("world")
+        assert(load["aud"]).isEqualTo("did:ethr:0x9988776655443322110099887766554433221100")
+        assert(load["sub"]).isEqualTo("did:ethr:0xFFEEDDCCBBAA9988776655443322110099887766")
+        assert(load["issc"]).isEqualTo(mapOf("dappName" to "testing"))
+        assert(load["rexp"]).isEqualTo(1234L)
     }
 
 }
