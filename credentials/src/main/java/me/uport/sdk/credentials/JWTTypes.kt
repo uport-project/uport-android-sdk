@@ -7,7 +7,7 @@ import android.support.annotation.Keep
  */
 @Keep
 @Suppress("EnumEntryName")
-enum class JWTType {
+enum class JWTTypes {
     /**
      * a selective disclosure request
      * See also:  https://github.com/uport-project/specs/blob/develop/messages/sharereq.md

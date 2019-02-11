@@ -68,7 +68,7 @@ class SelectiveDisclosureRequestParams(
 
         /**
          * [**optional**]
-         * A simple_list of signed claims about the issuer, usually signed by 3rd parties.
+         * A list of signed claims about the issuer, usually signed by 3rd parties.
          */
         val vc: List<String>? = null,
 
@@ -129,7 +129,7 @@ internal fun buildPayloadForShareReq(params: SelectiveDisclosureRequestParams): 
     params.networkId?.let { payload["net"] = it }
     params.accountType?.let { payload["act"] = it.name }
 
-    payload["type"] = JWTType.shareReq.name
+    payload["type"] = JWTTypes.shareReq.name
 
     return payload
 }
