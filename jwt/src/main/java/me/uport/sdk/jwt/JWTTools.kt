@@ -22,10 +22,7 @@ import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
-import me.uport.sdk.universaldid.DIDDocument
-import me.uport.sdk.universaldid.DelegateType
-import me.uport.sdk.universaldid.PublicKeyEntry
-import me.uport.sdk.universaldid.UniversalDID
+import me.uport.sdk.universaldid.*
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.CURVE
 import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
@@ -266,20 +263,21 @@ class JWTTools(
 
         val authenticationKeys = if (auth) {
             doc.authentication.map { it.publicKey }
+        } else {
+            listOf<AuthenticationEntry>() // return an empty list
         }
-        else null
+
 
         val authenticators = doc.publicKey.filter {
 
             // filter public keys which belong to the list of supported key types
             //TODO: Make supported types a list to allow for more expressive and manageable checking
-            ((
-                    it.type == DelegateType.Curve25519EncryptionPublicKey ||
-                            it.type == DelegateType.Ed25519VerificationKey2018 ||
-                            it.type == DelegateType.RsaVerificationKey2018 ||
-                            it.type == DelegateType.Secp256k1SignatureAuthentication2018 ||
-                            it.type == DelegateType.Secp256k1VerificationKey2018
-                    ) && (!auth || (authenticationKeys!!.indexOf(it.id) >= 0)))
+            ((it.type == DelegateType.Curve25519EncryptionPublicKey ||
+                    it.type == DelegateType.Ed25519VerificationKey2018 ||
+                    it.type == DelegateType.RsaVerificationKey2018 ||
+                    it.type == DelegateType.Secp256k1SignatureAuthentication2018 ||
+                    it.type == DelegateType.Secp256k1VerificationKey2018
+                    ) && (!auth || (authenticationKeys.indexOf(it.id) >= 0)))
         }
 
         if (auth && (authenticators.isEmpty())) throw InvalidJWTException("DID document for $issuer does not have public keys suitable for authenticating user")
