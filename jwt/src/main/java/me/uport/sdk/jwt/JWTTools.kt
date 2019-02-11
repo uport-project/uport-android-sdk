@@ -256,17 +256,18 @@ class JWTTools(
      * This method uses the [auth] param to determine how to filter the list of publicKeys and authenticators
      *
      */
-    private suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
+    suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
 
-        if (alg != JwtHeader.ES256K || alg != JwtHeader.ES256K_R)
+        if (alg != JwtHeader.ES256K && alg != JwtHeader.ES256K_R) {
             throw InvalidAlgorithmParameterException("No supported signature types for algorithm $alg")
+        }
 
         val doc = UniversalDID.resolve(issuer)
 
-        val authenticationKeys = if (auth) {
+        val authenticationKeys: List<String> = if (auth) {
             doc.authentication.map { it.publicKey }
         } else {
-            listOf<AuthenticationEntry>() // return an empty list
+            listOf<String>() // return an empty list
         }
 
 
@@ -279,7 +280,9 @@ class JWTTools(
                     it.type == DelegateType.RsaVerificationKey2018 ||
                     it.type == DelegateType.Secp256k1SignatureAuthentication2018 ||
                     it.type == DelegateType.Secp256k1VerificationKey2018
-                    ) && (!auth || (authenticationKeys.indexOf(it.id) >= 0)))
+                    )
+                    && (!auth || (authenticationKeys.indexOf(it.id) >= 0))
+            )
         }
 
         if (auth && (authenticators.isEmpty())) throw InvalidJWTException("DID document for $issuer does not have public keys suitable for authenticating user")
