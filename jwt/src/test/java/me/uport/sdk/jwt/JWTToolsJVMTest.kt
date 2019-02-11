@@ -10,13 +10,13 @@ import io.mockk.mockkObject
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JSON
 import me.uport.sdk.ethrdid.EthrDIDDocument
-import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.testhelpers.TestTimeProvider
 import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDDocument
 import org.junit.Test
+import java.security.InvalidAlgorithmParameterException
 
 class JWTToolsJVMTest {
 
@@ -116,10 +116,10 @@ class JWTToolsJVMTest {
     @Test
     fun `finds public key`() = runBlocking {
 
-                val alg = "ES256K"
-                val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
-                val auth = true
-                val doc = JSON.nonstrict.parse(EthrDIDDocument.serializer(), """
+        val alg = "ES256K"
+        val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
+        val auth = false
+        val doc = JSON.nonstrict.parse(EthrDIDDocument.serializer(), """
                     {
                         "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
                         "publicKey": [{
@@ -128,26 +128,22 @@ class JWTToolsJVMTest {
                             "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
                             "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
                         }],
-                        "authentication": [{
-                            "type": "Secp256k1SignatureAuthentication2018",
-                            "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-1"
-                        }],
+                        "authentication": [],
                         "service": [],
                         "@context": "https://w3id.org/did/v1"
                     }
                     """)
 
-                mockkObject(UniversalDID)
+        mockkObject(UniversalDID)
 
-                coEvery { UniversalDID.resolve(issuer) }.returns(doc)
+        coEvery { UniversalDID.resolve(issuer) }.returns(doc)
 
-                val authenticators = JWTTools().resolveAuthenticator(alg, issuer, auth)
-                assert(authenticators).isEqualTo(doc.publicKey)
-
-            }
+        val authenticators = JWTTools().resolveAuthenticator(alg, issuer, auth)
+        assert(authenticators).isEqualTo(doc.publicKey)
+    }
 
     @Test
-    fun `filters out irrelevant public keys`() = runBlocking {
+    fun `only list authenticators able to authenticate a user`() = runBlocking {
 
         val alg = "ES256K"
         val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
@@ -195,7 +191,92 @@ class JWTToolsJVMTest {
         val authenticators = JWTTools().resolveAuthenticator(alg, issuer, auth)
 
         assert(authenticators).isEqualTo(listOf(doc.publicKey[0], doc.publicKey[1]))
+    }
 
+    @Test
+    fun `errors if no suitable public keys exist for authentication`() = runBlocking {
+
+        val alg = "ES256K"
+        val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
+        val auth = true
+        val doc = JSON.nonstrict.parse(EthrDIDDocument.serializer(), """
+                    {
+                        "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                        "publicKey": [{
+                            "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-1",
+                            "type": "Secp256k1VerificationKey2018",
+                            "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                            "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
+                        }],
+                        "authentication": [],
+                        "service": [],
+                        "@context": "https://w3id.org/did/v1"
+                    }
+                    """)
+
+        mockkObject(UniversalDID)
+
+        coEvery { UniversalDID.resolve(issuer) }.returns(doc)
+
+        coAssert {
+            JWTTools().resolveAuthenticator(alg, issuer, auth)
+        }.thrownError {
+            isInstanceOf(InvalidJWTException::class)
+        }
+    }
+
+    @Test
+    fun `errors if no public keys exist`() = runBlocking {
+
+        val alg = "ES256K"
+        val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
+        val auth = false
+        val doc = JSON.nonstrict.parse(EthrDIDDocument.serializer(), """
+                    {
+                        "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                        "publicKey": [],
+                        "authentication": [],
+                        "service": [],
+                        "@context": "https://w3id.org/did/v1"
+                    }
+                    """)
+
+        mockkObject(UniversalDID)
+
+        coEvery { UniversalDID.resolve(issuer) }.returns(doc)
+
+        coAssert {
+            JWTTools().resolveAuthenticator(alg, issuer, auth)
+        }.thrownError {
+            isInstanceOf(InvalidJWTException::class)
+        }
+    }
+
+    @Test
+    fun `errors if no supported signature types exist`() = runBlocking {
+
+        val alg = "ESBAD"
+        val issuer = "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4"
+        val auth = false
+        val doc = JSON.nonstrict.parse(EthrDIDDocument.serializer(), """
+                    {
+                        "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
+                        "publicKey": [],
+                        "authentication": [],
+                        "service": [],
+                        "@context": "https://w3id.org/did/v1"
+                    }
+                    """)
+
+        mockkObject(UniversalDID)
+
+        coEvery { UniversalDID.resolve(issuer) }.returns(doc)
+
+        coAssert {
+            JWTTools().resolveAuthenticator(alg, issuer, auth)
+        }.thrownError {
+            isInstanceOf(InvalidAlgorithmParameterException::class)
+        }
     }
 }
 
