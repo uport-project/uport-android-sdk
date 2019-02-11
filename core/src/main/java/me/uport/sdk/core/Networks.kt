@@ -8,8 +8,8 @@ object Networks {
 
     val mainnet = EthNetwork(
             "mainnet",
-            "0x01",
-            MNID.encode("0x01", "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6"),
+            "0x1",
+            MNID.encode("0x1", "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6"),
             "https://mainnet.infura.io/uport",
             "https://etherscan.io",
             "https://sensui.uport.me/api/v1/fund/",
@@ -17,8 +17,8 @@ object Networks {
             "0xec2642cd5a47fd5cca2a8a280c3b5f88828aa578")
     val ropsten = EthNetwork(
             "ropsten",
-            "0x03",
-            MNID.encode("0x03", "0x41566e3a081f5032bdcad470adb797635ddfe1f0"),
+            "0x3",
+            MNID.encode("0x3", "0x41566e3a081f5032bdcad470adb797635ddfe1f0"),
             "https://ropsten.infura.io/uport",
             "https://ropsten.io",
             "https://sensui.uport.me/api/v1/fund/",
@@ -35,8 +35,8 @@ object Networks {
             "0xa9235151d3afa7912e9091ab76a36cbabe219a0c")
     val rinkeby = EthNetwork(
             "rinkeby",
-            "0x04",
-            MNID.encode("0x04", "0x2cc31912b2b0f3075a87b3640923d45a26cef3ee"),
+            "0x4",
+            MNID.encode("0x4", "0x2cc31912b2b0f3075a87b3640923d45a26cef3ee"),
             "https://rinkeby.infura.io/uport",
             "https://rinkeby.etherscan.io",
             "https://api.uport.me/sensui/fund/",
@@ -47,10 +47,10 @@ object Networks {
      * a mapping between the ethereum network identifier and the related endpoints and metadata
      */
     private val NETWORK_CONFIG = mapOf(
-            "0x01" to mainnet,
-            "0x03" to ropsten,
+            "0x1" to mainnet,
+            "0x3" to ropsten,
             "0x2a" to kovan,
-            "0x04" to rinkeby
+            "0x4" to rinkeby
     ).toMutableMap()
 
     fun registerNetwork(networkId: String, network: EthNetwork) {
@@ -61,15 +61,16 @@ object Networks {
     }
 
     /**
-     * Gets an [EthNetwork] based on a networkId
+     * Gets an [EthNetwork] based on a [networkId]
      */
     fun get(networkId: String): EthNetwork {
-        val cleanNetId = networkId.clean0xPrefix().padStart(2, '0').prepend0xPrefix()
+        val cleanNetId = cleanId(networkId)
         return NETWORK_CONFIG[cleanNetId]
+                ?: NETWORK_CONFIG[networkId]
                 ?: throw IllegalStateException("network [$networkId] not configured")
     }
 
-    private fun cleanId(id: String) = id.clean0xPrefix().padStart(2, '0').prepend0xPrefix()
+    private fun cleanId(id: String) = id.clean0xPrefix().trimStart('0').prepend0xPrefix()
 
 }
 
