@@ -256,10 +256,12 @@ class JWTTools(
      * This method uses the [auth] param to determine how to filter the list of publicKeys and authenticators
      *
      */
-    private suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean, doc: DIDDocument): List<PublicKeyEntry> {
+    private suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
 
         if (alg != JwtHeader.ES256K || alg != JwtHeader.ES256K_R)
             throw InvalidAlgorithmParameterException("No supported signature types for algorithm $alg")
+
+        val doc = UniversalDID.resolve(issuer)
 
         val authenticationKeys = if (auth) {
             doc.authentication.map { it.publicKey }
