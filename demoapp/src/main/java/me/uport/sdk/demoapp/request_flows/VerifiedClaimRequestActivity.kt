@@ -9,8 +9,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
+import me.uport.sdk.credentials.Credentials
+import me.uport.sdk.credentials.VerifiedClaimRequestParams
 import me.uport.sdk.demoapp.R
-import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.Transports
 
 /**
@@ -18,7 +19,6 @@ import me.uport.sdk.transport.Transports
  * This activity demonstrates the flow for creating and sending a [Verified Claim Request]
  *
  **/
-
 class VerifiedClaimRequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,14 +32,10 @@ class VerifiedClaimRequestActivity : AppCompatActivity() {
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
         // create the request JWT payload
-        val payload = mapOf<String, Any>(
-                "callback" to "https://uport-project.github.io/uport-android-sdk",
-                "type" to "verReq",
-                "iss" to issuerDID,
-                "iat" to System.currentTimeMillis(),
-                "unsignedClaim" to mapOf(
-                        "name" to "Steve Austin"
-                )
+        val params = VerifiedClaimRequestParams(
+                unsignedClaim = mapOf("citizen of Cleverland" to true),
+                sub = issuerDID,
+                callbackUrl = "https://uport-project.github.io/uport-android-sdk"
         )
 
         request_details.text = "" +
@@ -47,7 +43,7 @@ class VerifiedClaimRequestActivity : AppCompatActivity() {
                 "\n" +
                 "Issuer DID: $issuerDID" +
                 "\n" +
-                "Unsigned Claim: ${payload["unsignedClaim"]}"
+                "Unsigned Claim: ${params.unsignedClaim}"
 
         // make request
         send_request.setOnClickListener {
@@ -55,7 +51,7 @@ class VerifiedClaimRequestActivity : AppCompatActivity() {
             progress.visibility = View.VISIBLE
 
             GlobalScope.launch {
-                val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
+                val requestJWT = Credentials(issuerDID, signer).createVerificationSignatureRequest(params)
 
                 // Send a valid signed request to uport via Transports
                 @Suppress("LabeledExpression")

@@ -13,7 +13,7 @@ class JWTDecodeTest {
     private val validShareReqTokenPayload = validShareReqToken.split('.')[1]
     private val validShareReqTokenSignature = validShareReqToken.split('.')[2]
 
-    private val validVerificationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIzNHdqc3h3dmR1YW5vN05GQzh1ak5KbkZqYmFjZ1llV0E4bSIsImlhdCI6MTQ4NTMyMTEzMywiY2xhaW1zIjp7Im5hbWUiOiJCb2IiLCJnZW5kZXIiOiJtYWxlIn0sImV4cCI6MTQ4NTQwNzUzM30.orxkk0gzk0URvAkMM2vNzgW7IRefDCKhfyM9oP4Ye3GhuXko0h4TDMggslS_eIETqrRAqfG4XmcHIX9C-S8DoA"
+    private val validVerificationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbSI6eyJuYW1lIjoiQm9iIiwiZ2VuZGVyIjoibWFsZSJ9LCJpYXQiOjE1NDk5MDg0MjQsImV4cCI6MTU0OTkwODcyNCwiaXNzIjoiZGlkOmV0aHI6MHhjZjAzZGQwYTg5NGVmNzljYjViNjAxYTQzYzRiMjVlM2FlNGM2N2VkIn0.ffjGFzoSfX-fS50GHhYkwA8It5034Rw8BczWslUcbfGI51uJSGbmhfJSfeGdEaPlFFgVrnRj1YBoG_oHrnEiBQA"
 
     private val invalidTokenOnlyHeader = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ."
     private val invalidTokenEmptyPayload = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ..C8mPCCtWlYAnroduqysXYRl5xvrOdx1r4iq3A3SmGDGZu47UGTnjiZCOrOQ8A5lZ0M9JfDpZDETCKGdJ7KUeWQ"
@@ -56,7 +56,7 @@ class JWTDecodeTest {
         val nameClaim = mapOf("name" to "Bob", "gender" to "male")
         assert(header.typ).isEqualTo("JWT")
         assert(payload.claims).isEqualTo(nameClaim)
-        assert(payload.iss).isEqualTo("34wjsxwvduano7NFC8ujNJnFjbacgYeWA8m")
+        assert(payload.iss).isEqualTo("did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed")
     }
 
     @Test

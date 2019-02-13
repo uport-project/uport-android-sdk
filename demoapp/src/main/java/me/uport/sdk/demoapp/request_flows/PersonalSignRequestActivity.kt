@@ -9,9 +9,11 @@ import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
+import me.uport.sdk.credentials.Credentials
+import me.uport.sdk.credentials.PersonalSignRequestParams
 import me.uport.sdk.demoapp.R
-import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.Transports
 
 /**
@@ -32,14 +34,12 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        // create the request JWT payload
-        val payload = mapOf<String, Any>(
-                "callback" to "https://uport-project.github.io/uport-android-sdk",
-                "type" to "personalSigReq",
-                "net" to "0x4",
-                "iss" to issuerDID,
-                "iat" to System.currentTimeMillis(),
-                "data" to "This is a message I need you to sign"
+        // create the request JWT
+        val cred = Credentials(issuerDID, signer)
+        val params = PersonalSignRequestParams(
+                data = "This is a message I need you to sign",
+                callbackUrl = "https://uport-project.github.io/uport-android-sdk",
+                networkId = Networks.rinkeby.networkId
         )
 
         request_details.text = "" +
@@ -47,7 +47,7 @@ class PersonalSignRequestActivity : AppCompatActivity() {
                 "\n" +
                 "Issuer DID: $issuerDID" +
                 "\n" +
-                "Data to be signed: ${payload["data"]}"
+                "Data to be signed: ${params.data}"
 
         // make request
         send_request.setOnClickListener {
@@ -55,7 +55,7 @@ class PersonalSignRequestActivity : AppCompatActivity() {
             progress.visibility = View.VISIBLE
 
             GlobalScope.launch {
-                val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
+                val requestJWT = cred.createPersonalSignRequest(params)
 
                 // Send a valid signed request to uport via Transports
                 @Suppress("LabeledExpression")

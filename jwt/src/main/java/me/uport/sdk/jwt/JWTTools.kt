@@ -179,13 +179,45 @@ class JWTTools(
     }
 
     /**
+     * Decodes a JWT into it's 3 components, keeping the payload as a Map type
+     *
+     * This is useful for situations where the known [JwtPayload] fields are not enough.
+     */
+    fun decodeRaw(token: String): Triple<JwtHeader, Map<String, Any?>, ByteArray> {
+        //Split token by . from jwtUtils
+        val (encodedHeader, encodedPayload, encodedSignature) = splitToken(token)
+        if (!notEmpty(encodedHeader))
+            throw InvalidJWTException("Header cannot be empty")
+        else if (!notEmpty(encodedPayload))
+            throw InvalidJWTException("Payload cannot be empty")
+        //Decode the pieces
+        val headerString = String(encodedHeader.decodeBase64())
+        val payloadString = String(encodedPayload.decodeBase64())
+        val signatureBytes = encodedSignature.decodeBase64()
+
+        //Parse Json
+        if (headerString[0] != '{' || payloadString[0] != '{')
+            throw InvalidJWTException("Invalid JSON format, should start with {")
+        else {
+            val header = JwtHeader.fromJson(headerString)
+                    ?: throw InvalidJWTException("unable to parse the JWT header for $token")
+            val mapAdapter = moshi.mapAdapter<String, Any>(String::class.java, Any::class.java)
+
+            val payload = mapAdapter.fromJson(payloadString)
+                    ?: throw InvalidJWTException("unable to parse the JWT payload for $token")
+
+            return Triple(header, payload, signatureBytes)
+        }
+    }
+
+    /**
      * Verifies a jwt [token]
      * @params jwt token
      * @throws InvalidJWTException when the current time is not within the time range of payload iat and exp
      *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
      */
-    suspend fun verify(token: String): JwtPayload? {
+    suspend fun verify(token: String): JwtPayload {
         val (_, payload, signatureBytes) = decode(token)
 
         if (payload.iat != null && payload.iat > (timeProvider.nowMs() / 1000 + TIME_SKEW)) {
