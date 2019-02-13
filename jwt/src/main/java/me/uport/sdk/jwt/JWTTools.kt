@@ -13,7 +13,6 @@ import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
-import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.PublicKeyEntry
 import me.uport.sdk.universaldid.UniversalDID
@@ -211,8 +210,8 @@ class JWTTools(
      *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
      */
-    suspend fun verify(token: String): JwtPayload {
-        val (_, payload, signatureBytes) = decode(token)
+    suspend fun verify(token: String): JwtPayload? {
+        val (header, payload, signatureBytes) = decode(token)
 
         if (payload.iat != null && payload.iat > (timeProvider.nowMs() / 1000 + TIME_SKEW)) {
             throw InvalidJWTException("Jwt not valid yet (issued in the future) iat: ${payload.iat}")
@@ -222,66 +221,73 @@ class JWTTools(
             throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
         }
 
-        val ddo: DIDDocument = UniversalDID.resolve(payload.iss)
+        val publicKeys = resolveAuthenticator(header.alg, payload.iss)
 
-        // extract header and payload from token and convert to bytes
-        val signingInputBytes = token.substringBeforeLast('.').toByteArray()
-
-        // extract recoveryByte if available or generate a new one
-        val recoveryBytes = if (signatureBytes.size > 64)
-            byteArrayOf(signatureBytes[64])
-        else
-            byteArrayOf(27, 28) //try all recovery options
-
-        // Generate signature from recovery byte
-        val signatures = recoveryBytes.map {
-            signatureBytes.decodeJose(it)
+        if (header.alg == JwtHeader.ES256K_R) {
+            if (verifyRecoverableES256K(publicKeys, signatureBytes, token.substringBeforeLast('.').toByteArray())) return payload
+        }
+        else if (header.alg == JwtHeader.ES256K) {
+            if (verifyES256K(publicKeys, signatureBytes)) return payload
         }
 
-        for (sigData in signatures) {
-
-            val recoveredPubKey: BigInteger = try {
-                signedJwtToKey(signingInputBytes, sigData)
-            } catch (e: Exception) {
-                BigInteger.ZERO
-            }
-
-            val pubKeyNoPrefix = PublicKey(recoveredPubKey).normalize()
-            val recoveredAddress = pubKeyNoPrefix.toAddress().cleanHex.toLowerCase()
-
-            //TODO: this check needs to be adapted to the logic from [did-jwt](https://github.com/uport-project/did-jwt/blob/3ea977934e844598b2bc6576369335fd1972a12a/src/JWT.js#L118)
-            val matches = ddo.publicKey.filter {
-                it.type != DelegateType.Curve25519EncryptionPublicKey
-            }.map { pubKeyEntry ->
-
-                val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
-                        ?: pubKeyEntry.publicKeyBase64?.decodeBase64()
-                        ?: pubKeyEntry.publicKeyBase58?.decodeBase58()
-                        ?: ByteArray(PUBLIC_KEY_SIZE)
-                val pubKey = PublicKey(pkBytes.toBigInteger()).normalize()
-
-                (pubKeyEntry.ethereumAddress?.clean0xPrefix() ?: pubKey.toAddress().cleanHex)
-
-            }.filter { ethereumAddress ->
-
-                //this method of validation only works for uPort style JWTs, where the publicKeys
-                // can be converted to ethereum addresses
-                ethereumAddress.toLowerCase() == recoveredAddress
-            }
-
-            if (matches.isNotEmpty()) {
+        when (header.alg) {
+            JwtHeader.ES256K -> if (verifyES256K(publicKeys,
+                            signatureBytes))
                 return payload
-            }
+            JwtHeader.ES256K_R -> if (verifyRecoverableES256K(publicKeys,
+                            signatureBytes,
+                            token.substringBeforeLast('.').toByteArray()))
+                return payload
+            else -> throw JWTEncodingException("Unknown algorithm (${header.alg}) requested for signing")
         }
 
         throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
+    }
+
+    private fun verifyES256K(publicKeys: List<PublicKeyEntry>, signatureBytes: ByteArray): Boolean {
+        return true
+    }
+
+    fun verifyRecoverableES256K(publicKeys: List<PublicKeyEntry>, signatureBytes: ByteArray, signingInputBytes: ByteArray): Boolean {
+
+        // Generate signature from recovery byte
+        val sigData = signatureBytes.decodeJose(64)
+
+        val recoveredPubKey: BigInteger = try {
+            signedJwtToKey(signingInputBytes, sigData)
+        } catch (e: Exception) {
+            BigInteger.ZERO
+        }
+
+        val pubKeyNoPrefix = PublicKey(recoveredPubKey).normalize()
+        val recoveredAddress = pubKeyNoPrefix.toAddress().cleanHex.toLowerCase()
+
+        //TODO: this check needs to be adapted to the logic from [did-jwt](https://github.com/uport-project/did-jwt/blob/3ea977934e844598b2bc6576369335fd1972a12a/src/JWT.js#L118)
+        val matches = publicKeys.map { pubKeyEntry ->
+
+            val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
+                    ?: pubKeyEntry.publicKeyBase64?.decodeBase64()
+                    ?: pubKeyEntry.publicKeyBase58?.decodeBase58()
+                    ?: ByteArray(PUBLIC_KEY_SIZE)
+            val pubKey = PublicKey(pkBytes.toBigInteger()).normalize()
+
+            (pubKeyEntry.ethereumAddress?.clean0xPrefix() ?: pubKey.toAddress().cleanHex)
+
+        }.filter { ethereumAddress ->
+
+            //this method of validation only works for uPort style JWTs, where the publicKeys
+            // can be converted to ethereum addresses
+            ethereumAddress.toLowerCase() == recoveredAddress
+        }
+
+        return matches.isNotEmpty()
     }
 
     /**
      * This method uses the [auth] param to determine how to filter the list of publicKeys and authenticators
      *
      */
-    suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
+    suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean = false): List<PublicKeyEntry> {
 
         if (alg != JwtHeader.ES256K && alg != JwtHeader.ES256K_R) {
             throw InvalidAlgorithmParameterException("No supported signature types for algorithm $alg")
