@@ -85,12 +85,27 @@ fun unpackCiphertext(ciphertext: String): List<ByteArray> =
                 .split(DELIMITER)
                 .map { it.decodeBase64() }
 
+/**
+ * Decompresses the public key of this pair and returns the uncompressed version, including prefix
+ */
 fun ECKeyPair.getUncompressedPublicKeyWithPrefix(): ByteArray {
-    val pubBytes = this.publicKey.key.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
+    val pubBytes = this.publicKey.normalize().key.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
     pubBytes[0] = 0x04
     return pubBytes
 }
 
+/**
+ * Returns the uncompressed version of this publicKey, including prefix
+ */
+fun PublicKey.getUncompressedPublicKeyWithPrefix(): ByteArray {
+    val pubBytes = this.normalize().key.toBytesPadded(UportSigner.UNCOMPRESSED_PUBLIC_KEY_SIZE)
+    pubBytes[0] = 0x04
+    return pubBytes
+}
+
+/**
+ * Transforms a PublicKey into its normalized version which is decompressed and has no prefix
+ */
 fun PublicKey.normalize(): PublicKey {
     val pubBytes = this.key.toByteArray()
     val normalizedBytes = when (pubBytes.size) {
@@ -101,9 +116,15 @@ fun PublicKey.normalize(): PublicKey {
     return PublicKey(normalizedBytes.toBigInteger())
 }
 
+/**
+ * represents a BigInteger as a base64 encoding of a fixed size bytearray. The [keySize] defaults to 32 bytes (the size of a private key)
+ */
 fun BigInteger.keyToBase64(keySize: Int = PRIVATE_KEY_SIZE): String =
         this.toBytesPadded(keySize).toBase64().padBase64()
 
+/**
+ * shorthand for checking if this code is running on android M or later
+ */
 fun hasMarshmallow(): Boolean = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
 
 typealias EncryptionCallback = (err: Exception?, ciphertext: String) -> Unit
