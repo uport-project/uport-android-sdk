@@ -39,7 +39,7 @@ jobs:
         - ./gradle
 
     # run tests!
-    - run: ./gradlew test --no-parallel --no-daemon
+    - run: ./gradlew test --no-daemon
 
     # store test results
     - run:
