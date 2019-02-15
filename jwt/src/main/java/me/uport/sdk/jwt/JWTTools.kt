@@ -211,7 +211,7 @@ class JWTTools(
      *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
      */
-    suspend fun verify(token: String): JwtPayload? {
+    suspend fun verify(token: String, auth: Boolean = false): JwtPayload? {
         val (header, payload, signatureBytes) = decode(token)
 
         if (payload.iat != null && payload.iat > (timeProvider.nowMs() / 1000 + TIME_SKEW)) {
@@ -222,24 +222,14 @@ class JWTTools(
             throw InvalidJWTException("JWT has expired: exp: ${payload.exp}")
         }
 
-        val publicKeys = resolveAuthenticator(header.alg, payload.iss)
+        val publicKeys = resolveAuthenticator(header.alg, payload.iss, auth)
+
+        val signingInputBytes = token.substringBeforeLast('.').toByteArray()
 
         if (header.alg == JwtHeader.ES256K_R) {
-            if (verifyRecoverableES256K(publicKeys, signatureBytes, token.substringBeforeLast('.').toByteArray())) return payload
-        }
-        else if (header.alg == JwtHeader.ES256K) {
-            if (verifyES256K(publicKeys, signatureBytes)) return payload
-        }
-
-        when (header.alg) {
-            JwtHeader.ES256K -> if (verifyES256K(publicKeys,
-                            signatureBytes))
-                return payload
-            JwtHeader.ES256K_R -> if (verifyRecoverableES256K(publicKeys,
-                            signatureBytes,
-                            token.substringBeforeLast('.').toByteArray()))
-                return payload
-            else -> throw JWTEncodingException("Unknown algorithm (${header.alg}) requested for signing")
+            if (verifyRecoverableES256K(publicKeys, signatureBytes, signingInputBytes)) return payload
+        } else if (header.alg == JwtHeader.ES256K) {
+            if (verifyES256K(publicKeys, signatureBytes, signingInputBytes)) return payload
         }
 
         throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
@@ -249,10 +239,10 @@ class JWTTools(
         throw TODO("not implemented yet. this should use the ecVerify method to check the list of publicKeys")
     }
 
-    fun verifyRecoverableES256K(publicKeys: List<PublicKeyEntry>, signatureBytes: ByteArray, signingInputBytes: ByteArray): Boolean {
+    private fun verifyRecoverableES256K(publicKeys: List<PublicKeyEntry>, signatureBytes: ByteArray, signingInputBytes: ByteArray): Boolean {
 
         // Generate signature from recovery byte
-        val sigData = signatureBytes.decodeJose(64)
+        val sigData = signatureBytes.decodeJose()
 
         val recoveredPubKey: BigInteger = try {
             signedJwtToKey(signingInputBytes, sigData)
@@ -288,7 +278,7 @@ class JWTTools(
      * This method uses the [auth] param to determine how to filter the list of publicKeys and authenticators
      *
      */
-    suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean = false): List<PublicKeyEntry> {
+    suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
 
         if (alg != JwtHeader.ES256K && alg != JwtHeader.ES256K_R) {
             throw InvalidAlgorithmParameterException("No supported signature types for algorithm $alg")
