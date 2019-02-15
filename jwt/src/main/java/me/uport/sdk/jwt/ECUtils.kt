@@ -109,6 +109,7 @@ internal fun recoverFromSignature(recId: Int, sig: ECDSASignature, messageHash: 
  * This function is taken from Kethereum
  * Decompress a compressed public key (x-coord and low-bit of y-coord).
  * */
+@Suppress("CommentOverPrivateFunction")
 private fun decompressKey(xBN: BigInteger, yBit: Boolean): ECPoint {
     val x9 = X9IntegerConverter()
     val compEnc = x9.integerToBytes(xBN, 1 + x9.getByteLength(CURVE.curve))
