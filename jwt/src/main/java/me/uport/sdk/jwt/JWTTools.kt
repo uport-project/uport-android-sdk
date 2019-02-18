@@ -264,7 +264,7 @@ class JWTTools(
             emptyList() // return an empty list
         }
 
-        val supportedTypes = DelegateType.values()
+        val supportedTypes = listOf<DelegateType>(DelegateType.Secp256k1VerificationKey2018, DelegateType.Secp256k1SignatureVerificationKey2018, DelegateType.EcdsaPublicKeySecp256k1)
 
         val authenticators = doc.publicKey.filter {
 

@@ -66,6 +66,8 @@ data class ServiceEntry(
 enum class DelegateType {
     Secp256k1VerificationKey2018,
     Secp256k1SignatureAuthentication2018,
+    Secp256k1SignatureVerificationKey2018,
+    EcdsaPublicKeySecp256k1,
     Ed25519VerificationKey2018,
     RsaVerificationKey2018,
     Curve25519EncryptionPublicKey, // encryption key. Usage described here: https://github.com/uport-project/specs/blob/develop/pki/diddocument.md
