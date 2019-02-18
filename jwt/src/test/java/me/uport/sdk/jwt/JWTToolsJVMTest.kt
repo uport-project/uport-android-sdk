@@ -158,7 +158,7 @@ class JWTToolsJVMTest {
                     "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
                 }, {
                     "id": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-2",
-                    "type": "Secp256k1SignatureAuthentication2018",
+                    "type": "Secp256k1SignatureVerificationKey2018",
                     "owner": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4",
                     "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
                 }, {
@@ -173,10 +173,10 @@ class JWTToolsJVMTest {
                     "publicKeyHex": "04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061"
                 }],
                 "authentication": [{
-                    "type": "Secp256k1SignatureAuthentication2018",
+                    "type": "Secp256k1VerificationKey2018",
                     "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-1"
                 }, {
-                    "type": "Secp256k1SignatureAuthentication2018",
+                    "type": "Secp256k1SignatureVerificationKey2018",
                     "publicKey": "did:ethr:0xe8c91bde7625ab2c0ed9f214deb39440da7e03c4#keys-2"
                 }],
                 "service": [],
