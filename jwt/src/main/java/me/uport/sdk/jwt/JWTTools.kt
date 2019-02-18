@@ -2,17 +2,8 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.Signer
-import com.uport.sdk.signer.UportHDSigner
-import com.uport.sdk.signer.decodeJose
-import com.uport.sdk.signer.getJoseEncoded
-import com.uport.sdk.signer.normalize
-import me.uport.sdk.core.ITimeProvider
-import me.uport.sdk.core.Networks
-import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.core.decodeBase64
-import me.uport.sdk.core.toBase64
-import me.uport.sdk.core.toBase64UrlSafe
+import com.uport.sdk.signer.*
+import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -31,6 +22,7 @@ import org.kethereum.crypto.model.PublicKey
 import org.kethereum.crypto.toAddress
 import org.kethereum.encodings.decodeBase58
 import org.kethereum.extensions.toBigInteger
+import org.kethereum.model.SignatureData
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
@@ -226,23 +218,38 @@ class JWTTools(
 
         val signingInputBytes = token.substringBeforeLast('.').toByteArray()
 
+        val sigData = signatureBytes.decodeJose()
+
         if (header.alg == JwtHeader.ES256K_R) {
-            if (verifyRecoverableES256K(publicKeys, signatureBytes, signingInputBytes)) return payload
-        } else if (header.alg == JwtHeader.ES256K) {
-            if (verifyES256K(publicKeys, signatureBytes, signingInputBytes)) return payload
+            if (verifyRecoverableES256K(publicKeys, sigData, signingInputBytes)) return payload
+        }
+        else if (header.alg == JwtHeader.ES256K) {
+            if (verifyES256K(publicKeys, sigData, signingInputBytes)) return payload
         }
 
         throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
     }
 
-    private fun verifyES256K(publicKeys: List<PublicKeyEntry>, signatureBytes: ByteArray): Boolean {
-        throw TODO("not implemented yet. this should use the ecVerify method to check the list of publicKeys")
+
+    private fun verifyES256K(publicKeys: List<PublicKeyEntry>, sigData: SignatureData, signingInputBytes: ByteArray): Boolean {
+
+        val matches = publicKeys.map { pubKeyEntry ->
+
+            val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
+                    ?: pubKeyEntry.publicKeyBase64?.decodeBase64()
+                    ?: pubKeyEntry.publicKeyBase58?.decodeBase58()
+                    ?: ByteArray(PUBLIC_KEY_SIZE)
+            PublicKey(pkBytes.toBigInteger()).normalize()
+
+        }.filter { publicKey ->
+
+            ecVerify(signingInputBytes, sigData, publicKey)
+        }
+
+        return matches.isNotEmpty()
     }
 
-    private fun verifyRecoverableES256K(publicKeys: List<PublicKeyEntry>, signatureBytes: ByteArray, signingInputBytes: ByteArray): Boolean {
-
-        // Generate signature from recovery byte
-        val sigData = signatureBytes.decodeJose()
+    private fun verifyRecoverableES256K(publicKeys: List<PublicKeyEntry>, sigData: SignatureData, signingInputBytes: ByteArray): Boolean {
 
         val recoveredPubKey: BigInteger = try {
             signedJwtToKey(signingInputBytes, sigData)
@@ -306,7 +313,6 @@ class JWTTools(
 
         return authenticators
     }
-
 
 
     companion object {
