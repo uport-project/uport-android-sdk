@@ -2,8 +2,17 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.*
-import me.uport.sdk.core.*
+import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.decodeJose
+import com.uport.sdk.signer.getJoseEncoded
+import com.uport.sdk.signer.normalize
+import me.uport.sdk.core.ITimeProvider
+import me.uport.sdk.core.Networks
+import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.toBase64
+import me.uport.sdk.core.toBase64UrlSafe
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -22,6 +31,7 @@ import org.kethereum.crypto.model.PublicKey
 import org.kethereum.crypto.toAddress
 import org.kethereum.encodings.decodeBase58
 import org.kethereum.extensions.toBigInteger
+import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
@@ -233,6 +243,8 @@ class JWTTools(
 
     private fun verifyES256K(publicKeys: List<PublicKeyEntry>, sigData: SignatureData, signingInputBytes: ByteArray): Boolean {
 
+        val messageHash = signingInputBytes.sha256()
+
         val matches = publicKeys.map { pubKeyEntry ->
 
             val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
@@ -243,7 +255,7 @@ class JWTTools(
 
         }.filter { publicKey ->
 
-            ecVerify(signingInputBytes, sigData, publicKey)
+            ecVerify(messageHash, sigData, publicKey)
         }
 
         return matches.isNotEmpty()
