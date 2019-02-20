@@ -34,7 +34,7 @@ class DeepLinkActivity : AppCompatActivity() {
                 val payload = withContext(Dispatchers.IO) { JWTTools().verify(token) }
                 val (_, payloadRaw, _) = JWTTools().decodeRaw(token)
 
-                val knownType = JWTTypes.valueOf(payload!!.type ?: JWTTypes.verResp.name)
+                val knownType = JWTTypes.valueOf(payload.type ?: JWTTypes.verResp.name)
 
                 val response = when (knownType) {
                     JWTTypes.shareResp -> "name=${payload.own?.get("name")}"

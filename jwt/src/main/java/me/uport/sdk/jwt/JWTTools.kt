@@ -213,7 +213,7 @@ class JWTTools(
      *          when no public key matches are found in the DID document
      * @return a [JwtPayload] if the verification is successful and `null` if it fails
      */
-    suspend fun verify(token: String, auth: Boolean = false): JwtPayload? {
+    suspend fun verify(token: String, auth: Boolean = false): JwtPayload {
         val (header, payload, signatureBytes) = decode(token)
 
         if (payload.iat != null && payload.iat > (timeProvider.nowMs() / 1000 + TIME_SKEW)) {
