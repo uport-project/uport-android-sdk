@@ -272,7 +272,6 @@ class JWTTools(
         val pubKeyNoPrefix = PublicKey(recoveredPubKey).normalize()
         val recoveredAddress = pubKeyNoPrefix.toAddress().cleanHex.toLowerCase()
 
-        //TODO: this check needs to be adapted to the logic from [did-jwt](https://github.com/uport-project/did-jwt/blob/3ea977934e844598b2bc6576369335fd1972a12a/src/JWT.js#L118)
         val matches = publicKeys.map { pubKeyEntry ->
 
             val pkBytes = pubKeyEntry.publicKeyHex?.hexToByteArray()
@@ -285,8 +284,6 @@ class JWTTools(
 
         }.filter { ethereumAddress ->
 
-            //this method of validation only works for uPort style JWTs, where the publicKeys
-            // can be converted to ethereum addresses
             ethereumAddress.toLowerCase() == recoveredAddress
         }
 
