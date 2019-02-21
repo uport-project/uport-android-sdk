@@ -1,8 +1,10 @@
 package me.uport.sdk.uportdid
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonAdapter
-import me.uport.sdk.serialization.moshi
+import android.support.annotation.Keep
+import kotlinx.serialization.Optional
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.DelegateType
@@ -17,28 +19,31 @@ import org.walleth.khex.clean0xPrefix
  *
  */
 @Suppress("DEPRECATION")
+@Serializable
+@Keep
 @Deprecated(message = "this was replaced by UportDIDDocument. use `convertToDIDDocument` to make the transition")
 data class UportIdentityDocument(
-        @Json(name = "@context")
-        val context: String?, //ex: "http://schema.org"
+        @Optional
+        @SerialName("@context")
+        val context: String? = "http://schema.org",
 
-        @Json(name = "@type")
+        @SerialName("@type")
         val type: String, //ex: "Organization", "Person"
 
-        @Json(name = "publicKey")
-        val publicKey: String?,  //ex: "0x04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062"
+        @Optional
+        val publicKey: String? = null,  //ex: "0x04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062"
 
-        @Json(name = "publicEncKey")
-        val publicEncKey: String?,  //ex: "0x04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062"
+        @Optional
+        val publicEncKey: String? = null,  //ex: "0x04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062"
 
-        @Json(name = "image")
-        val image: ProfilePicture?,     //ex: {"@type":"ImageObject","name":"avatar","contentUrl":"/ipfs/QmSCnmXC91Arz2gj934Ce4DeR7d9fULWRepjzGMX6SSazB"}
+        @Optional
+        val image: ProfilePicture? = null,     //ex: {"@type":"ImageObject","name":"avatar","contentUrl":"/ipfs/QmSCnmXC91Arz2gj934Ce4DeR7d9fULWRepjzGMX6SSazB"}
 
-        @Json(name = "name")
-        val name: String?, //ex: "uPort @ Devcon3" , "Vitalik Buterout"
+        @Optional
+        val name: String? = null, //ex: "uPort @ Devcon3" , "Vitalik Buterout"
 
-        @Json(name = "description")
-        val description: String? // ex: "uPort Attestation"
+        @Optional
+        val description: String? = null // ex: "uPort Attestation"
 ) {
 
     /**
@@ -90,32 +95,31 @@ data class UportIdentityDocument(
     /**
      * serialize to a json string
      */
-    fun toJson(): String = jsonAdapter.toJson(this)
+    fun toJson(): String = JSON.stringify(UportIdentityDocument.serializer(), this)
 
     companion object {
-        private val jsonAdapter: JsonAdapter<UportIdentityDocument> by lazy {
-            moshi.adapter(UportIdentityDocument::class.java)
-        }
 
         /**
          * Attempts to deserialize a json string into a profile document
          */
-        fun fromJson(json: String): UportIdentityDocument? = jsonAdapter.fromJson(json)
+        fun fromJson(json: String): UportIdentityDocument? = JSON.nonstrict.parse(UportIdentityDocument.serializer(), json)
     }
 }
 
 /**
  * encapsulates a profile picture field of a profile document
  */
+@Serializable
 class ProfilePicture(
-        @Json(name = "@type")
+        @Optional
+        @SerialName("@type")
         val type: String? = "ImageObject",
 
-        @Json(name = "name")
+        @Optional
         val name: String? = "avatar",
 
+        @Optional
         @Suppress("unused")
-        @Json(name = "contentUrl")
         val contentUrl: String? = ""
 )
 

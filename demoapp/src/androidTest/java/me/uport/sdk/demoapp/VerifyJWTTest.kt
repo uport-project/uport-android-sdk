@@ -8,7 +8,6 @@ import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.support.test.rule.ActivityTestRule
 import io.mockk.coEvery
 import io.mockk.spyk
-import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.Networks
 import me.uport.sdk.demoapp.managing_jwt.VerifyJWTActivity
 import me.uport.sdk.ethrdid.EthrDIDDocument
@@ -56,7 +55,7 @@ class VerifyJWTTest {
 
         val rpc = JsonRPC(Networks.rinkeby.rpcUrl)
         val ethrResolver = spyk(EthrDIDResolver(rpc)) {
-            coEvery { resolve(eq("did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950")) } returns JSON.nonstrict.parse(EthrDIDDocument.serializer(), ddo)
+            coEvery { resolve(eq("did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950")) } returns EthrDIDDocument.fromJson(ddo)
         }
         UniversalDID.registerResolver(ethrResolver)
 

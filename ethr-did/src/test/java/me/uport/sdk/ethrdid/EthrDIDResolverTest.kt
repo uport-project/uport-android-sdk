@@ -16,7 +16,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JSON
 import me.uport.sdk.core.HttpClient
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.hexToBytes32
@@ -213,7 +212,7 @@ class EthrDIDResolverTest {
                    "publicKey": "did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a#owner"}]
             }
         """.trimIndent()
-        val referenceDDO = JSON.nonstrict.parse(EthrDIDDocument.serializer(), referenceDDOString)
+        val referenceDDO = EthrDIDDocument.fromJson(referenceDDOString)
 
         val addressHex = "b9c5714089478a327f09197987f16f9e5d936e8a"
 
