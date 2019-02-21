@@ -19,9 +19,10 @@ open class HttpsDIDResolver(private val httpClient: HttpClient = HttpClient()) :
         if (canResolve(did)) {
             val (_, domain) = parseDIDString(did)
             val ddoString = getProfileDocument(domain)
-            val ddo = HttpsDIDDocument.fromJson(ddoString)
-            return ddo
-                    ?: throw BlankDocumentError("no profile document found for `$did`")
+            if (ddoString.isBlank()) {
+                throw BlankDocumentError("no profile document found for `$did`")
+            }
+            return HttpsDIDDocument.fromJson(ddoString)
         } else {
             throw DidResolverError("The DID('$did') cannot be resolved by the HTTPS DID resolver")
         }
