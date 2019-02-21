@@ -7,8 +7,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
-import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Curve25519EncryptionPublicKey
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1SignatureAuthentication2018
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1VerificationKey2018
 import me.uport.sdk.uportdid.UportDIDResolver.Companion.parseDIDString
 import org.walleth.khex.clean0xPrefix
 
@@ -55,12 +57,12 @@ data class UportIdentityDocument(
 
         val publicVerificationKey = PublicKeyEntry(
                 id = "$normalizedDid#keys-1",
-                type = DelegateType.Secp256k1VerificationKey2018,
+                type = Secp256k1VerificationKey2018,
                 owner = normalizedDid,
                 publicKeyHex = this.publicKey?.clean0xPrefix()
         )
         val authEntries = listOf(AuthenticationEntry(
-                type = DelegateType.Secp256k1SignatureAuthentication2018,
+                type = Secp256k1SignatureAuthentication2018,
                 publicKey = "$normalizedDid#keys-1")
         )
 
@@ -69,7 +71,7 @@ data class UportIdentityDocument(
         if (publicEncKey != null) {
             pkEntries.add(PublicKeyEntry(
                     id = "$normalizedDid#keys-2",
-                    type = DelegateType.Curve25519EncryptionPublicKey,
+                    type = Curve25519EncryptionPublicKey,
                     owner = normalizedDid,
                     publicKeyBase64 = publicEncKey)
             )

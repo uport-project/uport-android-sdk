@@ -24,10 +24,10 @@ import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
-import me.uport.sdk.universaldid.DelegateType.Companion.EcdsaPublicKeySecp256k1
-import me.uport.sdk.universaldid.DelegateType.Companion.Secp256k1SignatureVerificationKey2018
-import me.uport.sdk.universaldid.DelegateType.Companion.Secp256k1VerificationKey2018
 import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.PublicKeyType.Companion.EcdsaPublicKeySecp256k1
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1SignatureVerificationKey2018
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1VerificationKey2018
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.kethereum.crypto.model.PUBLIC_KEY_SIZE

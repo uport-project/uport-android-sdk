@@ -17,9 +17,11 @@ import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcException
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDResolver
-import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.DidResolverError
 import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.PublicKeyType
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1SignatureAuthentication2018
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1VerificationKey2018
 import me.uport.sdk.universaldid.ServiceEntry
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
@@ -148,7 +150,7 @@ open class EthrDIDResolver(
         val pkEntries = mapOf<String, PublicKeyEntry>().toMutableMap().apply {
             put("owner", PublicKeyEntry(
                     id = "$normalizedDid#owner",
-                    type = DelegateType.Secp256k1VerificationKey2018,
+                    type = PublicKeyType.Secp256k1VerificationKey2018,
                     owner = normalizedDid,
                     ethereumAddress = owner
             ))
@@ -156,7 +158,7 @@ open class EthrDIDResolver(
         }
         val authEntries = mapOf<String, AuthenticationEntry>().toMutableMap().apply {
             put("owner", AuthenticationEntry(
-                    type = DelegateType.Secp256k1SignatureAuthentication2018,
+                    type = PublicKeyType.Secp256k1SignatureAuthentication2018,
                     publicKey = "$normalizedDid#owner"
             ))
         }
@@ -176,20 +178,18 @@ open class EthrDIDResolver(
                         delegateCount++
 
                         when (delegateType) {
-                            DelegateType.Secp256k1SignatureAuthentication2018.name,
+                            Secp256k1SignatureAuthentication2018.name,
                             sigAuth -> authEntries[key] = AuthenticationEntry(
-                                    type = DelegateType.Secp256k1SignatureAuthentication2018,
+                                    type = PublicKeyType.Secp256k1SignatureAuthentication2018,
                                     publicKey = "$normalizedDid#delegate-$delegateCount")
 
-                            DelegateType.Secp256k1VerificationKey2018.name,
+                            Secp256k1VerificationKey2018.name,
                             veriKey -> pkEntries[key] = PublicKeyEntry(
                                     id = "$normalizedDid#delegate-$delegateCount",
-                                    type = DelegateType.Secp256k1VerificationKey2018,
+                                    type = PublicKeyType.Secp256k1VerificationKey2018,
                                     owner = normalizedDid,
                                     ethereumAddress = delegate)
                         }
-
-
                     }
                 }
 
@@ -236,7 +236,6 @@ open class EthrDIDResolver(
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -261,10 +260,10 @@ open class EthrDIDResolver(
                 veriKey to "VerificationKey2018"
         )
 
-        private fun parseType(algo: String, rawType: String): DelegateType {
+        private fun parseType(algo: String, rawType: String): PublicKeyType {
             var type = if (rawType.isBlank()) veriKey else rawType
             type = attrTypes[type] ?: type
-            return DelegateType("$algo$type") //will throw exception if none found
+            return PublicKeyType("$algo$type") //will throw exception if none found
         }
 
         //language=RegExp

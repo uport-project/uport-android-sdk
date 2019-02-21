@@ -16,7 +16,8 @@ import me.uport.mnid.Account
 import me.uport.sdk.core.HttpClient
 import me.uport.sdk.core.Networks
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Curve25519EncryptionPublicKey
+import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1VerificationKey2018
 import org.junit.Test
 import org.walleth.khex.clean0xPrefix
 
@@ -69,7 +70,7 @@ class UportDIDResolverTest {
         val verificationPkMatch = convertedDDO.publicKey.find { it ->
             it.id.startsWith(expectedOwner) &&
                     it.owner == expectedOwner &&
-                    it.type == DelegateType.Secp256k1VerificationKey2018 &&
+                    it.type == Secp256k1VerificationKey2018 &&
                     it.publicKeyHex == publicKeyHex.clean0xPrefix()
         }
         assert(verificationPkMatch).isNotNull()
@@ -77,7 +78,7 @@ class UportDIDResolverTest {
         val encPkMatch = convertedDDO.publicKey.find { it ->
             it.id.startsWith(expectedOwner) &&
                     it.owner == expectedOwner &&
-                    it.type == DelegateType.Curve25519EncryptionPublicKey &&
+                    it.type == Curve25519EncryptionPublicKey &&
                     it.publicKeyBase64 == publicEncKey
         }
         assert(encPkMatch).isNotNull()
