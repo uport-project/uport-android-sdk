@@ -6,11 +6,13 @@ import assertk.assertions.isFalse
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerializationException
 import me.uport.sdk.core.HttpClient
 import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.testhelpers.isInstanceOf
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.DidResolverError
 import me.uport.sdk.universaldid.PublicKeyEntry
 import org.junit.Test
 import java.io.IOException
@@ -64,7 +66,7 @@ class HttpsDIDResolverTest {
         coAssert {
             tested.resolve("did:https:example.com")
         }.thrownError {
-            isInstanceOf(listOf(IllegalArgumentException::class, IOException::class))
+            isInstanceOf(listOf(IllegalArgumentException::class, IOException::class, SerializationException::class, DidResolverError::class))
         }
     }
 

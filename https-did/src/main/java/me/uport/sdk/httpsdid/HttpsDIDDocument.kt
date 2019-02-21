@@ -1,9 +1,9 @@
 package me.uport.sdk.httpsdid
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonAdapter
 import kotlinx.serialization.Optional
-import me.uport.sdk.serialization.moshi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.PublicKeyEntry
@@ -12,21 +12,22 @@ import me.uport.sdk.universaldid.ServiceEntry
 /**
  * Encapsulates the fields of a Decentralized Identity Document
  */
+@Serializable
 data class HttpsDIDDocument(
-        @Json(name = "@context")
+        @SerialName("@context")
         override val context: String = "https://w3id.org/did/v1",
 
-        @Json(name = "id")
+        @SerialName("id")
         override val id: String, //ex: "did:https:example.com#owner"
 
-        @Json(name = "publicKey")
+        @SerialName("publicKey")
         override val publicKey: List<PublicKeyEntry> = emptyList(),
 
-        @Json(name = "authentication")
+        @SerialName("authentication")
         override val authentication: List<AuthenticationEntry> = emptyList(),
 
         @Optional
-        @Json(name = "service")
+        @SerialName("service")
         override val service: List<ServiceEntry> = emptyList()
 
 ) : DIDDocument {
@@ -34,17 +35,14 @@ data class HttpsDIDDocument(
     /**
      * Serializes this [HttpsDIDDocument] into a JSON string
      */
-    fun toJson(): String = jsonAdapter.toJson(this)
+    fun toJson(): String = JSON.stringify(HttpsDIDDocument.serializer(), this)
 
     companion object {
-        private val jsonAdapter: JsonAdapter<HttpsDIDDocument> by lazy {
-            moshi.adapter(HttpsDIDDocument::class.java)
-        }
 
         /**
          * Attempts to deserialize a given [json] string into a [HttpsDIDDocument]
          */
-        fun fromJson(json: String): HttpsDIDDocument? = jsonAdapter.fromJson(json)
+        fun fromJson(json: String) = JSON.nonstrict.parse(HttpsDIDDocument.serializer(), json)
     }
 
 }
