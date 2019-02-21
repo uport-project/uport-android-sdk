@@ -37,6 +37,7 @@ import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
 import java.security.InvalidAlgorithmParameterException
+import java.security.SignatureException
 
 /**
  * Tools for Verifying, Creating, and Decoding uport JWTs
@@ -265,7 +266,7 @@ class JWTTools(
 
         val recoveredPubKey: BigInteger = try {
             signedJwtToKey(signingInputBytes, sigData)
-        } catch (e: Exception) {
+        } catch (e: SignatureException) {
             BigInteger.ZERO
         }
 
