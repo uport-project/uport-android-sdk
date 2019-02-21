@@ -13,6 +13,7 @@ import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.core.toBase64UrlSafe
+import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -22,7 +23,10 @@ import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
-import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.DelegateType.Companion.EcdsaPublicKeySecp256k1
+import me.uport.sdk.universaldid.DelegateType.Companion.Secp256k1SignatureVerificationKey2018
+import me.uport.sdk.universaldid.DelegateType.Companion.Secp256k1VerificationKey2018
 import me.uport.sdk.universaldid.PublicKeyEntry
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
@@ -126,8 +130,7 @@ class JWTTools(
         //create header and convert the parts to json strings
         val header = if (!recoverable) {
             JwtHeader(alg = ES256K)
-        }
-        else {
+        } else {
             JwtHeader(alg = ES256K_R)
         }
         val headerJsonString = header.toJson()
@@ -207,6 +210,7 @@ class JWTTools(
         }
     }
 
+
     /**
      * Verifies a jwt [token]
      * @params jwt token
@@ -227,20 +231,29 @@ class JWTTools(
 
         val publicKeys = resolveAuthenticator(header.alg, payload.iss, auth)
 
-        val signingInputBytes = token.substringBeforeLast('.').toByteArray()
+        val signingInputBytes = token.substringBeforeLast('.').toByteArray(utf8)
 
         val sigData = signatureBytes.decodeJose()
 
-        if (header.alg == JwtHeader.ES256K_R) {
-            if (verifyRecoverableES256K(publicKeys, sigData, signingInputBytes)) return payload
-        }
-        else if (header.alg == JwtHeader.ES256K) {
-            if (verifyES256K(publicKeys, sigData, signingInputBytes)) return payload
+        val signatureIsValid = verificationMethod[header.alg]
+                ?.invoke(publicKeys, sigData, signingInputBytes)
+                ?: throw InvalidAlgorithmParameterException("JWT algorithm ${header.alg} not supported")
+
+        if (signatureIsValid) {
+            return payload
+        } else {
+            throw InvalidJWTException("Signature invalid for JWT. DID document for ${payload.iss} does not have any matching public keys")
         }
 
-        throw InvalidJWTException("DID document for ${payload.iss} does not have any matching public keys")
     }
 
+    /**
+     * maps known algorithms to the corresponding verification method
+     */
+    private val verificationMethod = mapOf(
+            ES256K_R to ::verifyRecoverableES256K,
+            ES256K to ::verifyES256K
+    )
 
     private fun verifyES256K(publicKeys: List<PublicKeyEntry>, sigData: SignatureData, signingInputBytes: ByteArray): Boolean {
 
@@ -292,30 +305,31 @@ class JWTTools(
     }
 
     /**
-     * This method uses the [auth] param to determine how to filter the list of publicKeys and authenticators
+     * This method obtains a [DIDDocument] corresponding to the [issuer] and returns a list of [PublicKeyEntry]
+     * that can be used to check JWT signatures
+     *
+     * @param [auth] decide if the returned list should also be filtered against the `authentication`
+     * entries in the DIDDocument
      *
      */
     suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
 
-        if (alg != JwtHeader.ES256K && alg != JwtHeader.ES256K_R) {
-            throw InvalidAlgorithmParameterException("No supported signature types for algorithm $alg")
+        if (alg !in verificationMethod.keys) {
+            throw InvalidAlgorithmParameterException("JWT algorithm '$alg' not supported")
         }
 
-        val doc = UniversalDID.resolve(issuer)
+        val doc: DIDDocument = UniversalDID.resolve(issuer)
 
         val authenticationKeys: List<String> = if (auth) {
             doc.authentication.map { it.publicKey }
-        }
-        else {
+        } else {
             emptyList() // return an empty list
         }
-
-        val supportedTypes = listOf<DelegateType>(DelegateType.Secp256k1VerificationKey2018, DelegateType.Secp256k1SignatureVerificationKey2018, DelegateType.EcdsaPublicKeySecp256k1)
 
         val authenticators = doc.publicKey.filter {
 
             // filter public keys which belong to the list of supported key types
-            supportedTypes.contains(it.type) && (!auth || (authenticationKeys.indexOf(it.id) >= 0))
+            supportedKeyTypes.contains(it.type) && (!auth || (authenticationKeys.contains(it.id)))
         }
 
         if (auth && (authenticators.isEmpty())) throw InvalidJWTException("DID document for $issuer does not have public keys suitable for authenticating user")
@@ -323,7 +337,6 @@ class JWTTools(
 
         return authenticators
     }
-
 
     companion object {
         //Create adapters with each object
@@ -335,6 +348,15 @@ class JWTTools(
         const val DEFAULT_JWT_VALIDITY_SECONDS = 300L
 
         private const val TIME_SKEW = 300L
+
+        /**
+         * List of supported key types for verifying DID JWT signatures
+         */
+        val supportedKeyTypes = listOf(
+                Secp256k1VerificationKey2018,
+                Secp256k1SignatureVerificationKey2018,
+                EcdsaPublicKeySecp256k1
+        )
     }
 
 }
