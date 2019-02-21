@@ -1,9 +1,9 @@
 package me.uport.sdk.uportdid
 
 import android.support.annotation.Keep
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonAdapter
-import me.uport.sdk.serialization.moshi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.PublicKeyEntry
@@ -14,13 +14,14 @@ import me.uport.sdk.universaldid.ServiceEntry
  * This contains an extra [uportProfile] field that encapsulates the legacy profile document.
  */
 @Keep
+@Serializable
 data class UportDIDDocument(
         override val id: String,
         override val publicKey: List<PublicKeyEntry>,
         override val authentication: List<AuthenticationEntry>,
         override val service: List<ServiceEntry> = emptyList(),
 
-        @Json(name = "@context")
+        @SerialName("@context")
         override val context: String = "https://w3id.org/did/v1",
 
         @Suppress("DEPRECATION")
@@ -31,17 +32,13 @@ data class UportDIDDocument(
     /**
      * Serializes this DID document to a JSON string
      */
-    fun toJson(): String = jsonAdapter.toJson(this)
+    fun toJson(): String = JSON.stringify(UportDIDDocument.serializer(), this)
 
     companion object {
-
-        private val jsonAdapter: JsonAdapter<UportDIDDocument> by lazy {
-            moshi.adapter(UportDIDDocument::class.java)
-        }
 
         /**
          * Attempts to deserialize a given [json] string into a [UportDIDDocument]
          */
-        fun fromJson(json: String) = jsonAdapter.fromJson(json)
+        fun fromJson(json: String) = JSON.nonstrict.parse(UportDIDDocument.serializer(), json)
     }
 }

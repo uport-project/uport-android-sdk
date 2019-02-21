@@ -264,7 +264,7 @@ open class EthrDIDResolver(
         private fun parseType(algo: String, rawType: String): DelegateType {
             var type = if (rawType.isBlank()) veriKey else rawType
             type = attrTypes[type] ?: type
-            return DelegateType.valueOf("$algo$type") //will throw exception if none found
+            return DelegateType("$algo$type") //will throw exception if none found
         }
 
         //language=RegExp
