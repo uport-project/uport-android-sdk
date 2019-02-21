@@ -11,9 +11,9 @@ import me.uport.sdk.core.HttpClient
 import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.testhelpers.isInstanceOf
 import me.uport.sdk.universaldid.AuthenticationEntry
-import me.uport.sdk.universaldid.DelegateType
 import me.uport.sdk.universaldid.DidResolverError
 import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.PublicKeyType
 import org.junit.Test
 import java.io.IOException
 
@@ -23,13 +23,13 @@ class HttpsDIDResolverTest {
             id = "did:https:example.com",
             publicKey = listOf(
                     PublicKeyEntry(id = "did:https:example.com",
-                            type = DelegateType.Secp256k1VerificationKey2018,
+                            type = PublicKeyType.Secp256k1VerificationKey2018,
                             owner = "did:https:example.com",
                             ethereumAddress = "0x3c7d65d6daf5df62378874d35fa3626100af9d85"
                     )
             ),
             authentication = listOf(
-                    AuthenticationEntry(type = DelegateType.Secp256k1SignatureAuthentication2018,
+                    AuthenticationEntry(type = PublicKeyType.Secp256k1SignatureAuthentication2018,
                             publicKey = "did:https:example.com#owner")
             ),
             service = emptyList()

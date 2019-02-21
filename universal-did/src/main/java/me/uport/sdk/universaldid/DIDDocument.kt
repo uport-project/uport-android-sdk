@@ -28,7 +28,7 @@ data class PublicKeyEntry(
         val id: String,
 
         @SerialName("type")
-        val type: DelegateType,
+        val type: PublicKeyType,
 
         @SerialName("owner")
         val owner: String,
@@ -56,7 +56,7 @@ data class PublicKeyEntry(
 
 @Serializable
 data class AuthenticationEntry(
-        val type: DelegateType,
+        val type: PublicKeyType,
         val publicKey: String
 )
 
@@ -76,15 +76,15 @@ data class ServiceEntry(
  */
 @Keep
 @Serializable
-data class DelegateType(val name: String) {
+data class PublicKeyType(val name: String) {
 
-    @Serializer(forClass = DelegateType::class)
-    companion object : KSerializer<DelegateType> {
+    @Serializer(forClass = PublicKeyType::class)
+    companion object : KSerializer<PublicKeyType> {
 
-        override fun serialize(output: Encoder, obj: DelegateType) =
+        override fun serialize(output: Encoder, obj: PublicKeyType) =
                 output.encodeString(obj.name)
 
-        override fun deserialize(input: Decoder): DelegateType = DelegateType(input.decodeString())
+        override fun deserialize(input: Decoder): PublicKeyType = PublicKeyType(input.decodeString())
 
 
         //////////////////////////////
@@ -96,27 +96,27 @@ data class DelegateType(val name: String) {
          *
          * see usage in uPort spec: https://github.com/uport-project/specs/blob/develop/pki/diddocument.md
          */
-        val Secp256k1VerificationKey2018 = DelegateType("Secp256k1VerificationKey2018")
+        val Secp256k1VerificationKey2018 = PublicKeyType("Secp256k1VerificationKey2018")
 
         /**
          * references a [Secp256k1VerificationKey2018] in a DID document [AuthenticationEntry]
          */
-        val Secp256k1SignatureAuthentication2018 = DelegateType("Secp256k1SignatureAuthentication2018")
+        val Secp256k1SignatureAuthentication2018 = PublicKeyType("Secp256k1SignatureAuthentication2018")
 
 
         /**
          * While not directly generated here, it is treated as [Secp256k1VerificationKey2018]
          */
-        val Secp256k1SignatureVerificationKey2018 = DelegateType("Secp256k1SignatureVerificationKey2018")
+        val Secp256k1SignatureVerificationKey2018 = PublicKeyType("Secp256k1SignatureVerificationKey2018")
 
         /**
          * While not directly generated here, it is treated as [Secp256k1VerificationKey2018]
          */
-        val EcdsaPublicKeySecp256k1 = DelegateType("EcdsaPublicKeySecp256k1")
+        val EcdsaPublicKeySecp256k1 = PublicKeyType("EcdsaPublicKeySecp256k1")
 
         /**
          * encryption key. Usage described here: https://github.com/uport-project/specs/blob/develop/pki/diddocument.md
          */
-        val Curve25519EncryptionPublicKey = DelegateType("Curve25519EncryptionPublicKey")
+        val Curve25519EncryptionPublicKey = PublicKeyType("Curve25519EncryptionPublicKey")
     }
 }

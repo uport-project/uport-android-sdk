@@ -3,7 +3,7 @@ package me.uport.sdk.ethrdid
 import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.PublicKeyType
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
 import org.kethereum.model.createTransactionWithDefaults
@@ -27,7 +27,7 @@ class EthrDID(
 
 
     class DelegateOptions(
-            val delegateType: DelegateType = DelegateType.Secp256k1VerificationKey2018,
+            val delegateType: PublicKeyType = PublicKeyType.Secp256k1VerificationKey2018,
             val expiresIn: Long = 86400L
     )
 
@@ -63,7 +63,7 @@ class EthrDID(
         return signAndSendContractCall(owner, encodedCall)
     }
 
-    suspend fun revokeDelegate(delegate: String, delegateType: DelegateType = DelegateType.Secp256k1VerificationKey2018): String {
+    suspend fun revokeDelegate(delegate: String, delegateType: PublicKeyType = PublicKeyType.Secp256k1VerificationKey2018): String {
         val owner = this.lookupOwner()
         val encodedCall = EthereumDIDRegistry.RevokeDelegate.encode(
                 Solidity.Address(this.address.hexToBigInteger()),
