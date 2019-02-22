@@ -3,7 +3,7 @@ package me.uport.sdk.ethrdid
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.PublicKeyEntry
@@ -31,12 +31,12 @@ data class EthrDIDDocument(
         override val context: String = "https://w3id.org/did/v1"
 ) : DIDDocument {
 
-    override fun toString(): String = JSON.indented.stringify(EthrDIDDocument.serializer(), this)
+    override fun toString(): String = Json.indented.stringify(EthrDIDDocument.serializer(), this)
 
     /**
      * serialize this [EthrDIDDocument] to a JSON string
      */
-    fun toJson() = JSON.stringify(EthrDIDDocument.serializer(), this)
+    fun toJson() = Json.stringify(EthrDIDDocument.serializer(), this)
 
     companion object {
         /**
@@ -47,7 +47,7 @@ data class EthrDIDDocument(
         /**
          * Parse a json serialized [EthrDIDDocument] into an object
          */
-        fun fromJson(json: String) = JSON.nonstrict.parse(EthrDIDDocument.serializer(), json)
+        fun fromJson(json: String) = Json.nonstrict.parse(EthrDIDDocument.serializer(), json)
     }
 }
 

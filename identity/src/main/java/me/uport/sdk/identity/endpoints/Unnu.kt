@@ -2,7 +2,7 @@ package me.uport.sdk.identity.endpoints
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import me.uport.sdk.core.HttpClient
 import me.uport.sdk.core.Networks
 import java.io.IOException
@@ -85,7 +85,7 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
             /**
              * parses a JsonRPC response into an [IdentityInfoJRPCResponse] object
              */
-            fun fromJson(json: String): IdentityInfoJRPCResponse = JSON.nonstrict.parse(IdentityInfoJRPCResponse.serializer(), json)
+            fun fromJson(json: String): IdentityInfoJRPCResponse = Json.nonstrict.parse(IdentityInfoJRPCResponse.serializer(), json)
         }
     }
 
@@ -94,7 +94,7 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
      */
     suspend fun lookupIdentityInfo(deviceKeyAddress: String): IdentityInfo {
 
-        val payloadBody = JSON.stringify(LookupRequest.serializer(), LookupRequest(deviceKeyAddress))
+        val payloadBody = Json.stringify(LookupRequest.serializer(), LookupRequest(deviceKeyAddress))
         val rawResponse = httpClient.urlPost(identityCheckUrl, payloadBody, null)
         val parsedResponse = IdentityInfoJRPCResponse.fromJson(rawResponse)
         if (parsedResponse.status == "success") {
@@ -112,7 +112,7 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
                                         networkId: String,
                                         fuelToken: String): IdentityInfo {
 
-        val unnuPayload = JSON.stringify(UnnuCreationRequest.serializer(),
+        val unnuPayload = Json.stringify(UnnuCreationRequest.serializer(),
                 UnnuCreationRequest(
                         deviceKeyAddress,
                         recoveryAddress,
