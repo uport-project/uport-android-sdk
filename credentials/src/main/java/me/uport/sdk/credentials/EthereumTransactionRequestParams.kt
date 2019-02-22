@@ -17,27 +17,28 @@ class EthereumTransactionRequestParams(
 
         /**
          * [**optional**]
-         * The DID of the identity that the claim is about
+         * DID or hex encoded address requested to sign the transaction. If not specified
+         * the user will select an account.
          */
         val from: String? = null,
 
-
         /**
-         * [**optional**]
-         * The DID of the identity that the claim is about
+         * [**REQUIRED**]
+         * DID or hex encoded address of the recipient of the transaction. If not specified the
+         * transaction will create a contract and a bytecode field must exist.
          */
         val to: String,
 
         /**
-         * [**optional**]
-         * The DID of the identity that the claim is about
+         * [**REQUIRED**]
+         * network id of Ethereum chain of identity eg. 0x4 for rinkeby. It defaults to the network encoded
+         * in the to if specified as an DID. If not it defaults to 0x1 for mainnet
          */
         val networkId: String,
 
-
         /**
-         * [**optional**]
-         * The DID of the identity that the claim is about
+         * [**REQUIRED**]
+         * hex encoded value in wei
          */
         val value: String,
 
@@ -51,65 +52,39 @@ class EthereumTransactionRequestParams(
 
         /**
          * [**optional**]
-         * The DID of the identity that the claim is about
+         * Solidity function call eg. transfer(address 0xdeadbeef, uint 5)
          */
-        val sub: String? = null,
+        val fn: String? = null,
 
         /**
          * [**optional**]
          *
-         * The DID or URL of the audience of the JWT.
-         * The uPort app will not accept any JWT that has someone else as the audience
+         * hex encoded value of integer of the gasPrice used for each paid gas. This is
+         * only treated as a recommendation. The client may override this.
          *
          */
-        val aud: String? = null,
+        val gasPrice: String? = null,
 
         /**
          * [**optional**]
-         * The DID of the identity you want to sign the Verified Claim.
+         * The DID or DID of the application identity requesting the signature
          *
-         * This can be pre-requested with a selective disclosure request
          */
-        val riss: String? = null,
+        val iss: String? = null,
 
         /**
          * [**optional**]
-         * Requested expiry time in seconds
+         * The time of issuance
          *
-         * TODO: clarify if this is interval or timestamp
          */
-        val rexp: Long? = null,
-
+        val iat: Long? = null,
 
         /**
          * [**optional**]
-         * The self signed claims for the [iss] of this message.
+         * Expiration time of JWT
          *
-         * Either as a [Map] of claim types for self signed claims eg:
-         * ```
-         * mapOf(
-         *   "name" to "Some Corp Inc",
-         *   "url" to "https://somecorp.example",
-         *   "image" to mapOf("/" to "/ipfs/QmSCnmXC91Arz2gj934Ce4DeR7d9fULWRepjzGMX6SSazB")
-         * )
-         * ```
-         * or the IPFS Hash of a JSON encoded equivalent.
          */
-        val issc: Map<String, Any>? = null,
-
-        /**
-         * [**optional**]
-         * A collection of Verified Claims JWTs or IPFS hash of JSON encoded equivalent about the [iss] of this message.
-         * TODO: clarify what's the difference between one of the claims in [vc] and [issc]
-         */
-        val vc: Collection<String>? = null,
-
-        /**
-         * [**optional**] defaults to [DEFAULT_SHARE_REQ_VALIDITY_SECONDS]
-         * The validity interval of this request (not of the resulting response),
-         * measured in seconds since the moment it is issued.
-         */
-        val expiresInSeconds: Long? = DEFAULT_ETHEREUM_TRANSACTION_REQ_VALIDITY_SECONDS,
+        val exp: Long? = null,
 
         /**
          * [**optional**]
@@ -119,7 +94,14 @@ class EthereumTransactionRequestParams(
          * The fields contained in [extras] will get overwritten by the named parameters
          * in this class in case of a name collision.
          */
-        val extras: Map<String, Any>? = null
+        val extras: Map<String, Any>? = null,
+
+        /**
+         * [**optional**] defaults to [DEFAULT_SHARE_REQ_VALIDITY_SECONDS]
+         * The validity interval of this request (not of the resulting response),
+         * measured in seconds since the moment it is issued.
+         */
+        val expiresInSeconds: Long? = DEFAULT_ETHEREUM_TRANSACTION_REQ_VALIDITY_SECONDS
 )
 
 const val DEFAULT_ETHEREUM_TRANSACTION_REQ_VALIDITY_SECONDS = 600L
@@ -130,12 +112,11 @@ const val DEFAULT_ETHEREUM_TRANSACTION_REQ_VALIDITY_SECONDS = 600L
 internal fun buildPayloadForEthereumTransactionReq(params: EthereumTransactionRequestParams): MutableMap<String, Any> {
     val payload = params.extras.orEmpty().toMutableMap()
 
-    /*params.riss?.let { payload["riss"] = it }
-    params.vc?.let { payload["vc"] = it }
-    params.sub?.let { payload["sub"] = it }
-    params.aud?.let { payload["aud"] = it }
-    params.rexp?.let { payload["rexp"] = it }
-    params.issc?.let { payload["issc"] = it }*/
+    params.exp?.let { payload["exp"] = it }
+    params.iat?.let { payload["iat"] = it }
+    params.fn?.let { payload["fn"] = it }
+    params.gasPrice?.let { payload["gasPrice"] = it }
+    params.iss?.let { payload["iss"] = it }
 
     params.to.let { payload["to"] = it }
     params.from?.let { payload["from"] = it }

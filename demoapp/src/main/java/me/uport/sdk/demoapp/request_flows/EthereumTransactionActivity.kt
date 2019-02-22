@@ -37,7 +37,7 @@ class EthereumTransactionActivity : AppCompatActivity() {
         val cred = Credentials(issuerDID, signer)
         val params = EthereumTransactionRequestParams(
                 to = issuerDID,
-                value = "0.1",
+                value = "0.000000001",
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk",
                 networkId = Networks.rinkeby.networkId
         )

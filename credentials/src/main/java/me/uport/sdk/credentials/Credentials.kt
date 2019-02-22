@@ -93,22 +93,20 @@ class Credentials(
     }
 
     /**
-     * Create a JWT requesting a verified claim from a user of another uPort client app.
+     * Create a JWT requesting ethereum transaction signing from a user of another uPort client app.
      *
-     * See https://github.com/uport-project/specs/blob/develop/messages/verificationreq.md
+     * See https://github.com/uport-project/specs/blob/develop/messages/tx.md
      *
      * Example:
      * ```
-     *  val reqParams = VerifiedClaimRequestParams(
-     *                      unsignedClaim = mapOf(
-     *                          "Citizen of city X" to mapOf(
-     *                              "Allowed to vote" to true,
-     *                              "Document" to "QmZZBBKPS2NWc6PMZbUk9zUHCo1SHKzQPPX4ndfwaYzmPW"
-     *                          )
-     *                      ),
-     *                      callbackUrl = "https://myserver.com"
-     *                  )
-     *  val jwt = credentials.createVerificationSignatureRequest(reqParams)
+     *  val params = EthereumTransactionRequestParams(
+     *                      to = issuerDID,
+     *                      value = "0.1",
+     *                      callbackUrl = "https://myserver.com",
+     *                      networkId = Networks.rinkeby.networkId
+     *                   )
+     *
+     *  val jwt = credentials.createEthereumTransactionRequest(params)
      *
      *  // ... send jwt to the relevant party and expect a callback with the response at https://myserver.com
      *
