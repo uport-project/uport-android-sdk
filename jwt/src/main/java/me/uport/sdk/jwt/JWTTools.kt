@@ -30,7 +30,6 @@ import org.kethereum.model.SignatureData
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
-import java.security.InvalidAlgorithmParameterException
 import java.security.SignatureException
 
 /**
@@ -227,7 +226,7 @@ class JWTTools(
 
         val signatureIsValid = verificationMethod[header.alg]
                 ?.invoke(publicKeys, sigData, signingInputBytes)
-                ?: throw InvalidAlgorithmParameterException("JWT algorithm ${header.alg} not supported")
+                ?: throw JWTEncodingException("JWT algorithm ${header.alg} not supported")
 
         if (signatureIsValid) {
             return payload
@@ -305,7 +304,7 @@ class JWTTools(
     suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
 
         if (alg !in verificationMethod.keys) {
-            throw InvalidAlgorithmParameterException("JWT algorithm '$alg' not supported")
+            throw JWTEncodingException("JWT algorithm '$alg' not supported")
         }
 
         val doc: DIDDocument = UniversalDID.resolve(issuer)
