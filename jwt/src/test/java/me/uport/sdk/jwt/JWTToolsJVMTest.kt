@@ -15,7 +15,6 @@ import me.uport.sdk.testhelpers.coAssert
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDDocument
 import org.junit.Test
-import java.security.InvalidAlgorithmParameterException
 
 class JWTToolsJVMTest {
 
@@ -274,7 +273,7 @@ class JWTToolsJVMTest {
         coAssert {
             JWTTools().resolveAuthenticator(alg, issuer, auth)
         }.thrownError {
-            isInstanceOf(InvalidAlgorithmParameterException::class)
+            isInstanceOf(JWTEncodingException::class)
         }
     }
 }
