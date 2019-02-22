@@ -35,7 +35,6 @@
         <activity android:name=".request_flows.VerifiedClaimRequestActivity" />
         <activity android:name=".request_flows.PersonalSignRequestActivity" />
         <activity android:name=".request_flows.TypedDataRequestActivity" />
-        <activity android:name=".request_flows.EthereumTransactionActivity" />
 
 
         <activity
