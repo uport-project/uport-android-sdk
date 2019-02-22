@@ -92,6 +92,7 @@ class Credentials(
                 ?: DEFAULT_VERIFIED_CLAIM_REQ_VALIDITY_SECONDS)
     }
 
+
     /**
      *  Creates a JWT using the given [payload], issued and signed using the [did] and [signer]
      *  fields of this [Credentials] instance.
