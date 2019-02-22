@@ -1,3 +1,5 @@
+@file:Suppress("UndocumentedPublicFunction", "UndocumentedPublicClass")
+
 package me.uport.sdk.ethrdid
 
 import com.uport.sdk.signer.Signer
