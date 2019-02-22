@@ -4,39 +4,50 @@ import me.uport.mnid.MNID
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.prepend0xPrefix
 
+private val defaultFaucetUrl = "https://sensui.uport.me/api/v1/fund/"
+private val defaultTxRelayUrl = "https://sensui.uport.me/api/v2/relay/"
+private val mainnetId = "0x1"
+private val ropstenId = "0x3"
+private val rinkebyId = "0x4"
+private val kovanId = "0x2a"
+
+/**
+ * Holds urls and addresses for different eth networks.
+ * use the `registerNetwork` method to override defaults
+ */
 object Networks {
 
     val mainnet = EthNetwork(
             "mainnet",
-            "0x1",
-            MNID.encode("0x1", "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6"),
+            mainnetId,
+            MNID.encode(mainnetId, "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6"),
             "https://mainnet.infura.io/uport",
             "https://etherscan.io",
-            "https://sensui.uport.me/api/v1/fund/",
-            "https://sensui.uport.me/api/v2/relay/",
+            defaultFaucetUrl,
+            defaultTxRelayUrl,
             "0xec2642cd5a47fd5cca2a8a280c3b5f88828aa578")
     val ropsten = EthNetwork(
             "ropsten",
-            "0x3",
-            MNID.encode("0x3", "0x41566e3a081f5032bdcad470adb797635ddfe1f0"),
+            ropstenId,
+            MNID.encode(ropstenId, "0x41566e3a081f5032bdcad470adb797635ddfe1f0"),
             "https://ropsten.infura.io/uport",
             "https://ropsten.io",
-            "https://sensui.uport.me/api/v1/fund/",
-            "https://sensui.uport.me/api/v2/relay/",
+            defaultFaucetUrl,
+            defaultTxRelayUrl,
             "0xa5e04cf2942868f5a66b9f7db790b8ab662039d5")
     val kovan = EthNetwork(
             "kovan",
-            "0x2a",
-            MNID.encode("0x2a", "0x5f8e9351dc2d238fb878b6ae43aa740d62fc9758"),
+            kovanId,
+            MNID.encode(kovanId, "0x5f8e9351dc2d238fb878b6ae43aa740d62fc9758"),
             "https://kovan.infura.io/uport",
             "https://kovan.etherscan.io",
-            "https://sensui.uport.me/api/v1/fund/",
-            "https://sensui.uport.me/api/v2/relay/",
+            defaultFaucetUrl,
+            defaultTxRelayUrl,
             "0xa9235151d3afa7912e9091ab76a36cbabe219a0c")
     val rinkeby = EthNetwork(
             "rinkeby",
-            "0x4",
-            MNID.encode("0x4", "0x2cc31912b2b0f3075a87b3640923d45a26cef3ee"),
+            rinkebyId,
+            MNID.encode(rinkebyId, "0x2cc31912b2b0f3075a87b3640923d45a26cef3ee"),
             "https://rinkeby.infura.io/uport",
             "https://rinkeby.etherscan.io",
             "https://api.uport.me/sensui/fund/",
@@ -47,10 +58,10 @@ object Networks {
      * a mapping between the ethereum network identifier and the related endpoints and metadata
      */
     private val NETWORK_CONFIG = mapOf(
-            "0x1" to mainnet,
-            "0x3" to ropsten,
-            "0x2a" to kovan,
-            "0x4" to rinkeby
+            mainnetId to mainnet,
+            ropstenId to ropsten,
+            kovanId to kovan,
+            rinkebyId to rinkeby
     ).toMutableMap()
 
     fun registerNetwork(networkId: String, network: EthNetwork) {
