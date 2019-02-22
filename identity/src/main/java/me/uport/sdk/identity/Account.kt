@@ -10,7 +10,7 @@ import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import me.uport.mnid.MNID
 
 @Serializable
@@ -52,7 +52,7 @@ data class Account(
 
     fun getMnid() = MNID.encode(network, publicAddress)
 
-    fun toJson(pretty: Boolean = false): String = if (pretty) JSON.indented.stringify(Account.serializer(), this) else JSON.stringify(Account.serializer(), this)
+    fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(Account.serializer(), this) else Json.stringify(Account.serializer(), this)
 
     fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
@@ -80,7 +80,7 @@ data class Account(
                 return null
             }
 
-            return JSON.parse(Account.serializer(), serializedAccount)
+            return Json.parse(Account.serializer(), serializedAccount)
         }
     }
 

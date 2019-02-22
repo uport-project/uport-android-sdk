@@ -3,7 +3,7 @@ package me.uport.sdk.httpsdid
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.PublicKeyEntry
@@ -35,14 +35,14 @@ data class HttpsDIDDocument(
     /**
      * Serializes this [HttpsDIDDocument] into a JSON string
      */
-    fun toJson(): String = JSON.stringify(HttpsDIDDocument.serializer(), this)
+    fun toJson(): String = Json.stringify(HttpsDIDDocument.serializer(), this)
 
     companion object {
 
         /**
          * Attempts to deserialize a given [json] string into a [HttpsDIDDocument]
          */
-        fun fromJson(json: String) = JSON.nonstrict.parse(HttpsDIDDocument.serializer(), json)
+        fun fromJson(json: String) = Json.nonstrict.parse(HttpsDIDDocument.serializer(), json)
     }
 
 }

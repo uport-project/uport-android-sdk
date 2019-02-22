@@ -4,7 +4,7 @@ import android.support.annotation.Keep
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.PublicKeyEntry
@@ -97,14 +97,14 @@ data class UportIdentityDocument(
     /**
      * serialize to a json string
      */
-    fun toJson(): String = JSON.stringify(UportIdentityDocument.serializer(), this)
+    fun toJson(): String = Json.stringify(UportIdentityDocument.serializer(), this)
 
     companion object {
 
         /**
          * Attempts to deserialize a json string into a profile document
          */
-        fun fromJson(json: String): UportIdentityDocument? = JSON.nonstrict.parse(UportIdentityDocument.serializer(), json)
+        fun fromJson(json: String): UportIdentityDocument? = Json.nonstrict.parse(UportIdentityDocument.serializer(), json)
     }
 }
 
