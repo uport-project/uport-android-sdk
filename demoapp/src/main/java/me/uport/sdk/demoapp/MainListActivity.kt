@@ -45,6 +45,7 @@ class MainListActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("ComplexMethod")
     private fun itemSelected(position: Int) {
         when (position) {
             0 -> startActivity(Intent(this, CreateAccountActivity::class.java))
