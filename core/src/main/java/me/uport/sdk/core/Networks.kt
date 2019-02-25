@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.uport.sdk.core
 
 import me.uport.mnid.MNID
@@ -5,17 +7,18 @@ import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.prepend0xPrefix
 
 /**
- * Holds urls and addresses for different eth networks.
+ * Convenience singleton that holds URLs and addresses for different eth networks.
+ *
  * use the `registerNetwork` method to override defaults
  */
 object Networks {
 
-    private val defaultFaucetUrl = "https://sensui.uport.me/api/v1/fund/"
-    private val defaultTxRelayUrl = "https://sensui.uport.me/api/v2/relay/"
-    private val mainnetId = "0x1"
-    private val ropstenId = "0x3"
-    private val rinkebyId = "0x4"
-    private val kovanId = "0x2a"
+    private const val defaultFaucetUrl = "https://sensui.uport.me/api/v1/fund/"
+    private const val defaultTxRelayUrl = "https://sensui.uport.me/api/v2/relay/"
+    private const val mainnetId = "0x1"
+    private const val ropstenId = "0x3"
+    private const val rinkebyId = "0x4"
+    private const val kovanId = "0x2a"
     private val NETWORK_CONFIG = emptyMap<String, EthNetwork>().toMutableMap()
 
     init {

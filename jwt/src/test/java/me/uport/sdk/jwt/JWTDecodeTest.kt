@@ -22,7 +22,7 @@ class JWTDecodeTest {
     @Test
     fun `can split complete token`() {
         val parts = splitToken(validShareReqToken)
-        val expected = SplitEncodedToken(
+        val expected = Triple(
                 validTokenHeader,
                 validShareReqTokenPayload,
                 validShareReqTokenSignature)
