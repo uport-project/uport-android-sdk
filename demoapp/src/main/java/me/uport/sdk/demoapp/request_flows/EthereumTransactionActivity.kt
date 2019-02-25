@@ -36,8 +36,8 @@ class EthereumTransactionActivity : AppCompatActivity() {
         // create the request JWT
         val cred = Credentials(issuerDID, signer)
         val params = EthereumTransactionRequestParams(
-                to = issuerDID,
-                value = "0x01",
+                to = signer.getAddress(),
+                value = "0x1",
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk",
                 networkId = Networks.rinkeby.networkId
         )
