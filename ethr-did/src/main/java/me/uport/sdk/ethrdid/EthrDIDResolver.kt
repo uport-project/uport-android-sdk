@@ -5,14 +5,24 @@ package me.uport.sdk.ethrdid
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
 import com.uport.sdk.signer.Signer
-import me.uport.sdk.core.*
+import me.uport.sdk.core.ITimeProvider
+import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.core.bytes32ToString
+import me.uport.sdk.core.hexToBytes32
+import me.uport.sdk.core.toBase64
+import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDAttributeChanged
 import me.uport.sdk.ethrdid.EthereumDIDRegistry.Events.DIDDelegateChanged
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jsonrpc.JsonRpcException
-import me.uport.sdk.universaldid.*
+import me.uport.sdk.universaldid.AuthenticationEntry
+import me.uport.sdk.universaldid.DIDResolver
+import me.uport.sdk.universaldid.DidResolverError
+import me.uport.sdk.universaldid.PublicKeyEntry
+import me.uport.sdk.universaldid.PublicKeyType
 import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1SignatureAuthentication2018
 import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1VerificationKey2018
+import me.uport.sdk.universaldid.ServiceEntry
 import org.kethereum.encodings.encodeToBase58String
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
@@ -34,7 +44,7 @@ open class EthrDIDResolver(
         private val rpc: JsonRPC,
         //TODO: replace hardcoded coordinates with configuration
         val registryAddress: String = DEFAULT_REGISTRY_ADDRESS,
-        val timeProvider: ITimeProvider = SystemTimeProvider
+        private val timeProvider: ITimeProvider = SystemTimeProvider
 ) : DIDResolver {
 
     override val method = "ethr"
@@ -167,52 +177,57 @@ open class EthrDIDResolver(
         )
     }
 
-    private fun processAttributeChanged(event: DIDAttributeChanged.Arguments, delegateCount: Int, normalizedDid: String): Pair<Map<String, PublicKeyEntry>, Map<String, ServiceEntry>> {
+    private fun processAttributeChanged(
+            event: DIDAttributeChanged.Arguments,
+            delegateCount: Int,
+            normalizedDid: String
+    ): Pair<Map<String, PublicKeyEntry>, Map<String, ServiceEntry>> {
         val pkEntries = mapOf<String, PublicKeyEntry>().toMutableMap()
         val serviceEntries = mapOf<String, ServiceEntry>().toMutableMap()
 
         var delegateIndex = delegateCount
         val validTo = event.validto.value.toLong()
-        if (validTo >= timeProvider.nowMs() / 1000L) {
-            val name = event.name.byteArray.bytes32ToString()
-            val key = "DIDAttributeChanged-$name-${event.value.items.toHexString()}"
+        if (validTo < timeProvider.nowMs() / 1000L) {
+            return (pkEntries to serviceEntries)
+        }
+        val name = event.name.byteArray.bytes32ToString()
+        val key = "DIDAttributeChanged-$name-${event.value.items.toHexString()}"
 
-            //language=RegExp
-            val regex = """^did/(pub|auth|svc)/(\w+)(/(\w+))?(/(\w+))?$""".toRegex()
-            val matchResult = regex.find(name)
-            if (matchResult != null) {
-                val (section, algo, _, rawType, _, encoding) = matchResult.destructured
-                val type = parseType(algo, rawType)
+        //language=RegExp
+        val regex = """^did/(pub|auth|svc)/(\w+)(/(\w+))?(/(\w+))?$""".toRegex()
+        val matchResult = regex.matchEntire(name)
+                ?: return (pkEntries to serviceEntries)
+        val (section, algo, _, rawType, _, encoding)
+                = matchResult.destructured
+        val type = parseType(algo, rawType)
 
-                when (section) {
+        when (section) {
 
-                    "pub" -> {
-                        delegateIndex++
-                        val pk = PublicKeyEntry(
-                                id = "$normalizedDid#delegate-$delegateIndex",
-                                type = type,
-                                owner = normalizedDid)
+            "pub" -> {
+                delegateIndex++
+                val pk = PublicKeyEntry(
+                        id = "$normalizedDid#delegate-$delegateIndex",
+                        type = type,
+                        owner = normalizedDid)
 
-                        pkEntries[key] = when (encoding) {
-                            "", "null", "hex" ->
-                                pk.copy(publicKeyHex = event.value.items.toHexString())
-                            "base64" ->
-                                pk.copy(publicKeyBase64 = event.value.items.toBase64())
-                            "base58" ->
-                                pk.copy(publicKeyBase58 = event.value.items.toString(utf8).hexToByteArray().encodeToBase58String())
-                            else ->
-                                pk.copy(value = event.value.items.toHexString())
-                        }
-
-                    }
-
-                    "svc" -> {
-                        serviceEntries[key] = ServiceEntry(
-                                type = algo,
-                                serviceEndpoint = event.value.items.toString(utf8)
-                        )
-                    }
+                pkEntries[key] = when (encoding) {
+                    "", "null", "hex" ->
+                        pk.copy(publicKeyHex = event.value.items.toHexString())
+                    "base64" ->
+                        pk.copy(publicKeyBase64 = event.value.items.toBase64())
+                    "base58" ->
+                        pk.copy(publicKeyBase58 = event.value.items.toString(utf8).hexToByteArray().encodeToBase58String())
+                    else ->
+                        pk.copy(value = event.value.items.toHexString())
                 }
+
+            }
+
+            "svc" -> {
+                serviceEntries[key] = ServiceEntry(
+                        type = algo,
+                        serviceEndpoint = event.value.items.toString(utf8)
+                )
             }
         }
         return (pkEntries to serviceEntries)
