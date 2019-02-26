@@ -52,7 +52,7 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
             signer = UportHDSignerImpl(this@SignJWTUportHDSignerActivity, UportHDSigner(), address, address)
             issuerDID = "did:ethr:${signer?.getAddress()}"
 
-            item_details_two.text = "Issuer DID: ${issuerDID}"
+            item_details_two.text = "Issuer DID: $issuerDID"
         }
 
         submit_btn_one.setOnClickListener {

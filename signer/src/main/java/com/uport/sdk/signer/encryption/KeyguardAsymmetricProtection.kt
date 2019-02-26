@@ -89,6 +89,7 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
         }
     }
 
+    @Suppress("NestedBlockDepth")
     override
     fun decrypt(context: Context, purpose: String, ciphertext: String, callback: DecryptionCallback) {
         try {
