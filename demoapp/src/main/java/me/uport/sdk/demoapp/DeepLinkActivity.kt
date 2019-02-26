@@ -44,7 +44,9 @@ class DeepLinkActivity : AppCompatActivity() {
         deep_link_token.text = text
     }
 
-
+    /**
+     * Process the [HashCodeUriResponse] to human readable message
+     */
     fun processHashcodeResponse(token: String): String {
         return """
                 Full Transaction Hash is:
@@ -52,7 +54,9 @@ class DeepLinkActivity : AppCompatActivity() {
                 """.trimIndent()
     }
 
-
+    /**
+     * Process the [JWTUriResponse] to human readable message
+     */
     fun processJWTResponse(token: String): String = runBlocking(UI) {
          val payload = withContext(Dispatchers.IO) { JWTTools().verify(token) }
             val (_, payloadRaw, _) = JWTTools().decodeRaw(token)
