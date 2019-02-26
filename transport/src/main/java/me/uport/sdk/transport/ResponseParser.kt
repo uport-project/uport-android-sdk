@@ -52,6 +52,12 @@ object ResponseParser {
         return uriResponse
     }
 
+    /**
+     * This method tries to match the [uriFragment] to extract the token.
+     * [JWTUriResponse] is returned if the matching is successful
+     * It returns [null] if matching fails
+     **
+     */
     private fun matchJWTUri(uriFragment: String): UriResponse? {
         val matchResult = fragmentMatcher.matchEntire(uriFragment)
         if (matchResult != null) {
@@ -63,6 +69,13 @@ object ResponseParser {
         return null
     }
 
+
+    /**
+     * This method tries to match the [uriFragment] to extract the token.
+     * [HashCodeUriResponse] is returned if the matching is successful
+     * It returns [null] if matching fails
+     **
+     */
     private fun matchHashcodeUri(uriFragment: String): UriResponse? {
         val matchResult = txRequestFragmentMatcher.matchEntire(uriFragment)
         if (matchResult != null) {
@@ -101,9 +114,22 @@ object ResponseParser {
     }
 }
 
-
+/**
+ * Generic class for handling various response types
+ **
+ */
 sealed class UriResponse
 
+
+/**
+ * Data Class to handle all JWT response types
+ **
+ */
 data class JWTUriResponse(val token: String) : UriResponse()
 
+
+/**
+ * Data Class to handle all Transaction Hashcode response types
+ **
+ */
 data class HashCodeUriResponse(val token: String) : UriResponse()
