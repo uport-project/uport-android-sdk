@@ -14,6 +14,7 @@ import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.EthereumTransactionRequestParams
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.transport.Transports
+import java.math.BigInteger
 
 /**
  *
@@ -37,7 +38,7 @@ class EthereumTransactionActivity : AppCompatActivity() {
         val cred = Credentials(issuerDID, signer)
         val params = EthereumTransactionRequestParams(
                 to = signer.getAddress(),
-                value = "0x01",
+                value = BigInteger("1"),
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk",
                 networkId = Networks.rinkeby.networkId
         )

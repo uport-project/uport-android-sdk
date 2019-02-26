@@ -100,8 +100,8 @@ class Credentials(
      * Example:
      * ```
      *  val params = EthereumTransactionRequestParams(
-     *                      to = issuerDID,
-     *                      value = "0.1",
+     *                      to = issuerAddress,
+     *                      value = "0x1",
      *                      callbackUrl = "https://myserver.com",
      *                      networkId = Networks.rinkeby.networkId
      *                   )
