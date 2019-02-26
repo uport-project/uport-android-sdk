@@ -16,8 +16,8 @@ class IntentParserTest {
     @Test
     fun `extracts token from simple intent`() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("myapp:my-dapp.com#access_token=header.payload.signature"))
-        val token = ResponseParser.extractTokenFromIntent(intent)
-        assert(token).isEqualTo("header.payload.signature")
+        val response = ResponseParser.extractTokenFromIntent(intent)
+        assert((response as JWTUriResponse).token).isEqualTo("header.payload.signature")
     }
 
     @Test

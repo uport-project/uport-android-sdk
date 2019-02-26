@@ -223,7 +223,6 @@ class ResponseParserTest {
             "my.app://my-dapp.com?tx=header.payload.signature",
             "my.app://my-dapp.com#tx=header.payload",
             "my.app://my-dapp.com#tx=",
-            "tx=header.payload.signature",
             ""
     )
 

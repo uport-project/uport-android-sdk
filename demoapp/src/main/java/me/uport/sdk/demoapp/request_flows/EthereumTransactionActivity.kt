@@ -37,7 +37,7 @@ class EthereumTransactionActivity : AppCompatActivity() {
         val cred = Credentials(issuerDID, signer)
         val params = EthereumTransactionRequestParams(
                 to = signer.getAddress(),
-                value = "0x1",
+                value = "0x01",
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk",
                 networkId = Networks.rinkeby.networkId
         )
@@ -66,7 +66,5 @@ class EthereumTransactionActivity : AppCompatActivity() {
                 }
             }
         }
-
-
     }
 }
