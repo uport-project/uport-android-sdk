@@ -17,10 +17,7 @@ object ResponseParser {
     private val fragmentMatcher = ".*[&#]*((?:access_token=|verification=|typedDataSig=|personalSig=)([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+))&*.*$".toRegex()
 
     //language=RegExp for ethereum transaction signing responses only
-    private val txRequestFragmentMatcher = ".*[&#]*(tx=([A-Za-z0-9_\\-]+))&*.*$".toRegex()
-
-    //language=RegExp for ethereum transaction signing responses only
-    private val requestTypeFragmentMatcher = "(access_token|verification|typedDataSig|personalSig|tx)".toRegex()
+    private val txRequestFragmentMatcher = ".*[&#]*(tx=((0x)?[A-Fa-f0-9]{64})).*$".toRegex()
 
     //language=RegExp
     private val errorMatcher = ".*[&#]*(error=(.*))&*.*$".toRegex()
@@ -72,7 +69,7 @@ object ResponseParser {
 
             val (_, token) = matchResult.destructured
 
-            return JWTUriResponse(token = token)
+            return HashCodeUriResponse(token = token)
         }
         return null
     }
