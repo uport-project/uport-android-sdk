@@ -9,10 +9,7 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.JWTTypes
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.hasThreeParts
-import me.uport.sdk.transport.HashCodeUriResponse
-import me.uport.sdk.transport.JWTUriResponse
-import me.uport.sdk.transport.ResponseParser
-import me.uport.sdk.transport.UriResponse
+import me.uport.sdk.transport.*
 
 class DeepLinkActivity : AppCompatActivity() {
 
@@ -29,25 +26,23 @@ class DeepLinkActivity : AppCompatActivity() {
 
     private fun handleIntent(intent: Intent?) {
 
-        val text = try {
-            println("got called with ${intent?.data}")
-            val uriResponse: UriResponse = ResponseParser.extractTokenFromIntent(intent)
+        println("got called with ${intent?.data}")
 
-            when (uriResponse) {
-                is JWTUriResponse -> processJWTResponse(uriResponse.token)
-                is HashCodeUriResponse -> processHashcodeResponse(uriResponse.token)
-            }
+        val uriResponse: UriResponse = ResponseParser.extractTokenFromIntent(intent)
 
-        } catch (exception: RuntimeException) {
-            "we got an error:\n${exception.message}"
+        val text = when (uriResponse) {
+            is JWTUriResponse -> processJWTResponse(uriResponse.token)
+            is ErrorUriResponse -> processErrorResponse(uriResponse.message)
+            is HashCodeUriResponse -> processHashcodeResponse(uriResponse.token)
         }
+
         deep_link_token.text = text
     }
 
     /**
      * Process the [HashCodeUriResponse] to human readable message
      */
-    fun processHashcodeResponse(token: String): String {
+    private fun processHashcodeResponse(token: String): String {
         return """
                 Full Transaction Hash is:
                 $token
@@ -55,23 +50,33 @@ class DeepLinkActivity : AppCompatActivity() {
     }
 
     /**
+     * Process the [ErrorUriResponse] to human readable message
+     */
+    private fun processErrorResponse(message: String): String {
+        return """
+                We got an error:
+                $message
+                """.trimIndent()
+    }
+
+    /**
      * Process the [JWTUriResponse] to human readable message
      */
-    fun processJWTResponse(token: String): String = runBlocking(UI) {
-         val payload = withContext(Dispatchers.IO) { JWTTools().verify(token) }
-            val (_, payloadRaw, _) = JWTTools().decodeRaw(token)
+    private fun processJWTResponse(token: String): String = runBlocking(UI) {
+        val payload = withContext(Dispatchers.IO) { JWTTools().verify(token) }
+        val (_, payloadRaw, _) = JWTTools().decodeRaw(token)
 
-            val knownType = JWTTypes.valueOf(payload.type ?: JWTTypes.verResp.name)
+        val knownType = JWTTypes.valueOf(payload.type ?: JWTTypes.verResp.name)
 
-            val response = when (knownType) {
-                JWTTypes.shareResp -> "name=${payload.own?.get("name")}"
-                JWTTypes.personalSignResp -> "message was signed: '${payloadRaw["data"]}'"
-                JWTTypes.eip712Resp -> "signature=${payloadRaw["signature"]}"
-                JWTTypes.verResp -> "signed claim=${payloadRaw["claim"]}"
-                else -> "unknown response type"
-            }
+        val response = when (knownType) {
+            JWTTypes.shareResp -> "name=${payload.own?.get("name")}"
+            JWTTypes.personalSignResp -> "message was signed: '${payloadRaw["data"]}'"
+            JWTTypes.eip712Resp -> "signature=${payloadRaw["signature"]}"
+            JWTTypes.verResp -> "signed claim=${payloadRaw["claim"]}"
+            else -> "unknown response type"
+        }
 
-            """
+        """
                 The response we got is:
                 $response
 

@@ -101,7 +101,7 @@ class Credentials(
      * ```
      *  val params = EthereumTransactionRequestParams(
      *                      to = issuerAddress,
-     *                      value = "0x1",
+     *                      value = BigInteger("1"),
      *                      callbackUrl = "https://myserver.com",
      *                      networkId = Networks.rinkeby.networkId
      *                   )

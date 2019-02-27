@@ -40,13 +40,9 @@ object ResponseParser {
             null
         } ?: throw IllegalArgumentException("Cannot parse URI")
 
-        errorMatcher.matchEntire(uriFragment)?.let {
-            val (_, errorMessage) = it.destructured
-            throw RuntimeException(errorMessage)
-        }
-
         val uriResponse = matchJWTUri(uriFragment)
                 ?: matchHashcodeUri(uriFragment)
+                ?: matchErrorUri(uriFragment)
                 ?: throw IllegalArgumentException("URI does not match known response format")
 
         return uriResponse
@@ -69,6 +65,23 @@ object ResponseParser {
         return null
     }
 
+
+    /**
+     * This method tries to match the [uriFragment] to extract any error messages.
+     * [ErrorUriResponse] is returned if the matching is successful
+     * It returns [null] if matching fails
+     **
+     */
+    private fun matchErrorUri(uriFragment: String): UriResponse? {
+        val matchResult = errorMatcher.matchEntire(uriFragment)
+        if (matchResult != null) {
+
+            val (_, message) = matchResult.destructured
+
+            return ErrorUriResponse(message = message)
+        }
+        return null
+    }
 
     /**
      * This method tries to match the [uriFragment] to extract the token.
@@ -133,3 +146,10 @@ data class JWTUriResponse(val token: String) : UriResponse()
  **
  */
 data class HashCodeUriResponse(val token: String) : UriResponse()
+
+
+/**
+ * Data Class to handle response errors
+ **
+ */
+data class ErrorUriResponse(val message: String) : UriResponse()

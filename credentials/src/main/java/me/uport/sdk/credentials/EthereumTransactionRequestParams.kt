@@ -44,7 +44,7 @@ class EthereumTransactionRequestParams(
 
         /**
          * [**REQUIRED**]
-         * transaction value in wei
+         * hex encoded transaction value in wei
          */
         val value: BigInteger,
 
