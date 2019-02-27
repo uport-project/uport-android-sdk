@@ -16,8 +16,8 @@ class IntentParserTest {
     @Test
     fun `extracts token from simple intent`() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("myapp:my-dapp.com#access_token=header.payload.signature"))
-        val token = ResponseParser.extractTokenFromIntent(intent)
-        assert(token).isEqualTo("header.payload.signature")
+        val response = ResponseParser.extractTokenFromIntent(intent)
+        assert((response as JWTUriResponse).token).isEqualTo("header.payload.signature")
     }
 
     @Test
@@ -62,12 +62,8 @@ class IntentParserTest {
     @Test
     fun `rejects with correct error message`() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("myapp:my-dapp.com#error=access_denied"))
-        assert {
-            ResponseParser.extractTokenFromIntent(intent)
-        }.thrownError {
-            isInstanceOf(RuntimeException::class)
-            hasMessage("access_denied")
-        }
+        val response = ResponseParser.extractTokenFromIntent(intent)
+        assert((response as ErrorUriResponse).message).isEqualTo("access_denied")
     }
 
 }

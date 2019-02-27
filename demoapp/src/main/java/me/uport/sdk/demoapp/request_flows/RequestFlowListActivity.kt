@@ -18,7 +18,7 @@ import me.uport.sdk.demoapp.R
 
 class RequestFlowListActivity : AppCompatActivity() {
 
-    private val features = arrayOf("Selective Disclosure", "Verified Claim Request", "Personal Signature Request", "Typed Data Signature Request")
+    private val features = arrayOf("Selective Disclosure", "Verified Claim Request", "Personal Signature Request", "Typed Data Signature Request", "Ethereum Transaction Request")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +39,7 @@ class RequestFlowListActivity : AppCompatActivity() {
             1 -> startActivity(Intent(this, VerifiedClaimRequestActivity::class.java))
             2 -> startActivity(Intent(this, PersonalSignRequestActivity::class.java))
             3 -> startActivity(Intent(this, TypedDataRequestActivity::class.java))
+            4 -> startActivity(Intent(this, EthereumTransactionActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }
