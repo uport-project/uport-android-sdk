@@ -21,7 +21,6 @@ import me.uport.sdk.transport.Transports
  * This activity demonstrates the flow for creating and sending a [Personal Signature Request]
  *
  **/
-
 class PersonalSignRequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

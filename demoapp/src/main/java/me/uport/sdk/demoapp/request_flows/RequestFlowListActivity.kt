@@ -15,7 +15,6 @@ import me.uport.sdk.demoapp.R
  * Clicking on an item opens up a new activity for the specific flow
  *
  **/
-
 class RequestFlowListActivity : AppCompatActivity() {
 
     private val features = arrayOf("Selective Disclosure", "Verified Claim Request", "Personal Signature Request", "Typed Data Signature Request", "Ethereum Transaction Request")

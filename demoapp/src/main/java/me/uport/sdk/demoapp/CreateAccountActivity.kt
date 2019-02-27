@@ -8,7 +8,9 @@ import kotlinx.coroutines.runBlocking
 import me.uport.sdk.Uport
 import me.uport.sdk.core.Networks
 
-
+/**
+ * shows a simple call to create an account and check for an existing default
+ */
 class CreateAccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +29,8 @@ class CreateAccountActivity : AppCompatActivity() {
         } else {
             defaultAccountView.text =
                     "${Uport.defaultAccount?.toJson(true)} \nAccount DID: ${Uport.defaultAccount?.getDID()}" +
-                    "\n" +
-                    "MNID: ${Uport.defaultAccount?.getMnid()}"
+                            "\n" +
+                            "MNID: ${Uport.defaultAccount?.getMnid()}"
         }
 
     }

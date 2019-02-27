@@ -18,7 +18,6 @@ import me.uport.sdk.demoapp.request_flows.RequestFlowListActivity
  * Clicking on an item opens up a new activity for the specific feature
  *
  **/
-
 class MainListActivity : AppCompatActivity() {
 
 

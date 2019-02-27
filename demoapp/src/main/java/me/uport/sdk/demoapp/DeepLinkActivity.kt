@@ -4,13 +4,23 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_deep_link.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.JWTTypes
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.jwt.hasThreeParts
-import me.uport.sdk.transport.*
+import me.uport.sdk.transport.ErrorUriResponse
+import me.uport.sdk.transport.HashCodeUriResponse
+import me.uport.sdk.transport.JWTUriResponse
+import me.uport.sdk.transport.ResponseParser
+import me.uport.sdk.transport.UriResponse
 
+/**
+ * Handles JWT and TX responses coming in as deep links
+ *
+ * The deep links are set as callback URLs in various request_flows
+ */
 class DeepLinkActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

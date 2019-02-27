@@ -14,6 +14,9 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 
+/**
+ * shows how to create JWTs and sign them using keys managed by [UportHDSigner]
+ */
 class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
     var issuerDID: String? = null
