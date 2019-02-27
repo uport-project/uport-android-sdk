@@ -6,6 +6,7 @@ import android.os.Build.VERSION_CODES.LOLLIPOP
 
 object KeyProtectionFactory {
 
+    @Suppress("ComplexMethod")
     fun obtain(context: Context, level: KeyProtection.Level): KeyProtection {
 
         val apiAdjustedLevel = if (Build.VERSION.SDK_INT >= LOLLIPOP) {

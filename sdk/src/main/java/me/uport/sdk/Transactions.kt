@@ -83,6 +83,7 @@ class Transactions(
                 gasLimit = gasLimit)
     }
 
+    @Suppress("ComplexMethod")
     suspend fun sendTransaction(signer: Signer, request: Transaction, signerType: AccountType = Proxy): String {
         val txLabel = request.encodeRLP().toHexString()
 
