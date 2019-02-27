@@ -28,7 +28,7 @@ class UportTest {
     @Before
     fun run_before_every_test() {
         context = InstrumentationRegistry.getTargetContext()
-        val config = Uport.Configuration()
+        val config = Configuration()
                 .setApplicationContext(context)
 
         Uport.initialize(config)

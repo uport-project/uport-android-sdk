@@ -1,14 +1,12 @@
 package me.uport.sdk
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
@@ -166,21 +164,4 @@ object Uport {
 
     fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
 
-    class Configuration {
-
-        lateinit var fuelTokenProvider: IFuelTokenProvider
-        lateinit var applicationContext: Context
-
-        @Suppress("unused")
-        fun setFuelTokenProvider(provider: IFuelTokenProvider): Configuration {
-            this.fuelTokenProvider = provider
-            return this
-        }
-
-        fun setApplicationContext(context: Context): Configuration {
-            this.applicationContext = context.applicationContext
-            return this
-        }
-
-    }
 }
