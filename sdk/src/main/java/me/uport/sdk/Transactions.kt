@@ -27,6 +27,11 @@ import java.math.BigInteger
 val DEFAULT_GAS_LIMIT = 3_000_000L.toBigInteger()
 val DEFAULT_GAS_PRICE = 20_000_000_000L.toBigInteger()
 
+/**
+ * Provides methods for broadcasting transactions that support multiple account types.
+ *
+ * API volatility: __high__
+ */
 class Transactions(
         context: Context,
         private val account: Account) {
@@ -83,6 +88,12 @@ class Transactions(
                 gasLimit = gasLimit)
     }
 
+    /**
+     * Sends an Ethereum transaction.
+     * Depending on the type of signer, the process of building, signing and broadcasting a transaction
+     * may take a long time. This method can be called multiple times with the same transaction request
+     * and it will continue the process.
+     */
     @Suppress("ComplexMethod")
     suspend fun sendTransaction(signer: Signer, request: Transaction, signerType: AccountType = Proxy): String {
         val txLabel = request.encodeRLP().toHexString()
