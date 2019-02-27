@@ -14,7 +14,10 @@ import java.net.URI
 object ResponseParser {
 
     //language=RegExp
-    private val fragmentMatcher = ".*[&#]*((?:access_token=|verification=|typedDataSig=|personalSig=|tx=)([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+))&*.*$".toRegex()
+    private val fragmentMatcher = ".*[&#]*((?:access_token=|verification=|typedDataSig=|personalSig=)([A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+))&*.*$".toRegex()
+
+    //language=RegExp for ethereum transaction signing responses only
+    private val txRequestFragmentMatcher = ".*[&#]*(tx=((0x)?[A-Fa-f0-9]{64})).*$".toRegex()
 
     //language=RegExp
     private val errorMatcher = ".*[&#]*(error=(.*))&*.*$".toRegex()
@@ -30,23 +33,71 @@ object ResponseParser {
      * @throws IllegalArgumentException if the URI can't be parsed or does not match the expected format
      * @throws RuntimeException if the deeplink has an error block in the fragment
      */
-    fun extractTokenFromRedirectUri(deeplinkURI: String): String? {
+    fun extractTokenFromRedirectUri(deeplinkURI: String): UriResponse {
         val uriFragment = try {
             URI.create(deeplinkURI).fragment
         } catch (ex: Exception) {
             null
         } ?: throw IllegalArgumentException("Cannot parse URI")
 
-        errorMatcher.matchEntire(uriFragment)?.let {
-            val (_, errorMessage) = it.destructured
-            throw RuntimeException(errorMessage)
-        }
-
-        val matchResult = fragmentMatcher.matchEntire(uriFragment)
+        val uriResponse = matchJWTUri(uriFragment)
+                ?: matchHashcodeUri(uriFragment)
+                ?: matchErrorUri(uriFragment)
                 ?: throw IllegalArgumentException("URI does not match known response format")
-        val (_, token) = matchResult.destructured
 
-        return token
+        return uriResponse
+    }
+
+    /**
+     * This method tries to match the [uriFragment] to extract the token.
+     * [JWTUriResponse] is returned if the matching is successful
+     * It returns [null] if matching fails
+     **
+     */
+    private fun matchJWTUri(uriFragment: String): UriResponse? {
+        val matchResult = fragmentMatcher.matchEntire(uriFragment)
+        if (matchResult != null) {
+
+            val (_, token) = matchResult.destructured
+
+            return JWTUriResponse(token = token)
+        }
+        return null
+    }
+
+
+    /**
+     * This method tries to match the [uriFragment] to extract any error messages.
+     * [ErrorUriResponse] is returned if the matching is successful
+     * It returns [null] if matching fails
+     **
+     */
+    private fun matchErrorUri(uriFragment: String): UriResponse? {
+        val matchResult = errorMatcher.matchEntire(uriFragment)
+        if (matchResult != null) {
+
+            val (_, message) = matchResult.destructured
+
+            return ErrorUriResponse(message = message)
+        }
+        return null
+    }
+
+    /**
+     * This method tries to match the [uriFragment] to extract the token.
+     * [HashCodeUriResponse] is returned if the matching is successful
+     * It returns [null] if matching fails
+     **
+     */
+    private fun matchHashcodeUri(uriFragment: String): UriResponse? {
+        val matchResult = txRequestFragmentMatcher.matchEntire(uriFragment)
+        if (matchResult != null) {
+
+            val (_, token) = matchResult.destructured
+
+            return HashCodeUriResponse(token = token)
+        }
+        return null
     }
 
     /**
@@ -61,7 +112,7 @@ object ResponseParser {
      *              or the URI does not match the expected format
      * @throws RuntimeException if the data URI has an error block in the fragment part
      */
-    fun extractTokenFromIntent(intent: Intent?): String? {
+    fun extractTokenFromIntent(intent: Intent?): UriResponse {
         intent ?: throw IllegalArgumentException("Can't process a null intent")
 
         val appLinkData: Uri? = intent.data
@@ -69,9 +120,36 @@ object ResponseParser {
 
         if (Intent.ACTION_VIEW == intent.action) {
             return extractTokenFromRedirectUri(appLinkData.toString())
-        } else {
+        }
+        else {
             throw IllegalArgumentException("Intent action has to be ${Intent.ACTION_VIEW}")
         }
     }
-
 }
+
+/**
+ * Generic class for handling various response types
+ **
+ */
+sealed class UriResponse
+
+
+/**
+ * Data Class to handle all JWT response types
+ **
+ */
+data class JWTUriResponse(val token: String) : UriResponse()
+
+
+/**
+ * Data Class to handle all Transaction Hashcode response types
+ **
+ */
+data class HashCodeUriResponse(val token: String) : UriResponse()
+
+
+/**
+ * Data Class to handle response errors
+ **
+ */
+data class ErrorUriResponse(val message: String) : UriResponse()

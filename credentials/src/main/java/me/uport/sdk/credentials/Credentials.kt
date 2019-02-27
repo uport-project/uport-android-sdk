@@ -92,6 +92,32 @@ class Credentials(
                 ?: DEFAULT_VERIFIED_CLAIM_REQ_VALIDITY_SECONDS)
     }
 
+    /**
+     * Create a JWT requesting ethereum transaction signing from a user of another uPort client app.
+     *
+     * See https://github.com/uport-project/specs/blob/develop/messages/tx.md
+     *
+     * Example:
+     * ```
+     *  val params = EthereumTransactionRequestParams(
+     *                      to = issuerAddress,
+     *                      value = BigInteger("1"),
+     *                      callbackUrl = "https://myserver.com",
+     *                      networkId = Networks.rinkeby.networkId
+     *                   )
+     *
+     *  val jwt = credentials.createEthereumTransactionRequest(params)
+     *
+     *  // ... send jwt to the relevant party and expect a callback with the response at https://myserver.com
+     *
+     *  ```
+     */
+    suspend fun createEthereumTransactionRequest(params: EthereumTransactionRequestParams): String {
+        val payload = buildPayloadForEthereumTransactionReq(params)
+        return this.signJWT(payload, params.expiresInSeconds
+                ?: DEFAULT_ETHEREUM_TRANSACTION_REQ_VALIDITY_SECONDS)
+    }
+
 
     /**
      *  Creates a JWT using the given [payload], issued and signed using the [did] and [signer]
