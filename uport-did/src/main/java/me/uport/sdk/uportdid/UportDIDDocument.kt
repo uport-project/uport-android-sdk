@@ -3,7 +3,7 @@ package me.uport.sdk.uportdid
 import android.support.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import me.uport.sdk.universaldid.AuthenticationEntry
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.PublicKeyEntry
@@ -32,13 +32,13 @@ data class UportDIDDocument(
     /**
      * Serializes this DID document to a JSON string
      */
-    fun toJson(): String = JSON.stringify(UportDIDDocument.serializer(), this)
+    fun toJson(): String = Json.stringify(UportDIDDocument.serializer(), this)
 
     companion object {
 
         /**
          * Attempts to deserialize a given [json] string into a [UportDIDDocument]
          */
-        fun fromJson(json: String) = JSON.nonstrict.parse(UportDIDDocument.serializer(), json)
+        fun fromJson(json: String) = Json.nonstrict.parse(UportDIDDocument.serializer(), json)
     }
 }

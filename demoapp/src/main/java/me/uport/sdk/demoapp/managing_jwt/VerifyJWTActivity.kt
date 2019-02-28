@@ -11,6 +11,9 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 
+/**
+ * Shows how to verify uport specific JWTs
+ */
 class VerifyJWTActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

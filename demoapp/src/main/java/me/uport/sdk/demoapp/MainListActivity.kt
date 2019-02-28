@@ -18,7 +18,6 @@ import me.uport.sdk.demoapp.request_flows.RequestFlowListActivity
  * Clicking on an item opens up a new activity for the specific feature
  *
  **/
-
 class MainListActivity : AppCompatActivity() {
 
 
@@ -45,6 +44,7 @@ class MainListActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("ComplexMethod")
     private fun itemSelected(position: Int) {
         when (position) {
             0 -> startActivity(Intent(this, CreateAccountActivity::class.java))

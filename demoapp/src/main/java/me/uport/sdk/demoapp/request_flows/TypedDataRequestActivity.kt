@@ -12,14 +12,12 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.Transports
-import org.json.JSONObject
 
 /**
  *
  * This activity demonstrates the flow for creating and sending a [Typed Data Request]
  *
  **/
-
 class TypedDataRequestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +32,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
 
         // create the request JWT payload
         @Suppress("StringLiteralDuplication")
-        val payload = mapOf<String, Any>(
+        val payload = mapOf(
                 "callback" to "https://uport-project.github.io/uport-android-sdk",
                 "type" to "eip712Req",
                 "net" to "0x4",
@@ -116,7 +114,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
             progress.visibility = View.VISIBLE
 
             GlobalScope.launch {
-                var requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
+                val requestJWT = JWTTools().createJWT(payload, issuerDID, signer, 60 * 60)
 
                 // Send a valid signed request to uport via Transports
                 @Suppress("LabeledExpression")

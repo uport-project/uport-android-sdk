@@ -11,6 +11,9 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.universaldid.DIDDocument
 import me.uport.sdk.universaldid.UniversalDID
 
+/**
+ * shows how to use the Universal DID resolver to obtain details about 2 hardcoded DIDs
+ */
 class DIDResolverActivity : AppCompatActivity() {
 
     val ethr_did_text = "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74"

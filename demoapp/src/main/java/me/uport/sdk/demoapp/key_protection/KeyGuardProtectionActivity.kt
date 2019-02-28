@@ -12,7 +12,9 @@ import me.uport.sdk.demoapp.R
 import org.walleth.khex.toHexString
 import java.util.*
 
-
+/**
+ * Shows how to create an HD seed and store it under a keystore authenticated by device keyguard.
+ */
 class KeyGuardProtectionActivity : AppCompatActivity() {
 
     private var address: String = ""

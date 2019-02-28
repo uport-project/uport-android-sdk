@@ -21,7 +21,6 @@ import java.math.BigInteger
  * This activity demonstrates the flow for creating and sending a [Ethereum Transaction Request]
  *
  **/
-
 class EthereumTransactionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

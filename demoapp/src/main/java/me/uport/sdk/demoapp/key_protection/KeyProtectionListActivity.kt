@@ -7,6 +7,9 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.simple_list.*
 import me.uport.sdk.demoapp.R
 
+/**
+ * Entry screen for key protection demos
+ **/
 class KeyProtectionListActivity : AppCompatActivity() {
 
     private val features = arrayOf("Use KeyGuard", "Use Fingerprint")

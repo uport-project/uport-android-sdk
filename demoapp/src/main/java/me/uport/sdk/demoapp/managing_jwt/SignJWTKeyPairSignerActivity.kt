@@ -10,6 +10,9 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 
+/**
+ * shows how to create a JWT and sign it using an in-memory keypair
+ */
 class SignJWTKeyPairSignerActivity : AppCompatActivity() {
 
     var signedJWT: String? = null

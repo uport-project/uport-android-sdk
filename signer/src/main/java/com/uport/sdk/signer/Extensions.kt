@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.uport.sdk.signer
 
 import android.os.Build

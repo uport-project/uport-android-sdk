@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 
 class ProgressPersistence(context: Context) {
 
@@ -51,11 +51,11 @@ class ProgressPersistence(context: Context) {
             @SerialName("partialAccount")
             val partialAccount: Account = Account.blank
     ) {
-        fun toJson() = JSON.stringify(PersistentBundle.serializer(), this)
+        fun toJson() = Json.stringify(PersistentBundle.serializer(), this)
 
         companion object {
             fun fromJson(json: String): PersistentBundle = try {
-                JSON.nonstrict.parse(PersistentBundle.serializer(), json)
+                Json.nonstrict.parse(PersistentBundle.serializer(), json)
             } catch (err: Exception) {
                 PersistentBundle()
             }

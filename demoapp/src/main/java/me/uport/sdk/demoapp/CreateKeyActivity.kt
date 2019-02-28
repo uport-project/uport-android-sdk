@@ -8,6 +8,9 @@ import kotlinx.android.synthetic.main.simple_result_layout.*
 import me.uport.sdk.core.decodeBase64
 import org.walleth.khex.toHexString
 
+/**
+ * Shows a call to create and store a HD seed using unauthenticated key protection
+ */
 class CreateKeyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

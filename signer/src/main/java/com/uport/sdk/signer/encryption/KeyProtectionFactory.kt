@@ -4,8 +4,18 @@ import android.content.Context
 import android.os.Build
 import android.os.Build.VERSION_CODES.LOLLIPOP
 
+/**
+ * Exposes a method of obtaining a [KeyProtection] implementation based on a required level
+ */
 object KeyProtectionFactory {
 
+    /**
+     * returns a [KeyProtection] implementation based on the provided [level]
+     *
+     * The method requires an Application [context] that will be used to determine device security
+     * capabilities and to initialize key stores when needed.
+     */
+    @Suppress("ComplexMethod")
     fun obtain(context: Context, level: KeyProtection.Level): KeyProtection {
 
         val apiAdjustedLevel = if (Build.VERSION.SDK_INT >= LOLLIPOP) {

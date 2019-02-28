@@ -2,18 +2,8 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.Signer
-import com.uport.sdk.signer.UportHDSigner
-import com.uport.sdk.signer.decodeJose
-import com.uport.sdk.signer.getJoseEncoded
-import com.uport.sdk.signer.normalize
-import me.uport.sdk.core.ITimeProvider
-import me.uport.sdk.core.Networks
-import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.core.decodeBase64
-import me.uport.sdk.core.toBase64
-import me.uport.sdk.core.toBase64UrlSafe
-import me.uport.sdk.core.utf8
+import com.uport.sdk.signer.*
+import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -40,7 +30,6 @@ import org.kethereum.model.SignatureData
 import org.walleth.khex.clean0xPrefix
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger
-import java.security.InvalidAlgorithmParameterException
 import java.security.SignatureException
 
 /**
@@ -152,7 +141,7 @@ class JWTTools(
      * Decodes a jwt [token]
      * @param token is a string of 3 parts separated by .
      * @throws InvalidJWTException when the header or payload are empty or when they don't start with { (invalid json)
-     * @return the JWT Header and Payload as a pair of JSONObjects
+     * @return the JWT Header,Payload and signature as parsed objects
      */
     fun decode(token: String): Triple<JwtHeader, JwtPayload, ByteArray> {
         //Split token by . from jwtUtils
@@ -237,7 +226,7 @@ class JWTTools(
 
         val signatureIsValid = verificationMethod[header.alg]
                 ?.invoke(publicKeys, sigData, signingInputBytes)
-                ?: throw InvalidAlgorithmParameterException("JWT algorithm ${header.alg} not supported")
+                ?: throw JWTEncodingException("JWT algorithm ${header.alg} not supported")
 
         if (signatureIsValid) {
             return payload
@@ -315,7 +304,7 @@ class JWTTools(
     suspend fun resolveAuthenticator(alg: String, issuer: String, auth: Boolean): List<PublicKeyEntry> {
 
         if (alg !in verificationMethod.keys) {
-            throw InvalidAlgorithmParameterException("JWT algorithm '$alg' not supported")
+            throw JWTEncodingException("JWT algorithm '$alg' not supported")
         }
 
         val doc: DIDDocument = UniversalDID.resolve(issuer)
