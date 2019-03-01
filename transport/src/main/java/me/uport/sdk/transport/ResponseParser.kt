@@ -1,6 +1,7 @@
 package me.uport.sdk.transport
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import java.net.URI
 
@@ -8,7 +9,7 @@ import java.net.URI
  * This class should be used when receiving a deeplink callback
  * It contains helpers for interpreting responses
  *
- * API volatility: __high__
+ * __API volatility: high__
  *
  */
 object ResponseParser {
@@ -115,6 +116,7 @@ object ResponseParser {
     fun extractTokenFromIntent(intent: Intent?): UriResponse {
         intent ?: throw IllegalArgumentException("Can't process a null intent")
 
+        ActivityInfo.LAUNCH_SINGLE_TASK
         val appLinkData: Uri? = intent.data
                 ?: throw IllegalArgumentException("Can't process an intent with no data")
 
