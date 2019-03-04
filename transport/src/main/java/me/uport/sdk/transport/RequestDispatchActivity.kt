@@ -16,6 +16,10 @@ class RequestDispatchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState != null) {
+            //don't do anything on recreate
+            return
+        }
         handleIntent(intent)
     }
 
