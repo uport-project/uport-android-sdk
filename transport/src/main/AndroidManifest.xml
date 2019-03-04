@@ -6,10 +6,11 @@
     <application>
         <activity
             android:name=".RequestDispatchActivity"
+            android:excludeFromRecents="true"
             android:launchMode="singleTop" />
-        <activity
-            android:name=".IntentForwardingActivity"
-            android:taskAffinity="" />
+
+        <activity android:name=".IntentForwardingActivity" />
+
     </application>
 
 </manifest>

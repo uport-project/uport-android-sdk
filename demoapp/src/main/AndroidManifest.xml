@@ -60,8 +60,7 @@
 
         <!--when using deeplinks as callbacks, you need to set the intent filters on this activity and merge-->
         <activity
-            android:name="me.uport.sdk.transport.IntentForwardingActivity"
-            tools:node="merge">
+            android:name="me.uport.sdk.transport.IntentForwardingActivity">
             <!-- deep links -->
             <intent-filter
                 android:autoVerify="true"

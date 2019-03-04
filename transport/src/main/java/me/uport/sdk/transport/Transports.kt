@@ -51,6 +51,6 @@ class Transports {
     }
 
     companion object {
-        const val UPORT_DEFAULT_REQUEST_CODE = 47852365
+        const val UPORT_DEFAULT_REQUEST_CODE = 17727
     }
 }
