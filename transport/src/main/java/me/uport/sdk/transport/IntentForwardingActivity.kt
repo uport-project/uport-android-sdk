@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 
@@ -37,7 +38,7 @@ class IntentForwardingActivity : AppCompatActivity() {
 
             val redirectIntent = intent
                     .setClass(applicationContext, RequestDispatchActivity::class.java)
-                    .setFlags(FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_NEW_TASK)
+                    .setFlags(FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP or FLAG_ACTIVITY_NEW_TASK)
             //grafting the received intent onto the original activity stack
             startActivity(redirectIntent)
             finish()

@@ -14,11 +14,11 @@ import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.transport.ErrorUriResponse
-import me.uport.sdk.transport.JWTUriResponse
-import me.uport.sdk.transport.RequestDispatchActivity.Companion.EXTRA_REDIRECT_URI
 import me.uport.sdk.transport.ResponseParser
 import me.uport.sdk.transport.Transports
+import me.uport.sdk.transport.UriResponse
+import me.uport.sdk.transport.UriResponse.ErrorUriResponse
+import me.uport.sdk.transport.UriResponse.JWTUriResponse
 
 /**
  *
@@ -63,7 +63,7 @@ class SelectiveDisclosureActivity : AppCompatActivity() {
 
                 // Send a valid signed request to uport via Transports
                 @Suppress("LabeledExpression")
-                Transports().sendExpectingResult(this@SelectiveDisclosureActivity, requestJWT, 8123)
+                Transports().sendExpectingResult(this@SelectiveDisclosureActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE
@@ -75,21 +75,24 @@ class SelectiveDisclosureActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            8123 -> {
-                //TODO: check result code. will crash if RESULT_CANCEL
-                val redirectUri = data?.getStringExtra(EXTRA_REDIRECT_URI) ?: ""
-                val response = ResponseParser.extractTokenFromRedirectUri(redirectUri)
-                if (response is JWTUriResponse) {
-                    val (_, payloadMap, _) = JWTTools().decodeRaw(response.token)
-                    response_details.text = """
+
+        val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
+
+        when (response) {
+            is JWTUriResponse -> {
+                val (_, payloadMap, _) = JWTTools().decodeRaw(response.token)
+                response_details.text = """
                         profile: ${payloadMap["own"]}
-                        issuer: ${payloadMap["iss"]}
+                        uPort app User DID: ${payloadMap["iss"]}
                     """.trimIndent()
-                } else if (response is ErrorUriResponse) {
-                    //TODO: in this case should error responses be interpreted as activity result codes?
-                    response_details.text = "error: ${response.message}"
-                }
+
+            }
+            is ErrorUriResponse -> {
+                //TODO: in this case should error responses be interpreted as activity result codes?
+                response_details.text = "error: ${response.message}"
+            }
+            null -> {
+                //process your other domain specific responses
             }
         }
     }

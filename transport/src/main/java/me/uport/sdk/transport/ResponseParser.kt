@@ -1,8 +1,12 @@
 package me.uport.sdk.transport
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
+import me.uport.sdk.transport.UriResponse.ErrorUriResponse
+import me.uport.sdk.transport.UriResponse.HashCodeUriResponse
+import me.uport.sdk.transport.UriResponse.JWTUriResponse
 import java.net.URI
 
 /**
@@ -41,18 +45,16 @@ object ResponseParser {
             null
         } ?: throw IllegalArgumentException("Cannot parse URI")
 
-        val uriResponse = matchJWTUri(uriFragment)
+        return matchJWTUri(uriFragment)
                 ?: matchHashcodeUri(uriFragment)
                 ?: matchErrorUri(uriFragment)
                 ?: throw IllegalArgumentException("URI does not match known response format")
-
-        return uriResponse
     }
 
     /**
      * This method tries to match the [uriFragment] to extract the token.
      * [JWTUriResponse] is returned if the matching is successful
-     * It returns [null] if matching fails
+     * It returns `null` if matching fails
      **
      */
     private fun matchJWTUri(uriFragment: String): UriResponse? {
@@ -70,7 +72,7 @@ object ResponseParser {
     /**
      * This method tries to match the [uriFragment] to extract any error messages.
      * [ErrorUriResponse] is returned if the matching is successful
-     * It returns [null] if matching fails
+     * It returns `null` if matching fails
      **
      */
     private fun matchErrorUri(uriFragment: String): UriResponse? {
@@ -87,7 +89,7 @@ object ResponseParser {
     /**
      * This method tries to match the [uriFragment] to extract the token.
      * [HashCodeUriResponse] is returned if the matching is successful
-     * It returns [null] if matching fails
+     * It returns `null` if matching fails
      **
      */
     private fun matchHashcodeUri(uriFragment: String): UriResponse? {
@@ -122,10 +124,27 @@ object ResponseParser {
 
         if (Intent.ACTION_VIEW == intent.action) {
             return extractTokenFromRedirectUri(appLinkData.toString())
-        }
-        else {
+        } else {
             throw IllegalArgumentException("Intent action has to be ${Intent.ACTION_VIEW}")
         }
+    }
+
+    /**
+     * Use this method to extract a response token from a deep-link callback.
+     * @returns a [UriResponse] when the response contains one and the token can be parsed or `null`
+     * when the action was canceled or the response does not belong to the uPort domain
+     */
+    fun parseActivityResult(requestCode: Int, resultCode: Int, data: Intent?): UriResponse? {
+        if (resultCode == Activity.RESULT_CANCELED || requestCode != Transports.UPORT_DEFAULT_REQUEST_CODE) {
+            return null
+        }
+        val redirectUri = data?.getStringExtra(RequestDispatchActivity.EXTRA_REDIRECT_URI) ?: ""
+        return try {
+            ResponseParser.extractTokenFromRedirectUri(redirectUri)
+        } catch (err: IllegalArgumentException) {
+            null
+        }
+
     }
 }
 
@@ -133,25 +152,26 @@ object ResponseParser {
  * Generic class for handling various response types
  **
  */
-sealed class UriResponse
+sealed class UriResponse {
+
+    /**
+     * Data Class to handle all JWT response types
+     **
+     */
+    class JWTUriResponse(val token: String) : UriResponse()
 
 
-/**
- * Data Class to handle all JWT response types
- **
- */
-data class JWTUriResponse(val token: String) : UriResponse()
+    /**
+     * Data Class to handle all Transaction Hashcode response types
+     **
+     */
+    class HashCodeUriResponse(val token: String) : UriResponse()
 
 
-/**
- * Data Class to handle all Transaction Hashcode response types
- **
- */
-data class HashCodeUriResponse(val token: String) : UriResponse()
+    /**
+     * Data Class to handle response errors
+     **
+     */
+    class ErrorUriResponse(val message: String) : UriResponse()
 
-
-/**
- * Data Class to handle response errors
- **
- */
-data class ErrorUriResponse(val message: String) : UriResponse()
+}

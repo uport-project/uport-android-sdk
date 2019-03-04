@@ -10,11 +10,11 @@ import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.JWTTypes
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.transport.ErrorUriResponse
-import me.uport.sdk.transport.HashCodeUriResponse
-import me.uport.sdk.transport.JWTUriResponse
 import me.uport.sdk.transport.ResponseParser
 import me.uport.sdk.transport.UriResponse
+import me.uport.sdk.transport.UriResponse.ErrorUriResponse
+import me.uport.sdk.transport.UriResponse.HashCodeUriResponse
+import me.uport.sdk.transport.UriResponse.JWTUriResponse
 
 /**
  * Handles JWT and TX responses coming in as deep links
