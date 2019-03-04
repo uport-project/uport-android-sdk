@@ -6,7 +6,7 @@ import android.content.IntentFilter
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
-import android.support.test.espresso.intent.Intents
+import android.support.test.espresso.intent.Intents.intended
 import android.support.test.espresso.intent.matcher.IntentMatchers
 import android.support.test.espresso.intent.matcher.UriMatchers
 import android.support.test.espresso.intent.rule.IntentsTestRule
@@ -40,13 +40,13 @@ class SelectiveDisclosureTest {
     }
 
     @Test
-    fun signedJwtCreated() {
+    fun signing_intent_is_sent() {
 
         onView(withId(R.id.send_request)).perform(click())
 
         assert((intentsTestRule.activity.requestJWT).isNotEmpty())
 
-        Intents.intended(Matchers.allOf(
+        intended(Matchers.allOf(
                 IntentMatchers.hasAction(Matchers.equalTo(Intent.ACTION_VIEW)),
                 IntentMatchers.hasCategories(Matchers.hasItem(Matchers.equalTo(Intent.CATEGORY_BROWSABLE))),
                 IntentMatchers.hasData(Matchers.allOf(
