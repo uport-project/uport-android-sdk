@@ -12,7 +12,11 @@ import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
+import me.uport.sdk.demoapp.request_flows.EthereumTransactionActivity
+import me.uport.sdk.demoapp.request_flows.PersonalSignRequestActivity
+import me.uport.sdk.demoapp.request_flows.TypedDataRequestActivity
 import me.uport.sdk.demoapp.request_flows.VerifiedClaimRequestActivity
+import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.ErrorUriResponse
 import me.uport.sdk.transport.JWTUriResponse
@@ -90,11 +94,39 @@ class DeeplinkCallbacksActivity : AppCompatActivity() {
         }
     }
 
-    private fun createRequestFlowOptions(payloadMap: Map<String, Any?>) {
+    private fun createRequestFlowOptions(payload: Map<String, Any?>) {
 
         btn_verified_claim.visibility = View.VISIBLE
         btn_verified_claim.setOnClickListener {
-            startActivity(Intent(this, VerifiedClaimRequestActivity::class.java))
+            val intent = Intent(this, VerifiedClaimRequestActivity::class.java)
+            val iss = payload["iss"] as String
+            intent.putExtra("iss", iss)
+            startActivity(intent)
+        }
+
+        btn_personal_signature.visibility = View.VISIBLE
+        btn_personal_signature.setOnClickListener {
+            val intent = Intent(this, PersonalSignRequestActivity::class.java)
+            val iss = payload["iss"] as String
+            intent.putExtra("iss", iss)
+            startActivity(intent)
+        }
+
+        btn_typed_data.visibility = View.VISIBLE
+        btn_typed_data.setOnClickListener {
+            val intent = Intent(this, TypedDataRequestActivity::class.java)
+            val iss = payload["iss"] as String
+            intent.putExtra("iss", iss)
+            startActivity(intent)
+        }
+
+        btn_ethereum_transaction.visibility = View.VISIBLE
+        btn_ethereum_transaction.setOnClickListener {
+            val intent = Intent(this, EthereumTransactionActivity::class.java)
+            val iss = payload["iss"] as String
+            //val address = EthrDIDResolver
+            //intent.putExtra("address", iss)
+            startActivity(intent)
         }
     }
 }
