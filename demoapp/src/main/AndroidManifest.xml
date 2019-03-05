@@ -19,6 +19,27 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".DeeplinkCallbacksActivity" />
+
+        <!--when using deeplinks as callbacks, you need to set the intent filters on this activity and merge-->
+        <activity android:name="me.uport.sdk.transport.IntentForwardingActivity">
+            <!-- deep links -->
+            <intent-filter
+                android:autoVerify="true"
+                tools:targetApi="23">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="uport-project.github.io"
+                    android:path="/uport-android-sdk/callbacks"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+
+
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".CreateKeyActivity" />
         <activity android:name=".ImportKeyActivity" />
@@ -37,30 +58,9 @@
         <activity android:name=".request_flows.TypedDataRequestActivity" />
         <activity android:name=".request_flows.EthereumTransactionActivity" />
 
-
-        <!--<activity-->
-        <!--android:name=".DeepLinkActivity"-->
-        <!--android:launchMode="singleTop">-->
-        <!--&lt;!&ndash; deep links &ndash;&gt;-->
-        <!--<intent-filter-->
-        <!--android:autoVerify="true"-->
-        <!--tools:targetApi="23">-->
-        <!--<action android:name="android.intent.action.VIEW" />-->
-
-        <!--<category android:name="android.intent.category.BROWSABLE" />-->
-        <!--<category android:name="android.intent.category.DEFAULT" />-->
-
-        <!--<data-->
-        <!--android:host="uport-project.github.io"-->
-        <!--android:pathPrefix="/uport-android-sdk"-->
-        <!--android:scheme="https" />-->
-
-        <!--</intent-filter>-->
-        <!--</activity>-->
-
-        <!--when using deeplinks as callbacks, you need to set the intent filters on this activity and merge-->
         <activity
-            android:name="me.uport.sdk.transport.IntentForwardingActivity">
+            android:name=".DeepLinkActivity"
+            android:launchMode="singleTop">
             <!-- deep links -->
             <intent-filter
                 android:autoVerify="true"
@@ -72,7 +72,7 @@
 
                 <data
                     android:host="uport-project.github.io"
-                    android:pathPrefix="/uport-android-sdk"
+                    android:path="/uport-android-sdk"
                     android:scheme="https" />
 
             </intent-filter>
