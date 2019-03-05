@@ -43,5 +43,12 @@
             android:layout_marginTop="32dp"
             tools:text="response details" />
 
+        <Button
+            android:id="@+id/btn_verified_claim"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/uport_horizontal_dialog_margin"
+            android:text="Verified Claim" />
+
     </LinearLayout>
 </ScrollView>

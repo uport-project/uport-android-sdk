@@ -1,5 +1,6 @@
 package me.uport.sdk.demoapp.request_flows
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -13,7 +14,9 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.EthereumTransactionRequestParams
 import me.uport.sdk.demoapp.R
+import me.uport.sdk.transport.ResponseParser
 import me.uport.sdk.transport.Transports
+import me.uport.sdk.transport.UriResponse
 import java.math.BigInteger
 
 /**
@@ -38,7 +41,7 @@ class EthereumTransactionActivity : AppCompatActivity() {
         val params = EthereumTransactionRequestParams(
                 to = signer.getAddress(),
                 value = BigInteger("1"),
-                callbackUrl = "https://uport-project.github.io/uport-android-sdk",
+                callbackUrl = "https://uport-project.github.io/uport-android-sdk/callbacks",
                 networkId = Networks.rinkeby.networkId
         )
 
@@ -59,11 +62,31 @@ class EthereumTransactionActivity : AppCompatActivity() {
 
                 // Send a valid signed request to uport via Transports
                 @Suppress("LabeledExpression")
-                Transports().send(this@EthereumTransactionActivity, requestJWT)
+                Transports().sendExpectingResult(this@EthereumTransactionActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE
                 }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
+
+        when (response) {
+            is UriResponse.HashCodeUriResponse -> {
+                response_details.text = """
+                Full Transaction Hash is:
+                ${response.token}
+                """.trimIndent()
+            }
+            is UriResponse.ErrorUriResponse -> {
+                response_details.text = "error: ${response.message}"
+            }
+            null -> {
+                //process your other domain specific responses
             }
         }
     }

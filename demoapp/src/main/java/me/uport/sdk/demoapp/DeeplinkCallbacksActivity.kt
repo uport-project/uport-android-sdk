@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
+import me.uport.sdk.demoapp.request_flows.VerifiedClaimRequestActivity
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.ErrorUriResponse
 import me.uport.sdk.transport.JWTUriResponse
@@ -77,6 +78,8 @@ class DeeplinkCallbacksActivity : AppCompatActivity() {
                         uPort app user DID: ${payloadMap["iss"]}
                     """.trimIndent()
 
+                createRequestFlowOptions(payloadMap)
+
             }
             is ErrorUriResponse -> {
                 response_details.text = "error: ${response.message}"
@@ -84,6 +87,14 @@ class DeeplinkCallbacksActivity : AppCompatActivity() {
             null -> {
                 //process your other domain specific responses
             }
+        }
+    }
+
+    private fun createRequestFlowOptions(payloadMap: Map<String, Any?>) {
+
+        btn_verified_claim.visibility = View.VISIBLE
+        btn_verified_claim.setOnClickListener {
+            startActivity(Intent(this, VerifiedClaimRequestActivity::class.java))
         }
     }
 }

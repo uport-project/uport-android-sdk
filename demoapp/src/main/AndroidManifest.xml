@@ -39,7 +39,6 @@
             </intent-filter>
         </activity>
 
-
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".CreateKeyActivity" />
         <activity android:name=".ImportKeyActivity" />
@@ -61,7 +60,7 @@
         <activity
             android:name=".DeepLinkActivity"
             android:launchMode="singleTop">
-            <!-- deep links -->
+            <!--&lt;!&ndash; deep links &ndash;&gt;
             <intent-filter
                 android:autoVerify="true"
                 tools:targetApi="23">
@@ -75,7 +74,7 @@
                     android:path="/uport-android-sdk"
                     android:scheme="https" />
 
-            </intent-filter>
+            </intent-filter>-->
         </activity>
 
     </application>
