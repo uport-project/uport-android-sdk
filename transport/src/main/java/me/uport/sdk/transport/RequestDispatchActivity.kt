@@ -9,8 +9,12 @@ import android.support.v7.app.AppCompatActivity
 
 /**
  * This activity is supposed to send requests and remain on top of the task stack to receive responses.
- * Responses are grafted by an [IntentForwardingActivity] and then set as results to the activity
- * that originated the requests.
+ * This is transparently added to the task stack when using [Transports.sendExpectingResult]
+ * To be able to receive responses from this, add an [IntentForwardingActivity] declaration
+ * to your app manifest with the relevant deep link intent filter(s)
+ *
+ * Deep link callbacks will be received by that [IntentForwardingActivity] and
+ * grafted onto the original task stack so that you can use the [onActivityResult] callback
  */
 class RequestDispatchActivity : AppCompatActivity() {
 

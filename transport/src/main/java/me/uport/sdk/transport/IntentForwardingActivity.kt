@@ -10,7 +10,14 @@ import android.support.v7.app.AppCompatActivity
 
 /**
  * This activity is supposed to interpret deep link responses and forward them
- * to the proper activity stack so that they can be presented as `onActivityResult`
+ * to the proper activity stack so that they can be presented as [onActivityResult]
+ *
+ * This is useful when using [Transports.sendExpectingResult]
+ * To be able to receive responses from this, add an [IntentForwardingActivity] declaration
+ * to your app manifest with the relevant deep link intent filter(s)
+ *
+ * Deep link callbacks will be received by this [IntentForwardingActivity] and
+ * grafted onto the original task stack so that you can use the [onActivityResult] callback
  */
 class IntentForwardingActivity : AppCompatActivity() {
 
