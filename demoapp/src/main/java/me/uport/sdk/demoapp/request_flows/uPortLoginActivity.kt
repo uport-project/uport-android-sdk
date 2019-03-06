@@ -1,22 +1,18 @@
-package me.uport.sdk.demoapp
+package me.uport.sdk.demoapp.request_flows
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.uport.sdk.signer.KPSigner
-import kotlinx.android.synthetic.main.activity_deeplink_callbacks.*
+import kotlinx.android.synthetic.main.activity_uport_login.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
-import me.uport.sdk.demoapp.request_flows.EthereumTransactionActivity
-import me.uport.sdk.demoapp.request_flows.PersonalSignRequestActivity
-import me.uport.sdk.demoapp.request_flows.TypedDataRequestActivity
-import me.uport.sdk.demoapp.request_flows.VerifiedClaimRequestActivity
-import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.ErrorUriResponse
 import me.uport.sdk.transport.JWTUriResponse
@@ -27,11 +23,11 @@ import me.uport.sdk.transport.UriResponse
 /**
  * This shows how to interact with the uPort app and receive results in [onActivityResult]
  */
-class DeeplinkCallbacksActivity : AppCompatActivity() {
+class uPortLoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_deeplink_callbacks)
+        setContentView(R.layout.activity_uport_login)
 
         // create a signer
         val signer = KPSigner("0x1234")
@@ -61,7 +57,7 @@ class DeeplinkCallbacksActivity : AppCompatActivity() {
 
                 // Send a signed request to uport via Transports
                 @Suppress("LabeledExpression")
-                Transports().sendExpectingResult(this@DeeplinkCallbacksActivity, requestJWT)
+                Transports().sendExpectingResult(this@uPortLoginActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE

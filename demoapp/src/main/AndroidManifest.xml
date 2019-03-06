@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".DeeplinkCallbacksActivity" />
+        <activity android:name=".request_flows.uPortLoginActivity" />
 
         <!--when using deeplinks as callbacks, you need to set the intent filters on this activity and merge-->
         <activity android:name="me.uport.sdk.transport.IntentForwardingActivity">
@@ -50,32 +50,10 @@
         <activity android:name=".managing_jwt.SignJWTUportHDSignerActivity" />
         <activity android:name=".DIDResolverActivity" />
         <activity android:name=".managing_jwt.VerifyJWTActivity" />
-        <activity android:name=".request_flows.RequestFlowListActivity" />
-        <activity android:name=".request_flows.SelectiveDisclosureActivity" />
         <activity android:name=".request_flows.VerifiedClaimRequestActivity" />
         <activity android:name=".request_flows.PersonalSignRequestActivity" />
         <activity android:name=".request_flows.TypedDataRequestActivity" />
         <activity android:name=".request_flows.EthereumTransactionActivity" />
-
-        <activity
-            android:name=".DeepLinkActivity"
-            android:launchMode="singleTop">
-            <!--&lt;!&ndash; deep links &ndash;&gt;
-            <intent-filter
-                android:autoVerify="true"
-                tools:targetApi="23">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data
-                    android:host="uport-project.github.io"
-                    android:path="/uport-android-sdk"
-                    android:scheme="https" />
-
-            </intent-filter>-->
-        </activity>
 
     </application>
 

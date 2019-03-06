@@ -47,7 +47,7 @@
             android:id="@+id/btn_verified_claim"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/uport_horizontal_dialog_margin"
+            android:layout_marginTop="15dp"
             android:text="Verified Claim Request"
             android:visibility="gone" />
 
@@ -55,7 +55,7 @@
             android:id="@+id/btn_personal_signature"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/uport_horizontal_dialog_margin"
+            android:layout_marginTop="15dp"
             android:text="Personal Signature Request"
             android:visibility="gone" />
 
@@ -63,7 +63,7 @@
             android:id="@+id/btn_typed_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/uport_horizontal_dialog_margin"
+            android:layout_marginTop="15dp"
             android:text="Typed Data Request"
             android:visibility="gone" />
 
@@ -71,7 +71,7 @@
             android:id="@+id/btn_ethereum_transaction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/uport_horizontal_dialog_margin"
+            android:layout_marginTop="15dp"
             android:text="Ethereum Transaction Request"
             android:visibility="gone" />
 
