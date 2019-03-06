@@ -37,10 +37,14 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+        // fetch the subject DID from intent
+        val subjectDID = intent.getStringExtra("iss")
+
         // create the request JWT
         val cred = Credentials(issuerDID, signer)
         val params = PersonalSignRequestParams(
                 data = "This is a message I need you to sign",
+                riss = subjectDID,
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk/callbacks",
                 networkId = Networks.rinkeby.networkId
         )
@@ -48,7 +52,7 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         request_details.text = "" +
                 "Request Type: Personal Signature Request" +
                 "\n" +
-                "Issuer DID: $issuerDID" +
+                "DID of the Identity to sign the data: $subjectDID" +
                 "\n" +
                 "Data to be signed: ${params.data}"
 
@@ -71,6 +75,11 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * The response sent via deeplink is dispatched back the this activity here
+     *
+     * Parse the [UriResponse] and display the relevant message
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)

@@ -33,13 +33,16 @@ class TypedDataRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+        // fetch the subject DID from intent
+        val subjectDID = intent.getStringExtra("iss")
+
         // create the request JWT payload
         @Suppress("StringLiteralDuplication")
         val payload = mapOf(
                 "callback" to "https://uport-project.github.io/uport-android-sdk/callbacks",
                 "type" to "eip712Req",
                 "net" to "0x4",
-                "iss" to issuerDID,
+                "sub" to subjectDID,
                 "iat" to System.currentTimeMillis(),
                 "typedData" to mapOf(
                         "types" to mapOf(
@@ -130,6 +133,11 @@ class TypedDataRequestActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * The response sent via deeplink is dispatched back the this activity here
+     *
+     * Parse the [UriResponse] and display the relevant message
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
