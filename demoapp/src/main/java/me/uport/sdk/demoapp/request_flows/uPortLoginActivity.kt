@@ -21,7 +21,7 @@ import me.uport.sdk.transport.Transports
 import me.uport.sdk.transport.UriResponse
 
 /**
- * This shows how to interact with the uPort app and receive results in [onActivityResult]
+ * This allows the users initiate a uPort login [SelectiveDisclosureRequest] and receive the deeplink response via [onActivityResult]
  */
 class uPortLoginActivity : AppCompatActivity() {
 
@@ -78,7 +78,7 @@ class uPortLoginActivity : AppCompatActivity() {
                         uPort app user DID: ${payloadMap["iss"]}
                     """.trimIndent()
 
-                createRequestFlowOptions(payloadMap)
+                createRequestFlowOptions((payloadMap["iss"] as String) ?: "")
 
             }
             is ErrorUriResponse -> {
@@ -90,12 +90,11 @@ class uPortLoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun createRequestFlowOptions(payload: Map<String, Any?>) {
+    private fun createRequestFlowOptions(iss: String) {
 
         btn_verified_claim.visibility = View.VISIBLE
         btn_verified_claim.setOnClickListener {
             val intent = Intent(this, VerifiedClaimRequestActivity::class.java)
-            val iss = payload["iss"] as String
             intent.putExtra("iss", iss)
             startActivity(intent)
         }
@@ -103,7 +102,6 @@ class uPortLoginActivity : AppCompatActivity() {
         btn_personal_signature.visibility = View.VISIBLE
         btn_personal_signature.setOnClickListener {
             val intent = Intent(this, PersonalSignRequestActivity::class.java)
-            val iss = payload["iss"] as String
             intent.putExtra("iss", iss)
             startActivity(intent)
         }
@@ -111,7 +109,6 @@ class uPortLoginActivity : AppCompatActivity() {
         btn_typed_data.visibility = View.VISIBLE
         btn_typed_data.setOnClickListener {
             val intent = Intent(this, TypedDataRequestActivity::class.java)
-            val iss = payload["iss"] as String
             intent.putExtra("iss", iss)
             startActivity(intent)
         }
@@ -119,7 +116,6 @@ class uPortLoginActivity : AppCompatActivity() {
         btn_ethereum_transaction.visibility = View.VISIBLE
         btn_ethereum_transaction.setOnClickListener {
             val intent = Intent(this, EthereumTransactionActivity::class.java)
-            val iss = payload["iss"] as String
             //val address = EthrDIDResolver
             //intent.putExtra("address", iss)
             startActivity(intent)
