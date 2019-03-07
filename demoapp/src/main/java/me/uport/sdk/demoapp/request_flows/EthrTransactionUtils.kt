@@ -18,7 +18,7 @@ fun getNetworkAndAddressFromDID(did: String): Pair<String, String> {
     // converts possible ethr DIDs to a Pair of Network and Address
     val ethrMatchResult = EthrDIDResolver.identityExtractPattern.find(did)
     if (ethrMatchResult != null) {
-        val (_, _, _, _, _, address) = ethrMatchResult.destructured
+        val (address,_) = ethrMatchResult.destructured
         return (Networks.rinkeby.networkId to address)
     }
 
