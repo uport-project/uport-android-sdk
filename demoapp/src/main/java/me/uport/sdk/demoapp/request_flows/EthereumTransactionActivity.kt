@@ -9,7 +9,6 @@ import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.EthereumTransactionRequestParams
@@ -36,19 +35,24 @@ class EthereumTransactionActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+        // fetch the subject DID from intent
+        val subjectDID = intent.getStringExtra("iss")
+
+        val (network, address) = getNetworkAndAddressFromDID(subjectDID)
+
         // create the request JWT
         val cred = Credentials(issuerDID, signer)
         val params = EthereumTransactionRequestParams(
-                to = signer.getAddress(),
+                to = address,
                 value = BigInteger("1"),
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk/callbacks",
-                networkId = Networks.rinkeby.networkId
+                networkId = network
         )
 
         request_details.text = "" +
                 "Request Type: Ethereum Transaction Request" +
                 "\n" +
-                "Issuer DID: $issuerDID" +
+                "Receiver's Details: ${getNetworkAndAddressFromDID(subjectDID)}" +
                 "\n" +
                 "Value of transaction: ${params.value}"
 

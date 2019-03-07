@@ -78,8 +78,7 @@ class uPortLoginActivity : AppCompatActivity() {
                         uPort app user DID: ${payloadMap["iss"]}
                     """.trimIndent()
 
-                createRequestFlowOptions((payloadMap["iss"] as String) ?: "")
-
+                createRequestFlowOptions((payloadMap["iss"] as String))
             }
             is ErrorUriResponse -> {
                 response_details.text = "error: ${response.message}"
@@ -116,8 +115,7 @@ class uPortLoginActivity : AppCompatActivity() {
         btn_ethereum_transaction.visibility = View.VISIBLE
         btn_ethereum_transaction.setOnClickListener {
             val intent = Intent(this, EthereumTransactionActivity::class.java)
-            //val address = EthrDIDResolver
-            //intent.putExtra("address", iss)
+            intent.putExtra("iss", iss)
             startActivity(intent)
         }
     }

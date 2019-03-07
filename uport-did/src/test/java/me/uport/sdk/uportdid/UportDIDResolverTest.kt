@@ -121,7 +121,6 @@ class UportDIDResolverTest {
         ).forEach {
             assert(tested.canResolve(it)).isTrue()
         }
-
     }
 
     @Test
@@ -138,9 +137,5 @@ class UportDIDResolverTest {
         ).forEach {
             assert(tested.canResolve(it)).isFalse()
         }
-
-
     }
-
-
 }
