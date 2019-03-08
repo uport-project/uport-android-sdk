@@ -50,7 +50,7 @@ class EthereumTransactionActivity : AppCompatActivity() {
         request_details.text = "" +
                 "Request Type: Ethereum Transaction Request" +
                 "\n" +
-                "Receiver's Details: ${getNetworkAndAddressFromDID(subjectDID)}" +
+                "Receiver's Details: network - $network address - $address" +
                 "\n" +
                 "Value of transaction: ${params.value}"
 

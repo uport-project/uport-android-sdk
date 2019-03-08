@@ -21,7 +21,8 @@ import me.uport.sdk.transport.Transports
 import me.uport.sdk.transport.UriResponse
 
 /**
- * This allows the users initiate a uPort login `SelectiveDisclosureRequest` and receive the deeplink response via [onActivityResult]
+ * This allows the users initiate a uPort login using [SelectiveDisclosureRequest]
+ * and then receive the deeplink response via [onActivityResult]
  */
 class uPortLoginActivity : AppCompatActivity() {
 
@@ -79,7 +80,7 @@ class uPortLoginActivity : AppCompatActivity() {
                         uPort app user DID: ${payloadMap["iss"]}
                     """.trimIndent()
 
-                createRequestFlowOptions((payloadMap["iss"] as String) ?: "")
+                createRequestFlowOptions((payloadMap["iss"] as String))
             }
             is ErrorUriResponse -> {
                 response_details.text = "error: ${response.message}"
