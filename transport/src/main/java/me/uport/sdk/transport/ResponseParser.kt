@@ -33,14 +33,9 @@ object ResponseParser {
      * @return a JWT token string if one could be extracted or `null` otherwise
      *
      * @throws IllegalArgumentException if the URI can't be parsed or does not match the expected format
-     * @throws RuntimeException if the deeplink has an error block in the fragment
      */
     fun extractTokenFromRedirectUri(deeplinkURI: String): UriResponse {
-        val uriFragment = try {
-            URI.create(deeplinkURI).fragment
-        } catch (ex: IllegalArgumentException) {
-            null
-        } ?: throw IllegalArgumentException("Cannot parse URI")
+        val uriFragment: String = URI.create(deeplinkURI).fragment
 
         return matchJWTUri(uriFragment)
                 ?: matchHashcodeUri(uriFragment)
