@@ -66,6 +66,7 @@ class uPortLoginActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UnsafeCast")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
