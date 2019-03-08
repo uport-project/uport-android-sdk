@@ -78,7 +78,7 @@ class uPortLoginActivity : AppCompatActivity() {
                         uPort app user DID: ${payloadMap["iss"]}
                     """.trimIndent()
 
-                createRequestFlowOptions((payloadMap["iss"] as String ?: ""))
+                createRequestFlowOptions((payloadMap["iss"] as String) ?: "")
             }
             is ErrorUriResponse -> {
                 response_details.text = "error: ${response.message}"
