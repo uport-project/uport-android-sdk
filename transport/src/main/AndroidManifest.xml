@@ -2,4 +2,15 @@
     package="me.uport.sdk.transport">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <activity
+            android:name=".RequestDispatchActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop" />
+
+        <activity android:name=".IntentForwardingActivity" />
+
+    </application>
+
 </manifest>

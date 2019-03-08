@@ -16,15 +16,14 @@
             android:id="@+id/request_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="left"
             tools:text="request details" />
 
         <Button
-            android:id="@+id/send_request"
+            android:id="@+id/btn_send_request"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/uport_horizontal_dialog_margin"
-            android:text="Send Request" />
+            android:text="Login with uPort" />
 
 
         <ProgressBar
@@ -42,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:gravity="left"
             tools:text="response details" />
 
     </LinearLayout>

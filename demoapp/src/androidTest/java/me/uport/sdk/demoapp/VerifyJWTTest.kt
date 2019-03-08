@@ -60,6 +60,8 @@ class VerifyJWTTest {
         UniversalDID.registerResolver(ethrResolver)
 
         onView(withId(R.id.verify_btn)).perform(click())
+        //XXX: for some reason the animated progressbar is not getting registered in espresso
+        Thread.sleep(2000)
 
         onView(withId(R.id.jwtPayload)).check(matches(not(withText(""))))
     }

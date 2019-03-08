@@ -3,7 +3,6 @@ package me.uport.sdk.transport
 import android.content.Intent
 import android.net.Uri
 import assertk.assert
-import assertk.assertions.hasMessage
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
 import org.junit.Test

@@ -29,7 +29,8 @@ class MainListActivity : AppCompatActivity() {
             "Create a JWT",
             "Resolve a DID",
             "Verify JWT",
-            "Request Flows")
+            "Request Flows",
+            "Deeplink callbacks")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,7 @@ class MainListActivity : AppCompatActivity() {
             5 -> startActivity(Intent(this, DIDResolverActivity::class.java))
             6 -> startActivity(Intent(this, VerifyJWTActivity::class.java))
             7 -> startActivity(Intent(this, RequestFlowListActivity::class.java))
+            8 -> startActivity(Intent(this, DeeplinkCallbacksActivity::class.java))
             else -> Toast.makeText(this, "Not Yet Implemented", Toast.LENGTH_LONG).show()
         }
     }

@@ -26,6 +26,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            multiDexEnabled true
+        }
     }
 
     testOptions {
@@ -40,6 +44,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation "com.android.support:support-annotations:$support_lib_version"
+    implementation "com.android.support:appcompat-v7:$support_lib_version"
 
     api project(":core")
     api project(":serialization")
