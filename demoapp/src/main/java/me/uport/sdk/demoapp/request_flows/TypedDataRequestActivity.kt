@@ -12,9 +12,7 @@ import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.transport.ResponseParser
-import me.uport.sdk.transport.Transports
-import me.uport.sdk.transport.UriResponse
+import me.uport.sdk.transport.*
 
 /**
  *
@@ -143,13 +141,13 @@ class TypedDataRequestActivity : AppCompatActivity() {
         val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
 
         when (response) {
-            is UriResponse.JWTUriResponse -> {
+            is JWTUriResponse -> {
                 val (_, payloadMap, _) = JWTTools().decodeRaw(response.token)
                 response_details.text = """
                         Signature: ${payloadMap["signature"]}
                     """.trimIndent()
             }
-            is UriResponse.ErrorUriResponse -> {
+            is ErrorUriResponse -> {
                 response_details.text = "error: ${response.message}"
             }
             null -> {

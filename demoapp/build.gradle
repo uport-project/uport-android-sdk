@@ -30,7 +30,6 @@ android {
     lintOptions {
         disable 'SetTextI18n'
     }
-    sourceSets { main { java.srcDirs = ['src/main/java', 'src/test'] } }
 }
 
 configurations.all {
@@ -57,6 +56,4 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espresso_version"
     androidTestImplementation "io.mockk:mockk-android:$mockk_version"
     androidTestImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
-
-    testImplementation "junit:junit:$junit_version"
 }

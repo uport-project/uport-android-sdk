@@ -13,9 +13,7 @@ import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.EthereumTransactionRequestParams
 import me.uport.sdk.demoapp.R
-import me.uport.sdk.transport.ResponseParser
-import me.uport.sdk.transport.Transports
-import me.uport.sdk.transport.UriResponse
+import me.uport.sdk.transport.*
 import java.math.BigInteger
 
 /**
@@ -80,13 +78,13 @@ class EthereumTransactionActivity : AppCompatActivity() {
         val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
 
         when (response) {
-            is UriResponse.HashCodeUriResponse -> {
+            is HashCodeUriResponse -> {
                 response_details.text = """
                 Full Transaction Hash is:
                 ${response.token}
                 """.trimIndent()
             }
-            is UriResponse.ErrorUriResponse -> {
+            is ErrorUriResponse -> {
                 response_details.text = "error: ${response.message}"
             }
             null -> {
