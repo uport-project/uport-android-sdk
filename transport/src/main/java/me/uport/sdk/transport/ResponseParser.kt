@@ -36,6 +36,7 @@ object ResponseParser {
      */
     fun extractTokenFromRedirectUri(deeplinkURI: String): UriResponse {
         val uriFragment: String = URI.create(deeplinkURI).fragment
+                ?: throw IllegalArgumentException("URI could not be parsed")
 
         return matchJWTUri(uriFragment)
                 ?: matchHashcodeUri(uriFragment)
