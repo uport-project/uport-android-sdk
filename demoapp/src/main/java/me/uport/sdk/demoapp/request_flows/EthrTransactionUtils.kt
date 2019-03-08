@@ -8,9 +8,9 @@ import java.lang.IllegalArgumentException
 
 
 /**
- * This utility method helps generate the [address] and [network]
- * from a given [uPortDID] or [EthrDID]
- * I returns a Network and Address [Pair]
+ * This utility method helps generate the `address` and `network`
+ * from a given `uPortDID` or `EthrDID`
+ * I returns a Network and Address `Pair`
  * and throws [IllegalArgumentException]
  */
 fun getNetworkAndAddressFromDID(did: String): Pair<String, String> {
