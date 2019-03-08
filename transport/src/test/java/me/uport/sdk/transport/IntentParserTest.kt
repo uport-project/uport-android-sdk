@@ -5,8 +5,6 @@ import android.net.Uri
 import assertk.assert
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
-import me.uport.sdk.transport.UriResponse.ErrorUriResponse
-import me.uport.sdk.transport.UriResponse.JWTUriResponse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
