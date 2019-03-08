@@ -38,7 +38,7 @@ object ResponseParser {
     fun extractTokenFromRedirectUri(deeplinkURI: String): UriResponse {
         val uriFragment = try {
             URI.create(deeplinkURI).fragment
-        } catch (ex: Exception) {
+        } catch (ex: IllegalArgumentException) {
             null
         } ?: throw IllegalArgumentException("Cannot parse URI")
 
