@@ -74,7 +74,7 @@ class PersonalSignRequestActivity : AppCompatActivity() {
     }
 
     /**
-     * The response sent via deeplink is dispatched back the this activity here
+     * The response sent via deeplink is dispatched back to this activity via [IntentForwardingActivity] when using [Transports.sendExpectingResult()]
      *
      * Parse the [UriResponse] and display the relevant message
      */
