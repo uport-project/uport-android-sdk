@@ -33,20 +33,20 @@ class VerifiedClaimRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        // fetch the subject DID from intent
-        val subjectDID = intent.getStringExtra("iss")
+        // fetch the DID of the subject identity from intent
+        val subject = intent.getStringExtra("sub")
 
         // create the request JWT payload
         val params = VerifiedClaimRequestParams(
                 unsignedClaim = mapOf("citizen of Cleverland" to true),
-                sub = subjectDID,
+                sub = subject,
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk/callbacks"
         )
 
         request_details.text = "" +
                 "Request Type: Verification" +
                 "\n" +
-                "Subject DID: $subjectDID" +
+                "DID of the subject identity: $subject" +
                 "\n" +
                 "Unsigned Claim: ${params.unsignedClaim}"
 

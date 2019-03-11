@@ -31,8 +31,8 @@ class TypedDataRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        // fetch the subject DID from intent
-        val subjectDID = intent.getStringExtra("iss")
+        // fetch the DID of the identity you want to sign the Data from intent
+        val riss = intent.getStringExtra("riss")
 
         // create the request JWT payload
         @Suppress("StringLiteralDuplication")
@@ -40,8 +40,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
                 "callback" to "https://uport-project.github.io/uport-android-sdk/callbacks",
                 "type" to "eip712Req",
                 "net" to "0x4",
-                "sub" to subjectDID,
-                "iat" to System.currentTimeMillis(),
+                "riss" to riss,
                 "typedData" to mapOf(
                         "types" to mapOf(
                                 "EIP712Domain" to listOf(
@@ -108,7 +107,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
         request_details.text = "" +
                 "Request Type: Typed Data Request" +
                 "\n" +
-                "Issuer DID: $issuerDID" +
+                "DID of the identity you want to sign the Data: $riss" +
                 "\n" +
                 "Typed Data: ${payload["typedData"]}"
 

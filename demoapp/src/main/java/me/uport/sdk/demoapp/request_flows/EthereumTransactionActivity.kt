@@ -33,10 +33,10 @@ class EthereumTransactionActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        // fetch the subject DID from intent
-        val subjectDID = intent.getStringExtra("iss")
+        // fetch the DID of the receiver from intent
+        val receiverDID = intent.getStringExtra("receiver")
 
-        val (network, address) = getNetworkAndAddressFromDID(subjectDID)
+        val (network, address) = getNetworkAndAddressFromDID(receiverDID)
 
         // create the request JWT
         val cred = Credentials(issuerDID, signer)

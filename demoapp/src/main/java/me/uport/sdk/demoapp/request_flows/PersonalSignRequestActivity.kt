@@ -35,14 +35,14 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        // fetch the subject DID from intent
-        val subjectDID = intent.getStringExtra("iss")
+        // fetch the DID of the identity you want to sign the Data from intent
+        val riss = intent.getStringExtra("riss")
 
         // create the request JWT
         val cred = Credentials(issuerDID, signer)
         val params = PersonalSignRequestParams(
                 data = "This is a message I need you to sign",
-                riss = subjectDID,
+                riss = riss,
                 callbackUrl = "https://uport-project.github.io/uport-android-sdk/callbacks",
                 networkId = Networks.rinkeby.networkId
         )
@@ -50,7 +50,7 @@ class PersonalSignRequestActivity : AppCompatActivity() {
         request_details.text = "" +
                 "Request Type: Personal Signature Request" +
                 "\n" +
-                "DID of the Identity to sign the data: $subjectDID" +
+                "DID of the Identity to sign the data: $riss" +
                 "\n" +
                 "Data to be signed: ${params.data}"
 

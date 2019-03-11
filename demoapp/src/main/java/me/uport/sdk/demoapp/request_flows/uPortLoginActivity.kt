@@ -67,7 +67,6 @@ class uPortLoginActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("UnsafeCast")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
@@ -92,33 +91,33 @@ class uPortLoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun createRequestFlowOptions(iss: String) {
+    private fun createRequestFlowOptions(did: String) {
 
         btn_verified_claim.visibility = View.VISIBLE
         btn_verified_claim.setOnClickListener {
             val intent = Intent(this, VerifiedClaimRequestActivity::class.java)
-            intent.putExtra("iss", iss)
+            intent.putExtra("sub", did)
             startActivity(intent)
         }
 
         btn_personal_signature.visibility = View.VISIBLE
         btn_personal_signature.setOnClickListener {
             val intent = Intent(this, PersonalSignRequestActivity::class.java)
-            intent.putExtra("iss", iss)
+            intent.putExtra("riss", did)
             startActivity(intent)
         }
 
         btn_typed_data.visibility = View.VISIBLE
         btn_typed_data.setOnClickListener {
             val intent = Intent(this, TypedDataRequestActivity::class.java)
-            intent.putExtra("iss", iss)
+            intent.putExtra("riss", did)
             startActivity(intent)
         }
 
         btn_ethereum_transaction.visibility = View.VISIBLE
         btn_ethereum_transaction.setOnClickListener {
             val intent = Intent(this, EthereumTransactionActivity::class.java)
-            intent.putExtra("iss", iss)
+            intent.putExtra("receiver", did)
             startActivity(intent)
         }
     }
