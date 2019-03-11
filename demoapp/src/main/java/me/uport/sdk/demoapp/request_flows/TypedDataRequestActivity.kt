@@ -1,5 +1,6 @@
 package me.uport.sdk.demoapp.request_flows
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -11,7 +12,7 @@ import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.transport.Transports
+import me.uport.sdk.transport.*
 
 /**
  *
@@ -30,14 +31,16 @@ class TypedDataRequestActivity : AppCompatActivity() {
         // create issuer DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+        // fetch the DID of the identity you want to sign the Data from intent
+        val riss = intent.getStringExtra("riss")
+
         // create the request JWT payload
         @Suppress("StringLiteralDuplication")
         val payload = mapOf(
-                "callback" to "https://uport-project.github.io/uport-android-sdk",
+                "callback" to "https://uport-project.github.io/uport-android-sdk/callbacks",
                 "type" to "eip712Req",
                 "net" to "0x4",
-                "iss" to issuerDID,
-                "iat" to System.currentTimeMillis(),
+                "riss" to riss,
                 "typedData" to mapOf(
                         "types" to mapOf(
                                 "EIP712Domain" to listOf(
@@ -104,7 +107,7 @@ class TypedDataRequestActivity : AppCompatActivity() {
         request_details.text = "" +
                 "Request Type: Typed Data Request" +
                 "\n" +
-                "Issuer DID: $issuerDID" +
+                "DID of the identity you want to sign the Data: $riss" +
                 "\n" +
                 "Typed Data: ${payload["typedData"]}"
 
@@ -118,11 +121,36 @@ class TypedDataRequestActivity : AppCompatActivity() {
 
                 // Send a valid signed request to uport via Transports
                 @Suppress("LabeledExpression")
-                Transports().send(this@TypedDataRequestActivity, requestJWT)
+                Transports().sendExpectingResult(this@TypedDataRequestActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE
                 }
+            }
+        }
+    }
+
+    /**
+     * The response sent via deeplink is dispatched back to this activity via [IntentForwardingActivity] when using [Transports.sendExpectingResult()]
+     *
+     * Parse the [UriResponse] and display the relevant message
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
+
+        when (response) {
+            is JWTUriResponse -> {
+                val (_, payloadMap, _) = JWTTools().decodeRaw(response.token)
+                response_details.text = """
+                        Signature: ${payloadMap["signature"]}
+                    """.trimIndent()
+            }
+            is ErrorUriResponse -> {
+                response_details.text = "error: ${response.message}"
+            }
+            null -> {
+                //process your other domain specific responses
             }
         }
     }

@@ -127,7 +127,7 @@ open class UportDIDResolver(
 
     companion object {
         //language=RegExp
-        private val uportDIDPattern = "^(did:(uport):)?([1-9A-HJ-NP-Za-km-z]{34,38})(.*)".toRegex()
+        val uportDIDPattern = "^(did:(uport):)?([1-9A-HJ-NP-Za-km-z]{34,38})(.*)".toRegex()
 
         internal fun parseDIDString(did: String): Pair<String, String> {
             val matchResult = uportDIDPattern.find(did) ?: return ("" to did)
@@ -135,5 +135,4 @@ open class UportDIDResolver(
             return (method to mnid)
         }
     }
-
 }

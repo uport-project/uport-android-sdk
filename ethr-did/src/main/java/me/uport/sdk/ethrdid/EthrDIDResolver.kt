@@ -284,7 +284,7 @@ open class EthrDIDResolver(
         }
 
         //language=RegExp
-        private val identityExtractPattern = "^did:ethr:(0x[0-9a-fA-F]{40})".toRegex()
+        val identityExtractPattern = "^did:ethr:(0x[0-9a-fA-F]{40})".toRegex()
 
         //language=RegExp
         private val didParsePattern = "^(did:)?((\\w+):)?((0x)([0-9a-fA-F]{40}))".toRegex()

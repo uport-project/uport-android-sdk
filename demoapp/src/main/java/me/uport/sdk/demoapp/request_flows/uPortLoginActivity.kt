@@ -1,17 +1,18 @@
-package me.uport.sdk.demoapp
+package me.uport.sdk.demoapp.request_flows
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.uport.sdk.signer.KPSigner
-import kotlinx.android.synthetic.main.activity_deeplink_callbacks.*
+import kotlinx.android.synthetic.main.activity_uport_login.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
+import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.transport.ErrorUriResponse
 import me.uport.sdk.transport.JWTUriResponse
@@ -20,13 +21,14 @@ import me.uport.sdk.transport.Transports
 import me.uport.sdk.transport.UriResponse
 
 /**
- * This shows how to interact with the uPort app and receive results in [onActivityResult]
+ * This allows the users initiate a uPort login using [SelectiveDisclosureRequest]
+ * and then receive the deeplink response via [onActivityResult]
  */
-class DeeplinkCallbacksActivity : AppCompatActivity() {
+class uPortLoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_deeplink_callbacks)
+        setContentView(R.layout.activity_uport_login)
 
         // create a signer
         val signer = KPSigner("0x1234")
@@ -56,7 +58,7 @@ class DeeplinkCallbacksActivity : AppCompatActivity() {
 
                 // Send a signed request to uport via Transports
                 @Suppress("LabeledExpression")
-                Transports().sendExpectingResult(this@DeeplinkCallbacksActivity, requestJWT)
+                Transports().sendExpectingResult(this@uPortLoginActivity, requestJWT)
 
                 withContext(UI) {
                     progress.visibility = View.GONE
@@ -77,6 +79,8 @@ class DeeplinkCallbacksActivity : AppCompatActivity() {
                         uPort app user DID: ${payloadMap["iss"]}
                     """.trimIndent()
 
+                @Suppress("UnsafeCast")
+                createRequestFlowOptions((payloadMap["iss"] as String))
             }
             is ErrorUriResponse -> {
                 response_details.text = "error: ${response.message}"
@@ -84,6 +88,37 @@ class DeeplinkCallbacksActivity : AppCompatActivity() {
             null -> {
                 //process your other domain specific responses
             }
+        }
+    }
+
+    private fun createRequestFlowOptions(did: String) {
+
+        btn_verified_claim.visibility = View.VISIBLE
+        btn_verified_claim.setOnClickListener {
+            val intent = Intent(this, VerifiedClaimRequestActivity::class.java)
+            intent.putExtra("sub", did)
+            startActivity(intent)
+        }
+
+        btn_personal_signature.visibility = View.VISIBLE
+        btn_personal_signature.setOnClickListener {
+            val intent = Intent(this, PersonalSignRequestActivity::class.java)
+            intent.putExtra("riss", did)
+            startActivity(intent)
+        }
+
+        btn_typed_data.visibility = View.VISIBLE
+        btn_typed_data.setOnClickListener {
+            val intent = Intent(this, TypedDataRequestActivity::class.java)
+            intent.putExtra("riss", did)
+            startActivity(intent)
+        }
+
+        btn_ethereum_transaction.visibility = View.VISIBLE
+        btn_ethereum_transaction.setOnClickListener {
+            val intent = Intent(this, EthereumTransactionActivity::class.java)
+            intent.putExtra("receiver", did)
+            startActivity(intent)
         }
     }
 }

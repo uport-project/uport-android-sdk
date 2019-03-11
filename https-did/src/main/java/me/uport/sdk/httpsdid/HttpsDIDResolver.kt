@@ -48,5 +48,4 @@ open class HttpsDIDResolver(private val httpClient: HttpClient = HttpClient()) :
             return (method to domain)
         }
     }
-
 }
