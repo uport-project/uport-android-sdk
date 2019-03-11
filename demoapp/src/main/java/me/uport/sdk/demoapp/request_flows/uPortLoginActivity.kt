@@ -80,6 +80,7 @@ class uPortLoginActivity : AppCompatActivity() {
                         uPort app user DID: ${payloadMap["iss"]}
                     """.trimIndent()
 
+                @Suppress("UnsafeCast")
                 createRequestFlowOptions((payloadMap["iss"] as String))
             }
             is ErrorUriResponse -> {
