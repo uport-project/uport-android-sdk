@@ -25,36 +25,36 @@ object Networks {
         registerNetwork(EthNetwork(
                 name = "mainnet",
                 networkId = mainnetId,
-                uPortRegistry = MNID.encode(mainnetId, "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6"),
                 rpcUrl = "https://mainnet.infura.io/uport",
                 explorerUrl = "https://etherscan.io",
+                uPortRegistry = MNID.encode(mainnetId, "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6"),
                 faucetUrl = defaultFaucetUrl,
                 relayUrl = defaultTxRelayUrl,
                 txRelayAddress = "0xec2642cd5a47fd5cca2a8a280c3b5f88828aa578"))
         registerNetwork(EthNetwork(
                 name = "rinkeby",
                 networkId = rinkebyId,
-                uPortRegistry = MNID.encode(rinkebyId, "0x2cc31912b2b0f3075a87b3640923d45a26cef3ee"),
                 rpcUrl = "https://rinkeby.infura.io/uport",
                 explorerUrl = "https://rinkeby.etherscan.io",
+                uPortRegistry = MNID.encode(rinkebyId, "0x2cc31912b2b0f3075a87b3640923d45a26cef3ee"),
                 faucetUrl = "https://api.uport.me/sensui/fund/",
                 relayUrl = "https://api.uport.me/sensui/relay/",
                 txRelayAddress = "0xda8c6dce9e9a85e6f9df7b09b2354da44cb48331"))
         registerNetwork(EthNetwork(
                 name = "ropsten",
                 networkId = ropstenId,
-                uPortRegistry = MNID.encode(ropstenId, "0x41566e3a081f5032bdcad470adb797635ddfe1f0"),
                 rpcUrl = "https://ropsten.infura.io/uport",
-                explorerUrl = "https://ropsten.io",
+                explorerUrl = "https://ropsten.etherscan.io",
+                uPortRegistry = MNID.encode(ropstenId, "0x41566e3a081f5032bdcad470adb797635ddfe1f0"),
                 faucetUrl = defaultFaucetUrl,
                 relayUrl = defaultTxRelayUrl,
                 txRelayAddress = "0xa5e04cf2942868f5a66b9f7db790b8ab662039d5"))
         registerNetwork(EthNetwork(
                 name = "kovan",
                 networkId = kovanId,
-                uPortRegistry = MNID.encode(kovanId, "0x5f8e9351dc2d238fb878b6ae43aa740d62fc9758"),
                 rpcUrl = "https://kovan.infura.io/uport",
                 explorerUrl = "https://kovan.etherscan.io",
+                uPortRegistry = MNID.encode(kovanId, "0x5f8e9351dc2d238fb878b6ae43aa740d62fc9758"),
                 faucetUrl = defaultFaucetUrl,
                 relayUrl = defaultTxRelayUrl,
                 txRelayAddress = "0xa9235151d3afa7912e9091ab76a36cbabe219a0c"))
