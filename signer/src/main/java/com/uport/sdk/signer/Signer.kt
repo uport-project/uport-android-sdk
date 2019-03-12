@@ -33,7 +33,9 @@ interface Signer {
     fun getAddress(): String
 
     /**
-     *
+     * This method signs an [unsignedTx] object.
+     * It only exists to facilitate wrapping transactions in different signers.
+     * This will be replaced by `signETH` when a safe way to decode ABI encoded transactions exists
      */
     fun signRawTx(
             unsignedTx: Transaction,
@@ -63,6 +65,14 @@ interface Signer {
 // signer extensions - wrap callbacks as coroutines
 ////////////////////////////////////////////////////
 
+/**
+ * Suspend extension for [Signer.signRawTx].
+ * This method signs an [unsignedTx] object.
+ * It only exists to facilitate wrapping transactions in different signers.
+ * This will be replaced by `signETH` when a safe way to decode ABI encoded transactions exists
+ *
+ * Expect this to be deprecated in a future version.
+ */
 suspend fun Signer.signRawTx(unsignedTx: Transaction): ByteArray = suspendCoroutine { continuation ->
     this.signRawTx(unsignedTx) { err, signedEncodedTransaction ->
         if (err != null) {
@@ -73,7 +83,14 @@ suspend fun Signer.signRawTx(unsignedTx: Transaction): ByteArray = suspendCorout
     }
 }
 
+/**
+ * Suspend extension for [Signer.signETH].
+ * Signs a blob of bytes that represent a RLP encoded transaction.
+ *
+ * Expect this to replace the callback pattern in the [Signer] interface
+ */
 suspend fun Signer.signETH(rawMessage: ByteArray): SignatureData = suspendCoroutine { continuation ->
+
     this.signETH(rawMessage) { err, sigData ->
         if (err != null) {
             continuation.resumeWithException(err)
@@ -83,6 +100,12 @@ suspend fun Signer.signETH(rawMessage: ByteArray): SignatureData = suspendCorout
     }
 }
 
+/**
+ * Suspend extension for [Signer.signJWT]
+ * Signs a blob of bytes that represent the encoded header and payload parts of a JWT
+ *
+ * Expect this to replace the callback pattern in the [Signer] interface
+ */
 suspend fun Signer.signJWT(rawMessage: ByteArray): SignatureData = suspendCoroutine { continuation ->
     this.signJWT(rawMessage) { err, sigData ->
         if (err != null) {

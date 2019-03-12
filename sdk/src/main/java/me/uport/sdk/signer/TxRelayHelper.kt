@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package me.uport.sdk.signer
 
 import me.uport.sdk.TxRelay
@@ -9,6 +11,10 @@ import org.kethereum.model.SignatureData
 import pm.gnosis.model.Solidity
 import java.math.BigInteger
 
+/**
+ * Helper class for wrapping a transaction for meta TX relay
+ */
+@Deprecated("uPort meta transactions are no longer supported")
 class TxRelayHelper(private val network: EthNetwork) {
 
     /**
