@@ -73,7 +73,7 @@ open class UportDIDResolver(
 
         val network = Networks.get(issuer.network)
 
-        val registryAddress = MNID.decode(network.registry).address
+        val registryAddress = MNID.decode(network.uPortRegistry).address
 
         val encodedFunctionCall = encodeRegistryGetCall(registrationIdentifier, issuer, subject)
 
