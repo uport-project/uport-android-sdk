@@ -35,7 +35,7 @@ allprojects {
 In your application `build.gradle` file, add:
 
 ```groovy
-def uport_sdk_version = "v0.3.2"
+def uport_sdk_version = "v0.4.0"
 dependencies {
     //...
     // core SDK
@@ -222,6 +222,19 @@ Want to contribute to uport-android-sdk? Cool, please read our [contribution gui
 
 
 ## Changelog
+
+* 0.4.0
+    * `core` module is a simple java library (and can be used as a dependency in JVM tests)
+    * [breaking] `AccountCreator` interface methods are now using suspend instead of callbacks.
+    * [breaking] The callback variant of `createAccount` from the Uport object has been deprecated.
+    * [breaking] all available `JsonRPC` methods are suspend methods and are full members of the class
+    (and can now be easily mocked). The callback variants no longer exist.
+    * `network_id` field in `EthNetwork` was renamed to `networkId`
+    * add `Transports.sendExpectingResult()` functionality
+    * add `createPersonalSignRequest`, `createVerificationSignatureRequest`, `createEthereumTransactionRequest`
+ convenience methods to `Credentials` to interact with the uPort app
+    * extensive refactoring of tests with better mocks and ability to run offline
+    * also publishing `sources.jar` for each module
 
 * 0.3.2
     * JWT timestamps are checked with allowance for clock drift
