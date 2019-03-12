@@ -4,11 +4,11 @@ buildscript {
 
     ext {
 
-        kotlin_version = '1.3.11'
-        kotlin_serialization_version = '0.9.1'
-        coroutines_version = "1.0.1"
+        kotlin_version = '1.3.21'
+        kotlin_serialization_version = '0.10.0'
+        coroutines_version = "1.1.1"
 
-        android_tools_version = '3.3.0-rc03'
+        android_tools_version = '3.3.1'
 
         build_tools_version = "28.0.3"
 
@@ -27,17 +27,20 @@ buildscript {
         mockito_version = "2.23.0"
         mockito_kotlin_version = "2.0.0"
         robolectric_version = "4.1"
+        mockk_version = "1.9"
+        assertk_version = "0.12"
+        detekt_version = "1.0.0-RC14"
 
-        moshi_version = "1.7.0"
+        moshi_version = "1.8.0"
         okhttp_version = "3.10.0"
 
-        bivrost_version = "1c0efeb7f3"//"v0.6.2"
+        bivrost_version = "1c0efeb7f3"//"v0.7.0"
         kmnid_version = "0.2.1"
         kethereum_version = "0.63"
         khex_version = "0.5"
         tweetnacl_k_version = "0.0.1"
 
-        uport_sdk_version = "0.3.2"
+        uport_sdk_version = "v0.4.0"
     }
 
     repositories {
@@ -52,6 +55,37 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.github.gnosis.bivrost-kotlin:bivrost-gradle-plugin:$bivrost_version"
+
+        classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+
+        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$detekt_version"
+    }
+}
+
+plugins {
+    id "io.errorlab.gradle.vault" version "0.1.0"
+}
+
+apply plugin: "io.gitlab.arturbosch.detekt"
+
+detekt {
+    version = detekt_version
+    input = files(
+            "$projectDir"
+    )
+    //config = "${projectDir}/detekt.yml"
+    filters = ".*test.*,.*/resources/.*,.*/tmp/.*,.*/build/.*"
+    parallel = true
+    reports {
+        xml {
+            enabled = true
+            destination = file("${project.buildDir}/reports/detekt.xml")
+        }
+        html {
+            enabled = true
+            destination = file("${project.buildDir}/reports/detekt.html")
+        }
     }
 }
 
@@ -84,31 +118,16 @@ allprojects {
 }
 
 subprojects { subproject ->
+
     afterEvaluate {
-        if (subproject.plugins.hasPlugin('maven')) {
-
-            group "me.uport.sdk"
-            version uport_sdk_version
-
-            uploadArchives {
-                repositories {
-                    mavenDeployer {
-                        if (project.hasProperty("MAVEN_REPOSITORY")) {
-                            //nop
-                        } else {
-                            repository(url: mavenLocal().url)
-                        }
-                    }
-                }
-            }
-
-        }
 
         if (subproject.plugins.hasPlugin("com.android.application") || subproject.plugins.hasPlugin("com.android.library")) {
             subproject.android.packagingOptions.exclude("META-INF/main.kotlin_module")
         }
     }
 }
+
+apply from: "publishing.gradle"
 
 task clean(type: Delete) {
     delete rootProject.buildDir

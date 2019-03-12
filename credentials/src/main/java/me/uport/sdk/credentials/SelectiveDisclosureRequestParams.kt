@@ -1,7 +1,13 @@
+@file:Suppress("KDocUnresolvedReference")
+
 package me.uport.sdk.credentials
 
 import android.support.annotation.Keep
-import me.uport.sdk.credentials.RequestAccountType.*
+import me.uport.sdk.credentials.RequestAccountType.devicekey
+import me.uport.sdk.credentials.RequestAccountType.general
+import me.uport.sdk.credentials.RequestAccountType.keypair
+import me.uport.sdk.credentials.RequestAccountType.none
+import me.uport.sdk.credentials.RequestAccountType.segregated
 
 /**
  * A class that encapsulates the supported parameter types for creating a SelectiveDisclosureRequest.
@@ -43,6 +49,8 @@ class SelectiveDisclosureRequestParams(
          * The Ethereum network ID if it is relevant for this request.
          *
          * This gets encoded as `net` in the JWT payload
+         *
+         * Examples: `"0x4"`, [Networks.mainnet.networkId]
          */
         val networkId: String? = null,
 
@@ -60,7 +68,7 @@ class SelectiveDisclosureRequestParams(
 
         /**
          * [**optional**]
-         * A simple_list of signed claims about the issuer, usually signed by 3rd parties.
+         * A list of signed claims about the issuer, usually signed by 3rd parties.
          */
         val vc: List<String>? = null,
 
@@ -121,7 +129,7 @@ internal fun buildPayloadForShareReq(params: SelectiveDisclosureRequestParams): 
     params.networkId?.let { payload["net"] = it }
     params.accountType?.let { payload["act"] = it.name }
 
-    payload["type"] = RequestType.shareReq.name
+    payload["type"] = JWTTypes.shareReq.name
 
     return payload
 }

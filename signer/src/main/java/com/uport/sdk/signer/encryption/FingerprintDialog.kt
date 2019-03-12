@@ -65,7 +65,9 @@ class FingerprintDialog : DialogFragment() {
             // Should never be thrown since we have declared the USE_FINGERPRINT permission
             // in the manifest
         } catch (e: IllegalStateException) {
+            //nop
         } catch (e: SecurityException) {
+            //nop
         }
     }
 

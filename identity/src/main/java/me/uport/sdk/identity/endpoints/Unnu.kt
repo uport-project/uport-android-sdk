@@ -2,141 +2,130 @@ package me.uport.sdk.identity.endpoints
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
+import me.uport.sdk.core.HttpClient
 import me.uport.sdk.core.Networks
-import me.uport.sdk.core.urlPost
 import java.io.IOException
 
-
-const val UNNU_URL = "https://api.uport.me/unnu"
-const val identityCreationUrl = "$UNNU_URL/createIdentity"
-const val identityCheckUrl = "$UNNU_URL/lookup"
-
-typealias IdentityInfoCallback = (err: Exception?, identityInfo: UnnuIdentityInfo) -> Unit
-
 /**
- * Encapsulates the payload data for an "Identity creation request" made to Unnu
+ * Wraps method calls to the meta-identity creation and lookup service
  */
-@Serializable
-data class UnnuCreationRequest(
-        @SerialName("deviceKey")
-        val deviceKey: String,
-
-        @SerialName("recoveryKey")
-        val recoveryKey: String,
-
-        @SerialName("blockchain")
-        val blockchain: String,
-
-        @SerialName("managerType")
-        val managerType: String = "MetaIdentityManager") {
-
-    fun toJson() = JSON.stringify(UnnuCreationRequest.serializer(), this)
-}
-
-/**
- * Wraps the data needed for a Unnu lookup request
- */
-@Serializable
-data class UnnuLookupRequest(val deviceKey: String) {
-
-    fun toJson() = JSON.stringify(UnnuLookupRequest.serializer(), this)
-
-}
-
-/**
- * Encapsulates the response data for identity creation or lookup
- */
-@Serializable
-data class UnnuIdentityInfo(
-        @SerialName("managerType")
-        val managerType: String = "MetaIdentityManager",
-
-        @SerialName("managerAddress")
-        val managerAddress: String = "",
-
-        @SerialName("txHash")
-        val txHash: String? = null,
-
-        @SerialName("identity")
-        val proxyAddress: String? = null,
-
-        @SerialName("blockchain")
-        val blockchain: String? = null) {
+class Unnu(private val httpClient: HttpClient = HttpClient()) {
 
     companion object {
-        internal val blank = UnnuIdentityInfo()
+        private const val UNNU_URL = "https://api.uport.me/unnu"
+        private const val identityCreationUrl = "$UNNU_URL/createIdentity"
+        private const val identityCheckUrl = "$UNNU_URL/lookup"
     }
-}
 
-/**
- * Wraps the [UnnuIdentityInfo] response in an object suitable for receiving JsonRPC responses
- */
-@Serializable
-data class UnnuJRPCResponse(
+    /**
+     * Encapsulates the payload data for an "Identity creation request" made to Unnu
+     */
+    @Serializable
+    data class UnnuCreationRequest(
+            @SerialName("deviceKey")
+            val deviceKey: String,
 
-        @SerialName("status")
-        val status: String = "failure",
+            @SerialName("recoveryKey")
+            val recoveryKey: String,
 
-        @SerialName("message")
-        val message: String? = null,
+            @SerialName("blockchain")
+            val blockchain: String,
 
-        @SerialName("data")
-        val data: UnnuIdentityInfo = UnnuIdentityInfo()) {
+            @SerialName("managerType")
+            val managerType: String = "MetaIdentityManager")
 
-    companion object {
-        fun fromJson(json: String): UnnuJRPCResponse = JSON.nonstrict.parse(UnnuJRPCResponse.serializer(), json)
-    }
-}
+    /**
+     * Wraps the data needed for a Unnu lookup request
+     */
+    @Serializable
+    data class LookupRequest(val deviceKey: String)
 
-/**
- * Queries Unnu for the address of the proxy contract created with the [deviceKeyAddress] as owner
- */
-fun lookupIdentityInfo(deviceKeyAddress: String, callback: IdentityInfoCallback) {
+    /**
+     * Encapsulates the response data for identity creation or lookup
+     */
+    @Serializable
+    data class IdentityInfo(
+            @SerialName("managerType")
+            val managerType: String = "MetaIdentityManager",
 
-    urlPost(identityCheckUrl, UnnuLookupRequest(deviceKeyAddress).toJson(), null)
-    { err, rawResponse ->
-        if (err != null) {
-            return@urlPost callback(err, UnnuIdentityInfo.blank)
+            @SerialName("managerAddress")
+            val managerAddress: String = "",
+
+            @SerialName("txHash")
+            val txHash: String? = null,
+
+            @SerialName("identity")
+            val proxyAddress: String? = null,
+
+            @SerialName("blockchain")
+            val blockchain: String? = null) {
+
+        companion object {
+            internal val blank = IdentityInfo()
         }
-        val parsedResponse = UnnuJRPCResponse.fromJson(rawResponse)
+    }
+
+    /**
+     * Wraps the [IdentityInfo] response in an object suitable for receiving JsonRPC responses
+     */
+    @Serializable
+    data class IdentityInfoJRPCResponse(
+
+            @SerialName("status")
+            val status: String = "failure",
+
+            @SerialName("message")
+            val message: String? = null,
+
+            @SerialName("data")
+            val data: IdentityInfo = IdentityInfo()) {
+
+        companion object {
+            /**
+             * parses a JsonRPC response into an [IdentityInfoJRPCResponse] object
+             */
+            fun fromJson(json: String): IdentityInfoJRPCResponse = Json.nonstrict.parse(IdentityInfoJRPCResponse.serializer(), json)
+        }
+    }
+
+    /**
+     * Queries Unnu for the address of the proxy contract created with the [deviceKeyAddress] as owner
+     */
+    suspend fun lookupIdentityInfo(deviceKeyAddress: String): IdentityInfo {
+
+        val payloadBody = Json.stringify(LookupRequest.serializer(), LookupRequest(deviceKeyAddress))
+        val rawResponse = httpClient.urlPost(identityCheckUrl, payloadBody, null)
+        val parsedResponse = IdentityInfoJRPCResponse.fromJson(rawResponse)
         if (parsedResponse.status == "success") {
-            return@urlPost callback(null, parsedResponse.data)
+            return parsedResponse.data
         } else {
-            return@urlPost callback(IOException("${parsedResponse.message}"), UnnuIdentityInfo.blank)
+            throw IOException("${parsedResponse.message}")
         }
     }
 
-}
+    /**
+     * Calls Unnu with the necessary params to deploy an identity proxy contract
+     */
+    suspend fun requestIdentityCreation(deviceKeyAddress: String,
+                                        recoveryAddress: String,
+                                        networkId: String,
+                                        fuelToken: String): IdentityInfo {
 
-/**
- * Calls Unnu with the necessary params to deploy an identity proxy contract
- */
-fun requestIdentityCreation(deviceKeyAddress: String,
-                            recoveryAddress: String,
-                            networkId: String,
-                            fuelToken: String,
-                            callback: IdentityInfoCallback) {
+        val unnuPayload = Json.stringify(UnnuCreationRequest.serializer(),
+                UnnuCreationRequest(
+                        deviceKeyAddress,
+                        recoveryAddress,
+                        Networks.get(networkId).name)
+        )
 
-    val unnuPayload = UnnuCreationRequest(
-            deviceKeyAddress,
-            recoveryAddress,
-            Networks.get(networkId).name).toJson()
-
-    urlPost(identityCreationUrl, unnuPayload, fuelToken) { err, rawResponse ->
-        if (err != null) {
-            return@urlPost callback(err, UnnuIdentityInfo.blank)
-        }
-        val parsedResponse = UnnuJRPCResponse.fromJson(rawResponse)
+        val rawResponse = httpClient.urlPost(identityCreationUrl, unnuPayload, fuelToken)
+        val parsedResponse = IdentityInfoJRPCResponse.fromJson(rawResponse)
         if (parsedResponse.status == "success") {
-            return@urlPost callback(null, parsedResponse.data)
+            return parsedResponse.data
         } else {
-            return@urlPost callback(IOException("${parsedResponse.message}"), UnnuIdentityInfo.blank)
+            throw IOException("${parsedResponse.message}")
         }
     }
+
 }
-
-
-
-
-

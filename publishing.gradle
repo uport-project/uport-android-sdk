@@ -1,0 +1,169 @@
+// this relies on a vault connection or the presence of a publish.properties file with:
+// bintray_api_key
+// bintray_username
+
+
+def gitUrl = "https://github.com/uport-project/uport-android-sdk.git"
+def groupID = "com.github.uport-project.uport-android-sdk"
+def siteUrl = "https://developer.uport.me"
+def sdkDescription = "uPort SDK for android"
+
+subprojects { subproject ->
+
+    afterEvaluate {
+
+        if (subproject.plugins.hasPlugin('com.github.dcendents.android-maven')) {
+
+            subproject.group = groupID
+            subproject.version = uport_sdk_version
+            subproject.description = subproject.ext.has("description") ? subproject.ext.description : sdkDescription
+
+            //pom fields required by maven central
+            install {
+                repositories.mavenInstaller {
+                    pom.project {
+                        packaging 'aar'
+                        groupId subproject.group
+                        artifactId subproject.name
+
+                        name subproject.name
+                        description subproject.description
+
+                        url siteUrl
+
+                        licenses {
+                            license {
+                                name "The Apache Software License, Version 2.0"
+                                url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                            }
+                        }
+                        developers {
+                            developer {
+                                id "mirceanis"
+                                name "Mircea Nistor"
+                                email "mircea.nistor@consensys.net"
+                            }
+                        }
+                        scm {
+                            connection gitUrl
+                            developerConnection gitUrl
+                            url siteUrl
+                        }
+                    }
+                }
+            }
+
+            task sourcesJar(type: Jar) {
+                classifier = 'sources'
+                if (subproject.hasProperty("android")) {
+                    from android.sourceSets.main.javaDirectories
+                } else {
+                    from sourceSets.main.java.srcDirs
+                }
+            }
+
+            artifacts {
+                archives sourcesJar
+            }
+
+            //config for jcenter
+            if (gradle.startParameter.taskNames.find { it.contains("bintray") }) {
+                bintray {
+                    user = getBintrayUser()
+                    key = getBintrayApiKey()
+
+                    configurations = ['archives']
+
+                    pkg {
+                        repo = "uport-project"
+                        name = subproject.name
+                        licenses = ["Apache-2.0"]
+                        desc = subproject.description
+                        websiteUrl = siteUrl
+                        vcsUrl = gitUrl
+                        dryRun = false
+                        publish = true
+                        override = true
+                        publicDownloadNumbers = false
+                        version {
+                            name = uport_sdk_version
+                            released = new Date()
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+}
+
+//////////////////////////////////////////////////
+// helpers for loading publishing configuration //
+//////////////////////////////////////////////////
+
+def getBintrayApiKey() {
+    return getInfoFromPropOrVault("bintray_api_key")
+}
+
+def getBintrayUser() {
+    return getInfoFromPropOrVault("bintray_username")
+}
+
+def getInfoFromPropOrVault(String key) {
+
+    checkLocalPublishingProperties()
+    checkVaultEnvironment()
+
+    String info
+    if (project.publishProps?.get(key) != null) {
+        info = project.publishProps?.get(key)
+    } else if (project.hasProperty("IGNORE_VAULT")) {
+        info = ""
+    } else {
+        try {
+            info = project?.vault?.get("secret/android_sdk/$key")['data']['value']
+        } catch (Exception e) {
+            throw new InvalidUserDataException("There was an error while reading $key from vault.\n" +
+                    "Make sure to have secret/android_sdk/$key in the vault.\n" +
+                    "Run this task with -PIGNORE_VAULT to default to local configuration if available", e)
+        }
+    }
+    return info
+}
+
+def checkVaultEnvironment() {
+
+    if (project.hasProperty("IGNORE_VAULT")) {
+        //use only local data if available
+        return
+    }
+
+    File tokenFile = new File("${System.env.HOME}/.vault-token")
+
+    if (tokenFile.canRead()) {
+        if (System.env.VAULT_TOKEN == null || System.env.VAULT_TOKEN == "") {
+            project?.vault?.token = tokenFile.text
+        }
+    }
+
+    if (System.env.VAULT_ADDR == null || (System.env.VAULT_TOKEN == null && !tokenFile.canRead())) {
+        throw new InvalidUserDataException("Vault coordinates are not configured.\n" +
+                "VAULT_ADDR and VAULT_TOKEN need to be set as environment variables.\n" +
+                "Run this task with -PIGNORE_VAULT to skip secrets and build using local configuration only")
+    }
+}
+
+def checkLocalPublishingProperties() {
+    def propFile = file("${rootDir}/publish.properties")
+    if (propFile.canRead()) {
+
+        Properties publishProps = new Properties()
+        propFile.withInputStream {
+            publishProps.load(it)
+        }
+        project.ext.publishProps = publishProps
+    } else {
+        project.ext.publishProps = null
+    }
+}

@@ -1,29 +1,32 @@
 package me.uport.sdk.httpsdid
 
-import me.uport.sdk.core.urlGet
+import me.uport.sdk.core.HttpClient
+import me.uport.sdk.universaldid.BlankDocumentError
 import me.uport.sdk.universaldid.DIDResolver
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import me.uport.sdk.universaldid.DidResolverError
 
-open class HttpsDIDResolver : DIDResolver {
+/**
+ * This is a DID resolver implementation that supports the "https" DID method.
+ * It accepts https-did strings and produces a document described at:
+ * https://w3c-ccg.github.io/did-spec/#did-documents
+ *
+ * Example https did: "did:https:example.com"
+ */
+open class HttpsDIDResolver(private val httpClient: HttpClient = HttpClient()) : DIDResolver {
     override val method: String = "https"
 
-    override suspend fun resolve(did: String): HttpsIdentityDocument = suspendCoroutine { continuation ->
+    override suspend fun resolve(did: String): HttpsDIDDocument {
         if (canResolve(did)) {
             val (_, domain) = parseDIDString(did)
-            getProfileDocument(domain) { err, ddo ->
-                if (err != null) {
-                    continuation.resumeWithException(err)
-                } else {
-                    continuation.resume(HttpsIdentityDocument.fromJson(ddo)!!)
-                }
+            val ddoString = getProfileDocument(domain)
+            if (ddoString.isBlank()) {
+                throw BlankDocumentError("no profile document found for `$did`")
             }
+            return HttpsDIDDocument.fromJson(ddoString)
         } else {
-            continuation.resumeWithException(java.lang.IllegalArgumentException("The DID('$did') cannot be resolved by the uPort DID resolver"))
+            throw DidResolverError("The DID('$did') cannot be resolved by the HTTPS DID resolver")
         }
     }
-
 
     override fun canResolve(potentialDID: String): Boolean {
         val (method, _) = parseDIDString(potentialDID)
@@ -31,13 +34,9 @@ open class HttpsDIDResolver : DIDResolver {
     }
 
 
-    /**
-     * Given a [domain], obtains the JSON encoded DID doc then tries to convert it to a [HttpsIdentityDocument] object
-     *
-     */
-    open fun getProfileDocument(domain: String, callback: (err: Exception?, ddo: String) -> Unit) {
+    private suspend fun getProfileDocument(domain: String): String {
         val url = "https://$domain/.well-known/did.json"
-        urlGet(url, null, callback)//getProfileDocumentSync(domain)
+        return httpClient.urlGet(url)
     }
 
     companion object {
@@ -49,5 +48,4 @@ open class HttpsDIDResolver : DIDResolver {
             return (method to domain)
         }
     }
-
 }

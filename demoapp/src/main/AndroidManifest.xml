@@ -4,12 +4,12 @@
     package="me.uport.sdk.demoapp">
 
     <application
+        android:name=".DemoApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name="me.uport.sdk.demoapp.DemoApplication"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".MainListActivity">
             <intent-filter>
@@ -19,22 +19,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".CreateAccountActivity" />
-        <activity android:name=".CreateKeyActivity" />
-        <activity android:name=".ImportKeyActivity" />
-        <activity android:name=".KeyProtectionListActivity" />
-        <activity android:name=".KeyGuardProtectionActivity" />
-        <activity android:name=".FingerPrintProtectionActivity" />
-        <activity android:name=".SignJWTKeyPairSignerActivity" />
-        <activity android:name=".SignJWTListActivity" />
-        <activity android:name=".SignJWTUportHDSignerActivity" />
-        <activity android:name=".DIDResolverActivity" />
-        <activity android:name=".VerifyJWTActivity" />
-        <activity android:name=".SelectiveDisclosureActivity" />
+        <activity android:name=".request_flows.uPortLoginActivity" />
 
-
-
-        <activity android:name=".DeepLinkActivity">
+        <!--when using deeplinks as callbacks, you need to set the intent filters on this activity and merge-->
+        <activity android:name="me.uport.sdk.transport.IntentForwardingActivity">
             <!-- deep links -->
             <intent-filter
                 android:autoVerify="true"
@@ -46,11 +34,26 @@
 
                 <data
                     android:host="uport-project.github.io"
-                    android:pathPrefix="/uport-android-sdk"
+                    android:path="/uport-android-sdk/callbacks"
                     android:scheme="https" />
-
             </intent-filter>
         </activity>
+
+        <activity android:name=".CreateAccountActivity" />
+        <activity android:name=".CreateKeyActivity" />
+        <activity android:name=".ImportKeyActivity" />
+        <activity android:name=".key_protection.KeyProtectionListActivity" />
+        <activity android:name=".key_protection.KeyGuardProtectionActivity" />
+        <activity android:name=".key_protection.FingerPrintProtectionActivity" />
+        <activity android:name=".managing_jwt.SignJWTKeyPairSignerActivity" />
+        <activity android:name=".managing_jwt.SignJWTListActivity" />
+        <activity android:name=".managing_jwt.SignJWTUportHDSignerActivity" />
+        <activity android:name=".DIDResolverActivity" />
+        <activity android:name=".managing_jwt.VerifyJWTActivity" />
+        <activity android:name=".request_flows.VerifiedClaimRequestActivity" />
+        <activity android:name=".request_flows.PersonalSignRequestActivity" />
+        <activity android:name=".request_flows.TypedDataRequestActivity" />
+        <activity android:name=".request_flows.EthereumTransactionActivity" />
 
     </application>
 

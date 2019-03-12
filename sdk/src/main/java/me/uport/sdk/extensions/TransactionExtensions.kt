@@ -1,15 +1,17 @@
 package me.uport.sdk.extensions
 
 import android.content.Context
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.identity.Account
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.experimental.getAccountBalance
-import me.uport.sdk.jsonrpc.experimental.getTransactionByHash
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
 import org.kethereum.model.Address
@@ -17,13 +19,9 @@ import org.kethereum.model.createTransactionWithDefaults
 import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
-
-fun Account.getBalance(callback: (err: Exception?, balance: BigInteger) -> Unit) {
-    val network = Networks.get(this.network)
-    val rpc = JsonRPC(network.rpcUrl)
-    rpc.getAccountBalance(this.deviceAddress, callback)
-}
-
+/**
+ * fetches the ETH balance of this [Account]s deviceAddress
+ */
 suspend fun Account.getBalance(): BigInteger {
     val network = Networks.get(this.network)
     val rpc = JsonRPC(network.rpcUrl)
@@ -106,13 +104,6 @@ suspend fun EthNetwork.waitForTransactionToMine(txHash: String): String {
         delay(pollingDelay)
     }
     return minedAtBlockHash.toHexStringNoPrefix().prepend0xPrefix()
-}
-
-fun EthNetwork.awaitConfirmation(txHash: String, callback: (err: Exception?, txReceipt: JsonRPC.TransactionReceipt) -> Unit) = GlobalScope.launch {
-
-    waitForTransactionToMine(txHash)
-
-    JsonRPC(rpcUrl).getTransactionReceipt(txHash, callback)
 }
 
 private const val POLLING_DELAY_DEFAULT: Long = 5 * 1000L

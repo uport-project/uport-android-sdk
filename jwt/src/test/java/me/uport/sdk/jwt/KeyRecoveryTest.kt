@@ -16,8 +16,6 @@ class KeyRecoveryTest {
     //  Uncomment `@Test` to iterate over 1000 * 1000 key/message combinations. Takes a lot of time.
     //@Test
     fun `can recover key from JWT signature`() = runBlocking {
-        val tools = JWTTools()
-
         for (i in 0 until 1000) {
             val privateKey = "super secret $i".toByteArray().sha256().toHexString()
             val pubKey = publicKeyFromPrivate(PrivateKey(privateKey.hexToBigInteger())).key.toHexStringNoPrefix()
@@ -28,7 +26,7 @@ class KeyRecoveryTest {
 
                 val sigData = signer.signJWT(message)
 
-                val recovered = tools.signedJwtToKey(message, sigData).toHexStringNoPrefix()
+                val recovered = signedJwtToKey(message, sigData).toHexStringNoPrefix()
 
                 assertEquals("failed at key $i, message $j", pubKey, recovered)
             }

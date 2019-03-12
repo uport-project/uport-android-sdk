@@ -1,9 +1,10 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 apply plugin: "kotlinx-serialization"
-apply plugin: "maven"
+apply plugin: "com.github.dcendents.android-maven"
+apply plugin: "com.jfrog.bintray"
 
-//apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+project.ext.description = "tools for communication with other uPort layers or between different client implementations"
 
 android {
     compileSdkVersion compile_sdk_version
@@ -25,6 +26,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            multiDexEnabled true
+        }
     }
 
     testOptions {
@@ -39,15 +44,15 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation "com.android.support:support-annotations:$support_lib_version"
+    implementation "com.android.support:appcompat-v7:$support_lib_version"
 
     api project(":core")
     api project(":serialization")
     implementation "com.github.uport-project:tweetnacl-k:$tweetnacl_k_version"
 
     testImplementation "junit:junit:$junit_version"
-    testImplementation "org.mockito:mockito-inline:$mockito_version"
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
     testImplementation "org.robolectric:robolectric:$robolectric_version"
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_rules_version"

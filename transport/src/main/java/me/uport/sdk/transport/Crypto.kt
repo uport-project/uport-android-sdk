@@ -57,8 +57,13 @@ object Crypto {
                 encrypted.ciphertext.decodeBase64(),
                 encrypted.nonce.decodeBase64(),
                 encrypted.ephemPublicKey.decodeBase64(),
-                secretKey) ?: throw RuntimeException("Could not decrypt message")
+                secretKey) ?: throw DecryptionError("Could not decrypt message")
         return decrypted.unpadFromBlock()
     }
+
+    /**
+     * Constructs an exception that represents a failure to decrypt a message.
+     */
+    class DecryptionError(message: String) : IllegalArgumentException(message)
 
 }

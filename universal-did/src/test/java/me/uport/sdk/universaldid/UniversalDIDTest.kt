@@ -1,7 +1,11 @@
 package me.uport.sdk.universaldid
 
+import assertk.assert
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import me.uport.sdk.testhelpers.coAssert
 import org.junit.Test
 
 class UniversalDIDTest {
@@ -25,25 +29,27 @@ class UniversalDIDTest {
 
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `blank resolves to error`() = runBlocking {
+    @Test
+    fun `blank resolves to error`() {
         UniversalDID.clearResolvers()
 
-        val ddo = UniversalDID.resolve("")
-
-        //should never be reached, expecting exception above
-        assertNull(ddo)
+        coAssert {
+            UniversalDID.resolve("")
+        }.thrownError {
+            isInstanceOf(IllegalArgumentException::class)
+        }
     }
 
-    @Test(expected = Exception::class)
-    fun `testResolver resolves to error with blank`() = runBlocking {
+    @Test
+    fun `testResolver resolves to error with blank`() {
         UniversalDID.clearResolvers()
         UniversalDID.registerResolver(testResolver)
 
-        val ddo = UniversalDID.resolve("")
-
-        //should never be reached, expecting exception above
-        assertNull(ddo)
+        coAssert {
+            UniversalDID.resolve("")
+        }.thrownError {
+            isInstanceOf(IllegalArgumentException::class)
+        }
     }
 
     @Test
@@ -52,7 +58,7 @@ class UniversalDIDTest {
         UniversalDID.registerResolver(testResolver)
 
         val ddo = UniversalDID.resolve("did:test:this is a test did")
-        assertEquals(testDDO, ddo)
+        assert(ddo).isEqualTo(testDDO)
     }
 
     private val validDIDs = listOf(
@@ -77,14 +83,13 @@ class UniversalDIDTest {
     @Test
     fun `parses dids correctly`() {
         validDIDs.forEach {
-            val (method, identifier) = UniversalDID.parse(it)
-            assertTrue("parsing $it failed, got (method=$method, identifier=$identifier)", method.isNotBlank())
-            assertEquals("generic", method)
+            val (method, _) = UniversalDID.parse(it)
+            assert(method).isEqualTo("generic")
         }
 
         invalidDIDs.forEach {
-            val (method, identifier) = UniversalDID.parse(it)
-            assertTrue("parsing $it should have failed, got (method=$method, identifier=$identifier)", method.isBlank())
+            val (method, _) = UniversalDID.parse(it)
+            assert(method).isEmpty()
         }
     }
 

@@ -1,6 +1,7 @@
 package me.uport.sdk.core
 
-import org.junit.Assert.assertTrue
+import assertk.assert
+import assertk.assertions.isLessThan
 import org.junit.Test
 
 class TimeProviderTest {
@@ -10,6 +11,6 @@ class TimeProviderTest {
         val systemTime = System.currentTimeMillis()
         val defaultProvider = SystemTimeProvider
         //some systems have tens of milliseconds as the lowest granularity
-        assertTrue(defaultProvider.now() - systemTime < 100L)
+        assert(defaultProvider.nowMs()).isLessThan(100L + systemTime)
     }
 }

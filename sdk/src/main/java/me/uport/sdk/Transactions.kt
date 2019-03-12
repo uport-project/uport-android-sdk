@@ -8,12 +8,12 @@ import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
 import me.uport.sdk.identity.Account
 import me.uport.sdk.identity.AccountType
-import me.uport.sdk.identity.AccountType.*
+import me.uport.sdk.identity.AccountType.Device
+import me.uport.sdk.identity.AccountType.IdentityManager
+import me.uport.sdk.identity.AccountType.KeyPair
 import me.uport.sdk.identity.AccountType.MetaIdentityManager
+import me.uport.sdk.identity.AccountType.Proxy
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.experimental.getGasPrice
-import me.uport.sdk.jsonrpc.experimental.getTransactionCount
-import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
 import me.uport.sdk.signer.MetaIdentitySigner
 import me.uport.sdk.signer.TxRelayHelper
 import me.uport.sdk.signer.TxRelaySigner
@@ -27,8 +27,11 @@ import java.math.BigInteger
 val DEFAULT_GAS_LIMIT = 3_000_000L.toBigInteger()
 val DEFAULT_GAS_PRICE = 20_000_000_000L.toBigInteger()
 
-typealias TransactionsCallback = (err: Exception?, txHash: String) -> Unit
-
+/**
+ * Provides methods for broadcasting transactions that support multiple account types.
+ *
+ * API volatility: __high__
+ */
 class Transactions(
         context: Context,
         private val account: Account) {
@@ -85,6 +88,13 @@ class Transactions(
                 gasLimit = gasLimit)
     }
 
+    /**
+     * Sends an Ethereum transaction.
+     * Depending on the type of signer, the process of building, signing and broadcasting a transaction
+     * may take a long time. This method can be called multiple times with the same transaction request
+     * and it will continue the process.
+     */
+    @Suppress("ComplexMethod")
     suspend fun sendTransaction(signer: Signer, request: Transaction, signerType: AccountType = Proxy): String {
         val txLabel = request.encodeRLP().toHexString()
 

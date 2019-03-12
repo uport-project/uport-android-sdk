@@ -1,6 +1,8 @@
 package me.uport.sdk.demoapp
 
-import android.support.test.espresso.Espresso.*
+import android.support.test.espresso.Espresso.onData
+import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.Espresso.pressBack
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.intent.Intents.intended
@@ -8,16 +10,17 @@ import android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import android.support.test.espresso.intent.rule.IntentsTestRule
 import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
-import android.support.test.runner.AndroidJUnit4
+import me.uport.sdk.demoapp.key_protection.FingerPrintProtectionActivity
+import me.uport.sdk.demoapp.key_protection.KeyGuardProtectionActivity
+import me.uport.sdk.demoapp.key_protection.KeyProtectionListActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTKeyPairSignerActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTListActivity
+import me.uport.sdk.demoapp.managing_jwt.SignJWTUportHDSignerActivity
 import org.hamcrest.CoreMatchers.anything
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-
-@RunWith(AndroidJUnit4::class)
 class NavigationTest {
-
 
     @get:Rule
     val activityRule = IntentsTestRule(MainListActivity::class.java)

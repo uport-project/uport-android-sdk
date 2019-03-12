@@ -1,7 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: "kotlin-android"
 apply plugin: "kotlinx-serialization"
-apply plugin: "maven"
+apply plugin: "com.github.dcendents.android-maven"
+apply plugin: "com.jfrog.bintray"
+
+project.ext.description = "classes for creating and managing uPort Account objects"
 
 android {
     compileSdkVersion compile_sdk_version
@@ -30,7 +33,6 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-
     implementation "com.android.support:support-annotations:$support_lib_version"
 
     api "com.github.walleth.kethereum:model:$kethereum_version"
@@ -42,7 +44,8 @@ dependencies {
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"
+    androidTestImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
+
     testImplementation "junit:junit:$junit_version"
-
-
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 }

@@ -1,9 +1,13 @@
 package me.uport.sdk.universaldid
 
 import android.support.annotation.Keep
+import kotlinx.serialization.Decoder
+import kotlinx.serialization.Encoder
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 
 
 /**
@@ -24,7 +28,7 @@ data class PublicKeyEntry(
         val id: String,
 
         @SerialName("type")
-        val type: DelegateType,
+        val type: PublicKeyType,
 
         @SerialName("owner")
         val owner: String,
@@ -52,7 +56,7 @@ data class PublicKeyEntry(
 
 @Serializable
 data class AuthenticationEntry(
-        val type: DelegateType,
+        val type: PublicKeyType,
         val publicKey: String
 )
 
@@ -62,11 +66,58 @@ data class ServiceEntry(
         val serviceEndpoint: String
 )
 
+/**
+ * This is a wrapper class for PublicKeyType
+ * It is meant to provide a more typesafe way of dealing with these strings.
+ * This will be ported to inline classes when that feature of kotlin stabilizes and works properly with serialization
+ *
+ * see DID Document spec:
+ * https://w3c-ccg.github.io/did-spec/#did-documents
+ */
 @Keep
-enum class DelegateType {
-    Secp256k1VerificationKey2018,
-    Secp256k1SignatureAuthentication2018,
-    Ed25519VerificationKey2018,
-    RsaVerificationKey2018,
-    Curve25519EncryptionPublicKey, // encryption key. Usage described here: https://github.com/uport-project/specs/blob/develop/pki/diddocument.md
+@Serializable
+data class PublicKeyType(val name: String) {
+
+    @Serializer(forClass = PublicKeyType::class)
+    companion object : KSerializer<PublicKeyType> {
+
+        override fun serialize(encoder: Encoder, obj: PublicKeyType) =
+                encoder.encodeString(obj.name)
+
+        override fun deserialize(decoder: Decoder): PublicKeyType =
+                PublicKeyType(decoder.decodeString())
+
+
+        //////////////////////////////
+        //some known key types
+        //////////////////////////////
+
+        /**
+         * Default JWT signing key type used by uPort DIDs
+         *
+         * see usage in uPort spec: https://github.com/uport-project/specs/blob/develop/pki/diddocument.md
+         */
+        val Secp256k1VerificationKey2018 = PublicKeyType("Secp256k1VerificationKey2018")
+
+        /**
+         * references a [Secp256k1VerificationKey2018] in a DID document [AuthenticationEntry]
+         */
+        val Secp256k1SignatureAuthentication2018 = PublicKeyType("Secp256k1SignatureAuthentication2018")
+
+
+        /**
+         * While not directly generated here, it is treated as [Secp256k1VerificationKey2018]
+         */
+        val Secp256k1SignatureVerificationKey2018 = PublicKeyType("Secp256k1SignatureVerificationKey2018")
+
+        /**
+         * While not directly generated here, it is treated as [Secp256k1VerificationKey2018]
+         */
+        val EcdsaPublicKeySecp256k1 = PublicKeyType("EcdsaPublicKeySecp256k1")
+
+        /**
+         * encryption key. Usage described here: https://github.com/uport-project/specs/blob/develop/pki/diddocument.md
+         */
+        val Curve25519EncryptionPublicKey = PublicKeyType("Curve25519EncryptionPublicKey")
+    }
 }

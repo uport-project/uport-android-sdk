@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.uport.sdk.signer
 
 import android.content.Context
@@ -11,11 +13,15 @@ import com.uport.sdk.signer.encryption.SimpleAsymmetricProtection
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
-import org.kethereum.crypto.*
+import org.kethereum.crypto.createEthereumKeyPair
 import org.kethereum.crypto.model.ECKeyPair
 import org.kethereum.crypto.model.PRIVATE_KEY_SIZE
 import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
 import org.kethereum.crypto.model.PrivateKey
+import org.kethereum.crypto.signMessage
+import org.kethereum.crypto.signMessageHash
+import org.kethereum.crypto.toAddress
+import org.kethereum.crypto.toECKeyPair
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.hashes.sha256
 import org.kethereum.model.SignatureData

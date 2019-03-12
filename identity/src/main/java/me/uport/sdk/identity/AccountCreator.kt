@@ -1,37 +1,26 @@
 package me.uport.sdk.identity
 
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
-
 typealias AccountCreatorCallback = (err: Exception?, acc: Account) -> Unit
 
+/**
+ * Interface describing an [Account] manager that can create, import and delete accounts
+ */
 interface AccountCreator {
-    fun createAccount(networkId: String, forceRestart: Boolean = false, callback: AccountCreatorCallback)
 
-    fun importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean, callback: AccountCreatorCallback)
+    /**
+     * Create an [Account] rooted in a given [networkId].
+     * The process can be restarted if [forceRecreate] is set to true
+     */
+    suspend fun createAccount(networkId: String, forceRecreate: Boolean = false): Account
 
-    fun deleteAccount(handle: String)
+    /**
+     * Create an [Account] rooted in a given [networkId] and based on a seed phrase
+     * The process can be restarted if [forceRecreate] is set to true
+     */
+    suspend fun importAccount(networkId: String, seedPhrase: String, forceRecreate: Boolean = false): Account
+
+    /**
+     * Deletes a previously created account from the underlying storage
+     */
+    suspend fun deleteAccount(handle: String)
 }
-
-suspend fun AccountCreator.createAccount(networkId: String, forceRestart: Boolean = false): Account = suspendCoroutine { continuation ->
-    this.createAccount(networkId, forceRestart) { err, account ->
-        if (err != null) {
-            continuation.resumeWithException(err)
-        } else {
-            continuation.resume(account)
-        }
-    }
-}
-
-suspend fun AccountCreator.importAccount(networkId: String, seedPhrase: String, forceRestart: Boolean = false): Account = suspendCoroutine { continuation ->
-    this.importAccount(networkId, seedPhrase, forceRestart) { err, account ->
-        if (err != null) {
-            continuation.resumeWithException(err)
-        } else {
-            continuation.resume(account)
-        }
-    }
-}
-
-fun AccountCreator.deleteAccount(acc: Account) = this.deleteAccount(acc.handle)

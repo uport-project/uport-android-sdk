@@ -1,14 +1,11 @@
+@file:Suppress("UndocumentedPublicFunction", "UndocumentedPublicClass")
+
 package me.uport.sdk.ethrdid
 
 import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jsonrpc.JsonRpcBaseResponse
-import me.uport.sdk.jsonrpc.experimental.ethCall
-import me.uport.sdk.jsonrpc.experimental.getGasPrice
-import me.uport.sdk.jsonrpc.experimental.getTransactionCount
-import me.uport.sdk.jsonrpc.experimental.sendRawTransaction
-import me.uport.sdk.universaldid.DelegateType
+import me.uport.sdk.universaldid.PublicKeyType
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
 import org.kethereum.model.createTransactionWithDefaults
@@ -32,15 +29,14 @@ class EthrDID(
 
 
     class DelegateOptions(
-            val delegateType: DelegateType = DelegateType.Secp256k1VerificationKey2018,
+            val delegateType: PublicKeyType = PublicKeyType.Secp256k1VerificationKey2018,
             val expiresIn: Long = 86400L
     )
 
     suspend fun lookupOwner(cache: Boolean = true): String {
         if (cache && this.owner != null) return this.owner
         val encodedCall = EthereumDIDRegistry.IdentityOwner.encode(Solidity.Address(address.hexToBigInteger()))
-        val jrpcResponse = rpc.ethCall(registry, encodedCall)
-        val rawResult = JsonRpcBaseResponse.fromJson(jrpcResponse).result.toString()
+        val rawResult = rpc.ethCall(registry, encodedCall)
         return rawResult.substring(rawResult.length - 40).prepend0xPrefix()
     }
 
@@ -69,7 +65,7 @@ class EthrDID(
         return signAndSendContractCall(owner, encodedCall)
     }
 
-    suspend fun revokeDelegate(delegate: String, delegateType: DelegateType = DelegateType.Secp256k1VerificationKey2018): String {
+    suspend fun revokeDelegate(delegate: String, delegateType: PublicKeyType = PublicKeyType.Secp256k1VerificationKey2018): String {
         val owner = this.lookupOwner()
         val encodedCall = EthereumDIDRegistry.RevokeDelegate.encode(
                 Solidity.Address(this.address.hexToBigInteger()),

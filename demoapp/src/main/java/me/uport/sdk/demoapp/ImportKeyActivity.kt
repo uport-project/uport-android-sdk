@@ -12,6 +12,9 @@ import org.kethereum.bip39.generateMnemonic
 import org.kethereum.bip39.wordlists.WORDLIST_ENGLISH
 import org.walleth.khex.toHexString
 
+/**
+ * Shows how to import a 12 word seed phrase and store tha seed under unauthenticated key protection
+ */
 class ImportKeyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

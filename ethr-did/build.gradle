@@ -2,9 +2,10 @@ apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 apply plugin: "kotlinx-serialization"
 apply plugin: "bivrost"
-apply plugin: "maven"
+apply plugin: "com.github.dcendents.android-maven"
+apply plugin: "com.jfrog.bintray"
 
-//apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+project.ext.description = "DID resolver for the ethr-did (ERC 1056) lightweight identity standard"
 
 android {
     compileSdkVersion compile_sdk_version
@@ -39,14 +40,13 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-
     implementation "com.android.support:support-annotations:$support_lib_version"
+
     implementation "com.github.gnosis.bivrost-kotlin:bivrost-solidity-types:$bivrost_version"
 
     api "com.github.walleth.kethereum:extensions:$kethereum_version"
     api "com.github.walleth.kethereum:model:$kethereum_version"
     api "com.github.walleth.kethereum:base58:$kethereum_version"
-
     api project(":jsonrpc")
     api project(":core")
     api project(":signer")
@@ -54,13 +54,6 @@ dependencies {
     api project(":universal-did")
 
     testImplementation "junit:junit:$junit_version"
-    testImplementation "org.mockito:mockito-inline:$mockito_version"
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$mockito_kotlin_version"
-
-    //TODO: this should be removed after Transaction operations move to :core or somewhere common
-    testImplementation project(":sdk")
-
-
-    androidTestImplementation "com.android.support.test:runner:$test_runner_version"
-    androidTestImplementation "com.android.support.test:rules:$test_runner_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 }

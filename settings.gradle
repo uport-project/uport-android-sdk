@@ -13,3 +13,5 @@ include ':transport'
 include ':identity'
 include ':sdk'
 include ':fuelingservice'
+
+include ':test-helpers'
