@@ -81,10 +81,11 @@ data class PublicKeyType(val name: String) {
     @Serializer(forClass = PublicKeyType::class)
     companion object : KSerializer<PublicKeyType> {
 
-        override fun serialize(output: Encoder, obj: PublicKeyType) =
-                output.encodeString(obj.name)
+        override fun serialize(encoder: Encoder, obj: PublicKeyType) =
+                encoder.encodeString(obj.name)
 
-        override fun deserialize(input: Decoder): PublicKeyType = PublicKeyType(input.decodeString())
+        override fun deserialize(decoder: Decoder): PublicKeyType =
+                PublicKeyType(decoder.decodeString())
 
 
         //////////////////////////////
