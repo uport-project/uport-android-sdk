@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.simple_list.*
 import me.uport.sdk.demoapp.key_protection.KeyProtectionListActivity
 import me.uport.sdk.demoapp.managing_jwt.SignJWTListActivity
 import me.uport.sdk.demoapp.managing_jwt.VerifyJWTActivity
+import me.uport.sdk.demoapp.request_flows.VerifiedClaimRequestActivity
 import me.uport.sdk.demoapp.request_flows.getNetworkAndAddressFromDID
 import me.uport.sdk.demoapp.request_flows.uPortLoginActivity
 
