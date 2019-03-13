@@ -1,6 +1,7 @@
 package me.uport.sdk.demoapp
 
 import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.Espresso.pressBack
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
@@ -21,5 +22,7 @@ class SignJWTUportHDTest {
         onView(withId(R.id.submit_btn_one)).perform(click())
 
         assert(activityRule.activity.issuerDID).isNotEqualTo("null")
+
+        pressBack()
     }
 }
