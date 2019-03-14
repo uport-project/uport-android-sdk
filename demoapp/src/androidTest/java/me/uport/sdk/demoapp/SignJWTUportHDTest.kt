@@ -1,9 +1,5 @@
 package me.uport.sdk.demoapp
 
-import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.Espresso.pressBack
-import android.support.test.espresso.action.ViewActions.click
-import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import assertk.assert
 import assertk.assertions.isNotEqualTo
@@ -17,12 +13,10 @@ class SignJWTUportHDTest {
     val activityRule = ActivityTestRule(SignJWTUportHDSignerActivity::class.java)
 
     @Test
-    fun keyIsCreated() {
+    fun signerIsCreated() {
 
-        onView(withId(R.id.submit_btn_one)).perform(click())
+        Thread.sleep(1000)
 
-        assert(activityRule.activity.issuerDID).isNotEqualTo("null")
-
-        pressBack()
+        assert(activityRule.activity.issuerDID).isNotEqualTo("")
     }
 }
