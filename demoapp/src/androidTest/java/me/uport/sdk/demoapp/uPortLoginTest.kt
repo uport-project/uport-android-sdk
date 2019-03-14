@@ -3,6 +3,8 @@ package me.uport.sdk.demoapp
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
+import android.content.IntentFilter
+import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions.matches
@@ -13,6 +15,7 @@ import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import me.uport.sdk.demoapp.request_flows.uPortLoginActivity
 import me.uport.sdk.transport.RequestDispatchActivity
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -22,6 +25,21 @@ class uPortLoginTest {
 
     @get:Rule
     val intentsTestRule = IntentsTestRule(uPortLoginActivity::class.java)
+
+    private var instrumentation: Instrumentation? = null
+    private var monitor: Instrumentation.ActivityMonitor? = null
+    private val filter: IntentFilter? = null
+
+    @Before
+    fun run_before_every_test() {
+        instrumentation = InstrumentationRegistry.getInstrumentation()
+        monitor = instrumentation?.addMonitor(filter, null, true)
+    }
+
+    @After
+    fun run_after_every_test() {
+        instrumentation?.removeMonitor(monitor)
+    }
 
     @Before
     fun stub_intent() {
@@ -41,6 +59,8 @@ class uPortLoginTest {
 
         // User starts the uport login activity.
         onView(withId(R.id.btn_send_request)).perform(click())
+
+        Thread.sleep(5000)
 
         // Check if other request flow buttons visible after successful login
         onView(withId(R.id.btn_verified_claim)).check(matches(isDisplayed()))

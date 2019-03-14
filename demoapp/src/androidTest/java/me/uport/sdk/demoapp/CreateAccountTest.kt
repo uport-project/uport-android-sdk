@@ -17,6 +17,9 @@ class CreateAccountTest {
 
     @Test
     fun accountIsCreated() {
+
+        Thread.sleep(2000)
+
         onView(withId(R.id.defaultAccountView)).check(matches(withText(not(containsString("ERROR")))))
     }
 

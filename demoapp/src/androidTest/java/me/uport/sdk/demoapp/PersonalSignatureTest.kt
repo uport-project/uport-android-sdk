@@ -3,6 +3,8 @@ package me.uport.sdk.demoapp
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
+import android.content.IntentFilter
+import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions.matches
@@ -14,6 +16,7 @@ import android.support.test.espresso.matcher.ViewMatchers.withText
 import me.uport.sdk.demoapp.request_flows.PersonalSignRequestActivity
 import me.uport.sdk.transport.RequestDispatchActivity
 import org.hamcrest.CoreMatchers.not
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -22,6 +25,21 @@ class PersonalSignatureTest {
 
     @get:Rule
     val intentsTestRule = IntentsTestRule(PersonalSignRequestActivity::class.java)
+
+    private var instrumentation: Instrumentation? = null
+    private var monitor: Instrumentation.ActivityMonitor? = null
+    private val filter: IntentFilter? = null
+
+    @Before
+    fun run_before_every_test() {
+        instrumentation = InstrumentationRegistry.getInstrumentation()
+        monitor = instrumentation?.addMonitor(filter, null, true)
+    }
+
+    @After
+    fun run_after_every_test() {
+        instrumentation?.removeMonitor(monitor)
+    }
 
     @Before
     fun stub_intent() {
@@ -40,6 +58,8 @@ class PersonalSignatureTest {
 
         // User clicks on send request.
         onView(withId(R.id.send_request)).perform(click())
+
+        Thread.sleep(5000)
 
         // Response detail TextView will no longer be empty
         onView(withId(R.id.response_details)).check(matches(not(withText(""))))
