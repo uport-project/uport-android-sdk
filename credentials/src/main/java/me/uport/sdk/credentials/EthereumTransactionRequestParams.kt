@@ -2,7 +2,6 @@
 
 package me.uport.sdk.credentials
 
-import org.kethereum.extensions.toHexStringNoPrefix
 import org.kethereum.extensions.toHexStringZeroPadded
 import java.math.BigInteger
 

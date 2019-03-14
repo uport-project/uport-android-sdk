@@ -16,7 +16,9 @@ import java.lang.IllegalArgumentException
  * TODO: Move this functionality to the SDK and create an API so apps can easily fetch an address from a DID
  */
 
-fun getNetworkAndAddressFromDID(did: String): Pair<String, String> {
+fun getNetworkAndAddressFromDID(did: String?): Pair<String, String> {
+
+    if (did.isNullOrBlank()) { return ("" to "") }
 
     // converts possible ethr DIDs to a Pair of Network and Address
     val ethrMatchResult = EthrDIDResolver.identityExtractPattern.find(did)

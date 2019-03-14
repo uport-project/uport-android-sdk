@@ -54,6 +54,7 @@ dependencies {
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espresso_version"
+    androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espresso_version"
     androidTestImplementation "io.mockk:mockk-android:$mockk_version"
     androidTestImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 }
