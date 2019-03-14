@@ -48,7 +48,7 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
         var signer: Signer? = null
         GlobalScope.launch(UI) {
-            val (address, _) = UportHDSigner().importHDSeed(this@SignJWTUportHDSignerActivity, KeyProtection.Level.SIMPLE, phrase)
+            val (address, _) = UportHDSigner().importHDSeed(this@SignJWTUportHDSignerActivity, KeyProtection.Level.PROMPT, phrase)
 
             // create KeyPair signer
             signer = UportHDSignerImpl(this@SignJWTUportHDSignerActivity, UportHDSigner(), address, address)
