@@ -1,7 +1,7 @@
 package me.uport.sdk
 
 /**
- * Thrown by verious methods of the uPort SDK that need an initial configuration to be specified
+ * Thrown by various methods of the uPort SDK that need an initial configuration to be specified
  */
 class UportNotInitializedException : RuntimeException(
         """

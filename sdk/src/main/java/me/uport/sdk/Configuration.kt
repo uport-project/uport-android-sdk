@@ -11,7 +11,7 @@ class Configuration {
 
     lateinit var applicationContext: Context
     lateinit var fuelTokenProvider: IFuelTokenProvider
-    lateinit var network: EthNetwork
+    var network: EthNetwork? = null
 
     @Suppress("unused")
     fun setFuelTokenProvider(provider: IFuelTokenProvider): Configuration {

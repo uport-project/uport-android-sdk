@@ -87,8 +87,10 @@ object Uport {
                     prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
                 }
 
-        UniversalDID.registerResolver(UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl)))
-        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(Networks.mainnet.rpcUrl)))
+        UniversalDID.registerResolver(UportDIDResolver(JsonRPC(configuration.network?.rpcUrl
+                ?: Networks.rinkeby.rpcUrl)))
+        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(configuration.network?.rpcUrl
+                ?: Networks.mainnet.rpcUrl)))
         UniversalDID.registerResolver(HttpsDIDResolver())
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
