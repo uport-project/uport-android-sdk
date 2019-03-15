@@ -27,7 +27,6 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
 
         submit_btn_one.text = "Sign JWT"
 
-
         // mock a JWT payload
         val payload = mapOf<String, Any>(
                 "claims" to mapOf(
@@ -63,7 +62,7 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
             GlobalScope.launch(UI) {
 
                 val signedJWT: String? = try {
-                    JWTTools().createJWT(payload, issuerDID!!, signer!!, 5000)
+                    JWTTools().createJWT(payload, issuerDID!!, signer!!,5000)
                 } catch (exception: Exception) {
                     null
                 }
