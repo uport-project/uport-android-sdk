@@ -11,6 +11,7 @@ import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
+import me.uport.sdk.testhelpers.TestTimeProvider
 import org.junit.Test
 
 class CredentialsTest {
@@ -52,6 +53,58 @@ class CredentialsTest {
 
         val (header, _, _) = JWTTools().decode(jwt)
         assert(header.alg).isEqualTo(ES256K)
+
+    }
+
+    @Test
+    fun `create verification test with all params`() = runBlocking {
+
+        val expectedJWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJjbGFpbSI6eyJuYW1lIjoiSm9obiBEb2UiLCJhZ2UiOiIzNSIsImxvY2F0aW9uIjoiR2VybWFueSJ9LCJ2YyI6eyJlZHVjYXRpb24iOiJNYXN0ZXJzIiwicHJvZmVzc2lvbiI6IkludmVzdG1lbnQgQmFua2VyIiwicGFzc29ydCI6IkdFMzQ1OEpDIn0sImNhbGxiYWNrIjoibXlhcHA6Ly9nZXQtYmFjay10by1tZS13aXRoLXJlc3BvbnNlLnVybCIsImlhdCI6MTIzNDU2NzgsImV4cCI6MTIzNDg2NzgsImlzcyI6ImRpZDp1cG9ydDoyblF0aVFHNkNnbTFHWVRCYWFLQWdyNzZ1WTdpU2V4VWtxWCJ9.nHJXDYJnTj9QBjN90VTqJOzpcldNmeZ_BMTB3ZPeDbwY9Q99iHF1P-yQGRQF7efG-WOQYsdhfpcSle5kEDQ4cg"
+
+        val claim = mapOf("name" to "John Doe",
+                "age" to "35",
+                "location" to "Germany")
+
+        val vc = mapOf("education" to "Masters",
+                "profession" to "Investment Banker",
+                "passort" to "GE3458JC")
+
+        val timeProvider = TestTimeProvider(12345678000L)
+
+        val cred = Credentials("did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX", KPSigner("0x1234"), timeProvider)
+        val jwt = cred.createVerification(
+                "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+                claim,
+                "myapp://get-back-to-me-with-response.url",
+                vc,
+                3000L
+        )
+
+        assert(jwt).isEqualTo(expectedJWT)
+
+    }
+
+    @Test
+    fun `create verification test with required params only`() = runBlocking {
+
+        val expectedJWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJjbGFpbSI6eyJuYW1lIjoiSm9obiBEb2UiLCJhZ2UiOiIzNSIsImxvY2F0aW9uIjoiR2VybWFueSJ9LCJ2YyI6e30sImNhbGxiYWNrIjoibXlhcHA6Ly9nZXQtYmFjay10by1tZS13aXRoLXJlc3BvbnNlLnVybCIsImlhdCI6MTIzNDU2NzgsImV4cCI6MTIzNDYyNzgsImlzcyI6ImRpZDp1cG9ydDoyblF0aVFHNkNnbTFHWVRCYWFLQWdyNzZ1WTdpU2V4VWtxWCJ9.Z0rachvLJzskxGJMuV8KwQDbMZE0mrvNbaTMQ5KgwiPFLDlpa7QtvuYQrCqcnLwfPpvWrHwrBLjgQsa8D_g8LA"
+
+        val claim = mapOf("name" to "John Doe",
+                "age" to "35",
+                "location" to "Germany")
+
+        val timeProvider = TestTimeProvider(12345678000L)
+
+        val cred = Credentials("did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX", KPSigner("0x1234"), timeProvider)
+        val jwt = cred.createVerification(
+                "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+                claim,
+                "myapp://get-back-to-me-with-response.url",
+                null,
+                null
+        )
+
+        assert(jwt).isEqualTo(expectedJWT)
 
     }
 
