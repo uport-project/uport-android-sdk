@@ -35,7 +35,7 @@ allprojects {
 In your application `build.gradle` file, add:
 
 ```groovy
-def uport_sdk_version = "v0.4.0"
+def uport_sdk_version = "v0.4.1"
 dependencies {
     //...
     // core SDK
@@ -222,6 +222,8 @@ Want to contribute to uport-android-sdk? Cool, please read our [contribution gui
 
 
 ## Changelog
+* 0.4.1
+    * maintenance release
 
 * 0.4.0
     * `core` module is a simple java library (and can be used as a dependency in JVM tests)
