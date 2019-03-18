@@ -133,7 +133,7 @@ class Credentials(
     suspend fun createVerification(sub: String,
                                    claim: Map<String, Any>,
                                    callbackUrl: String? = null,
-                                   verifiedClaims: Map<String, Any>?,
+                                   verifiedClaims: Collection<String>? = null,
                                    expiresInSeconds: Long?): String {
 
         val payload = mutableMapOf<String, Any>()
