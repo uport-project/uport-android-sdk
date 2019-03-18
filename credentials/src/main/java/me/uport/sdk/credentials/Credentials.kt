@@ -120,13 +120,15 @@ class Credentials(
 
 
     /**
-     * Creates a JWT with a signed claim about a subject.
+     * Creates a JWT with a signed claim.
      *
      * @param sub **REQUIRED** a valid DID for the subject of credential
-     * @param claim **REQUIRED** claim about subject single key value or key mapping to object with multiple values
-     * @param callbackUrk **REQUIRED** a map detailing the payload of the resulting JWT
+     * @param claim **REQUIRED** claim about subject single key value or key mapping
+     *              to object with multiple values
+     * @param callbackUrl **OPTIONAL** the URL that receives the response
      * @param expiresInSeconds **OPTIONAL** number of seconds of validity of the claim.
-     * @param verifiedClaims **OPTIONAL** verified claims about the subject, single key value or key mapping to object with multiple values
+     * @param verifiedClaims **OPTIONAL** a list of verified claims which can be about anything
+ *                          related to the claim and in most cases it is related to the issuer
      *
      *  ```
      */
@@ -134,13 +136,13 @@ class Credentials(
                                    claim: Map<String, Any>,
                                    callbackUrl: String? = null,
                                    verifiedClaims: Collection<String>? = null,
-                                   expiresInSeconds: Long?): String {
+                                   expiresInSeconds: Long? = 600L): String {
 
         val payload = mutableMapOf<String, Any>()
         payload["sub"] = sub
         payload["claim"] = claim
-        payload["vc"] = verifiedClaims ?: emptyMap<String, Any>()
-        payload["callback"] = callbackUrl
+        payload["vc"] = verifiedClaims ?: emptyList<String>()
+        payload["callback"] = callbackUrl ?: ""
         return this.signJWT(payload, expiresInSeconds ?: 600L)
     }
 
