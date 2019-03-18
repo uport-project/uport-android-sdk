@@ -132,7 +132,7 @@ class Credentials(
      */
     suspend fun createVerification(sub: String,
                                    claim: Map<String, Any>,
-                                   callbackUrl: String,
+                                   callbackUrl: String? = null,
                                    verifiedClaims: Map<String, Any>?,
                                    expiresInSeconds: Long?): String {
 
