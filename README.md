@@ -35,7 +35,7 @@ allprojects {
 In your application `build.gradle` file, add:
 
 ```groovy
-def uport_sdk_version = "v0.4.1"
+def uport_sdk_version = "v0.4.2"
 dependencies {
     //...
     // core SDK
@@ -222,6 +222,11 @@ Want to contribute to uport-android-sdk? Cool, please read our [contribution gui
 
 
 ## Changelog
+* 0.4.2
+    * updated infura JsonRPC endpoint URLs.
+    To avoid sudden disconnect you are strongly encouraged to use your own project on
+    infura or to use a dedicated JsonRPC endpoint for your use case.
+    
 * 0.4.1
     * maintenance release
 
