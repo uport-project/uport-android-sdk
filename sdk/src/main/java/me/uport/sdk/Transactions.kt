@@ -8,7 +8,6 @@ import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.core.Networks
 import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
-import me.uport.sdk.identity.HDAccount
 import me.uport.sdk.identity.AccountType
 import me.uport.sdk.identity.AccountType.Device
 import me.uport.sdk.identity.AccountType.IdentityManager
@@ -45,7 +44,7 @@ class Transactions(
     /**
      * A suspending function that takes in a [request] [Transaction] and constructs another [Transaction]
      * with the appropriate `from`, `nonce`, `gasLimit` and `gasPrice`
-     * according to the provided [signerType] and the [HDAccount] object it's applied to.
+     * according to the provided [signerType] and the Account object it's applied to.
      *
      * Returns a modified [Transaction] object, ready to be signed and sent.
      */

@@ -73,5 +73,4 @@ class SharedPrefsAccountStorage(
     companion object {
         private const val KEY_ACCOUNTS = "accounts"
     }
-
 }

@@ -10,7 +10,6 @@ import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
-import me.uport.sdk.identity.HDAccount
 import me.uport.sdk.identity.MetaIdentityAccount
 import me.uport.sdk.jsonrpc.JsonRPC
 import org.kethereum.extensions.hexToBigInteger
@@ -21,7 +20,7 @@ import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
 /**
- * fetches the ETH balance of this [HDAccount]s deviceAddress
+ * fetches the ETH balance of this Account's deviceAddress
  */
 suspend fun MetaIdentityAccount.getBalance(): BigInteger {
     val network = Networks.get(this.network)
@@ -31,7 +30,7 @@ suspend fun MetaIdentityAccount.getBalance(): BigInteger {
 
 
 /**
- * Send [value] amount of WEI ( 1e-18 ETH ) from HDAccount to [destinationAddress]
+ * Send [value] amount of WEI ( 1e-18 ETH ) from Account to [destinationAddress]
  */
 suspend fun MetaIdentityAccount.send(context: Context, destinationAddress: String, value: BigInteger): String {
     val rawTransaction = createTransactionWithDefaults(
@@ -66,7 +65,7 @@ suspend fun MetaIdentityAccount.send(context: Context, contractAddress: String, 
 }
 
 /**
- * Send [value] amount of WEI ( 1e-18 ETH ) from HDAccount to the address [to]
+ * Send [value] amount of WEI ( 1e-18 ETH ) from Account to the address [to]
  */
 fun MetaIdentityAccount.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.launch {
     try {

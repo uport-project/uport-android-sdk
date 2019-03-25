@@ -19,14 +19,14 @@ import me.uport.sdk.identity.ProgressPersistence.PersistentBundle
 import me.uport.sdk.identity.endpoints.Unnu
 
 /**
- * [HDAccount] manager backed by a [UportHDSigner] that controls a
+ * [MetaIdentityAccount] manager backed by a [UportHDSigner] that controls a
  * [uPort proxy account](https://github.com/uport-project/uport-identity).
  *
  * This type of account supports meta-transactions but require fuel-tokens
  *
- * **Work on this identity model is on hold and no support is available. Please use [HDAccountCreator]**
+ * **Work on this identity model is on hold and no support is available. Please use [MetaIdentityAccountCreator]**
  */
-@Deprecated("Work on this identity model is on hold and no support is available. Please use [HDAccountCreator]")
+@Deprecated("Work on this identity model is on hold and no support is available. Please use [MetaIdentityAccountCreator]")
 class MetaIdentityAccountCreator(
         private val context: Context,
         private val fuelTokenProvider: IFuelTokenProvider) : AccountCreator {

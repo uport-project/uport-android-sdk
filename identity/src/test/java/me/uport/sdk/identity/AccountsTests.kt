@@ -112,6 +112,4 @@ class AccountsTests {
             isInstanceOf(IllegalStateException::class)
         }
     }
-
-
 }

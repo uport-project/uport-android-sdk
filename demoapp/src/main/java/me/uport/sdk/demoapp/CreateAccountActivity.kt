@@ -9,7 +9,7 @@ import me.uport.sdk.Uport
 import me.uport.sdk.core.Networks
 
 /**
- * shows a simple call to create an account and check for an existing default
+ * shows a simple call to create an HDAccount and checks for an existing default account
  */
 class CreateAccountActivity : AppCompatActivity() {
 
@@ -23,15 +23,14 @@ class CreateAccountActivity : AppCompatActivity() {
             val acc = runBlocking { Uport.createAccount(Networks.rinkeby.networkId) }
             progressBarView.visibility = View.INVISIBLE
 
-            defaultAccountView.text = "${acc.toJson(true)} \nHDAccount DID: ${acc.getDID()}" +
+            defaultAccountView.text = "${acc.toJson(true)} \nAccount DID: ${acc.getDID()}" +
                     "\n" +
-                    "HDAccount MNID: ${acc.getMnid()}"
+                    "Account MNID: ${acc.getMnid()}"
         } else {
             defaultAccountView.text =
-                    "${Uport.defaultAccount?.toJson(true)} \nHDAccount DID: ${Uport.defaultAccount?.getDID()}" +
+                    "${Uport.defaultAccount?.toJson(true)} \nAccount DID: ${Uport.defaultAccount?.getDID()}" +
                             "\n" +
                             "MNID: ${Uport.defaultAccount?.getMnid()}"
         }
-
     }
 }

@@ -22,6 +22,8 @@ interface Account {
     @SerialName("proxy")
     val publicAddress: String
 
+    val type: AccountType
+
     fun getMnid() = MNID.encode(network, publicAddress)
 
     fun getSigner(context: Context): Signer
