@@ -15,7 +15,7 @@ import assertk.assertions.isNull
 import com.uport.sdk.signer.UportHDSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.Networks
-import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.HDAccount
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
@@ -46,7 +46,7 @@ class UportTest {
 
             assert(acc).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
 
             assert(tested.defaultAccount).isNotNull()
@@ -101,7 +101,7 @@ class UportTest {
             val account = tested.createAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
             assert(account).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
             assert(account.address).isEqualTo("2opxPamUQoLarQHAoVDKo2nDNmfQLNCZif4")
             assert(account.publicAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
@@ -131,7 +131,7 @@ class UportTest {
             val account = tested.createAccount(Networks.rinkeby.networkId)
             assert(account).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
 
             val root = account.handle

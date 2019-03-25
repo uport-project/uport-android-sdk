@@ -14,7 +14,7 @@ import org.junit.Before
 import org.junit.Test
 
 //TODO: move this to JVM test with robolectric once a solution is found for https://github.com/robolectric/robolectric/issues/1518
-class KPAccountCreatorTest {
+class HDAccountCreatorTest {
 
     private lateinit var appContext: Context
 
@@ -26,13 +26,13 @@ class KPAccountCreatorTest {
     @Test
     fun createAccount() {
         runBlocking {
-            val account = KPAccountCreator(appContext).createAccount(Networks.rinkeby.networkId)
+            val account = HDAccountCreator(appContext).createAccount(Networks.rinkeby.networkId)
 
             assert(account).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
-            assert(account.type).isEqualTo(AccountType.KeyPair)
+
             assert(account.address).isNotEmpty()
             assert(account.publicAddress).isNotEmpty()
             assert(account.deviceAddress).isNotEmpty()
@@ -45,12 +45,11 @@ class KPAccountCreatorTest {
         val referenceSeedPhrase = "vessel ladder alter error federal sibling chat ability sun glass valve picture"
 
         runBlocking {
-            val account = KPAccountCreator(appContext).importAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
+            val account = HDAccountCreator(appContext).importAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
             assert(account).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
-            assert(account.type).isEqualTo(AccountType.KeyPair)
             assert(account.address).isEqualTo("2opxPamUQoLarQHAoVDKo2nDNmfQLNCZif4")
             assert(account.publicAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
             assert(account.deviceAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")

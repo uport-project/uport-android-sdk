@@ -4,7 +4,7 @@ apply plugin: "kotlinx-serialization"
 apply plugin: "com.github.dcendents.android-maven"
 apply plugin: "com.jfrog.bintray"
 
-project.ext.description = "classes for creating and managing uPort Account objects"
+project.ext.description = "classes for creating and managing uPort HDAccount objects"
 
 android {
     compileSdkVersion compile_sdk_version

@@ -8,13 +8,14 @@ import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.core.Networks
 import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
-import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.HDAccount
 import me.uport.sdk.identity.AccountType
 import me.uport.sdk.identity.AccountType.Device
 import me.uport.sdk.identity.AccountType.IdentityManager
 import me.uport.sdk.identity.AccountType.KeyPair
 import me.uport.sdk.identity.AccountType.MetaIdentityManager
 import me.uport.sdk.identity.AccountType.Proxy
+import me.uport.sdk.identity.MetaIdentityAccount
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.signer.MetaIdentitySigner
 import me.uport.sdk.signer.TxRelayHelper
@@ -36,7 +37,7 @@ val DEFAULT_GAS_PRICE = 20_000_000_000L.toBigInteger()
  */
 class Transactions(
         context: Context,
-        private val account: Account) {
+        private val account: MetaIdentityAccount) {
 
     private val network = Networks.get(account.network)
     private val progress: ProgressPersistence = ProgressPersistence(context)
@@ -44,7 +45,7 @@ class Transactions(
     /**
      * A suspending function that takes in a [request] [Transaction] and constructs another [Transaction]
      * with the appropriate `from`, `nonce`, `gasLimit` and `gasPrice`
-     * according to the provided [signerType] and the [Account] object it's applied to.
+     * according to the provided [signerType] and the [HDAccount] object it's applied to.
      *
      * Returns a modified [Transaction] object, ready to be signed and sent.
      */

@@ -10,10 +10,10 @@ import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
-import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.HDAccount
 import me.uport.sdk.identity.AccountCreator
 import me.uport.sdk.identity.AccountCreatorCallback
-import me.uport.sdk.identity.KPAccountCreator
+import me.uport.sdk.identity.HDAccountCreator
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
@@ -27,11 +27,11 @@ object Uport {
 
     private lateinit var prefs: SharedPreferences
 
-    private lateinit var accountCreator: AccountCreator
+    private lateinit var accountCreator: HDAccountCreator
 
     private var defaultAccountHandle = ""
 
-    var defaultAccount: Account?
+    var defaultAccount: HDAccount?
         get() = accountStorage?.get(defaultAccountHandle)
         set(value) {
             val newDefault = value?.copy(isDefault = true)
@@ -68,7 +68,7 @@ object Uport {
 
         val context = config.applicationContext
 
-        accountCreator = KPAccountCreator(context)
+        accountCreator = HDAccountCreator(context)
 
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
@@ -81,7 +81,7 @@ object Uport {
         }
 
         prefs.getString(OLD_DEFAULT_ACCOUNT, "")
-                ?.let { Account.fromJson(it) }
+                ?.let { HDAccount.fromJson(it) }
                 ?.let {
                     accountStorage?.upsert(it.copy(isDefault = true))
                     prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
@@ -118,7 +118,7 @@ object Uport {
                 val account = createAccount(network.networkId, seedPhrase)
                 completion(null, account)
             } catch (ex: Exception) {
-                completion(ex, Account.blank)
+                completion(ex, HDAccount.blank)
             }
 
         }
@@ -133,7 +133,7 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    suspend fun createAccount(networkId: String, seedPhrase: String? = null): Account {
+    suspend fun createAccount(networkId: String, seedPhrase: String? = null): HDAccount {
         if (!initialized) {
             throw UportNotInitializedException()
         }
@@ -168,6 +168,6 @@ object Uport {
         }
     }
 
-    fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
+    fun deleteAccount(acc: HDAccount) = deleteAccount(acc.handle)
 
 }

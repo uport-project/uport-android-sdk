@@ -49,7 +49,7 @@ class ProgressPersistence(context: Context) {
             val txHash: String = "",
 
             @SerialName("partialAccount")
-            val partialAccount: Account = Account.blank
+            val partialAccount: MetaIdentityAccount = MetaIdentityAccount.blank
     ) {
         fun toJson() = Json.stringify(PersistentBundle.serializer(), this)
 

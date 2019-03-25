@@ -12,19 +12,16 @@ class AccountsTests {
 
     @Test
     fun `can serialize and deserialize account`() {
-        val refAccount = Account(
+        val refAccount = HDAccount(
                 "0xroot",
                 "0xdevice",
                 "0x1",
-                "0xpublic",
-                "",
-                "",
-                ""
+                "0xpublic"
         )
 
         val serialized = refAccount.toJson()
 
-        val other = Account.fromJson(serialized)
+        val other = HDAccount.fromJson(serialized)
 
         assert(other).isEqualTo(refAccount)
     }
@@ -45,7 +42,7 @@ class AccountsTests {
               "signerType":"KeyPair"
             }""".trimIndent()
 
-        val account = Account.fromJson(serializedAccount)
+        val account = HDAccount.fromJson(serializedAccount)
 
         assert(account).isNotNull()
         assert(account!!.isDefault!!).isFalse()
@@ -67,7 +64,7 @@ class AccountsTests {
                 "isDefault": true
             }""".trimIndent()
 
-        val account = Account.fromJson(serializedAccount)
+        val account = HDAccount.fromJson(serializedAccount)
         val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
         val canResolve = EthrDIDResolver(defaultRPC).canResolve(account!!.getDID())
         assert(canResolve)
@@ -88,7 +85,7 @@ class AccountsTests {
               "signerType":"MetaIdentityManager"
             }""".trimIndent()
 
-        val account = Account.fromJson(serializedAccount)
+        val account = HDAccount.fromJson(serializedAccount)
         val tested = UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl))
         assert(tested.canResolve(account!!.getDID())).isTrue()
     }
@@ -108,7 +105,7 @@ class AccountsTests {
               "signerType":"Proxy"
             }""".trimIndent()
 
-        val account = Account.fromJson(serializedAccount)
+        val account = HDAccount.fromJson(serializedAccount)
         assert {
             account!!.getDID()
         }.thrownError {

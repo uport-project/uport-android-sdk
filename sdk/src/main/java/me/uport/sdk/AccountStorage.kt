@@ -1,18 +1,18 @@
 package me.uport.sdk
 
 import android.content.SharedPreferences
-import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.HDAccount
 
 interface AccountStorage {
-    fun upsert(newAcc: Account)
+    fun upsert(newAcc: HDAccount)
 
-    fun get(handle: String): Account?
+    fun get(handle: String): HDAccount?
 
     fun delete(handle: String)
 
-    fun all(): List<Account>
+    fun all(): List<HDAccount>
 
-    fun upsertAll(list: Collection<Account>)
+    fun upsertAll(list: Collection<HDAccount>)
 }
 
 
@@ -25,14 +25,14 @@ class SharedPrefsAccountStorage(
         private val prefs: SharedPreferences
 ) : AccountStorage {
 
-    private val accounts = mapOf<String, Account>().toMutableMap()
+    private val accounts = mapOf<String, HDAccount>().toMutableMap()
 
     init {
         prefs.getStringSet(KEY_ACCOUNTS, emptySet())
                 .orEmpty()
                 .forEach { serialized ->
                     val acc = try {
-                        Account.fromJson(serialized)
+                        HDAccount.fromJson(serialized)
                     } catch (ex: Exception) {
                         null
                     }
@@ -42,12 +42,12 @@ class SharedPrefsAccountStorage(
     }
 
 
-    override fun upsert(newAcc: Account) {
+    override fun upsert(newAcc: HDAccount) {
         accounts[newAcc.handle] = newAcc
         persist()
     }
 
-    override fun upsertAll(list: Collection<Account>) {
+    override fun upsertAll(list: Collection<HDAccount>) {
         list.forEach {
             accounts[it.handle] = it
         }
@@ -55,14 +55,14 @@ class SharedPrefsAccountStorage(
         persist()
     }
 
-    override fun get(handle: String): Account? = accounts[handle]
+    override fun get(handle: String): HDAccount? = accounts[handle]
 
     override fun delete(handle: String) {
         accounts.remove(handle)
         persist()
     }
 
-    override fun all(): List<Account> = accounts.values.toList()
+    override fun all(): List<HDAccount> = accounts.values.toList()
 
     private fun persist() {
         prefs.edit()

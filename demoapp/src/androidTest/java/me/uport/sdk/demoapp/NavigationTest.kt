@@ -33,7 +33,7 @@ class NavigationTest {
     @Test
     fun navigateAllActivities() {
 
-        // check if Create Account Activity is launched
+        // check if Create HDAccount Activity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(0).perform(click())
         intended(hasComponent(CreateAccountActivity::class.java.name))
         pressBack()
