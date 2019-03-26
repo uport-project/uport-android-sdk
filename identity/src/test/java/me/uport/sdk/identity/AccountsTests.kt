@@ -36,7 +36,7 @@ class AccountsTests {
               "devKey":"0xaddress",
               "network":"0x4",
               "proxy":"0xpublicaddress",
-              "signerType":"KeyPair"
+              "signerType":"HDKeyPair"
             }""".trimIndent()
 
         val account = HDAccount.fromJson(serializedAccount)
@@ -54,7 +54,7 @@ class AccountsTests {
                 "devKey": "0x95979bb3ee68420a0b105f6e3c0d5d0fc0466016",
                 "network": "0x04",
                 "proxy": "0x95979bb3ee68420a0b105f6e3c0d5d0fc0466016",
-                "signerType": "KeyPair",
+                "signerType": "HDKeyPair",
                 "isDefault": true
             }""".trimIndent()
 

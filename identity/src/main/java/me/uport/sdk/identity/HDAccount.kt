@@ -31,7 +31,7 @@ data class HDAccount(
         override val publicAddress: String,
 
         @SerialName("signerType")
-        val type: AccountType = AccountType.KeyPair,
+        val type: AccountType = AccountType.HDKeyPair,
 
         @Optional
         @SerialName("isDefault")

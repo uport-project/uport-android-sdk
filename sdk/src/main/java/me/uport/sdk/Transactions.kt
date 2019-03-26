@@ -12,6 +12,7 @@ import me.uport.sdk.identity.AccountType
 import me.uport.sdk.identity.AccountType.Device
 import me.uport.sdk.identity.AccountType.IdentityManager
 import me.uport.sdk.identity.AccountType.KeyPair
+import me.uport.sdk.identity.AccountType.HDKeyPair
 import me.uport.sdk.identity.AccountType.MetaIdentityManager
 import me.uport.sdk.identity.AccountType.Proxy
 import me.uport.sdk.identity.MetaIdentityAccount
@@ -55,7 +56,7 @@ class Transactions(
 
         var nonce = BigInteger.ZERO
         when (signerType) {
-            Device, KeyPair -> {
+            Device, KeyPair, HDKeyPair -> {
                 from = Address(account.deviceAddress)
                 nonce = rpcRelay.getTransactionCount(account.deviceAddress)
             }
@@ -133,7 +134,7 @@ class Transactions(
 
                     signedEncodedTx = relaySigner.signRawTx(oldBundle.unsigned)
 
-                    if (signerType != KeyPair) {
+                    if (signerType != KeyPair || signerType != HDKeyPair) {
                         //fuel the device key?
                         val refuelTxHash = maybeRefuel(signedEncodedTx)
                         network.waitForTransactionToMine(refuelTxHash)
