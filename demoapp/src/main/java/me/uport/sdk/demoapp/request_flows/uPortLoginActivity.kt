@@ -14,11 +14,7 @@ import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.transport.ErrorUriResponse
-import me.uport.sdk.transport.JWTUriResponse
-import me.uport.sdk.transport.ResponseParser
-import me.uport.sdk.transport.Transports
-import me.uport.sdk.transport.UriResponse
+import me.uport.sdk.transport.*
 
 /**
  * This allows the users initiate a uPort login using [SelectiveDisclosureRequest]
@@ -69,6 +65,7 @@ class uPortLoginActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         val response: UriResponse? = ResponseParser.parseActivityResult(requestCode, resultCode, data)
 
         when (response) {
