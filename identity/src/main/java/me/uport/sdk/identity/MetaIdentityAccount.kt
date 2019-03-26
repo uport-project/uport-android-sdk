@@ -11,6 +11,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 
+
+/**
+ * This is an Account implementation for "MetaIdentityManager" account type.
+ */
 @Serializable
 data class MetaIdentityAccount(
 
@@ -49,6 +53,7 @@ data class MetaIdentityAccount(
     val address: String
         get() = getMnid()
 
+    // serializes account
     fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(MetaIdentityAccount.serializer(), this) else Json.stringify(MetaIdentityAccount.serializer(), this)
 
     override fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
@@ -60,6 +65,7 @@ data class MetaIdentityAccount(
 
         val blank = MetaIdentityAccount("", "", "", "", "", "", "")
 
+        // de-serializes account
         fun fromJson(serializedAccount: String?): MetaIdentityAccount? {
             if (serializedAccount == null || serializedAccount.isEmpty()) {
                 return null

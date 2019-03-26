@@ -11,6 +11,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 
+/**
+ * This is an Account implementation for "KeyPair" account type.
+ */
 @Serializable
 data class HDAccount(
 
@@ -40,7 +43,7 @@ data class HDAccount(
     val address: String
         get() = getMnid()
 
-
+    // serializes account
     fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(HDAccount.serializer(), this) else Json.stringify(HDAccount.serializer(), this)
 
     override fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
@@ -52,6 +55,7 @@ data class HDAccount(
 
         val blank = HDAccount("", "", "", "")
 
+        // de-serializes account
         fun fromJson(serializedAccount: String?): HDAccount? {
             if (serializedAccount == null || serializedAccount.isEmpty()) {
                 return null
