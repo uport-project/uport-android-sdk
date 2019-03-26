@@ -24,7 +24,7 @@ import me.uport.sdk.identity.endpoints.Unnu
  *
  * This type of account supports meta-transactions but require fuel-tokens
  *
- * **Work on this identity model is on hold and no support is available. Please use [MetaIdentityAccountCreator]**
+ * **Work on this identity model is on hold and no support is available. Please use [HDAccountCreator]**
  */
 @Deprecated("Work on this identity model is on hold and no support is available. Please use [MetaIdentityAccountCreator]")
 class MetaIdentityAccountCreator(
