@@ -21,9 +21,13 @@ interface Account {
 
     fun getMnid() = MNID.encode(network, publicAddress)
 
-    // this will return the signer of the implementing account
+    /**
+     * this will return the signer of the implementing account
+     */
     fun getSigner(context: Context): Signer
 
-    // this will return the DID associated with the implementing account
+    /**
+     * this will return the DID associated with the implementing account
+     */
     fun getDID(): String
 }

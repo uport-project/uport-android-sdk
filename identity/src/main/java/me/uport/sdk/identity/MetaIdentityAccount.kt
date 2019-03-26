@@ -53,19 +53,25 @@ data class MetaIdentityAccount(
     val address: String
         get() = getMnid()
 
-    // serializes account
+    /**
+     * serializes account
+     */
     fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(MetaIdentityAccount.serializer(), this) else Json.stringify(MetaIdentityAccount.serializer(), this)
 
     override fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
-    // This function generates and returns the DID associated with an account
+    /**
+     * This function generates and returns the DID associated with an account
+     */
     override fun getDID(): String = "did:uport:${getMnid()}"
 
     companion object {
 
         val blank = MetaIdentityAccount("", "", "", "", "", "", "")
 
-        // de-serializes account
+        /**
+         * de-serializes account
+         */
         fun fromJson(serializedAccount: String?): MetaIdentityAccount? {
             if (serializedAccount == null || serializedAccount.isEmpty()) {
                 return null

@@ -43,19 +43,25 @@ data class HDAccount(
     val address: String
         get() = getMnid()
 
-    // serializes account
+    /**
+     * serializes account
+     */
     fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(HDAccount.serializer(), this) else Json.stringify(HDAccount.serializer(), this)
 
     override fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
-    // This function generates and returns the DID associated with an account
+    /**
+     * This function generates and returns the DID associated with an account
+     */
     override fun getDID(): String = "did:ethr:$publicAddress"
 
     companion object {
 
         val blank = HDAccount("", "", "", "")
 
-        // de-serializes account
+        /**
+         * de-serializes account
+         */
         fun fromJson(serializedAccount: String?): HDAccount? {
             if (serializedAccount == null || serializedAccount.isEmpty()) {
                 return null
