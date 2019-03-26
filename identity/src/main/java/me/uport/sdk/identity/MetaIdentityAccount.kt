@@ -1,6 +1,7 @@
 package me.uport.sdk.identity
 
 import android.content.Context
+import android.support.annotation.VisibleForTesting
 import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
@@ -13,12 +14,17 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class MetaIdentityAccount(
 
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+        @SerialName("uportRoot")
         override val handle: String,
 
+        @SerialName("devKey")
         override val deviceAddress: String,
 
+        @SerialName("network")
         override val network: String,
 
+        @SerialName("proxy")
         override val publicAddress: String,
 
         @SerialName("manager")
@@ -30,6 +36,9 @@ data class MetaIdentityAccount(
         @SerialName("fuelToken")
         val fuelToken: String,
 
+        @SerialName("signerType")
+        val type: AccountType = AccountType.MetaIdentityManager,
+
         @Optional
         @SerialName("isDefault")
         val isDefault: Boolean? = false
@@ -39,9 +48,6 @@ data class MetaIdentityAccount(
     @Transient
     val address: String
         get() = getMnid()
-
-    override val type: AccountType
-        get() = AccountType.MetaIdentityManager
 
     fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(MetaIdentityAccount.serializer(), this) else Json.stringify(MetaIdentityAccount.serializer(), this)
 

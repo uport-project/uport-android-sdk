@@ -1,6 +1,7 @@
 package me.uport.sdk.identity
 
 import android.content.Context
+import android.support.annotation.VisibleForTesting
 import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
@@ -13,13 +14,21 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class HDAccount(
 
+        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+        @SerialName("uportRoot")
         override val handle: String,
 
+        @SerialName("devKey")
         override val deviceAddress: String,
 
+        @SerialName("network")
         override val network: String,
 
+        @SerialName("proxy")
         override val publicAddress: String,
+
+        @SerialName("signerType")
+        val type: AccountType = AccountType.KeyPair,
 
         @Optional
         @SerialName("isDefault")
@@ -31,8 +40,6 @@ data class HDAccount(
     val address: String
         get() = getMnid()
 
-    override val type: AccountType
-        get() = AccountType.KeyPair
 
     fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(HDAccount.serializer(), this) else Json.stringify(HDAccount.serializer(), this)
 
