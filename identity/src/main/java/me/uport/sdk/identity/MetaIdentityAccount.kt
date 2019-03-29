@@ -41,11 +41,11 @@ data class MetaIdentityAccount(
         val fuelToken: String,
 
         @SerialName("signerType")
-        val type: AccountType = AccountType.MetaIdentityManager,
+        override val type: AccountType = AccountType.MetaIdentityManager,
 
         @Optional
         @SerialName("isDefault")
-        val isDefault: Boolean? = false
+        override val isDefault: Boolean? = false
 
 ) : Account {
 

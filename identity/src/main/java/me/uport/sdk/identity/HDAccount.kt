@@ -31,11 +31,11 @@ data class HDAccount(
         override val publicAddress: String,
 
         @SerialName("signerType")
-        val type: AccountType = AccountType.HDKeyPair,
+        override val type: AccountType = AccountType.HDKeyPair,
 
         @Optional
         @SerialName("isDefault")
-        val isDefault: Boolean? = false
+        override val isDefault: Boolean? = false
 
 ) : Account {
 

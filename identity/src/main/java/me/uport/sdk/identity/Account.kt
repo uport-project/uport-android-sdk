@@ -21,6 +21,10 @@ interface Account {
 
     fun getMnid() = MNID.encode(network, publicAddress)
 
+    val isDefault: Boolean?
+
+    val type: AccountType
+
     /**
      * this will return the signer of the implementing account
      */
