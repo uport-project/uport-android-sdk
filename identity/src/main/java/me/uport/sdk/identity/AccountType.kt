@@ -8,6 +8,9 @@ enum class AccountType {
     * This [Account] is backed by a key pair that resides in memory.
     */
     KeyPair,
+    /**
+    * This [Account] is backed by a key pair derived from a seed.
+    */
     HDKeyPair,
     MetaIdentityManager,
     /**
