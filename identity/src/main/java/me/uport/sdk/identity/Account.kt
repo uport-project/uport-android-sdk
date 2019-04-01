@@ -11,6 +11,9 @@ import me.uport.mnid.MNID
  */
 interface Account {
 
+    /**
+    * Represents an alias to the account. This [handle] will be used to refer to and interact with the [Account]
+    */
     val handle: String
 
     val deviceAddress: String
