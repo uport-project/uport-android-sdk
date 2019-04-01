@@ -10,6 +10,9 @@ enum class AccountType {
     KeyPair,
     HDKeyPair,
     MetaIdentityManager,
+    /**
+    * This Account is backed by a Proxy contract.
+    */
     Proxy,
     /**
     * This [Account] is backed by a key pair that is only present on this device.
