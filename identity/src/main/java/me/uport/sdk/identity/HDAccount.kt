@@ -12,7 +12,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 
 /**
- * This is an Account implementation for "KeyPair" account type.
+ * This is an [Account] implementation that is backed by a key pair derived from a seed.
  */
 @Serializable
 data class HDAccount(
