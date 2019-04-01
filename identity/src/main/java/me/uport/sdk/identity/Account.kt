@@ -2,7 +2,6 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import com.uport.sdk.signer.Signer
-import me.uport.mnid.MNID
 
 /**
  * Abstraction of the common properties and methods for various account types
@@ -32,8 +31,6 @@ interface Account {
     * In most cases this is identical to the [deviceAddress] or an encoding of it, but it can also represent a contract address or an address of a key that is not directly controlled by this [Account].
     */
     val publicAddress: String
-
-    fun getMnid() = MNID.encode(network, publicAddress)
 
     val isDefault: Boolean?
 

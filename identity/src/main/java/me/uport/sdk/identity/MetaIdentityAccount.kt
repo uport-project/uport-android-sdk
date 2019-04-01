@@ -10,6 +10,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import me.uport.mnid.MNID
 
 
 /**
@@ -52,6 +53,8 @@ data class MetaIdentityAccount(
     @Transient
     val address: String
         get() = getMnid()
+
+    fun getMnid() = MNID.encode(network, publicAddress)
 
     /**
      * serializes account
