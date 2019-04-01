@@ -41,7 +41,7 @@ data class HDAccount(
 
     @Transient
     val address: String
-        get() = getMnid()
+        get() = publicAddress
 
     /**
      * serializes account
