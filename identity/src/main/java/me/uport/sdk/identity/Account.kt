@@ -21,6 +21,9 @@ interface Account {
     */
     val deviceAddress: String
 
+    /**
+    * The network ID this account is associated with.
+    */
     val network: String
 
     val publicAddress: String
