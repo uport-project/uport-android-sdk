@@ -16,6 +16,9 @@ interface Account {
     */
     val handle: String
 
+    /**
+    * Represents the ethereum address that signs transactions. This address is derived from a private key that this [Account] can control - as opposed to it representing a contract address or an address of an external entity.
+    */
     val deviceAddress: String
 
     val network: String
