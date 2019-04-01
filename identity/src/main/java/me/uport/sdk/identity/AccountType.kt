@@ -11,6 +11,11 @@ enum class AccountType {
     HDKeyPair,
     MetaIdentityManager,
     Proxy,
+    /**
+    * This [Account] is backed by a key pair that is only present on this device.
+    * This is deprecated, please use a [KeyPair]
+    */
+    @Deprecated("please use KeyPair instead")
     Device,
     IdentityManager,
 }
