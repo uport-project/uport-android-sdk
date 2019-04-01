@@ -12,6 +12,9 @@ enum class AccountType {
     * This [Account] is backed by a key pair derived from a seed.
     */
     HDKeyPair,
+    /**
+    * This [Account] is backed by a proxy contract that is deployed through a MetaIdentityManager, supporting meta-transactions.
+    */
     MetaIdentityManager,
     /**
     * This Account is backed by a Proxy contract.
