@@ -26,6 +26,11 @@ interface Account {
     */
     val network: String
 
+
+    /**
+    * Represents the public facing address of this [Account].
+    * In most cases this is identical to the [deviceAddress] or an encoding of it, but it can also represent a contract address or an address of a key that is not directly controlled by this [Account].
+    */
     val publicAddress: String
 
     fun getMnid() = MNID.encode(network, publicAddress)
