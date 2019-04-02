@@ -10,6 +10,7 @@ import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
+import me.uport.sdk.identity.Account
 import me.uport.sdk.identity.MetaIdentityAccount
 import me.uport.sdk.jsonrpc.JsonRPC
 import org.kethereum.extensions.hexToBigInteger
@@ -22,7 +23,7 @@ import java.math.BigInteger
 /**
  * fetches the ETH balance of this Account's deviceAddress
  */
-suspend fun MetaIdentityAccount.getBalance(): BigInteger {
+suspend fun Account.getBalance(): BigInteger {
     val network = Networks.get(this.network)
     val rpc = JsonRPC(network.rpcUrl)
     return rpc.getAccountBalance(this.deviceAddress)
@@ -32,7 +33,7 @@ suspend fun MetaIdentityAccount.getBalance(): BigInteger {
 /**
  * Send [value] amount of WEI ( 1e-18 ETH ) from Account to [destinationAddress]
  */
-suspend fun MetaIdentityAccount.send(context: Context, destinationAddress: String, value: BigInteger): String {
+suspend fun Account.send(context: Context, destinationAddress: String, value: BigInteger): String {
     val rawTransaction = createTransactionWithDefaults(
             value = value,
             to = Address(destinationAddress),
@@ -49,7 +50,7 @@ suspend fun MetaIdentityAccount.send(context: Context, destinationAddress: Strin
 /**
  * Send contract call from account to [contractAddress] with [data] as the ABI encoded function call
  */
-suspend fun MetaIdentityAccount.send(context: Context, contractAddress: String, data: ByteArray): String {
+suspend fun Account.send(context: Context, contractAddress: String, data: ByteArray): String {
     val rawTransaction = createTransactionWithDefaults(
             input = data.toList(),
             to = Address(contractAddress),
@@ -67,7 +68,7 @@ suspend fun MetaIdentityAccount.send(context: Context, contractAddress: String, 
 /**
  * Send [value] amount of WEI ( 1e-18 ETH ) from Account to the address [to]
  */
-fun MetaIdentityAccount.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.launch {
+fun Account.send(context: Context, to: String, value: BigInteger, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.launch {
     try {
         val txHash = send(context, to, value)
         withContext(UI) { callback(null, txHash) }
@@ -79,7 +80,7 @@ fun MetaIdentityAccount.send(context: Context, to: String, value: BigInteger, ca
 /**
  * Send contract call from account to [contractAddress] with [data] as the ABI encoded function call
  */
-fun MetaIdentityAccount.send(context: Context, contractAddress: String, data: ByteArray, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.async {
+fun Account.send(context: Context, contractAddress: String, data: ByteArray, callback: (err: Exception?, txHash: String) -> Unit) = GlobalScope.async {
     try {
         val txHash = send(context, contractAddress, data)
         launch(UI) { callback(null, txHash) }
