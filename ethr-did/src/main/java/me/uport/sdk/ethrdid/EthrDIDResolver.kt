@@ -57,6 +57,11 @@ open class EthrDIDResolver(
      * Resolves a given ethereum address or DID string into a corresponding [EthrDIDDocument]
      */
     override suspend fun resolve(did: String): EthrDIDDocument {
+
+        if (registryAddress.isBlank()) {
+            throw IllegalArgumentException("ethr DID registry address is blank. please check your Configuration")
+        }
+
         val normalizedDid = normalizeDid(did)
         val identity = parseIdentity(normalizedDid)
         val ethrdidContract = EthrDID(identity, rpc, registryAddress, Signer.blank)

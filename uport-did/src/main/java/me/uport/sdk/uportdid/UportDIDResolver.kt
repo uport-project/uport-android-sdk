@@ -75,6 +75,10 @@ open class UportDIDResolver(
 
         val registryAddress = MNID.decode(network.uPortRegistry).address
 
+        if (registryAddress.isBlank()) {
+            throw IllegalStateException("uPort DID registry for [${issuer.network}] was not configured.")
+        }
+
         val encodedFunctionCall = encodeRegistryGetCall(registrationIdentifier, issuer, subject)
 
         return try {

@@ -74,7 +74,9 @@ class JWTTools(
         // register default Ethr DID resolver if Universal DID is unable to resolve blank Ethr DID
         if (!UniversalDID.canResolve(blankEthrDID)) {
             val defaultRPC = JsonRPC(preferredNetwork?.rpcUrl ?: Networks.mainnet.rpcUrl)
-            UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+            val defaultRegistry = preferredNetwork?.ethrDidRegistry
+                    ?: Networks.mainnet.ethrDidRegistry
+            UniversalDID.registerResolver(EthrDIDResolver(defaultRPC, defaultRegistry))
         }
 
         // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID

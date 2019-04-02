@@ -89,8 +89,12 @@ object Uport {
 
         UniversalDID.registerResolver(UportDIDResolver(JsonRPC(configuration.network?.rpcUrl
                 ?: Networks.rinkeby.rpcUrl)))
-        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(configuration.network?.rpcUrl
-                ?: Networks.mainnet.rpcUrl)))
+
+        val ethrDidRpcUrl = configuration.network?.rpcUrl ?: Networks.mainnet.rpcUrl
+        val ethrDidRegistry = configuration.network?.ethrDidRegistry
+                ?: Networks.mainnet.ethrDidRegistry
+        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(ethrDidRpcUrl), ethrDidRegistry))
+
         UniversalDID.registerResolver(HttpsDIDResolver())
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
