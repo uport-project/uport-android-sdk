@@ -50,7 +50,7 @@ class HDAccountCreatorTest {
                 isNotNull()
                 isNotEqualTo(HDAccount.blank)
             }
-            assert(account.address).isEqualTo("2opxPamUQoLarQHAoVDKo2nDNmfQLNCZif4")
+            assert(account.address).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
             assert(account.publicAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
             assert(account.deviceAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
             assert(account.handle).isEqualTo("0x794adde0672914159c1b77dd06d047904fe96ac8")
