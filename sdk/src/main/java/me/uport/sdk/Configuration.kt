@@ -13,6 +13,12 @@ class Configuration {
     lateinit var fuelTokenProvider: IFuelTokenProvider
     var network: EthNetwork? = null
 
+    /**
+     * Allows the configuration of a callback that can assign a fuelToken to a device address.
+     *
+     * This functionality is being phased out.
+     */
+    @Deprecated("This functionality is being phased out.")
     @Suppress("unused")
     fun setFuelTokenProvider(provider: IFuelTokenProvider): Configuration {
         this.fuelTokenProvider = provider

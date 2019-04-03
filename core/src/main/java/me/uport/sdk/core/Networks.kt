@@ -19,6 +19,8 @@ object Networks {
     private const val ropstenId = "0x3"
     private const val rinkebyId = "0x4"
     private const val kovanId = "0x2a"
+    private const val DEFAULT_ERC1056_REGISTRY = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b"
+
     private val NETWORK_CONFIG = emptyMap<String, EthNetwork>().toMutableMap()
 
     init {
@@ -26,7 +28,7 @@ object Networks {
                 name = "mainnet",
                 networkId = mainnetId,
                 rpcUrl = "https://mainnet.infura.io/v3/e72b472993ff46d3b5b88faa47214d7f",
-                ethrDidRegistry = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+                ethrDidRegistry = DEFAULT_ERC1056_REGISTRY,
                 explorerUrl = "https://etherscan.io",
                 uPortRegistry = MNID.encode(mainnetId, "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6"),
                 faucetUrl = defaultFaucetUrl,
@@ -36,7 +38,7 @@ object Networks {
                 name = "rinkeby",
                 networkId = rinkebyId,
                 rpcUrl = "https://rinkeby.infura.io/v3/e72b472993ff46d3b5b88faa47214d7f",
-                ethrDidRegistry = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+                ethrDidRegistry = DEFAULT_ERC1056_REGISTRY,
                 explorerUrl = "https://rinkeby.etherscan.io",
                 uPortRegistry = MNID.encode(rinkebyId, "0x2cc31912b2b0f3075a87b3640923d45a26cef3ee"),
                 faucetUrl = "https://api.uport.me/sensui/fund/",
@@ -46,7 +48,7 @@ object Networks {
                 name = "ropsten",
                 networkId = ropstenId,
                 rpcUrl = "https://ropsten.infura.io/v3/e72b472993ff46d3b5b88faa47214d7f",
-                ethrDidRegistry = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+                ethrDidRegistry = DEFAULT_ERC1056_REGISTRY,
                 explorerUrl = "https://ropsten.etherscan.io",
                 uPortRegistry = MNID.encode(ropstenId, "0x41566e3a081f5032bdcad470adb797635ddfe1f0"),
                 faucetUrl = defaultFaucetUrl,
@@ -56,7 +58,7 @@ object Networks {
                 name = "kovan",
                 networkId = kovanId,
                 rpcUrl = "https://kovan.infura.io/v3/e72b472993ff46d3b5b88faa47214d7f",
-                ethrDidRegistry = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+                ethrDidRegistry = DEFAULT_ERC1056_REGISTRY,
                 explorerUrl = "https://kovan.etherscan.io",
                 uPortRegistry = MNID.encode(kovanId, "0x5f8e9351dc2d238fb878b6ae43aa740d62fc9758"),
                 faucetUrl = defaultFaucetUrl,
