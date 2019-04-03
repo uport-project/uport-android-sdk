@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package me.uport.sdk.identity
 
 import android.content.Context

@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package me.uport.sdk
 
 import android.content.Context

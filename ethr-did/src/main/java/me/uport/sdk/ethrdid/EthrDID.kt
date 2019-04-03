@@ -16,13 +16,34 @@ import pm.gnosis.model.Solidity
 import java.math.BigInteger
 
 /**
- * Enables interaction with the EthrDID registry contract
+ * Enables interaction with the EthrDID registry contract.
+ *
+ * See also: https://github.com/uport-project/ethr-did-registry
+ *
+ * **Note: This is a partial implementation and not meant for public use yet**
  */
 class EthrDID(
+        /**
+         * Ethereum hex address that an interaction is about
+         */
         private val address: String,
+
+        /**
+         * RPC endpoint wrapper that can execute JsonRPC calls such as
+         * `eth_call`, `eth_sendRawTransaction`, `eth_getTransactionCount`...
+         */
         private val rpc: JsonRPC,
+
+        /**
+         * Address of the EIP 1056 registry contract.
+         * See also https://github.com/uport-project/ethr-did-registry
+         */
         private val registry: String,
-        val signer: Signer
+
+        /**
+         * A [Signer] implementation used to sign any changes to the registry concerning the [address]
+         */
+        private val signer: Signer
 ) {
 
     private val owner: String? = null

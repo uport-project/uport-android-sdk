@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package me.uport.sdk.signer
 
 import com.uport.sdk.signer.Signer
@@ -17,6 +18,7 @@ import java.math.BigInteger
 /**
  * A [Signer] used to wrap transactions as calls to `relayMetaTx` function in a uport TxRelay contract
  */
+@Deprecated("uPort meta transactions are no longer supported")
 class TxRelaySigner(private val wrappedSigner: Signer,
                     private val network: EthNetwork) : Signer {
 

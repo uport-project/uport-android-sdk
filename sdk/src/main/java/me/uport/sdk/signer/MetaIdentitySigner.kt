@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package me.uport.sdk.signer
 
 import com.uport.sdk.signer.Signer
@@ -10,6 +11,10 @@ import pm.gnosis.model.Solidity
 import pm.gnosis.utils.hexToByteArray
 import java.math.BigInteger
 
+/**
+ * A signer implementation that can wrap a transaction into a meta transaction
+ */
+@Deprecated("uPort meta transactions are no longer supported")
 class MetaIdentitySigner(
         private val wrappedSigner: TxRelaySigner, //this may become more generic
         private val proxyAddress: String,
