@@ -121,6 +121,7 @@ class Transactions(
             val txHash = when (signerType) {
                 MetaIdentityManager -> {
 
+                    @Suppress("UnsafeCast")
                     val metaAccount = account as MetaIdentityAccount
                     val metaSigner = MetaIdentitySigner(relaySigner, metaAccount.publicAddress, metaAccount.identityManagerAddress)
                     signedEncodedTx = metaSigner.signRawTx(oldBundle.unsigned)

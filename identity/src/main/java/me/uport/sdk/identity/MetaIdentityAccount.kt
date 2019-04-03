@@ -54,6 +54,9 @@ data class MetaIdentityAccount(
     val address: String
         get() = getMnid()
 
+    /**
+     * returns MNID for associated account
+     */
     fun getMnid() = MNID.encode(network, publicAddress)
 
     /**
