@@ -1,17 +1,12 @@
 package me.uport.sdk.extensions
 
 import android.content.Context
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.identity.Account
-import me.uport.sdk.identity.MetaIdentityAccount
 import me.uport.sdk.jsonrpc.JsonRPC
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
