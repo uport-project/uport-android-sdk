@@ -25,8 +25,19 @@ import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.util.*
 
+/**
+ * size(in bytes) of the R and S components of an EC signature
+ */
 const val SIG_COMPONENT_SIZE = PRIVATE_KEY_SIZE
+
+/**
+ * total size (bytes) of a non-recoverable signature
+ */
 const val SIG_SIZE = SIG_COMPONENT_SIZE * 2
+
+/**
+ * total size (bytes) of a recoverable signature
+ */
 const val SIG_RECOVERABLE_SIZE = SIG_SIZE + 1
 
 /**
@@ -50,8 +61,16 @@ fun SignatureData.getJoseEncoded(recoverable: Boolean = false): String {
     return bos.toByteArray().toBase64UrlSafe()
 }
 
+/**
+ * Decodes a JOSE encoded signature string.
+ * @param recoveryParam can be used in case the signature is non recoverable to be added as recovery byte
+ */
 fun String.decodeJose(recoveryParam: Byte = 27): SignatureData = this.decodeBase64().decodeJose(recoveryParam)
 
+/**
+ * Decodes a JOSE encoded signature ByteArray.
+ * @param recoveryParam can be used in case the signature is non recoverable to be added as recovery byte
+ */
 fun ByteArray.decodeJose(recoveryParam: Byte = 27): SignatureData {
     val rBytes = Arrays.copyOfRange(this, 0, SIG_COMPONENT_SIZE)
     val sBytes = Arrays.copyOfRange(this, SIG_COMPONENT_SIZE, SIG_SIZE)
@@ -79,9 +98,15 @@ fun SignatureData.getDerEncoded(): String {
 
 private const val DELIMITER = "]"
 
+/**
+ * packs elements of an encryption operation into a string meant to be saved to disk
+ */
 fun packCiphertext(vararg data: ByteArray): String =
         data.joinToString(DELIMITER) { it.toBase64().padBase64() }
 
+/**
+ * unpacks the elements of an encryption op into individual components so they may be used to decrypt
+ */
 fun unpackCiphertext(ciphertext: String): List<ByteArray> =
         ciphertext
                 .split(DELIMITER)
@@ -119,7 +144,11 @@ fun PublicKey.normalize(): PublicKey {
 }
 
 /**
- * represents a BigInteger as a base64 encoding of a fixed size bytearray. The [keySize] defaults to 32 bytes (the size of a private key)
+ * Encodes a BigInteger as a base64 string of a fixed size ByteArray.
+ * The [keySize] defaults to 32 bytes (the size of a private key)
+ *
+ * This is useful for situations when the byte representation of the key starts with zeroes
+ * so a direct transformation would yield shorter ByteArray
  */
 fun BigInteger.keyToBase64(keySize: Int = PRIVATE_KEY_SIZE): String =
         this.toBytesPadded(keySize).toBase64().padBase64()
@@ -129,5 +158,12 @@ fun BigInteger.keyToBase64(keySize: Int = PRIVATE_KEY_SIZE): String =
  */
 fun hasMarshmallow(): Boolean = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
 
+/**
+ * Callback used by async encryption methods
+ */
 typealias EncryptionCallback = (err: Exception?, ciphertext: String) -> Unit
+
+/**
+ * Callback used by async decryption methods
+ */
 typealias DecryptionCallback = (err: Exception?, cleartext: ByteArray) -> Unit

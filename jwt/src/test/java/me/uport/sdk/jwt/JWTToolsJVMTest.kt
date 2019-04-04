@@ -276,6 +276,15 @@ class JWTToolsJVMTest {
             isInstanceOf(JWTEncodingException::class)
         }
     }
+
+    @Test
+    fun `can verify a freshly minted token`() = runBlocking {
+        val signer = KPSigner("0x1234")
+        val did = "did:ethr:${signer.getAddress()}"
+        val token = JWTTools().createJWT(emptyMap(), did, signer)
+        val payload = JWTTools().verify(token)
+        assert(payload).isNotNull()
+    }
 }
 
 
