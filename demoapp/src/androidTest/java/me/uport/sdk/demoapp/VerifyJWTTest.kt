@@ -3,6 +3,7 @@ package me.uport.sdk.demoapp
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions.matches
+import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.support.test.rule.ActivityTestRule
@@ -15,13 +16,18 @@ import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import org.hamcrest.CoreMatchers.not
+import org.hamcrest.Matchers.allOf
 import org.junit.Rule
 import org.junit.Test
+import ro.mirceanistor.testutil.ViewMatcherIdlingRule
 
 class VerifyJWTTest {
 
     @get:Rule
     val activityRule = ActivityTestRule(VerifyJWTActivity::class.java)
+
+    @get:Rule
+    val viewMatcherIdlingRule = ViewMatcherIdlingRule(allOf(withId(R.id.progress), isDisplayed()))
 
     @Test
     fun can_verify_jwt_in_activity() {
@@ -60,8 +66,6 @@ class VerifyJWTTest {
         UniversalDID.registerResolver(ethrResolver)
 
         onView(withId(R.id.verify_btn)).perform(click())
-        //XXX: for some reason the animated progressbar is not getting registered in espresso
-        Thread.sleep(2000)
 
         onView(withId(R.id.jwtPayload)).check(matches(not(withText(""))))
     }

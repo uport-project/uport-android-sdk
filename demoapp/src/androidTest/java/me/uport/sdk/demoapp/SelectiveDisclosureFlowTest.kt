@@ -15,16 +15,21 @@ import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import me.uport.sdk.demoapp.request_flows.uPortLoginActivity
 import me.uport.sdk.transport.RequestDispatchActivity
+import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import ro.mirceanistor.testutil.ViewMatcherIdlingRule
 
 
-class uPortLoginTest {
+class SelectiveDisclosureFlowTest {
 
     @get:Rule
     val intentsTestRule = IntentsTestRule(uPortLoginActivity::class.java)
+
+    @get:Rule
+    val viewMatcherIdlingRule = ViewMatcherIdlingRule(allOf(withId(R.id.progress), isDisplayed()))
 
     private var instrumentation: Instrumentation? = null
     private var monitor: Instrumentation.ActivityMonitor? = null
@@ -59,8 +64,6 @@ class uPortLoginTest {
 
         // User starts the uport login activity.
         onView(withId(R.id.btn_send_request)).perform(click())
-
-        Thread.sleep(5000)
 
         // Check if other request flow buttons visible after successful login
         onView(withId(R.id.btn_verified_claim)).check(matches(isDisplayed()))

@@ -331,6 +331,8 @@ open class JsonRPC(private val rpcEndpoint: String, val httpClient: HttpClient =
      * and attempt to parse the response string into a [JsonRpcBaseResponse]
      * @throws IOException if response is null or if it can't be parsed from JSON
      * @throws JsonRpcException if the response was parsed and an error field was present
+     *
+     * @hide
      */
     @VisibleForTesting(otherwise = PRIVATE)
     suspend fun jsonRpcGenericCall(url: String, payloadRequest: String): String {

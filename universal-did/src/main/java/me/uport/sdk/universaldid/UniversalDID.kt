@@ -27,8 +27,11 @@ object UniversalDID : DIDResolver {
         resolvers[resolver.method] = resolver
     }
 
+    /**
+     * @hide
+     */
     @VisibleForTesting(otherwise = PRIVATE)
-    internal fun clearResolvers() = resolvers.clear()
+    fun clearResolvers() = resolvers.clear()
 
     /**
      * This universal resolver can't be used for any one particular did but for all [DIDResolver]s

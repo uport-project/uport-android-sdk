@@ -1,14 +1,12 @@
 package me.uport.sdk
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
@@ -89,8 +87,14 @@ object Uport {
                     prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
                 }
 
-        UniversalDID.registerResolver(UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl)))
-        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(Networks.mainnet.rpcUrl)))
+        UniversalDID.registerResolver(UportDIDResolver(JsonRPC(configuration.network?.rpcUrl
+                ?: Networks.rinkeby.rpcUrl)))
+
+        val ethrDidRpcUrl = configuration.network?.rpcUrl ?: Networks.mainnet.rpcUrl
+        val ethrDidRegistry = configuration.network?.ethrDidRegistry
+                ?: Networks.mainnet.ethrDidRegistry
+        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(ethrDidRpcUrl), ethrDidRegistry))
+
         UniversalDID.registerResolver(HttpsDIDResolver())
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
@@ -166,21 +170,4 @@ object Uport {
 
     fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
 
-    class Configuration {
-
-        lateinit var fuelTokenProvider: IFuelTokenProvider
-        lateinit var applicationContext: Context
-
-        @Suppress("unused")
-        fun setFuelTokenProvider(provider: IFuelTokenProvider): Configuration {
-            this.fuelTokenProvider = provider
-            return this
-        }
-
-        fun setApplicationContext(context: Context): Configuration {
-            this.applicationContext = context.applicationContext
-            return this
-        }
-
-    }
 }

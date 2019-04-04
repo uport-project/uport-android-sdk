@@ -2,8 +2,19 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.*
-import me.uport.sdk.core.*
+import com.uport.sdk.signer.Signer
+import com.uport.sdk.signer.UportHDSigner
+import com.uport.sdk.signer.decodeJose
+import com.uport.sdk.signer.getJoseEncoded
+import com.uport.sdk.signer.normalize
+import me.uport.sdk.core.EthNetwork
+import me.uport.sdk.core.ITimeProvider
+import me.uport.sdk.core.Networks
+import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.toBase64
+import me.uport.sdk.core.toBase64UrlSafe
+import me.uport.sdk.core.utf8
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -14,6 +25,7 @@ import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.serialization.mapAdapter
 import me.uport.sdk.serialization.moshi
 import me.uport.sdk.universaldid.DIDDocument
+import me.uport.sdk.universaldid.DIDResolver
 import me.uport.sdk.universaldid.PublicKeyEntry
 import me.uport.sdk.universaldid.PublicKeyType.Companion.EcdsaPublicKeySecp256k1
 import me.uport.sdk.universaldid.PublicKeyType.Companion.Secp256k1SignatureVerificationKey2018
@@ -35,10 +47,20 @@ import java.security.SignatureException
 /**
  * Tools for Verifying, Creating, and Decoding uport JWTs
  *
- * the [timeProvider] defaults to [SystemTimeProvider] but you can configure it for testing or for "was valid at" scenarios
+ * @param timeProvider an [ITimeProvider] that can be used for "was valid at ..." verifications
+ * or to emit short lived tokens for future use.
+ * It defaults to a [SystemTimeProvider]
+ *
+ * @param preferredNetwork an [EthNetwork] that can be used to initialize [DIDResolver]s that are
+ * potentially missing from the [UniversalDID] resolver.
+ * **This does not take effect if resolvers are already registered.**
+ * If this param is `null`, then default networks will be used
+ * (`mainnet` for Ethr DID and `rinkeby` for uPort DID ).
+ * It defaults to `null`
  */
 class JWTTools(
-        private val timeProvider: ITimeProvider = SystemTimeProvider
+        private val timeProvider: ITimeProvider = SystemTimeProvider,
+        preferredNetwork: EthNetwork? = null
 ) {
     private val notEmpty: (String) -> Boolean = { !it.isEmpty() }
 
@@ -51,13 +73,15 @@ class JWTTools(
 
         // register default Ethr DID resolver if Universal DID is unable to resolve blank Ethr DID
         if (!UniversalDID.canResolve(blankEthrDID)) {
-            val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
-            UniversalDID.registerResolver(EthrDIDResolver(defaultRPC))
+            val defaultRPC = JsonRPC(preferredNetwork?.rpcUrl ?: Networks.mainnet.rpcUrl)
+            val defaultRegistry = preferredNetwork?.ethrDidRegistry
+                    ?: Networks.mainnet.ethrDidRegistry
+            UniversalDID.registerResolver(EthrDIDResolver(defaultRPC, defaultRegistry))
         }
 
         // register default Uport DID resolver if Universal DID is unable to resolve blank Uport DID
         if (!UniversalDID.canResolve(blankUportDID)) {
-            val defaultRPC = JsonRPC(Networks.rinkeby.rpcUrl)
+            val defaultRPC = JsonRPC(preferredNetwork?.rpcUrl ?: Networks.rinkeby.rpcUrl)
             UniversalDID.registerResolver(UportDIDResolver(defaultRPC))
         }
 
