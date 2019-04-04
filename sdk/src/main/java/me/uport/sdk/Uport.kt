@@ -32,21 +32,9 @@ object Uport {
     private var defaultAccountHandle = ""
 
     var defaultAccount: HDAccount?
-        get() = accountStorage?.get(defaultAccountHandle)
+        get() = accountStorage?.get(defaultAccountHandle) as HDAccount
         set(value) {
-            val newDefault = value?.copy(isDefault = true)
-            @Suppress("LiftReturnOrAssignment")
-            if (newDefault == null) {
-                accountStorage?.delete(defaultAccountHandle)
-                defaultAccountHandle = ""
-            } else {
-                val oldAccounts = accountStorage
-                        ?.all()
-                        ?.map { it.copy(isDefault = false) }
-                        ?: emptyList()
-                accountStorage?.upsertAll(oldAccounts + newDefault)
-                defaultAccountHandle = newDefault.handle
-            }
+            accountStorage?.setAsDefault(value)
         }
 
     private var accountStorage: AccountStorage? = null

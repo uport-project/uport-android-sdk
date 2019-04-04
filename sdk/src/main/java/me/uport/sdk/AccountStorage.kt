@@ -18,6 +18,8 @@ interface AccountStorage {
     fun all(): List<Account>
 
     fun upsertAll(list: Collection<Account>)
+
+    fun setAsDefault(acc: Account?)
 }
 
 
@@ -48,6 +50,18 @@ class SharedPrefsAccountStorage(
                 }
     }
 
+    override fun setAsDefault(newAcc: Account?) {
+
+        if (newAcc != null) {
+
+            accounts.forEach {
+
+            }
+
+            accounts[newAcc.handle] = buildAccountHolder(newAcc, true)
+            persist()
+        }
+    }
 
     override fun upsert(newAcc: Account) {
         accounts[newAcc.handle] = buildAccountHolder(newAcc)
@@ -110,8 +124,8 @@ class SharedPrefsAccountStorage(
 @Serializable
 data class AccountHolder(
         val account: Account,
-        private val isDefault: Boolean = false,
-        val type: AccountType
+        val isDefault: Boolean = false,
+        private val type: AccountType
 ) {
 
     /**
@@ -125,7 +139,7 @@ data class AccountHolder(
          * de-serializes accountHolder
          */
         fun fromJson(serializedAccountHolder: String): AccountHolder? {
-            if (serializedAccountHolder == null || serializedAccountHolder.isEmpty()) {
+            if (serializedAccountHolder.isEmpty()) {
                 return null
             }
 
