@@ -15,7 +15,7 @@ interface AccountStorage {
 
     fun delete(handle: String)
 
-    fun all(): List<Account?>
+    fun all(): List<Account>
 
     fun upsertAll(list: Collection<Account>)
 }
@@ -39,12 +39,12 @@ class SharedPrefsAccountStorage(
                 .orEmpty()
                 .forEach { serialized ->
                     val acc = try {
-                        HDAccount.fromJson(serialized)
+                        AccountHolder.fromJson(serialized)
                     } catch (ex: Exception) {
                         null
                     }
 
-                    acc?.let { upsert(it) }
+                    acc?.let { upsert(acc.account) }
                 }
     }
 
@@ -62,14 +62,14 @@ class SharedPrefsAccountStorage(
         persist()
     }
 
-    override fun get(handle: String): Account? = fetchAccountFromHolder(accounts[handle])
+    override fun get(handle: String): Account? = accounts[handle]?.account
 
     override fun delete(handle: String) {
         accounts.remove(handle)
         persist()
     }
 
-    override fun all(): List<Account?> = fetchAllAccounts()
+    override fun all(): List<Account> = fetchAllAccounts()
 
     private fun persist() {
         prefs.edit()
@@ -85,26 +85,18 @@ class SharedPrefsAccountStorage(
                                    isDefault: Boolean = false): AccountHolder {
 
         val acc = when (account.type) {
-            AccountType.HDKeyPair -> (account as HDAccount).toJson()
-            AccountType.MetaIdentityManager -> (account as MetaIdentityAccount).toJson()
+            AccountType.HDKeyPair -> account as HDAccount
+            AccountType.MetaIdentityManager -> account as MetaIdentityAccount
             else -> throw IllegalArgumentException("Storage not supported AccountType ${account.type}")
         }
         return AccountHolder(acc, isDefault, account.type)
     }
 
-    private fun fetchAccountFromHolder(accountHolder: AccountHolder?): Account? {
-        return when (accountHolder?.type) {
-            AccountType.HDKeyPair -> HDAccount.fromJson(accountHolder.account)
-            AccountType.MetaIdentityManager -> MetaIdentityAccount.fromJson(accountHolder.account)
-            else -> return null
-        }
-    }
-
-    private fun fetchAllAccounts(): List<Account?> {
-        val listOfAccounts = mutableListOf<Account?>()
+    private fun fetchAllAccounts(): List<Account> {
+        val listOfAccounts = mutableListOf<Account>()
 
         accounts.forEach {
-            listOfAccounts.add(fetchAccountFromHolder(it.value))
+            listOfAccounts.add(it.value.account)
         }
 
         return listOfAccounts.toList()
@@ -117,9 +109,9 @@ class SharedPrefsAccountStorage(
  */
 @Serializable
 data class AccountHolder(
-        val account: String,
+        val account: Account,
         private val isDefault: Boolean = false,
-        val type: AccountType?
+        val type: AccountType
 ) {
 
     /**
@@ -129,17 +121,15 @@ data class AccountHolder(
 
     companion object {
 
-        val blank = AccountHolder("", false, null)
-
         /**
          * de-serializes accountHolder
          */
-        fun fromJson(serializedAccount: String?): AccountHolder? {
-            if (serializedAccount == null || serializedAccount.isEmpty()) {
+        fun fromJson(serializedAccountHolder: String): AccountHolder? {
+            if (serializedAccountHolder == null || serializedAccountHolder.isEmpty()) {
                 return null
             }
 
-            return Json.parse(AccountHolder.serializer(), serializedAccount)
+            return Json.parse(AccountHolder.serializer(), serializedAccountHolder)
         }
     }
 }
