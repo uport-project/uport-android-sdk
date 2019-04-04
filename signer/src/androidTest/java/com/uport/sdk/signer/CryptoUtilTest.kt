@@ -4,17 +4,13 @@ package com.uport.sdk.signer
 
 import android.content.Context
 import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
 import com.uport.sdk.signer.storage.CryptoUtil
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import java.util.*
 
-
-@RunWith(AndroidJUnit4::class)
 class CryptoUtilTest {
 
     private lateinit var context: Context
