@@ -11,20 +11,26 @@ import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.intent.Intents.intending
 import android.support.test.espresso.intent.matcher.IntentMatchers.hasAction
 import android.support.test.espresso.intent.rule.IntentsTestRule
+import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import me.uport.sdk.demoapp.request_flows.EthereumTransactionActivity
 import me.uport.sdk.transport.RequestDispatchActivity
 import org.hamcrest.CoreMatchers.not
+import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import ro.mirceanistor.testutil.ViewMatcherIdlingRule
 
 class TransactionRequestTest {
 
     @get:Rule
     val intentsTestRule = IntentsTestRule(EthereumTransactionActivity::class.java)
+
+    @get:Rule
+    val viewMatcherIdlingRule = ViewMatcherIdlingRule(allOf(withId(R.id.progress), isDisplayed()))
 
     private var instrumentation: Instrumentation? = null
     private var monitor: Instrumentation.ActivityMonitor? = null
@@ -57,8 +63,6 @@ class TransactionRequestTest {
     fun transaction_request_successfully_approved_by_uport_account() {
         // User clicks on send request.
         onView(withId(R.id.send_request)).perform(click())
-
-        Thread.sleep(5000)
 
         // Response detail TextView will no longer be empty
         onView(withId(R.id.response_details)).check(matches(not(withText(""))))
