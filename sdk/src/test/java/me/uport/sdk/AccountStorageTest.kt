@@ -49,8 +49,13 @@ class AccountStorageTest {
 
         storage.delete(refAccount.handle)
 
-        assert(storage.get(refAccount.handle)).isNull()
         assert(storage.all()).doesNotContain(refAccount)
+
+        assert {
+            storage.get(refAccount.handle)
+        }.thrownError {
+            isInstanceOf(IllegalArgumentException::class)
+        }
     }
 
     @Test

@@ -7,6 +7,7 @@ import me.uport.sdk.identity.Account
 import me.uport.sdk.identity.AccountType
 import me.uport.sdk.identity.HDAccount
 import me.uport.sdk.identity.MetaIdentityAccount
+import java.lang.IllegalStateException
 
 interface AccountStorage {
     fun upsert(newAcc: Account)
@@ -19,7 +20,7 @@ interface AccountStorage {
 
     fun upsertAll(list: Collection<Account>)
 
-    fun setAsDefault(acc: Account?)
+    fun setAsDefault(acc: Account)
 }
 
 
@@ -43,23 +44,17 @@ class SharedPrefsAccountStorage(
                     val acc = try {
                         AccountHolder.fromJson(serialized)
                     } catch (ex: Exception) {
-                        null
+                        throw IllegalStateException("")
                     }
 
-                    acc?.let { upsert(acc.account) }
+                    acc.let { upsert(fetchAccountFromHolder(acc)) }
                 }
     }
 
-    override fun setAsDefault(newAcc: Account?) {
+    override fun setAsDefault(newAcc: Account) {
 
         if (newAcc != null) {
 
-            accounts.forEach {
-
-            }
-
-            accounts[newAcc.handle] = buildAccountHolder(newAcc, true)
-            persist()
         }
     }
 
@@ -76,7 +71,12 @@ class SharedPrefsAccountStorage(
         persist()
     }
 
-    override fun get(handle: String): Account? = accounts[handle]?.account
+    override fun get(handle: String): Account {
+
+        val holder: AccountHolder? = accounts[handle]
+
+        return fetchAccountFromHolder(holder)
+    }
 
     override fun delete(handle: String) {
         accounts.remove(handle)
@@ -95,22 +95,33 @@ class SharedPrefsAccountStorage(
         private const val KEY_ACCOUNTS = "accounts"
     }
 
-    private fun buildAccountHolder(account: Account,
-                                   isDefault: Boolean = false): AccountHolder {
+    private fun buildAccountHolder(account: Account): AccountHolder {
 
         val acc = when (account.type) {
-            AccountType.HDKeyPair -> account as HDAccount
-            AccountType.MetaIdentityManager -> account as MetaIdentityAccount
+            AccountType.HDKeyPair -> (account as HDAccount).toJson()
+            AccountType.MetaIdentityManager -> (account as MetaIdentityAccount).toJson()
             else -> throw IllegalArgumentException("Storage not supported AccountType ${account.type}")
         }
-        return AccountHolder(acc, isDefault, account.type)
+
+        return AccountHolder(acc, account.type.toString())
+    }
+
+    private fun fetchAccountFromHolder(holder: AccountHolder?): Account {
+
+        val acc = when (holder?.type) {
+            AccountType.HDKeyPair.toString() -> HDAccount.fromJson(holder.account)
+            AccountType.MetaIdentityManager.toString() -> MetaIdentityAccount.fromJson(holder.account)
+            else -> throw IllegalArgumentException("The account type ${holder?.type} is not supported by the AccountManager")
+        }
+
+        return acc ?: throw java.lang.IllegalStateException("The account cannot be null")
     }
 
     private fun fetchAllAccounts(): List<Account> {
         val listOfAccounts = mutableListOf<Account>()
 
         accounts.forEach {
-            listOfAccounts.add(it.value.account)
+            listOfAccounts.add(fetchAccountFromHolder(it.value))
         }
 
         return listOfAccounts.toList()
@@ -123,9 +134,8 @@ class SharedPrefsAccountStorage(
  */
 @Serializable
 data class AccountHolder(
-        val account: Account,
-        val isDefault: Boolean = false,
-        private val type: AccountType
+        val account: String,
+        val type: String
 ) {
 
     /**
@@ -135,12 +145,14 @@ data class AccountHolder(
 
     companion object {
 
+        // val blank = AccountHolder("", "")
+
         /**
          * de-serializes accountHolder
          */
-        fun fromJson(serializedAccountHolder: String): AccountHolder? {
+        fun fromJson(serializedAccountHolder: String): AccountHolder {
             if (serializedAccountHolder.isEmpty()) {
-                return null
+                throw IllegalStateException("Account can not be empty")
             }
 
             return Json.parse(AccountHolder.serializer(), serializedAccountHolder)

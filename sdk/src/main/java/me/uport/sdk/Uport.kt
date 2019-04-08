@@ -34,7 +34,7 @@ object Uport {
     var defaultAccount: HDAccount?
         get() = accountStorage?.get(defaultAccountHandle) as HDAccount
         set(value) {
-            accountStorage?.setAsDefault(value)
+
         }
 
     private var accountStorage: AccountStorage? = null
