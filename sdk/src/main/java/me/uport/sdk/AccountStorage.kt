@@ -7,7 +7,6 @@ import me.uport.sdk.identity.Account
 import me.uport.sdk.identity.AccountType
 import me.uport.sdk.identity.HDAccount
 import me.uport.sdk.identity.MetaIdentityAccount
-import java.lang.IllegalStateException
 
 interface AccountStorage {
     fun upsert(newAcc: Account)
@@ -20,7 +19,7 @@ interface AccountStorage {
 
     fun upsertAll(list: Collection<Account>)
 
-    fun setAsDefault(acc: Account)
+    fun setAsDefault(default: Account)
 }
 
 
@@ -44,18 +43,15 @@ class SharedPrefsAccountStorage(
                     val acc = try {
                         AccountHolder.fromJson(serialized)
                     } catch (ex: Exception) {
-                        throw IllegalStateException("")
+                        null
                     }
 
                     acc.let { upsert(fetchAccountFromHolder(acc)) }
                 }
     }
 
-    override fun setAsDefault(newAcc: Account) {
+    override fun setAsDefault(default: Account) {
 
-        if (newAcc != null) {
-
-        }
     }
 
     override fun upsert(newAcc: Account) {
@@ -145,7 +141,7 @@ data class AccountHolder(
 
     companion object {
 
-        // val blank = AccountHolder("", "")
+        val blank = AccountHolder("", "")
 
         /**
          * de-serializes accountHolder
@@ -159,3 +155,4 @@ data class AccountHolder(
         }
     }
 }
+
