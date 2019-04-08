@@ -20,6 +20,8 @@ interface AccountStorage {
     fun upsertAll(list: Collection<Account>)
 
     fun setAsDefault(default: Account)
+
+    fun getDefaultAccount(): Account?
 }
 
 
@@ -51,7 +53,15 @@ class SharedPrefsAccountStorage(
     }
 
     override fun setAsDefault(default: Account) {
+        val accountHolder = buildAccountHolder(default)
+        prefs.edit()
+                .putString(KEY_DEFAULT_ACCOUNT, accountHolder.toJson())
+                .apply()
+    }
 
+    override fun getDefaultAccount(): Account? {
+        val defaultAccountHolder = AccountHolder.fromJson(prefs.getString(KEY_DEFAULT_ACCOUNT, ""))
+        return fetchAccountFromHolder(defaultAccountHolder)
     }
 
     override fun upsert(newAcc: Account) {
@@ -89,6 +99,7 @@ class SharedPrefsAccountStorage(
 
     companion object {
         private const val KEY_ACCOUNTS = "accounts"
+        private const val KEY_DEFAULT_ACCOUNT = "default_account"
     }
 
     private fun buildAccountHolder(account: Account): AccountHolder {
@@ -155,4 +166,3 @@ data class AccountHolder(
         }
     }
 }
-
