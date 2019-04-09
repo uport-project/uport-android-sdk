@@ -141,5 +141,4 @@ class UportTest {
             assert(tested.defaultAccount).isNull()
         }
     }
-
 }
