@@ -7,8 +7,11 @@ import assertk.assertions.isNotNull
 import com.uport.sdk.signer.KPSigner
 import io.mockk.coEvery
 import io.mockk.mockkObject
+import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.ethrdid.EthrDIDDocument
+import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.testhelpers.TestTimeProvider
 import me.uport.sdk.testhelpers.coAssert
@@ -278,7 +281,36 @@ class JWTToolsJVMTest {
     }
 
     @Test
-    fun `can create token from map`() = runBlocking {
+    fun `can verify a freshly minted token`() = runBlocking {
+        val signer = KPSigner("0x1234")
+        val did = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        coEvery { resolver.resolve(eq(did)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$did",
+              "publicKey": [{
+                   "id": "$did#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$did",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$did#owner"}]
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(emptyMap(), did, signer)
+        val payload = JWTTools().verify(token)
+        assert(payload).isNotNull()
+    }
+
+    @Test
+    fun `can create token from map of claims`() = runBlocking {
 
         val tested = JWTTools(TestTimeProvider(12345678000L))
 

@@ -3,13 +3,13 @@ package com.uport.sdk.signer.storage
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class ProtectedSharedPreferencesTest {
 
     private lateinit var context: Context

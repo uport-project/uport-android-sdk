@@ -1,14 +1,13 @@
 package com.uport.sdk.signer
 
+import assertk.assert
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Test
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.SignatureData
 import org.walleth.khex.hexToByteArray
-import org.walleth.khex.prepend0xPrefix
 
 class KPSignerTests {
 
@@ -25,8 +24,8 @@ class KPSignerTests {
         val signer = KPSigner("3686e245890c7f997766b73a21d8e59f6385e1208831af3862574790cbc3d158")
 
         signer.signETH(rawTransactionBytes) { err, sigData ->
-            Assert.assertNull(err)
-            assertEquals(expectedSignature, sigData)
+            assert(err).isNull()
+            assert(sigData).isEqualTo(expectedSignature)
         }
     }
 
@@ -42,8 +41,8 @@ class KPSignerTests {
         val signer = KPSigner("65fc670d9351cb87d1f56702fb56a7832ae2aab3427be944ab8c9f2a0ab87960")
 
         signer.signJWT(referencePayload) { err, sigData ->
-            assertNull(err)
-            Assert.assertEquals(referenceSignature, sigData)
+            assert(err).isNull()
+            assert(sigData).isEqualTo(referenceSignature)
         }
     }
 
@@ -60,7 +59,7 @@ class KPSignerTests {
         val signer = KPSigner("3686e245890c7f997766b73a21d8e59f6385e1208831af3862574790cbc3d158")
         val sigData = signer.signETH(rawTransactionBytes)
 
-        assertEquals(expectedSignature, sigData)
+        assert(sigData).isEqualTo(expectedSignature)
     }
 
     @Test
@@ -74,12 +73,12 @@ class KPSignerTests {
 
         val signer = KPSigner("65fc670d9351cb87d1f56702fb56a7832ae2aab3427be944ab8c9f2a0ab87960")
         val sigData = signer.signJWT(referencePayload)
-        Assert.assertEquals(referenceSignature, sigData)
+        assert(sigData).isEqualTo(referenceSignature)
     }
 
     @Test
     fun `returned address is non null`() {
         val signer = KPSigner("65fc670d9351cb87d1f56702fb56a7832ae2aab3427be944ab8c9f2a0ab87960")
-        assertEquals("0x794adde0672914159c1b77dd06d047904fe96ac8", signer.getAddress().prepend0xPrefix())
+        assert(signer.getAddress()).isEqualTo("0x794adde0672914159c1b77dd06d047904fe96ac8")
     }
 }
