@@ -5,7 +5,6 @@ import android.support.annotation.VisibleForTesting
 import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
-import kotlinx.serialization.Optional
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -31,11 +30,7 @@ data class HDAccount(
         override val publicAddress: String,
 
         @SerialName("signerType")
-        override val type: AccountType = AccountType.HDKeyPair,
-
-        @Optional
-        @SerialName("isDefault")
-        override val isDefault: Boolean? = false
+        override val type: AccountType = AccountType.HDKeyPair
 
 ) : Account {
 

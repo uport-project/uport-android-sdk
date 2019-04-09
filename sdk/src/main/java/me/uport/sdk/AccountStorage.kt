@@ -18,10 +18,6 @@ interface AccountStorage {
     fun all(): List<Account>
 
     fun upsertAll(list: Collection<Account>)
-
-    fun setAsDefault(default: Account)
-
-    fun getDefaultAccount(): Account?
 }
 
 
@@ -42,26 +38,19 @@ class SharedPrefsAccountStorage(
         prefs.getStringSet(KEY_ACCOUNTS, emptySet())
                 .orEmpty()
                 .forEach { serialized ->
-                    val acc = try {
+                    val accountHolder = try {
                         AccountHolder.fromJson(serialized)
                     } catch (ex: Exception) {
                         null
                     }
 
-                    acc.let { upsert(fetchAccountFromHolder(acc)) }
+                    accountHolder.let {
+                        val account = fetchAccountFromHolder(accountHolder)
+                        if (account != null) {
+                            upsert(account)
+                        }
+                    }
                 }
-    }
-
-    override fun setAsDefault(default: Account) {
-        val accountHolder = buildAccountHolder(default)
-        prefs.edit()
-                .putString(KEY_DEFAULT_ACCOUNT, accountHolder.toJson())
-                .apply()
-    }
-
-    override fun getDefaultAccount(): Account? {
-        val defaultAccountHolder = AccountHolder.fromJson(prefs.getString(KEY_DEFAULT_ACCOUNT, ""))
-        return fetchAccountFromHolder(defaultAccountHolder)
     }
 
     override fun upsert(newAcc: Account) {
@@ -77,7 +66,7 @@ class SharedPrefsAccountStorage(
         persist()
     }
 
-    override fun get(handle: String): Account {
+    override fun get(handle: String): Account? {
 
         val holder: AccountHolder? = accounts[handle]
 
@@ -86,6 +75,11 @@ class SharedPrefsAccountStorage(
 
     override fun delete(handle: String) {
         accounts.remove(handle)
+
+        if (getDefaultAccount()?.handle.equals(handle)) {
+            persistDefault("")
+        }
+
         persist()
     }
 
@@ -94,6 +88,28 @@ class SharedPrefsAccountStorage(
     private fun persist() {
         prefs.edit()
                 .putStringSet(KEY_ACCOUNTS, accounts.values.map { it.toJson() }.toSet())
+                .apply()
+    }
+
+    fun setAsDefault(default: Account) {
+        upsert(default)
+        val accountHolder = buildAccountHolder(default)
+        persistDefault(accountHolder.toJson())
+    }
+
+    fun getDefaultAccount(): Account? {
+        val serializedAccountHolder = prefs.getString(KEY_DEFAULT_ACCOUNT, "")
+        val defaultAccountHolder = AccountHolder.fromJson(serializedAccountHolder)
+        if (defaultAccountHolder != null && defaultAccountHolder != AccountHolder.blank) {
+            return fetchAccountFromHolder(defaultAccountHolder)
+        } else {
+            return null
+        }
+    }
+
+    private fun persistDefault(serializedAccountHolder: String) {
+        prefs.edit()
+                .putString(KEY_DEFAULT_ACCOUNT, serializedAccountHolder)
                 .apply()
     }
 
@@ -113,22 +129,23 @@ class SharedPrefsAccountStorage(
         return AccountHolder(acc, account.type.toString())
     }
 
-    private fun fetchAccountFromHolder(holder: AccountHolder?): Account {
+    private fun fetchAccountFromHolder(holder: AccountHolder?): Account? {
 
-        val acc = when (holder?.type) {
+        return when (holder?.type) {
             AccountType.HDKeyPair.toString() -> HDAccount.fromJson(holder.account)
             AccountType.MetaIdentityManager.toString() -> MetaIdentityAccount.fromJson(holder.account)
-            else -> throw IllegalArgumentException("The account type ${holder?.type} is not supported by the AccountManager")
+            else -> null
         }
-
-        return acc ?: throw java.lang.IllegalStateException("The account cannot be null")
     }
 
     private fun fetchAllAccounts(): List<Account> {
         val listOfAccounts = mutableListOf<Account>()
 
         accounts.forEach {
-            listOfAccounts.add(fetchAccountFromHolder(it.value))
+            val account = fetchAccountFromHolder(it.value)
+            if (account != null) {
+                listOfAccounts.add(account)
+            }
         }
 
         return listOfAccounts.toList()
@@ -157,9 +174,9 @@ data class AccountHolder(
         /**
          * de-serializes accountHolder
          */
-        fun fromJson(serializedAccountHolder: String): AccountHolder {
+        fun fromJson(serializedAccountHolder: String): AccountHolder? {
             if (serializedAccountHolder.isEmpty()) {
-                throw IllegalStateException("Account can not be empty")
+                return null
             }
 
             return Json.parse(AccountHolder.serializer(), serializedAccountHolder)

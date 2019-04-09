@@ -8,10 +8,6 @@ import me.uport.sdk.identity.Account
  */
 class InMemoryAccountStorage : AccountStorage {
 
-    override fun setAsDefault(acc: Account) {
-
-    }
-
     private val accounts = mapOf<String, Account>().toMutableMap()
 
     override fun upsert(newAcc: Account) {

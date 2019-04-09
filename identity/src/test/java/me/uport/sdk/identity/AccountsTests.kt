@@ -1,7 +1,9 @@
 package me.uport.sdk.identity
 
 import assertk.assert
-import assertk.assertions.*
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -42,7 +44,6 @@ class AccountsTests {
         val account = HDAccount.fromJson(serializedAccount)
 
         assert(account).isNotNull()
-        assert(account!!.isDefault!!).isFalse()
     }
 
     @Test
@@ -55,7 +56,6 @@ class AccountsTests {
                 "network": "0x04",
                 "proxy": "0x95979bb3ee68420a0b105f6e3c0d5d0fc0466016",
                 "signerType": "HDKeyPair",
-                "isDefault": true
             }""".trimIndent()
 
         val account = HDAccount.fromJson(serializedAccount)

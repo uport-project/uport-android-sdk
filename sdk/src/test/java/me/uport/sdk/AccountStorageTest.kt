@@ -49,13 +49,8 @@ class AccountStorageTest {
 
         storage.delete(refAccount.handle)
 
+        assert(storage.get(refAccount.handle)).isNull()
         assert(storage.all()).doesNotContain(refAccount)
-
-        assert {
-            storage.get(refAccount.handle)
-        }.thrownError {
-            isInstanceOf(IllegalArgumentException::class)
-        }
     }
 
     @Test
@@ -71,7 +66,7 @@ class AccountStorageTest {
 
         storage.upsert(refAccount)
 
-        val newAccount = refAccount.copy(isDefault = true)
+        val newAccount = refAccount.copy(network = "0x4")
 
         storage.upsert(newAccount)
 
@@ -98,6 +93,22 @@ class AccountStorageTest {
         val allAccounts = storage.all()
 
         assert(allAccounts.containsAll(accounts))
+    }
+
+    @Test
+    fun `can set default account`() {
+        val storage: SharedPrefsAccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
+
+        val acc = HDAccount(
+                "0xroot",
+                "0xdevice",
+                "0x1",
+                "0xpublic"
+        )
+
+        storage.setAsDefault(acc)
+
+        assert(storage.getDefaultAccount()).isEqualTo(acc)
     }
 
 }

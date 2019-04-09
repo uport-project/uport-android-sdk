@@ -11,28 +11,26 @@ import com.uport.sdk.signer.Signer
 interface Account {
 
     /**
-    * Represents an alias to the account. This [handle] will be used to refer to and interact with the [Account]
-    */
+     * Represents an alias to the account. This [handle] will be used to refer to and interact with the [Account]
+     */
     val handle: String
 
     /**
-    * Represents the ethereum address that signs transactions. This address is derived from a private key that this [Account] can control - as opposed to it representing a contract address or an address of an external entity.
-    */
+     * Represents the ethereum address that signs transactions. This address is derived from a private key that this [Account] can control - as opposed to it representing a contract address or an address of an external entity.
+     */
     val deviceAddress: String
 
     /**
-    * The network ID this account is associated with.
-    */
+     * The network ID this account is associated with.
+     */
     val network: String
 
 
     /**
-    * Represents the public facing address of this [Account].
-    * In most cases this is identical to the [deviceAddress] or an encoding of it, but it can also represent a contract address or an address of a key that is not directly controlled by this [Account].
-    */
+     * Represents the public facing address of this [Account].
+     * In most cases this is identical to the [deviceAddress] or an encoding of it, but it can also represent a contract address or an address of a key that is not directly controlled by this [Account].
+     */
     val publicAddress: String
-
-    val isDefault: Boolean?
 
     val type: AccountType
 
