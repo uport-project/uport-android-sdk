@@ -131,17 +131,17 @@ private fun decompressKey(xBN: BigInteger, yBit: Boolean): ECPoint {
 @Throws(SignatureException::class)
 fun signedJwtToKey(message: ByteArray, signatureData: SignatureData): BigInteger {
 
-    val header = signatureData.v
-    // The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
-    //                  0x1D = second key with even y, 0x1E = second key with odd y
-    if (header < 27 || header > 34) {
-        throw SignatureException("Header byte out of range: $header")
+    val header = signatureData.v.toInt()
+
+    val recId: Int = when (header) {
+        0, 1 -> header
+        27, 28 -> header - 27
+        else -> throw SignatureException("Header byte out of range: $header")
     }
 
     val sig = ECDSASignature(signatureData.r, signatureData.s)
 
     val messageHash = message.sha256()
-    val recId = header - 27
     return recoverFromSignature(recId, sig, messageHash)
             ?: throw SignatureException("Could not recover public key from signature")
 }

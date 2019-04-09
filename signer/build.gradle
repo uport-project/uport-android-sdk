@@ -29,6 +29,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+        debug {
+            multiDexEnabled true
+        }
     }
 
     testOptions {
@@ -50,4 +53,6 @@ dependencies {
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_rules_version"
+
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
 }

@@ -2,16 +2,17 @@ package com.uport.sdk.signer
 
 import android.content.Context
 import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
 import com.uport.sdk.signer.encryption.KeyProtection.Level.SIMPLE
 import com.uport.sdk.signer.testutil.ensureSeedIsImportedInTargetContext
 import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.kethereum.bip32.toKey
 import org.kethereum.bip39.model.MnemonicWords
 import org.kethereum.bip39.toSeed
@@ -21,8 +22,6 @@ import java.security.Security
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-
-@RunWith(AndroidJUnit4::class)
 class HDSignerTests {
 
     init {
