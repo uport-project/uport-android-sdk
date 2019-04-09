@@ -73,7 +73,6 @@ class UportTest {
             //assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1) //still one default
 
             tested.defaultAccount = acc2
-
             //assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1) //still one default
         }
     }

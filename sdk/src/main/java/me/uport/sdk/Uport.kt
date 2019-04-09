@@ -26,16 +26,14 @@ object Uport {
 
     private lateinit var accountCreator: HDAccountCreator
 
-    // private var defaultAccountHandle = ""
     private var accountStorage: SharedPrefsAccountStorage? = null
 
+    @Suppress("UnsafeCast")
     var defaultAccount: HDAccount?
         get() = accountStorage?.getDefaultAccount() as HDAccount?
         set(value) { }
 
     private const val UPORT_CONFIG: String = "uport_sdk_prefs"
-
-    // private const val OLD_DEFAULT_ACCOUNT: String = "default_account"
 
     /**
      * Initialize the Uport SDK.
@@ -55,21 +53,6 @@ object Uport {
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
         accountStorage = SharedPrefsAccountStorage(prefs)
-
-        /*accountStorage = SharedPrefsAccountStorage(prefs).apply {
-            this.all().forEach {
-                if (it.isDefault == true) {
-                    defaultAccountHandle = it.handle
-                }
-            }
-        }*/
-
-        /*prefs.getString(OLD_DEFAULT_ACCOUNT, "")
-                ?.let { Account.fromJson(it) }
-                ?.let {
-                    accountStorage?.upsert(it.copy(isDefault = true))
-                    prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
-                }*/
 
         UniversalDID.registerResolver(UportDIDResolver(JsonRPC(configuration.network?.rpcUrl
                 ?: Networks.rinkeby.rpcUrl)))
@@ -134,13 +117,6 @@ object Uport {
 
         defaultAccount = defaultAccount ?: newAccount
 
-        /*defaultAccount = defaultAccount ?: newAccount
-        val result = if (newAccount.handle == defaultAccount?.handle) {
-            defaultAccount ?: newAccount
-        } else {
-            newAccount
-        }*/
-
         return newAccount
     }
 
@@ -154,9 +130,6 @@ object Uport {
         }
 
         runBlocking { accountCreator.deleteAccount(rootHandle) }
-        /*if (rootHandle == defaultAccount?.handle) {
-            defaultAccount = null
-        }*/
     }
 
     fun deleteAccount(acc: Account) = deleteAccount(acc.handle)

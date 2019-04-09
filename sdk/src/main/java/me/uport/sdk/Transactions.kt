@@ -168,6 +168,7 @@ class Transactions(
                 .sendRawTransaction(signedEncodedTx.toHexString())
     }
 
+    @Suppress("UnsafeCast")
     private suspend fun relayMetaTransaction(signedEncodedTx: ByteArray): String {
         val metaAccount = account as MetaIdentityAccount
         val network = Networks.get(metaAccount.network)

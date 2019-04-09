@@ -106,6 +106,8 @@ class AccountStorageTest {
                 "0xpublic"
         )
 
+        storage.upsert(acc)
+
         storage.setAsDefault(acc)
 
         assert(storage.getDefaultAccount()).isEqualTo(acc)

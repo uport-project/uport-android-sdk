@@ -91,15 +91,20 @@ class SharedPrefsAccountStorage(
                 .apply()
     }
 
+    /**
+     *  Converts an account to an account holder and saves an account as the default account
+     */
     fun setAsDefault(default: Account) {
-        upsert(default)
-        val accountHolder = buildAccountHolder(default)
-        persistDefault(accountHolder.toJson())
+        val accountHandle = default.handle
+        persistDefault(accountHandle)
     }
 
+    /**
+     *  Deserializes default account from the saved account Holder which
+     */
     fun getDefaultAccount(): Account? {
-        val serializedAccountHolder = prefs.getString(KEY_DEFAULT_ACCOUNT, "")
-        val defaultAccountHolder = AccountHolder.fromJson(serializedAccountHolder)
+        val accountHandle = prefs.getString(KEY_DEFAULT_ACCOUNT, "")
+        val defaultAccountHolder = accounts[accountHandle]
         if (defaultAccountHolder != null && defaultAccountHolder != AccountHolder.blank) {
             return fetchAccountFromHolder(defaultAccountHolder)
         } else {
@@ -118,6 +123,7 @@ class SharedPrefsAccountStorage(
         private const val KEY_DEFAULT_ACCOUNT = "default_account"
     }
 
+    @Suppress("UnsafeCast")
     private fun buildAccountHolder(account: Account): AccountHolder {
 
         val acc = when (account.type) {
