@@ -62,7 +62,7 @@ data class HDAccount(
                 return null
             }
 
-            return Json.parse(HDAccount.serializer(), serializedAccount)
+            return Json.nonstrict.parse(HDAccount.serializer(), serializedAccount)
         }
     }
 }

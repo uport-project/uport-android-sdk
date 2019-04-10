@@ -47,6 +47,48 @@ class AccountsTests {
     }
 
     @Test
+    fun `can deserialize deprecated account into hdaccount`() {
+
+        //language=JSON
+        val serializedAccount = """
+            {
+              "uportRoot":"0xrootAddress",
+              "devKey":"0xaddress",
+              "network":"0x4",
+              "proxy":"0xpublicaddress",
+              "manager":"0xidentityManagerAddress",
+              "txRelay":"0xtxRelayAddress",
+              "fuelToken":"base64FuelToken",
+              "signerType":"KeyPair"
+            }""".trimIndent()
+
+        val account = HDAccount.fromJson(serializedAccount)
+
+        assert(account).isNotNull()
+    }
+
+    @Test
+    fun `can deserialize deprecated account into meta identity account`() {
+
+        //language=JSON
+        val serializedAccount = """
+            {
+              "uportRoot":"0xrootAddress",
+              "devKey":"0xaddress",
+              "network":"0x4",
+              "proxy":"0xpublicaddress",
+              "manager":"0xidentityManagerAddress",
+              "txRelay":"0xtxRelayAddress",
+              "fuelToken":"base64FuelToken",
+              "signerType":"MetaIdentityManager"
+            }""".trimIndent()
+
+        val account = MetaIdentityAccount.fromJson(serializedAccount)
+
+        assert(account).isNotNull()
+    }
+
+    @Test
     fun `validates did from keypair account`() {
 
         val serializedAccount = """

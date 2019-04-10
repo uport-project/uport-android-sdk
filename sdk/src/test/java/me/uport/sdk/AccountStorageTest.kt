@@ -113,4 +113,23 @@ class AccountStorageTest {
         assert(storage.getDefaultAccount()).isEqualTo(acc)
     }
 
+
+    @Test
+    fun `can save and fetch an account`() {
+        val storage: SharedPrefsAccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
+
+        val savedAcc = HDAccount(
+                "0xroot",
+                "0xdevice",
+                "0x1",
+                "0xpublic"
+        )
+
+        storage.upsert(savedAcc)
+
+        val fetchedAcc = storage.get(savedAcc.handle)
+
+        assert(savedAcc).isEqualTo(fetchedAcc)
+    }
+
 }

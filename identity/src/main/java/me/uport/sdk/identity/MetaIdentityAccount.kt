@@ -78,7 +78,7 @@ data class MetaIdentityAccount(
                 return null
             }
 
-            return Json.parse(MetaIdentityAccount.serializer(), serializedAccount)
+            return Json.nonstrict.parse(MetaIdentityAccount.serializer(), serializedAccount)
         }
     }
 }
