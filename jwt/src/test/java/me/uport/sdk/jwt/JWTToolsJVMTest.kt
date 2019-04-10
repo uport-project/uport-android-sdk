@@ -308,6 +308,24 @@ class JWTToolsJVMTest {
         val payload = JWTTools().verify(token)
         assert(payload).isNotNull()
     }
+
+    @Test
+    fun `can create token from map of claims`() = runBlocking {
+
+        val tested = JWTTools(TestTimeProvider(12345678000L))
+
+        val payload = mapOf<String, Any>(
+                "claims" to mapOf("name" to "R Daneel Olivaw")
+        )
+
+        val signer = KPSigner("0x54ece214d38fe6b46110a21c69fd55230f09688bf85b95fc7c1e4e160441ece1")
+        val issuerDID = "did:ethr:${signer.getAddress()}"
+
+        val jwt = tested.createJWT(payload, issuerDID, signer)
+        assert(jwt)
+                .isEqualTo("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbXMiOnsibmFtZSI6IlIgRGFuZWVsIE9saXZhdyJ9LCJpYXQiOjEyMzQ1Njc4LCJleHAiOjEyMzQ1OTc4LCJpc3MiOiJkaWQ6ZXRocjoweDQxMjNjYmQxNDNiNTVjMDZlNDUxZmYyNTNhZjA5Mjg2YjY4N2E5NTAifQ.o6eDKYjHJnak1ylkpe9g8krxvK9UEhKf-1T0EYhH8pGyb8MjOEepRJi8DYlVEnZno0DkVYXQCf3u1i_HThBKtAA")
+
+    }
 }
 
 
