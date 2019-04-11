@@ -31,7 +31,9 @@ object Uport {
     @Suppress("UnsafeCast")
     var defaultAccount: HDAccount?
         get() = accountStorage?.getDefaultAccount() as HDAccount?
-        set(value) { }
+        set(value) {
+            if (value != null) accountStorage?.setAsDefault(value)
+        }
 
     private const val UPORT_CONFIG: String = "uport_sdk_prefs"
 

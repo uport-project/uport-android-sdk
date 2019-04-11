@@ -127,7 +127,6 @@ class Transactions(
                     signedEncodedTx = metaSigner.signRawTx(oldBundle.unsigned)
 
                     relayMetaTransaction(signedEncodedTx)
-
                 }
                 KeyPair, HDKeyPair -> {
                     signedEncodedTx = signer.signRawTx(oldBundle.unsigned)
@@ -136,13 +135,6 @@ class Transactions(
                 else -> {
 
                     signedEncodedTx = relaySigner.signRawTx(oldBundle.unsigned)
-
-                    /*if (signerType != KeyPair || signerType != HDKeyPair) {
-                        //fuel the device key?
-                        val refuelTxHash = maybeRefuel(signedEncodedTx)
-                        network.waitForTransactionToMine(refuelTxHash)
-                    }
-                    */
 
                     //relay directly to RPC node
                     relayRawTransaction(signedEncodedTx)
@@ -176,12 +168,4 @@ class Transactions(
         return Sensui(network.faucetUrl, network.relayUrl)
                 .relayMetaTx(tx, network.name, metaAccount.fuelToken)
     }
-
-    /*private suspend fun maybeRefuel(signedEncodedTx: ByteArray): String {
-        val network = Networks.get(account.network)
-        val tx = signedEncodedTx.toHexString()
-        return Sensui(network.faucetUrl, network.relayUrl)
-                .maybeRefuel(tx, network.name, account.fuelToken)
-    }*/
-
 }
