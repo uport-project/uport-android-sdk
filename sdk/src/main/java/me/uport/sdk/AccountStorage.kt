@@ -19,8 +19,14 @@ interface AccountStorage {
 
     fun upsertAll(list: Collection<Account>)
 
+    /**
+     * sets the default account using its handle
+     */
     fun setAsDefault(accountHandle: String)
 
+    /**
+     * fetches the default account
+     */
     fun getDefaultAccount(): Account?
 }
 
@@ -98,7 +104,8 @@ class SharedPrefsAccountStorage(
         val defaultAccountHolder = accounts[accountHandle]
         if (defaultAccountHolder != null && defaultAccountHolder != AccountHolder.blank) {
             return fetchAccountFromHolder(defaultAccountHolder)
-        } else {
+        }
+        else {
             return null
         }
     }
