@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.support.annotation.VisibleForTesting
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -23,6 +24,8 @@ object Uport {
 
     private lateinit var config: Configuration
 
+    private lateinit var oldPrefs: SharedPreferences
+
     private lateinit var prefs: SharedPreferences
 
     private lateinit var accountCreator: HDAccountCreator
@@ -36,7 +39,9 @@ object Uport {
             accountStorage?.setAsDefault(value?.handle ?: "")
         }
 
-    private const val UPORT_CONFIG: String = "uport_sdk_prefs"
+    private const val OLD_UPORT_CONFIG: String = "uport_sdk_prefs"
+
+    private const val UPORT_CONFIG: String = "uport_sdk_prefs_new"
 
     /**
      * Initialize the Uport SDK.
@@ -52,6 +57,8 @@ object Uport {
         val context = config.applicationContext
 
         accountCreator = HDAccountCreator(context)
+
+        oldPrefs = context.getSharedPreferences(OLD_UPORT_CONFIG, MODE_PRIVATE)
 
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
@@ -138,18 +145,14 @@ object Uport {
 
     fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
 
-    private fun migrateAccounts(context: Context) {
+    internal fun migrateAccounts(oldPrefs: SharedPreferences, accountStorage: AccountStorage) {
 
         //declare keys for the old account storage
-        val OLD_UPORT_CONFIG = "uport_sdk_prefs"
-        val OLD_KEY_ACCOUNTS = "accounts"
-        val OLD_KEY_DEFAULT_ACCOUNT = "default_account"
-
-        // fetch previously saved account set
-        val oldPrefs = context.getSharedPreferences(OLD_UPORT_CONFIG, MODE_PRIVATE)
+        val KEY_ACCOUNTS = "accounts"
+        val KEY_DEFAULT_ACCOUNT = "default_account"
 
         // convert all accounts to HDAccount and save in new account manager
-        oldPrefs.getStringSet(OLD_KEY_ACCOUNTS, emptySet())
+        oldPrefs.getStringSet(KEY_ACCOUNTS, emptySet())
                 .orEmpty()
                 .forEach { serialized ->
                     val account = try {
@@ -160,20 +163,19 @@ object Uport {
 
                     account.let {
                         if (account != null) {
-                            accountStorage?.upsert(account)
+                            val accountCopy = account.copy(type = AccountType.HDKeyPair)
+                            accountStorage.upsert(accountCopy)
                         }
                     }
                 }
 
-        // set old storage to an empty set to ensure this only happens once
-        oldPrefs.edit().putStringSet(OLD_KEY_ACCOUNTS, emptySet()).apply()
-
         // save old default account handle to new storage
-        accountStorage?.setAsDefault(oldPrefs.getString(OLD_KEY_DEFAULT_ACCOUNT, "") ?: "")
+        accountStorage.setAsDefault(oldPrefs.getString(KEY_DEFAULT_ACCOUNT, "") ?: "")
+
+        // set old storage to an empty set to ensure this only happens once
+        oldPrefs.edit().putStringSet(KEY_ACCOUNTS, emptySet()).apply()
 
         // erase account handle from old default storage
-        prefs.edit().putString(OLD_KEY_DEFAULT_ACCOUNT, "").apply()
-
+        oldPrefs.edit().putString(KEY_DEFAULT_ACCOUNT, "").apply()
     }
-
 }

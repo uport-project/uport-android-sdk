@@ -7,11 +7,7 @@ import android.os.Looper
 import android.support.test.InstrumentationRegistry
 import assertk.all
 import assertk.assert
-import assertk.assertions.doesNotContain
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEqualTo
-import assertk.assertions.isNotNull
-import assertk.assertions.isNull
+import assertk.assertions.*
 import com.uport.sdk.signer.UportHDSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.Networks

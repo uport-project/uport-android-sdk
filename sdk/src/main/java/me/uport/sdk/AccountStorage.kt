@@ -18,6 +18,10 @@ interface AccountStorage {
     fun all(): List<Account>
 
     fun upsertAll(list: Collection<Account>)
+
+    fun setAsDefault(accountHandle: String)
+
+    fun getDefaultAccount(): Account?
 }
 
 
@@ -94,14 +98,14 @@ class SharedPrefsAccountStorage(
     /**
      *  Saves the account handle of the default account
      */
-    fun setAsDefault(accountHandle: String) {
+    override fun setAsDefault(accountHandle: String) {
         persistDefault(accountHandle)
     }
 
     /**
      *  Deserializes default account from the saved account Holder which
      */
-    fun getDefaultAccount(): Account? {
+    override fun getDefaultAccount(): Account? {
         val accountHandle = prefs.getString(KEY_DEFAULT_ACCOUNT, "") ?: ""
         val defaultAccountHolder = accounts[accountHandle]
         if (defaultAccountHolder != null && defaultAccountHolder != AccountHolder.blank) {
