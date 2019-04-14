@@ -1,6 +1,7 @@
 package me.uport.sdk
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import kotlinx.coroutines.GlobalScope
@@ -32,7 +33,7 @@ object Uport {
     var defaultAccount: HDAccount?
         get() = accountStorage?.getDefaultAccount() as HDAccount?
         set(value) {
-            if (value != null) accountStorage?.setAsDefault(value)
+            accountStorage?.setAsDefault(value?.handle ?: "")
         }
 
     private const val UPORT_CONFIG: String = "uport_sdk_prefs"
@@ -108,13 +109,14 @@ object Uport {
 
         val newAccount = if (seedPhrase.isNullOrBlank()) {
             accountCreator.createAccount(networkId)
-        } else {
+        }
+        else {
             accountCreator.importAccount(networkId, seedPhrase)
         }
         accountStorage?.upsert(newAccount)
 
         if (accountStorage?.getDefaultAccount() == null) {
-            accountStorage?.setAsDefault(newAccount)
+            accountStorage?.setAsDefault(newAccount.handle)
         }
 
         defaultAccount = defaultAccount ?: newAccount
@@ -135,5 +137,43 @@ object Uport {
     }
 
     fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
+
+    private fun migrateAccounts(context: Context) {
+
+        //declare keys for the old account storage
+        val OLD_UPORT_CONFIG = "uport_sdk_prefs"
+        val OLD_KEY_ACCOUNTS = "accounts"
+        val OLD_KEY_DEFAULT_ACCOUNT = "default_account"
+
+        // fetch previously saved account set
+        val oldPrefs = context.getSharedPreferences(OLD_UPORT_CONFIG, MODE_PRIVATE)
+
+        // convert all accounts to HDAccount and save in new account manager
+        oldPrefs.getStringSet(OLD_KEY_ACCOUNTS, emptySet())
+                .orEmpty()
+                .forEach { serialized ->
+                    val account = try {
+                        HDAccount.fromJson(serialized)
+                    } catch (ex: Exception) {
+                        null
+                    }
+
+                    account.let {
+                        if (account != null) {
+                            accountStorage?.upsert(account)
+                        }
+                    }
+                }
+
+        // set old storage to an empty set to ensure this only happens once
+        oldPrefs.edit().putStringSet(OLD_KEY_ACCOUNTS, emptySet()).apply()
+
+        // save old default account handle to new storage
+        accountStorage?.setAsDefault(oldPrefs.getString(OLD_KEY_DEFAULT_ACCOUNT, "") ?: "")
+
+        // erase account handle from old default storage
+        prefs.edit().putString(OLD_KEY_DEFAULT_ACCOUNT, "").apply()
+
+    }
 
 }

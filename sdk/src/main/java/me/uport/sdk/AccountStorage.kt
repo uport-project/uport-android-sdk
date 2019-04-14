@@ -92,10 +92,9 @@ class SharedPrefsAccountStorage(
     }
 
     /**
-     *  Converts an account to an account holder and saves an account as the default account
+     *  Saves the account handle of the default account
      */
-    fun setAsDefault(default: Account) {
-        val accountHandle = default.handle
+    fun setAsDefault(accountHandle: String) {
         persistDefault(accountHandle)
     }
 
@@ -103,7 +102,7 @@ class SharedPrefsAccountStorage(
      *  Deserializes default account from the saved account Holder which
      */
     fun getDefaultAccount(): Account? {
-        val accountHandle = prefs.getString(KEY_DEFAULT_ACCOUNT, "")
+        val accountHandle = prefs.getString(KEY_DEFAULT_ACCOUNT, "") ?: ""
         val defaultAccountHolder = accounts[accountHandle]
         if (defaultAccountHolder != null && defaultAccountHolder != AccountHolder.blank) {
             return fetchAccountFromHolder(defaultAccountHolder)

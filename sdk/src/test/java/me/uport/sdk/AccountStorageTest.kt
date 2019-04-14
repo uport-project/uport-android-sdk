@@ -97,7 +97,7 @@ class AccountStorageTest {
 
     @Test
     fun `can set default account`() {
-        val storage: SharedPrefsAccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
+        val storage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val acc = HDAccount(
                 "0xroot",
@@ -108,7 +108,7 @@ class AccountStorageTest {
 
         storage.upsert(acc)
 
-        storage.setAsDefault(acc)
+        storage.setAsDefault(acc.handle)
 
         assert(storage.getDefaultAccount()).isEqualTo(acc)
     }
@@ -116,7 +116,7 @@ class AccountStorageTest {
 
     @Test
     fun `can save and fetch an account`() {
-        val storage: SharedPrefsAccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
+        val storage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val savedAcc = HDAccount(
                 "0xroot",
