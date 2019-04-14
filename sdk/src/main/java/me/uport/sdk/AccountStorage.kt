@@ -89,22 +89,10 @@ class SharedPrefsAccountStorage(
 
     override fun all(): List<Account> = fetchAllAccounts()
 
-    private fun persist() {
-        prefs.edit()
-                .putStringSet(KEY_ACCOUNTS, accounts.values.map { it.toJson() }.toSet())
-                .apply()
-    }
-
-    /**
-     *  Saves the account handle of the default account
-     */
     override fun setAsDefault(accountHandle: String) {
         persistDefault(accountHandle)
     }
 
-    /**
-     *  Deserializes default account from the saved account Holder which
-     */
     override fun getDefaultAccount(): Account? {
         val accountHandle = prefs.getString(KEY_DEFAULT_ACCOUNT, "") ?: ""
         val defaultAccountHolder = accounts[accountHandle]
@@ -113,6 +101,12 @@ class SharedPrefsAccountStorage(
         } else {
             return null
         }
+    }
+
+    private fun persist() {
+        prefs.edit()
+                .putStringSet(KEY_ACCOUNTS, accounts.values.map { it.toJson() }.toSet())
+                .apply()
     }
 
     private fun persistDefault(serializedAccountHolder: String) {
