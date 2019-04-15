@@ -5,6 +5,9 @@ import com.uport.sdk.signer.KPSigner
 /**
  * [KeyPairAccountCreator] backed by a [KPSigner] that creates a [KeyPairAccount]
  *
+ * This account creator is still experimental and should only be used in test a environment
+ *
+ * API volatility: __high__
  */
 class KeyPairAccountCreator(private val privateKey: String) : AccountCreator {
 
