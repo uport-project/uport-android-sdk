@@ -33,6 +33,6 @@ class KeyPairAccountCreator(private val privateKey: String) : AccountCreator {
     }
 
     override suspend fun deleteAccount(handle: String) {
-        TODO("not implemented") //this does not apply to KeyPairAccountCreator
+        //nop
     }
 }
