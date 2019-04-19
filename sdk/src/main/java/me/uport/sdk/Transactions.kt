@@ -128,15 +128,8 @@ class Transactions(
 
                     relayMetaTransaction(signedEncodedTx)
                 }
-                KeyPair, HDKeyPair -> {
-                    signedEncodedTx = signer.signRawTx(oldBundle.unsigned)
-                    relayRawTransaction(signedEncodedTx)
-                }
                 else -> {
-
-                    signedEncodedTx = relaySigner.signRawTx(oldBundle.unsigned)
-
-                    //relay directly to RPC node
+                    signedEncodedTx = signer.signRawTx(oldBundle.unsigned)
                     relayRawTransaction(signedEncodedTx)
                 }
             }
