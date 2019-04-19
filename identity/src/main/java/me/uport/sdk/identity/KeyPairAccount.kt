@@ -1,10 +1,8 @@
 package me.uport.sdk.identity
 
 import android.content.Context
-import android.support.annotation.VisibleForTesting
 import com.uport.sdk.signer.KPSigner
 import com.uport.sdk.signer.Signer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Transient
 
 /**
@@ -19,29 +17,27 @@ import kotlinx.serialization.Transient
 
 data class KeyPairAccount(
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        @SerialName("uportRoot")
-        override val handle: String,
-
-        @SerialName("devKey")
-        override val deviceAddress: String,
-
-        @SerialName("network")
         override val network: String,
 
-        @SerialName("proxy")
-        override val publicAddress: String,
-
-        val signer: KPSigner,
-
-        @SerialName("signerType")
-        override val type: AccountType = AccountType.KeyPair
+        val signer: KPSigner
 
 ) : Account {
 
+    override val type: AccountType
+        get() = AccountType.KeyPair
+
+    override val deviceAddress: String
+        get() = signer.getAddress()
+
+    override val publicAddress: String
+        get() = signer.getAddress()
+
+    override val handle: String
+        get() = signer.getAddress()
+
     @Transient
     val address: String
-        get() = publicAddress
+        get() = signer.getAddress()
 
     override fun getSigner(context: Context): Signer = signer
 

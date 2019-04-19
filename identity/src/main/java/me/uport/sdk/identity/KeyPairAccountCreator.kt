@@ -16,10 +16,7 @@ class KeyPairAccountCreator(private val privateKey: String) : AccountCreator {
     private fun createOrImportAccount(networkId: String): KeyPairAccount {
 
         return KeyPairAccount(
-                signer.getAddress(),
-                signer.getAddress(),
                 networkId,
-                signer.getAddress(),
                 signer
         )
     }
@@ -33,6 +30,6 @@ class KeyPairAccountCreator(private val privateKey: String) : AccountCreator {
     }
 
     override suspend fun deleteAccount(handle: String) {
-        //nop
+        //do nothing
     }
 }
