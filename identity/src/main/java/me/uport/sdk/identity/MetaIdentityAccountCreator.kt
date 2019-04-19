@@ -26,7 +26,7 @@ import me.uport.sdk.identity.endpoints.Unnu
  *
  * **Work on this identity model is on hold and no support is available. Please use [HDAccountCreator]**
  */
-@Deprecated("Work on this identity model is on hold and no support is available. Please use [MetaIdentityAccountCreator]")
+@Deprecated("Work on this identity model is on hold and no support is available. Please use [HDAccountCreator]")
 class MetaIdentityAccountCreator(
         private val context: Context,
         private val fuelTokenProvider: IFuelTokenProvider) : AccountCreator {
