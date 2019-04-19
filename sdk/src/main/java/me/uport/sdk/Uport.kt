@@ -139,6 +139,9 @@ object Uport {
         }
 
         runBlocking { accountCreator.deleteAccount(rootHandle) }
+        if (rootHandle == defaultAccount?.handle) {
+            defaultAccount = null
+        }
     }
 
     fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
