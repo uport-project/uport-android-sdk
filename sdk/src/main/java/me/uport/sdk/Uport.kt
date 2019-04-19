@@ -30,7 +30,7 @@ object Uport {
 
     private lateinit var accountCreator: HDAccountCreator
 
-    private var accountStorage: SharedPrefsAccountStorage? = null
+    private lateinit var accountStorage: SharedPrefsAccountStorage
 
     @Suppress("UnsafeCast")
     var defaultAccount: HDAccount?
