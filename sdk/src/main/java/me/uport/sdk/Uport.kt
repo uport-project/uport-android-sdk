@@ -34,9 +34,9 @@ object Uport {
 
     @Suppress("UnsafeCast")
     var defaultAccount: HDAccount?
-        get() = accountStorage?.getDefaultAccount() as HDAccount?
+        get() = accountStorage.getDefaultAccount() as HDAccount?
         set(value) {
-            accountStorage?.setAsDefault(value?.handle ?: "")
+            accountStorage.setAsDefault(value?.handle ?: "")
         }
 
     private const val OLD_UPORT_CONFIG: String = "uport_sdk_prefs"
@@ -73,6 +73,8 @@ object Uport {
         UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(ethrDidRpcUrl), ethrDidRegistry))
 
         UniversalDID.registerResolver(HttpsDIDResolver())
+
+        migrateAccounts(oldPrefs, accountStorage)
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
         initialized = true
@@ -120,20 +122,16 @@ object Uport {
         else {
             accountCreator.importAccount(networkId, seedPhrase)
         }
-        accountStorage?.upsert(newAccount)
-
-        if (accountStorage?.getDefaultAccount() == null) {
-            accountStorage?.setAsDefault(newAccount.handle)
-        }
+        accountStorage.upsert(newAccount)
 
         defaultAccount = defaultAccount ?: newAccount
 
         return newAccount
     }
 
-    fun getAccount(handle: String) = accountStorage?.get(handle)
+    fun getAccount(handle: String) = accountStorage.get(handle)
 
-    fun allAccounts() = accountStorage?.all() ?: emptyList()
+    fun allAccounts() = accountStorage.all() ?: emptyList()
 
     fun deleteAccount(rootHandle: String) {
         if (!initialized) {
@@ -151,6 +149,11 @@ object Uport {
         val KEY_ACCOUNTS = "accounts"
         val KEY_DEFAULT_ACCOUNT = "default_account"
 
+        // only run when associated keys are available
+        if (!oldPrefs.contains(KEY_ACCOUNTS) || !oldPrefs.contains(KEY_DEFAULT_ACCOUNT)){
+            return
+        }
+
         // convert all accounts to HDAccount and save in new account manager
         oldPrefs.getStringSet(KEY_ACCOUNTS, emptySet())
                 .orEmpty()
@@ -161,21 +164,19 @@ object Uport {
                         null
                     }
 
-                    account.let {
-                        if (account != null) {
-                            val accountCopy = account.copy(type = AccountType.HDKeyPair)
-                            accountStorage.upsert(accountCopy)
-                        }
+                    account?.let {
+                        val accountCopy = it.copy(type = AccountType.HDKeyPair)
+                        accountStorage.upsert(accountCopy)
                     }
                 }
 
         // save old default account handle to new storage
         accountStorage.setAsDefault(oldPrefs.getString(KEY_DEFAULT_ACCOUNT, "") ?: "")
 
-        // set old storage to an empty set to ensure this only happens once
-        oldPrefs.edit().putStringSet(KEY_ACCOUNTS, emptySet()).apply()
-
-        // erase account handle from old default storage
-        oldPrefs.edit().putString(KEY_DEFAULT_ACCOUNT, "").apply()
+        // remove keys from the old prefs
+        oldPrefs.edit()
+                .remove(KEY_ACCOUNTS)
+                .remove(KEY_DEFAULT_ACCOUNT)
+                .apply()
     }
 }

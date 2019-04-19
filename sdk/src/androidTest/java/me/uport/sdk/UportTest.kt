@@ -50,30 +50,6 @@ class UportTest {
     }
 
     @Test
-    fun there_can_be_only_one_default_account() {
-
-        val tested = Uport
-
-        tested.defaultAccount?.let { tested.deleteAccount(it) }
-
-        runBlocking {
-
-            val acc1 = tested.createAccount(Networks.rinkeby.networkId)
-
-            assert(tested.defaultAccount).isEqualTo(acc1) //first account gets to be default
-            //assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1)
-
-            val acc2 = tested.createAccount(Networks.rinkeby.networkId)
-
-            assert(tested.defaultAccount).isNotEqualTo(acc2) //default isn't overwritten
-            //assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1) //still one default
-
-            tested.defaultAccount = acc2
-            //assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1) //still one default
-        }
-    }
-
-    @Test
     fun account_completion_called_on_main_thread() {
         val latch = CountDownLatch(1)
         Uport.createAccount(Networks.rinkeby) { _, _ ->
