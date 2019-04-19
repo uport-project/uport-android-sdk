@@ -1,10 +1,8 @@
 package me.uport.sdk
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.support.annotation.VisibleForTesting
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -129,8 +127,14 @@ object Uport {
         return newAccount
     }
 
+    /**
+     * Fetches the account based on the provided handle
+     */
     fun getAccount(handle: String) = accountStorage.get(handle)
 
+    /**
+     * Fetches all saved accounts
+     */
     fun allAccounts() = accountStorage.all() ?: emptyList()
 
     fun deleteAccount(rootHandle: String) {
@@ -153,7 +157,7 @@ object Uport {
         val KEY_DEFAULT_ACCOUNT = "default_account"
 
         // only run when associated keys are available
-        if (!oldPrefs.contains(KEY_ACCOUNTS) || !oldPrefs.contains(KEY_DEFAULT_ACCOUNT)){
+        if (!oldPrefs.contains(KEY_ACCOUNTS) || !oldPrefs.contains(KEY_DEFAULT_ACCOUNT)) {
             return
         }
 
