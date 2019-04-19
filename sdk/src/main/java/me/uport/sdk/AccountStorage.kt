@@ -148,18 +148,9 @@ class SharedPrefsAccountStorage(
         }
     }
 
-    private fun fetchAllAccounts(): List<Account> {
-        val listOfAccounts = mutableListOf<Account>()
-
-        accounts.forEach {
-            val account = fetchAccountFromHolder(it.value)
-            if (account != null) {
-                listOfAccounts.add(account)
-            }
-        }
-
-        return listOfAccounts.toList()
-    }
+    private fun fetchAllAccounts() = accounts
+            .map { fetchAccountFromHolder(it.value) }
+            .filterNotNull()
 }
 
 
@@ -175,7 +166,7 @@ data class AccountHolder(
     /**
      * serializes accountHolder
      */
-    fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(AccountHolder.serializer(), this) else Json.stringify(AccountHolder.serializer(), this)
+    fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(serializer(), this) else Json.stringify(serializer(), this)
 
     companion object {
 
@@ -184,12 +175,12 @@ data class AccountHolder(
         /**
          * de-serializes accountHolder
          */
-        fun fromJson(serializedAccountHolder: String): AccountHolder? {
+        fun fromJson(serializedAccountHolder: String): AccountHolder {
             if (serializedAccountHolder.isEmpty()) {
-                return null
+                return blank
             }
 
-            return Json.parse(AccountHolder.serializer(), serializedAccountHolder)
+            return Json.parse(serializer(), serializedAccountHolder)
         }
     }
 }
