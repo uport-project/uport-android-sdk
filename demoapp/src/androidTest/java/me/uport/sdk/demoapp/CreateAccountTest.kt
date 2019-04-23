@@ -26,5 +26,4 @@ class CreateAccountTest {
         onView(withId(R.id.defaultAccountView))
                 .check(matches(withText(not(containsString("ERROR")))))
     }
-
 }

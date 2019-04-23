@@ -13,8 +13,10 @@ import me.uport.sdk.identity.AccountType
 import me.uport.sdk.identity.AccountType.Device
 import me.uport.sdk.identity.AccountType.IdentityManager
 import me.uport.sdk.identity.AccountType.KeyPair
+import me.uport.sdk.identity.AccountType.HDKeyPair
 import me.uport.sdk.identity.AccountType.MetaIdentityManager
 import me.uport.sdk.identity.AccountType.Proxy
+import me.uport.sdk.identity.MetaIdentityAccount
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.signer.MetaIdentitySigner
 import me.uport.sdk.signer.TxRelayHelper
@@ -44,7 +46,7 @@ class Transactions(
     /**
      * A suspending function that takes in a [request] [Transaction] and constructs another [Transaction]
      * with the appropriate `from`, `nonce`, `gasLimit` and `gasPrice`
-     * according to the provided [signerType] and the [Account] object it's applied to.
+     * according to the provided [signerType] and the Account object it's applied to.
      *
      * Returns a modified [Transaction] object, ready to be signed and sent.
      */
@@ -55,7 +57,7 @@ class Transactions(
 
         var nonce = BigInteger.ZERO
         when (signerType) {
-            Device, KeyPair -> {
+            Device, KeyPair, HDKeyPair -> {
                 from = Address(account.deviceAddress)
                 nonce = rpcRelay.getTransactionCount(account.deviceAddress)
             }
@@ -119,27 +121,15 @@ class Transactions(
             val txHash = when (signerType) {
                 MetaIdentityManager -> {
 
-                    val metaSigner = MetaIdentitySigner(relaySigner, account.publicAddress, account.identityManagerAddress)
+                    @Suppress("UnsafeCast")
+                    val metaAccount = account as MetaIdentityAccount
+                    val metaSigner = MetaIdentitySigner(relaySigner, metaAccount.publicAddress, metaAccount.identityManagerAddress)
                     signedEncodedTx = metaSigner.signRawTx(oldBundle.unsigned)
 
                     relayMetaTransaction(signedEncodedTx)
-
-                }
-                KeyPair -> {
-                    signedEncodedTx = signer.signRawTx(oldBundle.unsigned)
-                    relayRawTransaction(signedEncodedTx)
                 }
                 else -> {
-
-                    signedEncodedTx = relaySigner.signRawTx(oldBundle.unsigned)
-
-                    if (signerType != KeyPair) {
-                        //fuel the device key?
-                        val refuelTxHash = maybeRefuel(signedEncodedTx)
-                        network.waitForTransactionToMine(refuelTxHash)
-                    }
-
-                    //relay directly to RPC node
+                    signedEncodedTx = signer.signRawTx(oldBundle.unsigned)
                     relayRawTransaction(signedEncodedTx)
                 }
             }
@@ -163,18 +153,12 @@ class Transactions(
                 .sendRawTransaction(signedEncodedTx.toHexString())
     }
 
+    @Suppress("UnsafeCast")
     private suspend fun relayMetaTransaction(signedEncodedTx: ByteArray): String {
-        val network = Networks.get(account.network)
+        val metaAccount = account as MetaIdentityAccount
+        val network = Networks.get(metaAccount.network)
         val tx = signedEncodedTx.toHexString()
         return Sensui(network.faucetUrl, network.relayUrl)
-                .relayMetaTx(tx, network.name, account.fuelToken)
+                .relayMetaTx(tx, network.name, metaAccount.fuelToken)
     }
-
-    private suspend fun maybeRefuel(signedEncodedTx: ByteArray): String {
-        val network = Networks.get(account.network)
-        val tx = signedEncodedTx.toHexString()
-        return Sensui(network.faucetUrl, network.relayUrl)
-                .maybeRefuel(tx, network.name, account.fuelToken)
-    }
-
 }

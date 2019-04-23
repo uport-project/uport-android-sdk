@@ -1,7 +1,9 @@
 package me.uport.sdk.identity
 
 import assertk.assert
-import assertk.assertions.*
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -12,19 +14,16 @@ class AccountsTests {
 
     @Test
     fun `can serialize and deserialize account`() {
-        val refAccount = Account(
+        val refAccount = HDAccount(
                 "0xroot",
                 "0xdevice",
                 "0x1",
-                "0xpublic",
-                "",
-                "",
-                ""
+                "0xpublic"
         )
 
         val serialized = refAccount.toJson()
 
-        val other = Account.fromJson(serialized)
+        val other = HDAccount.fromJson(serialized)
 
         assert(other).isEqualTo(refAccount)
     }
@@ -39,16 +38,54 @@ class AccountsTests {
               "devKey":"0xaddress",
               "network":"0x4",
               "proxy":"0xpublicaddress",
+              "signerType":"HDKeyPair"
+            }""".trimIndent()
+
+        val account = HDAccount.fromJson(serializedAccount)
+
+        assert(account).isNotNull()
+    }
+
+    @Test
+    fun `can deserialize deprecated account into hdaccount`() {
+
+        //language=JSON
+        val serializedAccount = """
+            {
+              "uportRoot":"0xrootAddress",
+              "devKey":"0xaddress",
+              "network":"0x4",
+              "proxy":"0xpublicaddress",
               "manager":"0xidentityManagerAddress",
               "txRelay":"0xtxRelayAddress",
               "fuelToken":"base64FuelToken",
               "signerType":"KeyPair"
             }""".trimIndent()
 
-        val account = Account.fromJson(serializedAccount)
+        val account = HDAccount.fromJson(serializedAccount)
 
         assert(account).isNotNull()
-        assert(account!!.isDefault!!).isFalse()
+    }
+
+    @Test
+    fun `can deserialize deprecated account into meta identity account`() {
+
+        //language=JSON
+        val serializedAccount = """
+            {
+              "uportRoot":"0xrootAddress",
+              "devKey":"0xaddress",
+              "network":"0x4",
+              "proxy":"0xpublicaddress",
+              "manager":"0xidentityManagerAddress",
+              "txRelay":"0xtxRelayAddress",
+              "fuelToken":"base64FuelToken",
+              "signerType":"MetaIdentityManager"
+            }""".trimIndent()
+
+        val account = MetaIdentityAccount.fromJson(serializedAccount)
+
+        assert(account).isNotNull()
     }
 
     @Test
@@ -60,14 +97,10 @@ class AccountsTests {
                 "devKey": "0x95979bb3ee68420a0b105f6e3c0d5d0fc0466016",
                 "network": "0x04",
                 "proxy": "0x95979bb3ee68420a0b105f6e3c0d5d0fc0466016",
-                "manager": "",
-                "txRelay": "",
-                "fuelToken": "",
-                "signerType": "KeyPair",
-                "isDefault": true
+                "signerType": "HDKeyPair",
             }""".trimIndent()
 
-        val account = Account.fromJson(serializedAccount)
+        val account = HDAccount.fromJson(serializedAccount)
         val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
         val canResolve = EthrDIDResolver(defaultRPC).canResolve(account!!.getDID())
         assert(canResolve)
@@ -88,33 +121,8 @@ class AccountsTests {
               "signerType":"MetaIdentityManager"
             }""".trimIndent()
 
-        val account = Account.fromJson(serializedAccount)
+        val account = MetaIdentityAccount.fromJson(serializedAccount)
         val tested = UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl))
         assert(tested.canResolve(account!!.getDID())).isTrue()
     }
-
-    @Test
-    fun `throws error for invalid account type`() {
-
-        val serializedAccount = """
-            {
-              "uportRoot":"0xrootAddress",
-              "devKey":"0xaddress",
-              "network":"0x4",
-              "proxy":"0xpublicaddress",
-              "manager":"0xidentityManagerAddress",
-              "txRelay":"0xtxRelayAddress",
-              "fuelToken":"base64FuelToken",
-              "signerType":"Proxy"
-            }""".trimIndent()
-
-        val account = Account.fromJson(serializedAccount)
-        assert {
-            account!!.getDID()
-        }.thrownError {
-            isInstanceOf(IllegalStateException::class)
-        }
-    }
-
-
 }
