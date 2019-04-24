@@ -1,12 +1,12 @@
 package me.uport.sdk.credentials
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThanOrEqualTo
 import assertk.assertions.isNotNull
-import com.uport.sdk.signer.KPSigner
 import kotlinx.coroutines.runBlocking
+import me.uport.sdk.core.KPSigner
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
@@ -41,7 +41,7 @@ class CredentialsTest {
         )
 
         transformations.forEach { (orig, expected) ->
-            assert(Credentials.normalizeKnownDID(orig)).isEqualTo(expected)
+            assertThat(Credentials.normalizeKnownDID(orig)).isEqualTo(expected)
         }
     }
 
@@ -52,7 +52,7 @@ class CredentialsTest {
         val jwt = cred.signJWT(emptyMap())
 
         val (header, _, _) = JWTTools().decode(jwt)
-        assert(header.alg).isEqualTo(ES256K)
+        assertThat(header.alg).isEqualTo(ES256K)
 
     }
 
@@ -82,7 +82,7 @@ class CredentialsTest {
                 vc,
                 3000L
         )
-        assert(jwt).isEqualTo(expectedJWT)
+        assertThat(jwt).isEqualTo(expectedJWT)
     }
 
     @Test
@@ -99,7 +99,7 @@ class CredentialsTest {
         val cred = Credentials("did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX", KPSigner("0x1234"), timeProvider)
         val jwt = cred.createVerification("did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74", claim)
 
-        assert(jwt).isEqualTo(expectedJWT)
+        assertThat(jwt).isEqualTo(expectedJWT)
     }
 
     @Test
@@ -109,7 +109,7 @@ class CredentialsTest {
         val jwt = cred.signJWT(emptyMap())
 
         val (header, _, _) = JWTTools().decode(jwt)
-        assert(header.alg).isEqualTo(ES256K_R)
+        assertThat(header.alg).isEqualTo(ES256K_R)
 
     }
 
@@ -121,11 +121,11 @@ class CredentialsTest {
         val jwt = cred.createDisclosureRequest(SelectiveDisclosureRequestParams(emptyList(), ""))
         val (_, payload, _) = JWTTools().decode(jwt)
 
-        assert(payload.iss).isEqualTo("did:example:issuer")
-        assert(payload.iat).isNotNull {
-            it.isGreaterThanOrEqualTo(nowSeconds)
-        }
-        assert(payload.type).isEqualTo(JWTTypes.shareReq.name)
+        assertThat(payload.iss).isEqualTo("did:example:issuer")
+        assertThat(payload.iat)
+                .isNotNull()
+                .isGreaterThanOrEqualTo(nowSeconds)
+        assertThat(payload.type).isEqualTo(JWTTypes.shareReq.name)
     }
 
     @Test
@@ -147,16 +147,16 @@ class CredentialsTest {
 
         val load = buildPayloadForShareReq(params)
 
-        assert((load["requested"] as List<*>).containsAll(listOf("name", "country")))
-        assert((load["verified"] as List<*>).containsAll(listOf("email")))
+        assertThat((load["requested"] as List<*>).containsAll(listOf("name", "country")))
+        assertThat((load["verified"] as List<*>).containsAll(listOf("email")))
 
-        assert(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
-        assert(load["net"]).isEqualTo("0x4")
-        assert(load["act"]).isEqualTo("keypair")
-        assert(load["hello"]).isEqualTo("world")
-        assert(load["type"]).isEqualTo("shareReq")
+        assertThat(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
+        assertThat(load["net"]).isEqualTo("0x4")
+        assertThat(load["act"]).isEqualTo("keypair")
+        assertThat(load["hello"]).isEqualTo("world")
+        assertThat(load["type"]).isEqualTo("shareReq")
 
-        assert((load["vc"] as List<*>)).isEmpty()
+        assertThat((load["vc"] as List<*>)).isEmpty()
 
     }
 
@@ -179,14 +179,14 @@ class CredentialsTest {
 
         val load = buildPayloadForPersonalSignReq(params)
 
-        assert(load["type"]).isEqualTo("personalSigReq")
-        assert(load["data"]).isEqualTo("sign this message")
-        assert(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
-        assert(load["riss"]).isEqualTo("did:ethr:0x1122334455667788990011223344556677889900")
-        assert(load["from"]).isEqualTo("0x1122334455667788990011223344556677889900")
-        assert(load["net"]).isEqualTo("0x4")
-        assert((load["vc"] as List<*>)).isEmpty()
-        assert(load["hello"]).isEqualTo("world")
+        assertThat(load["type"]).isEqualTo("personalSigReq")
+        assertThat(load["data"]).isEqualTo("sign this message")
+        assertThat(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
+        assertThat(load["riss"]).isEqualTo("did:ethr:0x1122334455667788990011223344556677889900")
+        assertThat(load["from"]).isEqualTo("0x1122334455667788990011223344556677889900")
+        assertThat(load["net"]).isEqualTo("0x4")
+        assertThat((load["vc"] as List<*>)).isEmpty()
+        assertThat(load["hello"]).isEqualTo("world")
 
     }
 
@@ -211,16 +211,16 @@ class CredentialsTest {
 
         val load = buildPayloadForVerifiedClaimReq(params)
 
-        assert(load["type"]).isEqualTo("verReq")
-        assert(load["unsignedClaim"]).isEqualTo(mapOf("name" to "John Doe"))
-        assert(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
-        assert(load["riss"]).isEqualTo("did:ethr:0x1122334455667788990011223344556677889900")
-        assert((load["vc"] as List<*>)).isEmpty()
-        assert(load["hello"]).isEqualTo("world")
-        assert(load["aud"]).isEqualTo("did:ethr:0x9988776655443322110099887766554433221100")
-        assert(load["sub"]).isEqualTo("did:ethr:0xFFEEDDCCBBAA9988776655443322110099887766")
-        assert(load["issc"]).isEqualTo(mapOf("dappName" to "testing"))
-        assert(load["rexp"]).isEqualTo(1234L)
+        assertThat(load["type"]).isEqualTo("verReq")
+        assertThat(load["unsignedClaim"]).isEqualTo(mapOf("name" to "John Doe"))
+        assertThat(load["callback"]).isEqualTo("myapp://get-back-to-me-with-response.url")
+        assertThat(load["riss"]).isEqualTo("did:ethr:0x1122334455667788990011223344556677889900")
+        assertThat((load["vc"] as List<*>)).isEmpty()
+        assertThat(load["hello"]).isEqualTo("world")
+        assertThat(load["aud"]).isEqualTo("did:ethr:0x9988776655443322110099887766554433221100")
+        assertThat(load["sub"]).isEqualTo("did:ethr:0xFFEEDDCCBBAA9988776655443322110099887766")
+        assertThat(load["issc"]).isEqualTo(mapOf("dappName" to "testing"))
+        assertThat(load["rexp"]).isEqualTo(1234L)
     }
 
 }

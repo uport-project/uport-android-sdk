@@ -2,9 +2,9 @@ package me.uport.sdk.credentials
 
 import android.support.annotation.VisibleForTesting
 import android.support.annotation.VisibleForTesting.PRIVATE
-import com.uport.sdk.signer.Signer
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
+import me.uport.sdk.core.Signer
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
@@ -128,7 +128,7 @@ class Credentials(
      * @param callbackUrl **OPTIONAL** the URL that receives the response
      * @param expiresInSeconds **OPTIONAL** number of seconds of validity of the claim.
      * @param verifiedClaims **OPTIONAL** a list of verified claims which can be about anything
- *                          related to the claim and in most cases it is related to the issuer
+     *                          related to the claim and in most cases it is related to the issuer
      *
      *  ```
      */

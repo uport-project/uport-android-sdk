@@ -64,7 +64,7 @@ class SelectiveDisclosureRequestParams(
          *
          * @see [RequestAccountType]
          */
-        val accountType: RequestAccountType? = RequestAccountType.general,
+        val accountType: RequestAccountType? = general,
 
         /**
          * [**optional**]
