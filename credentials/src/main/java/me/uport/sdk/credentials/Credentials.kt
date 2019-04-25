@@ -128,7 +128,7 @@ class Credentials(
      * @param callbackUrl **OPTIONAL** the URL that receives the response
      * @param expiresInSeconds **OPTIONAL** number of seconds of validity of the claim.
      * @param verifiedClaims **OPTIONAL** a list of verified claims which can be about anything
- *                          related to the claim and in most cases it is related to the issuer
+     *                          related to the claim and in most cases it is related to the issuer
      *
      *  ```
      */
@@ -144,6 +144,20 @@ class Credentials(
         payload["vc"] = verifiedClaims ?: emptyList<String>()
         payload["callback"] = callbackUrl ?: ""
         return this.signJWT(payload, expiresInSeconds ?: 600L)
+    }
+
+
+    /**
+     * Verify and return profile from a
+     * [Selective Disclosure Response JWT](https://github.com/uport-project/specs/blob/develop/messages/shareresp.md).
+     *
+     * @param token **REQUIRED** The JWT response token from a selective disclosure request
+     *
+     * @return a [UportProfile] object
+     */
+    fun verifyDisclosure(token: String): UportProfile? {
+        //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
+        return null
     }
 
 
