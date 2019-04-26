@@ -1,7 +1,5 @@
 package me.uport.sdk.credentials
 
-import android.support.annotation.VisibleForTesting
-import android.support.annotation.VisibleForTesting.PRIVATE
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.Signer
@@ -168,7 +166,6 @@ class Credentials(
          *
          * This will transform an ethereum address into an ethr-did and an MNID string into a uport-did
          */
-        @VisibleForTesting(otherwise = PRIVATE)
         internal fun normalizeKnownDID(potentialDID: String): String {
 
             //ignore if it's already a did

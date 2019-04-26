@@ -2,7 +2,6 @@
 
 package me.uport.sdk.credentials
 
-import android.support.annotation.Keep
 import me.uport.sdk.credentials.RequestAccountType.devicekey
 import me.uport.sdk.credentials.RequestAccountType.general
 import me.uport.sdk.credentials.RequestAccountType.keypair
@@ -104,7 +103,6 @@ class SelectiveDisclosureRequestParams(
  * [Private Chain Account](https://github.com/uport-project/specs/blob/develop/messages/privatechain.md)
  * * [none] no account is returned
  */
-@Keep
 @Suppress("EnumEntryName")
 enum class RequestAccountType {
     general,

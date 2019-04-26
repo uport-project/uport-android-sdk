@@ -37,7 +37,7 @@ buildscript {
         kmnid_version = "0.3"
         kethereum_version = "0.75.0"
         tweetnacl_k_version = "0.0.1"
-        did_jwt_version = "0.0.2"
+        did_jwt_version = "0.0.3"
         kotlin_common_version = "0.0.4"
 
         uport_sdk_version = "v0.4.2"
