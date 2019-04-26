@@ -20,7 +20,7 @@ android {
         testApplicationId "com.uport.sdk.signer.test"
         // The following argument makes the Android Test Orchestrator run its
         // "pm clear" command after each test invocation. This command ensures
-        // that the app"s state is completely cleared between tests.
+        // that the app's state is completely cleared between tests.
 //        testInstrumentationRunnerArguments clearPackageData: "true"
     }
 
@@ -50,11 +50,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation "com.android.support:appcompat-v7:$support_lib_version"
 
-//    api "com.github.walleth.kethereum:crypto:$kethereum_version"
-//    api "com.github.komputing.KEthereum:crypto_impl_spongycastle:$kethereum_version"
-    api("com.github.komputing.KEthereum:bip39:$kethereum_version") {
-        exclude group: 'com.github.walleth', module: 'sha3'
-    }
+    api "com.github.komputing.KEthereum:bip39:$kethereum_version"
     api "com.github.komputing.KEthereum:bip39_wordlist_en:$kethereum_version"
     api "com.github.uport-project.kotlin-common:core:$kotlin_common_version"
 
