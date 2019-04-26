@@ -9,8 +9,6 @@ project.ext.description = "classes for creating and managing uPort Account objec
 android {
     compileSdkVersion compile_sdk_version
 
-
-
     defaultConfig {
         minSdkVersion min_sdk_version
         targetSdkVersion target_sdk_version
@@ -30,17 +28,20 @@ android {
 
 }
 
+//XXX: this is needed until https://github.com/komputing/KEthereum/issues/65 is fixed
+configurations.all {
+    exclude group: "com.github.walleth", module: "sha3"
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlin_serialization_version"
     implementation "com.android.support:support-annotations:$support_lib_version"
 
-    api "com.github.walleth.kethereum:model:$kethereum_version"
-    api project(':uport-did')
-    api project(':ethr-did')
-    api project(":core")
-    api project(":signer")
-    api project(":serialization")
+    api "com.github.komputing.KEthereum:model:$kethereum_version"
+    api "com.github.uport-project.kotlin-common:core:$kotlin_common_version"
+    api project(path: ':signer')
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"
@@ -48,4 +49,7 @@ dependencies {
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
+    testImplementation "com.github.uport-project.kotlin-common:jsonrpc:$kotlin_common_version"
+    testImplementation "com.github.uport-project.kotlin-did-jwt:ethr-did:$did_jwt_version"
+    testImplementation "com.github.uport-project.kotlin-did-jwt:uport-did:$did_jwt_version"
 }

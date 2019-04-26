@@ -1,6 +1,6 @@
 package me.uport.sdk.identity
 
-import com.uport.sdk.signer.KPSigner
+import me.uport.sdk.core.KPSigner
 
 /**
  * [KeyPairAccountCreator] backed by a [KPSigner] that creates a [KeyPairAccount]

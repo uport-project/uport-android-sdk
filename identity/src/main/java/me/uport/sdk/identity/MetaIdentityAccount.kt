@@ -2,7 +2,6 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import android.support.annotation.VisibleForTesting
-import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import kotlinx.serialization.SerialName
@@ -10,6 +9,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import me.uport.mnid.MNID
+import me.uport.sdk.core.Signer
 
 
 /**

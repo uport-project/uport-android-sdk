@@ -51,11 +51,11 @@ class ProgressPersistence(context: Context) {
             @SerialName("partialAccount")
             val partialAccount: MetaIdentityAccount = MetaIdentityAccount.blank
     ) {
-        fun toJson() = Json.stringify(PersistentBundle.serializer(), this)
+        fun toJson() = Json.stringify(serializer(), this)
 
         companion object {
             fun fromJson(json: String): PersistentBundle = try {
-                Json.nonstrict.parse(PersistentBundle.serializer(), json)
+                Json.nonstrict.parse(serializer(), json)
             } catch (err: Exception) {
                 PersistentBundle()
             }

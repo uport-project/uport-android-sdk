@@ -2,13 +2,13 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import android.support.annotation.VisibleForTesting
-import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
+import me.uport.sdk.core.Signer
 
 /**
  * This is an [Account] implementation that is backed by a key pair derived from a seed.
@@ -41,7 +41,7 @@ data class HDAccount(
     /**
      * serializes account
      */
-    fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(HDAccount.serializer(), this) else Json.stringify(HDAccount.serializer(), this)
+    fun toJson(pretty: Boolean = false): String = if (pretty) Json.indented.stringify(serializer(), this) else Json.stringify(serializer(), this)
 
     override fun getSigner(context: Context): Signer = UportHDSignerImpl(context, UportHDSigner(), rootAddress = handle, deviceAddress = deviceAddress)
 
@@ -62,7 +62,7 @@ data class HDAccount(
                 return null
             }
 
-            return Json.nonstrict.parse(HDAccount.serializer(), serializedAccount)
+            return Json.nonstrict.parse(serializer(), serializedAccount)
         }
     }
 }
