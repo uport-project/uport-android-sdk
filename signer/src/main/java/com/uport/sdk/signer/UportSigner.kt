@@ -11,19 +11,19 @@ import com.uport.sdk.signer.encryption.KeyProtection
 import com.uport.sdk.signer.encryption.KeyProtectionFactory
 import com.uport.sdk.signer.encryption.SimpleAsymmetricProtection
 import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.getUncompressedPublicKeyWithPrefix
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import org.kethereum.crypto.createEthereumKeyPair
-import org.kethereum.crypto.model.ECKeyPair
-import org.kethereum.crypto.model.PRIVATE_KEY_SIZE
-import org.kethereum.crypto.model.PUBLIC_KEY_SIZE
-import org.kethereum.crypto.model.PrivateKey
 import org.kethereum.crypto.signMessage
 import org.kethereum.crypto.signMessageHash
 import org.kethereum.crypto.toAddress
 import org.kethereum.crypto.toECKeyPair
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.hashes.sha256
+import org.kethereum.model.ECKeyPair
+import org.kethereum.model.PRIVATE_KEY_SIZE
+import org.kethereum.model.PrivateKey
 import org.kethereum.model.SignatureData
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.math.BigInteger
@@ -374,8 +374,8 @@ open class UportSigner {
          */
         const val ERR_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST"
 
-        const val UNCOMPRESSED_PUBLIC_KEY_SIZE = PUBLIC_KEY_SIZE + 1
-        const val COMPRESSED_PUBLIC_KEY_SIZE = PRIVATE_KEY_SIZE + 1
+//        const val UNCOMPRESSED_PUBLIC_KEY_SIZE = PUBLIC_KEY_SIZE + 1
+//        const val COMPRESSED_PUBLIC_KEY_SIZE = PRIVATE_KEY_SIZE + 1
 
         data class EncryptionCombo(val keyProtection: KeyProtection, val encPayload: String, val err: Exception?)
 

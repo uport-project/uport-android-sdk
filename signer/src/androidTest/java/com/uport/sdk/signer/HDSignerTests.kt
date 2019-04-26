@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry
 import com.uport.sdk.signer.encryption.KeyProtection.Level.SIMPLE
 import com.uport.sdk.signer.testutil.ensureSeedIsImportedInTargetContext
 import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.decodeJose
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import org.junit.Assert.assertEquals

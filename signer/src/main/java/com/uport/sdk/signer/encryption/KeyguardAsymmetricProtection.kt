@@ -28,7 +28,7 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
     override
     fun genKey(context: Context) {
 
-        if (!KeyProtection.canUseKeychainAuthentication(context)) {
+        if (!canUseKeychainAuthentication(context)) {
             throw IllegalStateException(UportSigner.ERR_KEYGUARD_NOT_CONFIGURED)
         }
 
@@ -38,7 +38,7 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
     override
     fun encrypt(context: Context, purpose: String, blob: ByteArray, callback: EncryptionCallback) {
         try {
-            val ciphertext = KeyProtection.encryptRaw(blob, extendedAlias)
+            val ciphertext = encryptRaw(blob, extendedAlias)
             callback(null, ciphertext)
         } catch (ex: Exception) {
             callback(ex, "")
@@ -71,7 +71,7 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
                         override fun onKeyguardResult(unlocked: Boolean) {
                             if (unlocked) {
                                 try {
-                                    val cleartextBytes = KeyProtection.decryptRaw(ciphertext, extendedAlias)
+                                    val cleartextBytes = decryptRaw(ciphertext, extendedAlias)
                                     //only update if there was no exception
                                     updateUnlock(extendedAlias)
                                     //finally decrypted.. phew
@@ -95,7 +95,7 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
         try {
             if (hasMarshmallow()) {
                 try {
-                    val cleartextBytes = KeyProtection.decryptRaw(ciphertext, extendedAlias)
+                    val cleartextBytes = decryptRaw(ciphertext, extendedAlias)
                     callback(null, cleartextBytes)
                 } catch (exception: InvalidKeyException) {
                     @SuppressLint("NewApi")
@@ -109,7 +109,7 @@ class KeyguardAsymmetricProtection(sessionTimeoutSeconds: Int = DEFAULT_SESSION_
                 if (shouldShowKeyguard()) {
                     decryptAfterKeyguard(context, purpose, ciphertext, callback)
                 } else {
-                    val cleartextBytes = KeyProtection.decryptRaw(ciphertext, extendedAlias)
+                    val cleartextBytes = decryptRaw(ciphertext, extendedAlias)
                     callback(null, cleartextBytes)
                 }
             }

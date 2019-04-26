@@ -16,8 +16,12 @@ import com.uport.sdk.signer.hasMarshmallow
 import com.uport.sdk.signer.packCiphertext
 import com.uport.sdk.signer.unpackCiphertext
 import java.security.SecureRandom
-import javax.crypto.Cipher
-import javax.crypto.Cipher.*
+import javax.crypto.Cipher.DECRYPT_MODE
+import javax.crypto.Cipher.ENCRYPT_MODE
+import javax.crypto.Cipher.SECRET_KEY
+import javax.crypto.Cipher.UNWRAP_MODE
+import javax.crypto.Cipher.WRAP_MODE
+import javax.crypto.Cipher.getInstance
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
@@ -54,10 +58,10 @@ class CryptoUtil(context: Context, private val alias: String = DEFAULT_ALIAS) {
         val keyStore = getKeyStore()
 
         if (hasMarshmallow()) {
-            val cipher = Cipher.getInstance(AES_TRANSFORMATION)
+            val cipher = getInstance(AES_TRANSFORMATION)
 
             val secretKey = keyStore.getKey(alias, null) ?: genEncryptionKey()
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+            cipher.init(ENCRYPT_MODE, secretKey)
             //FIXME: On some devices (like emulator with API 24 & 26) this throws IllegalBlockSizeException for large blobs (ex 4096 bytes)
             val encryptedBytes = cipher.doFinal(blob)
 
@@ -71,7 +75,7 @@ class CryptoUtil(context: Context, private val alias: String = DEFAULT_ALIAS) {
             val wrappingCipher = getWrappingCipher(WRAP_MODE, alias)
             val wrappedKey = wrappingCipher.wrap(oneTimeKey)
 
-            val encryptingCipher = Cipher.getInstance(AES_TRANSFORMATION)
+            val encryptingCipher = getInstance(AES_TRANSFORMATION)
             encryptingCipher.init(ENCRYPT_MODE, oneTimeKey)
             val encryptedBlob = encryptingCipher.doFinal(blob)
 
@@ -87,11 +91,11 @@ class CryptoUtil(context: Context, private val alias: String = DEFAULT_ALIAS) {
         if (hasMarshmallow()) {
 
             val secretKey = keyStore.getKey(alias, null) ?: genEncryptionKey()
-            val cipher = Cipher.getInstance(AES_TRANSFORMATION)
+            val cipher = getInstance(AES_TRANSFORMATION)
 
             val (iv, encryptedBytes) = unpackCiphertext(ciphertext)
 
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(iv))
+            cipher.init(DECRYPT_MODE, secretKey, IvParameterSpec(iv))
 
             return cipher.doFinal(encryptedBytes)
         } else {
@@ -99,8 +103,8 @@ class CryptoUtil(context: Context, private val alias: String = DEFAULT_ALIAS) {
             val (wrappedKey, iv, encryptedBytes) = unpackCiphertext(ciphertext)
 
             val encryptionKey = wrappingCipher.unwrap(wrappedKey, ALGORITHM_AES, SECRET_KEY)
-            val cipher = Cipher.getInstance(AES_TRANSFORMATION)
-            cipher.init(Cipher.DECRYPT_MODE, encryptionKey, IvParameterSpec(iv))
+            val cipher = getInstance(AES_TRANSFORMATION)
+            cipher.init(DECRYPT_MODE, encryptionKey, IvParameterSpec(iv))
 
             return cipher.doFinal(encryptedBytes)
         }

@@ -9,8 +9,8 @@ import org.kethereum.bip32.model.ExtendedKey
 import org.kethereum.bip32.model.Seed
 import org.kethereum.bip32.toExtendedKey
 import org.kethereum.bip44.BIP44Element
-import org.kethereum.crypto.model.ECKeyPair
-import org.kethereum.crypto.model.PrivateKey
+import org.kethereum.model.ECKeyPair
+import org.kethereum.model.PrivateKey
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import org.walleth.khex.hexToByteArray
 import java.math.BigInteger

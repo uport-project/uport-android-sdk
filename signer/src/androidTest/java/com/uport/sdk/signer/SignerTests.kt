@@ -4,6 +4,10 @@ import android.content.Context
 import android.support.test.InstrumentationRegistry
 import com.uport.sdk.signer.encryption.KeyProtection
 import me.uport.sdk.core.decodeBase64
+import me.uport.sdk.core.decodeJose
+import me.uport.sdk.core.getDerEncoded
+import me.uport.sdk.core.getJoseEncoded
+import me.uport.sdk.core.getUncompressedPublicKeyWithPrefix
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import org.junit.Assert.assertEquals
@@ -12,10 +16,10 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.kethereum.crypto.model.PrivateKey
 import org.kethereum.crypto.signMessage
 import org.kethereum.crypto.toECKeyPair
 import org.kethereum.extensions.hexToBigInteger
+import org.kethereum.model.PrivateKey
 import org.spongycastle.util.encoders.Hex
 import org.walleth.khex.hexToByteArray
 import org.walleth.khex.toNoPrefixHexString

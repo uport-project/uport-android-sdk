@@ -18,6 +18,7 @@ object KeyProtectionFactory {
     @Suppress("ComplexMethod")
     fun obtain(context: Context, level: KeyProtection.Level): KeyProtection {
 
+        @Suppress("MoveVariableDeclarationIntoWhen")
         val apiAdjustedLevel = if (Build.VERSION.SDK_INT >= LOLLIPOP) {
             level
         } else {
