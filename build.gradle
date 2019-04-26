@@ -34,12 +34,11 @@ buildscript {
         okhttp_version = "3.10.0"
 
         bivrost_version = "1c0efeb7f3"//"v0.7.0"
-        kmnid_version = "0.2.1"
-        kethereum_version = "0.63"
-        khex_version = "0.5"
+        kmnid_version = "0.3"
+        kethereum_version = "0.75.0"
         tweetnacl_k_version = "0.0.1"
         did_jwt_version = "0.0.2"
-        kotlin_common_version = "0.0.2"
+        kotlin_common_version = "0.0.4"
 
         uport_sdk_version = "v0.4.2"
     }
@@ -96,14 +95,14 @@ allprojects {
         jcenter()
         maven { url 'https://jitpack.io' }
         maven { url "https://kotlin.bintray.com/kotlinx" }
-        mavenLocal()
+//        mavenLocal()
     }
 
 //address warnings about multiple kotlin runtimes in classpath
     configurations.all {
         resolutionStrategy.dependencySubstitution {
-            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre7") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
-            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre8") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre7") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+            substitute module("org.jetbrains.kotlin:kotlin-stdlib-jre8") because "warning about multiple runtimes in the classpath" with module("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
 
         }
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
@@ -123,7 +122,23 @@ subprojects { subproject ->
     afterEvaluate {
 
         if (subproject.plugins.hasPlugin("com.android.application") || subproject.plugins.hasPlugin("com.android.library")) {
-            subproject.android.packagingOptions.exclude("META-INF/main.kotlin_module")
+            subproject.android {
+                packagingOptions {
+                    exclude "META-INF/main.kotlin_module"
+                    exclude "META-INF/atomicfu.kotlin_module"
+                }
+
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_1_8
+                    targetCompatibility JavaVersion.VERSION_1_8
+                }
+            }
+        }
+
+        subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
         }
     }
 }
