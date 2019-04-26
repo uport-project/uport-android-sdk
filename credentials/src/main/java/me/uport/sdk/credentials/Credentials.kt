@@ -9,6 +9,7 @@ import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
+import me.uport.sdk.jwt.model.JwtPayload
 
 /**
  * The [Credentials] class should allow you to create the signed payloads used in uPort including
@@ -151,13 +152,32 @@ class Credentials(
      * Verify and return profile from a
      * [Selective Disclosure Response JWT](https://github.com/uport-project/specs/blob/develop/messages/shareresp.md).
      *
-     * @param token **REQUIRED** The JWT response token from a selective disclosure request
+     * @param payload **REQUIRED** The JWT response token from a selective disclosure request
      *
      * @return a [UportProfile] object
      */
-    fun verifyDisclosure(token: String): UportProfile? {
-        //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
-        return null
+    suspend fun verifyDisclosure(token: String): UportProfile? {
+
+        val (_, payload, _) = JWTTools().decode(token)
+
+        val valid = mutableListOf<JwtPayload>()
+        val invalid = mutableListOf<String>()
+
+        payload.verified?.forEach {
+            try {
+                valid.add(JWTTools().verify(it))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                invalid.add(it)
+            }
+        }
+
+        return UportProfile(
+                payload.iss,
+                payload.net,
+                valid,
+                invalid
+        )
     }
 
 
