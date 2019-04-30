@@ -6,14 +6,11 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThanOrEqualTo
 import assertk.assertions.isNotNull
 import com.uport.sdk.signer.KPSigner
-import io.mockk.coEvery
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
-import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.testhelpers.TestTimeProvider
 import org.junit.Test
 
@@ -229,11 +226,9 @@ class CredentialsTest {
     @Test
     fun `can return uport profile from jwt payload`() = runBlocking {
 
-        val token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTUyMDM2NjQzMiwicmVxdWVzdGVkIjpbIm5hbWUiLCJwaG9uZSIsImNvdW50cnkiLCJhdmF0YXIiXSwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vY2hhc3F1aS51cG9ydC5tZS9hcGkvdjEvdG9waWMvWG5IZnlldjUxeHNka0R0dSIsIm5ldCI6IjB4NCIsImV4cCI6MTUyMDM2NzAzMiwidHlwZSI6InNoYXJlUmVxIn0.C8mPCCtWlYAnroduqysXYRl5xvrOdx1r4iq3A3SmGDGZu47UGTnjiZCOrOQ8A5lZ0M9JfDpZDETCKGdJ7KUeWQ"
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxsbyIsImlhdCI6MTU1NjU0MTk3OCwiZXhwIjoxNTU2NjI4Mzc4LCJhdWQiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQiLCJjYWxsYmFjayI6Imh0dHBzOi8vY2hhc3F1aS51cG9ydC5tZS9hcGkvdjEvdG9waWMvWG5IZnlldjUxeHNka0R0dSIsInR5cGUiOiJzaGFyZVJlc3AiLCJqdGkiOiJhOGNmYWE0YS1mOGUxLTQ3YmEtOTE2ZS1lZDFhNjUyN2Y1ZTUiLCJ2ZXJpZmllZCI6WyJleUpoYkdjaU9pSklVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKemRXSWlPaUprYVdRNlpYUm9jam93ZUdZelltVmhZek13WXpRNU9HUTVaVEkyT0RZMVpqTTBabU5oWVRVM1pHSmlPVE0xWWpCa056UWlMQ0psWkhWallYUnBiMjRpT2lKTllYTjBaWEp6SWl3aWFXRjBJam94TlRFMk1qTTVNREl5ZlEud1RuUGhnTWJyU2xyV2NmUjdfX3hXYmxHLUEzbmdqTFQyYlBfTTdaOW1pWSIsImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUp6ZFdJaU9pSmthV1E2WlhSb2Nqb3dlR1l6WW1WaFl6TXdZelE1T0dRNVpUSTJPRFkxWmpNMFptTmhZVFUzWkdKaU9UTTFZakJrTnpRaUxDSnNiMk5oZEdsdmJpSTZJbFJsZUdGeklpd2lhV0YwSWpveE5URTJNak01TURJeWZRLk8yb3FZNHBnbUFtV3FlT3Q3NlBUaUIzeTlqRUdmMlphWEVoSVJlTTlJTFUiLCJleUpwYzNNaU9pSXliMlZZZFdaSVIwUndWVFV4WW1aTFFuTmFSR1IxTjBwbE9YZGxTak55TjNOV1J5SXNJbWxoZENJNk1UVXlNRE0yTmpRek1pd2ljbVZ4ZFdWemRHVmtJanBiSW01aGJXVWlMQ0p3YUc5dVpTSXNJbU52ZFc1MGNua2lMQ0poZG1GMFlYSWlYU3dpY0dWeWJXbHpjMmx2Ym5NaU9sc2libTkwYVdacFkyRjBhVzl1Y3lKZExDSmpZV3hzWW1GamF5STZJbWgwZEhCek9pOHZZMmhoYzNGMWFTNTFjRzl5ZEM1dFpTOWhjR2t2ZGpFdmRHOXdhV012V0c1SVpubGxkalV4ZUhOa2EwUjBkU0lzSW01bGRDSTZJakI0TkNJc0ltVjRjQ0k2TVRVeU1ETTJOekF6TWl3aWRIbHdaU0k2SW5Ob1lYSmxVbVZ4SW4wLkM4bVBDQ3RXbFlBbnJvZHVxeXNYWVJsNXh2ck9keDFyNGlxM0EzU21HREdadTQ3VUdUbmppWkNPck9ROEE1bFowTTlKZkRwWkRFVENLR2RKN0tVZVdRIl0sIm5ldCI6IjB4NCIsIm93biI6eyJuYW1lIjoiTWlrZSBHdW5uIiwiZW1haWwiOiJtZ3VubkB1cG9ydC5tZSJ9fQ.075oRsNEJg-BrZIWuBd2p_r1EWxVM0pqT3s6TeaFvRo"
 
-        val tested = JWTTools()
-
-        val payload = JwtPayload(
+        /*val payload = JwtPayload(
                 iss = "did:ethr:0x3ff25117c0e170ca530bd5891899c183944db431",
                 iat = 1556541978,
                 sub = null,
@@ -266,21 +261,20 @@ class CredentialsTest {
                 rel = null,
                 fct = null,
                 acc = null
-        )
+        )*/
 
-        coEvery {
-            tested.decode(token)
+        /*coEvery {
+            tested.decode(eq("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJjbGFpbSI6eyJuYW1lIjoiSm9obiBEb2UiLCJhZ2UiOiIzNSIsImxvY2F0aW9uIjoiR2VybWFueSJ9LCJ2YyI6W10sImNhbGxiYWNrIjoiIiwiaWF0IjoxMjM0NTY3OCwiZXhwIjoxMjM0NjI3OCwiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.C5sY_WCnSjYmqX-w3NZo9AmB6qVUy-Uwd6Fzz24CtbK0JWAYxgslqr6-JYjkB5O5Eu9IJYNS-1pKH-waNGGwmA"))
         }.returns(
                 Triple(JwtHeader(alg = "ES256K-R"), payload, byteArrayOf(0, 1, 2, 3, 4))
-        )
+        )*/
 
         val uPortProfile = Credentials("did:ethr:0x3ff25117c0e170ca530bd5891899c183944db431", KPSigner("0x1234")).verifyDisclosure(token)
 
         assert(uPortProfile).isNotNull()
-        assert(uPortProfile?.did).isEqualTo(payload.iss)
-        assert(uPortProfile?.networkId).isEqualTo(payload.net)
+        assert(uPortProfile?.did).isEqualTo("did:ethr:0x3ff25117c0e170ca530bd5891899c183944db431")
+        assert(uPortProfile?.networkId).isEqualTo("0x4")
         assert(uPortProfile?.name).isEqualTo("Mike Gunn")
         assert(uPortProfile?.email).isEqualTo("mgunn@uport.me")
     }
-
 }
