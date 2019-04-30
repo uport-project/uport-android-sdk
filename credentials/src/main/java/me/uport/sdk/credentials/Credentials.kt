@@ -6,6 +6,8 @@ import com.uport.sdk.signer.Signer
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.jwt.InvalidJWTException
+import me.uport.sdk.jwt.JWTEncodingException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
@@ -166,7 +168,10 @@ class Credentials(
         payload.verified?.forEach {
             try {
                 valid.add(JWTTools().verify(it))
-            } catch (e: Exception) {
+            } catch (e: InvalidJWTException) {
+                e.printStackTrace()
+                invalid.add(it)
+            } catch (e: JWTEncodingException) {
                 e.printStackTrace()
                 invalid.add(it)
             }
@@ -176,7 +181,9 @@ class Credentials(
                 payload.iss,
                 payload.net,
                 valid,
-                invalid
+                invalid,
+                payload.own?.get("email"),
+                payload.own?.get("name")
         )
     }
 

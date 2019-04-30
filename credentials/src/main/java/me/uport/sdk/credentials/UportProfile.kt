@@ -2,6 +2,10 @@ package me.uport.sdk.credentials
 
 import me.uport.sdk.jwt.model.JwtPayload
 
+
+/**
+ * This class is used to create a uPort profile
+ */
 data class UportProfile(
 
         /**
