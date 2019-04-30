@@ -24,16 +24,14 @@ android {
 }
 
 dependencies {
-    implementation(
-            "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version",
-            "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version",
-            "com.google.firebase:firebase-iid:$play_services_version",
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    implementation "com.google.firebase:firebase-iid:$play_services_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
-            "com.squareup.okhttp3:okhttp:$okhttp_version",
-            "com.squareup.okhttp3:logging-interceptor:$okhttp_version",
+    api "com.github.uport-project.kotlin-common:core:$kotlin_common_version"
 
-            project(":core")
-    )
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
 }

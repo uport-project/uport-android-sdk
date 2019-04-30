@@ -3,19 +3,20 @@
 package me.uport.sdk
 
 import android.content.Context
-import android.os.Looper
 import android.support.test.InstrumentationRegistry
 import assertk.all
 import assertk.assert
-import assertk.assertions.*
+import assertk.assertions.doesNotContain
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import com.uport.sdk.signer.UportHDSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.Networks
 import me.uport.sdk.identity.HDAccount
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class UportTest {
 
@@ -49,17 +50,6 @@ class UportTest {
         }
     }
 
-    @Test
-    fun account_completion_called_on_main_thread() {
-        val latch = CountDownLatch(1)
-        Uport.createAccount(Networks.rinkeby) { _, _ ->
-
-            assert(Looper.getMainLooper().isCurrentThread)
-
-            latch.countDown()
-        }
-        latch.await(15, TimeUnit.SECONDS)
-    }
 
     @Test
     fun account_can_be_imported() {

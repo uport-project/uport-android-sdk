@@ -15,8 +15,6 @@ android {
         targetSdkVersion target_sdk_version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        multiDexEnabled true
     }
 
     buildTypes {
@@ -24,8 +22,16 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
 
+        debug {
+            multiDexEnabled true
+        }
+    }
+}
+
+//XXX: this is needed until https://github.com/komputing/KEthereum/issues/65 is fixed
+configurations.all {
+    exclude group: "com.github.walleth", module: "sha3"
 }
 
 dependencies {
@@ -35,16 +41,10 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     implementation "com.github.gnosis.bivrost-kotlin:bivrost-solidity-types:$bivrost_version"
 
-    api project(":signer")
-    api project(":identity")
-    api project(":core")
-    api project(":jsonrpc")
-    api project(":universal-did")
-    api project(":ethr-did")
-    api project(":uport-did")
-    api project(":https-did")
+    api "com.github.uport-project.kotlin-did-jwt:jwt:$did_jwt_version"
     api project(":credentials")
     api project(":transport")
+    api project(":identity")
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"

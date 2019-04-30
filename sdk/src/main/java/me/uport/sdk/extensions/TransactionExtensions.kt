@@ -47,7 +47,7 @@ suspend fun Account.send(context: Context, destinationAddress: String, value: Bi
  */
 suspend fun Account.send(context: Context, contractAddress: String, data: ByteArray): String {
     val rawTransaction = createTransactionWithDefaults(
-            input = data.toList(),
+            input = data,
             to = Address(contractAddress),
             from = Address(this.publicAddress),
             value = BigInteger.ZERO

@@ -1,8 +1,8 @@
 @file:Suppress("DEPRECATION")
 package me.uport.sdk.signer
 
-import com.uport.sdk.signer.Signer
 import me.uport.sdk.MetaIdentityManager
+import me.uport.sdk.core.Signer
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
 import org.kethereum.model.SignatureData
@@ -53,11 +53,11 @@ class MetaIdentitySigner(
                 wrappedSigner.getAddress(),
                 proxyAddress,
                 finalDestination,
-                unsignedTx.value,
-                unsignedTx.input.toByteArray()
+                unsignedTx.value ?: BigInteger.ZERO,
+                unsignedTx.input
         )
 
-        txCopy.input = newInput.hexToByteArray().toList()
+        txCopy.input = newInput.hexToByteArray()
 
         return wrappedSigner.signRawTx(txCopy, callback)
     }

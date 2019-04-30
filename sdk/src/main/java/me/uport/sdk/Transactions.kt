@@ -3,9 +3,9 @@
 package me.uport.sdk
 
 import android.content.Context
-import com.uport.sdk.signer.Signer
-import com.uport.sdk.signer.signRawTx
 import me.uport.sdk.core.Networks
+import me.uport.sdk.core.Signer
+import me.uport.sdk.core.signRawTx
 import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
 import me.uport.sdk.identity.Account
@@ -75,19 +75,19 @@ class Transactions(
             request.gasPrice != BigInteger.ZERO -> request.gasPrice
             relayPrice != BigInteger.ZERO -> relayPrice
             else -> DEFAULT_GAS_PRICE
-        }
+        } ?: DEFAULT_GAS_PRICE
 
         val gasLimit = when (request.gasLimit) {
             BigInteger.ZERO -> DEFAULT_GAS_LIMIT
             else -> request.gasLimit
-        }
+        } ?: DEFAULT_GAS_LIMIT
 
         return createTransactionWithDefaults(
                 to = request.to,
                 from = from,
                 nonce = nonce,
                 input = request.input,
-                value = request.value,
+                value = request.value ?: BigInteger.ZERO,
                 gasPrice = gasPrice,
                 gasLimit = gasLimit)
     }
