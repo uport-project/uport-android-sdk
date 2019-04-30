@@ -26,7 +26,8 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-    implementation "com.google.firebase:firebase-iid:$play_services_version"
+    implementation "com.android.support:appcompat-v7:$support_lib_version"
+    implementation "com.google.firebase:firebase-iid:$firebase_iid_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 

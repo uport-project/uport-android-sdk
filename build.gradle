@@ -17,6 +17,7 @@ buildscript {
 
         support_lib_version = "28.0.0"
         play_services_version = "15.0.0"
+        firebase_iid_version = "17.1.2"
 
         test_runner_version = "1.0.2"
         test_rules_version = test_runner_version
