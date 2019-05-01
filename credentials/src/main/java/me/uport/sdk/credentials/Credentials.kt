@@ -6,8 +6,6 @@ import com.uport.sdk.signer.Signer
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.jwt.InvalidJWTException
-import me.uport.sdk.jwt.JWTEncodingException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
@@ -154,11 +152,12 @@ class Credentials(
      * Verify and return profile from a
      * [Selective Disclosure Response JWT](https://github.com/uport-project/specs/blob/develop/messages/shareresp.md).
      *
-     * @param payload **REQUIRED** The JWT response token from a selective disclosure request
+     * @param token **REQUIRED** The JWT response token from a selective disclosure request
      *
      * @return a [UportProfile] object
      */
-    suspend fun verifyDisclosure(token: String): UportProfile? {
+    @Suppress("TooGenericExceptionCaught")
+    suspend fun verifyDisclosure(token: String): UportProfile {
 
         val (_, payload, _) = JWTTools().decode(token)
 
@@ -168,10 +167,7 @@ class Credentials(
         payload.verified?.forEach {
             try {
                 valid.add(JWTTools().verify(it))
-            } catch (e: InvalidJWTException) {
-                e.printStackTrace()
-                invalid.add(it)
-            } catch (e: JWTEncodingException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
                 invalid.add(it)
             }

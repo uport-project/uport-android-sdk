@@ -224,57 +224,60 @@ class CredentialsTest {
     }
 
     @Test
+    @Suppress("UNCHECKED_CAST")
     fun `can return uport profile from jwt payload`() = runBlocking {
 
-        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxsbyIsImlhdCI6MTU1NjU0MTk3OCwiZXhwIjoxNTU2NjI4Mzc4LCJhdWQiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQiLCJjYWxsYmFjayI6Imh0dHBzOi8vY2hhc3F1aS51cG9ydC5tZS9hcGkvdjEvdG9waWMvWG5IZnlldjUxeHNka0R0dSIsInR5cGUiOiJzaGFyZVJlc3AiLCJqdGkiOiJhOGNmYWE0YS1mOGUxLTQ3YmEtOTE2ZS1lZDFhNjUyN2Y1ZTUiLCJ2ZXJpZmllZCI6WyJleUpoYkdjaU9pSklVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKemRXSWlPaUprYVdRNlpYUm9jam93ZUdZelltVmhZek13WXpRNU9HUTVaVEkyT0RZMVpqTTBabU5oWVRVM1pHSmlPVE0xWWpCa056UWlMQ0psWkhWallYUnBiMjRpT2lKTllYTjBaWEp6SWl3aWFXRjBJam94TlRFMk1qTTVNREl5ZlEud1RuUGhnTWJyU2xyV2NmUjdfX3hXYmxHLUEzbmdqTFQyYlBfTTdaOW1pWSIsImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUp6ZFdJaU9pSmthV1E2WlhSb2Nqb3dlR1l6WW1WaFl6TXdZelE1T0dRNVpUSTJPRFkxWmpNMFptTmhZVFUzWkdKaU9UTTFZakJrTnpRaUxDSnNiMk5oZEdsdmJpSTZJbFJsZUdGeklpd2lhV0YwSWpveE5URTJNak01TURJeWZRLk8yb3FZNHBnbUFtV3FlT3Q3NlBUaUIzeTlqRUdmMlphWEVoSVJlTTlJTFUiLCJleUpwYzNNaU9pSXliMlZZZFdaSVIwUndWVFV4WW1aTFFuTmFSR1IxTjBwbE9YZGxTak55TjNOV1J5SXNJbWxoZENJNk1UVXlNRE0yTmpRek1pd2ljbVZ4ZFdWemRHVmtJanBiSW01aGJXVWlMQ0p3YUc5dVpTSXNJbU52ZFc1MGNua2lMQ0poZG1GMFlYSWlYU3dpY0dWeWJXbHpjMmx2Ym5NaU9sc2libTkwYVdacFkyRjBhVzl1Y3lKZExDSmpZV3hzWW1GamF5STZJbWgwZEhCek9pOHZZMmhoYzNGMWFTNTFjRzl5ZEM1dFpTOWhjR2t2ZGpFdmRHOXdhV012V0c1SVpubGxkalV4ZUhOa2EwUjBkU0lzSW01bGRDSTZJakI0TkNJc0ltVjRjQ0k2TVRVeU1ETTJOekF6TWl3aWRIbHdaU0k2SW5Ob1lYSmxVbVZ4SW4wLkM4bVBDQ3RXbFlBbnJvZHVxeXNYWVJsNXh2ck9keDFyNGlxM0EzU21HREdadTQ3VUdUbmppWkNPck9ROEE1bFowTTlKZkRwWkRFVENLR2RKN0tVZVdRIl0sIm5ldCI6IjB4NCIsIm93biI6eyJuYW1lIjoiTWlrZSBHdW5uIiwiZW1haWwiOiJtZ3VubkB1cG9ydC5tZSJ9fQ.075oRsNEJg-BrZIWuBd2p_r1EWxVM0pqT3s6TeaFvRo"
-
-        /*val payload = JwtPayload(
-                iss = "did:ethr:0x3ff25117c0e170ca530bd5891899c183944db431",
-                iat = 1556541978,
-                sub = null,
-                aud = "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
-                exp = 1556628378,
-                callback = "https://chasqui.uport.me/api/v1/topic/XnHfyev51xsdkDtu",
-                type = "shareReq",
-                net = "0x4",
-                act = null,
-                requested = listOf("name", "phone", "country", "avatar"),
-                verified = listOf(
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJlZHVjYXRpb24iOiJNYXN0ZXJzIiwiaWF0IjoxNTE2MjM5MDIyfQ.wTnPhgMbrSlrWcfR7__xWblG-A3ngjLT2bP_M7Z9miY",
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJsb2NhdGlvbiI6IlRleGFzIiwiaWF0IjoxNTE2MjM5MDIyfQ.O2oqY4pgmAmWqeOt76PTiB3y9jEGf2ZaXEhIReM9ILU",
-                        "eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTUyMDM2NjQzMiwicmVxdWVzdGVkIjpbIm5hbWUiLCJwaG9uZSIsImNvdW50cnkiLCJhdmF0YXIiXSwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vY2hhc3F1aS51cG9ydC5tZS9hcGkvdjEvdG9waWMvWG5IZnlldjUxeHNka0R0dSIsIm5ldCI6IjB4NCIsImV4cCI6MTUyMDM2NzAzMiwidHlwZSI6InNoYXJlUmVxIn0.C8mPCCtWlYAnroduqysXYRl5xvrOdx1r4iq3A3SmGDGZu47UGTnjiZCOrOQ8A5lZ0M9JfDpZDETCKGdJ7KUeWQ",
-                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTUyMDM2NjQzMiwicmVxdWVzdGVkIjpbIm5hbWUiLCJwaG9uZSIsImNvdW50cnkiLCJhdmF0YXIiXSwicGVybWlzc2lvbnMiOlsibm90aWZpY2F0aW9ucyJdLCJjYWxsYmFjayI6Imh0dHBzOi8vY2hhc3F1aS51cG9ydC5tZS9hcGkvdjEvdG9waWMvWG5IZnlldjUxeHNka0R0dSIsIm5ldCI6IjB4NCIsImV4cCI6MTUyMDM2NzAzMiwidHlwZSI6InNoYXJlUmVxIn0.C8mPCCtWlYAnroduqysXYRl5xvrOdx1r4iq3A3SmGDGZu47UGTnjiZCOrOQ8A5lZ0M9JfDpZDETCKGdJ7KUeWQ",
-                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkaWQ6ZXRocjoweGE5ZTMyMzJiNjFiZGI2NzI3MTJiOWFlMzMxOTUwNjlkOGQ2NTFjMWEiLCJpYXQiOjE1NDU1Njk1NDEsImV4cCI6MTU0NjA4Nzk0MSwiYXVkIjoiZGlkOmV0aHI6MHgxMDgyMDlmNDI0N2I3ZmU2NjA1YjBmNThmOTE0NWVjMzI2OWQwMTU0Iiwic3ViIjoiIn0.Bt9Frc1QabJfpXYBoU4sns8WPeRLdKU87FncgMFq1lY"
-                ),
-                permissions = listOf("notifications"),
-                req = null,
-                nad = null,
-                dad = null,
-                own = mapOf(
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1556628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "callback" to "https://chasqui.uport.me/api/v1/topic/XnHfyev51xsdkDtu",
+                "type" to "shareReq",
+                "net" to "0x4",
+                "own" to mapOf(
                         "name" to "Mike Gunn",
                         "email" to "mgunn@uport.me"
                 ),
-                capabilities = null,
-                claims = null,
-                ctl = null,
-                reg = null,
-                rel = null,
-                fct = null,
-                acc = null
-        )*/
+                "requested" to listOf("name", "phone", "country", "avatar"),
+                "verified" to listOf(
+                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTU1NjcwMTA3NCwiZXhwIjoxNzIwMzY2NDMyLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEifQ.PjsCopgtHxfTkGrQUT1ID7P8bfXyeCZoy0GnHw5p8xv6mJYDE9MAVQK6sjEivXyOQhb2bWs4Pm9vWl4dFEhpGwE",
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJsb2NhdGlvbiI6IlRleGFzIiwiaWF0IjoxNTE2MjM5MDIyfQ.O2oqY4pgmAmWqeOt76PTiB3y9jEGf2ZaXEhIReM9ILU"
+                ),
+                "permissions" to listOf("notifications")
+        )
 
-        /*coEvery {
-            tested.decode(eq("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJjbGFpbSI6eyJuYW1lIjoiSm9obiBEb2UiLCJhZ2UiOiIzNSIsImxvY2F0aW9uIjoiR2VybWFueSJ9LCJ2YyI6W10sImNhbGxiYWNrIjoiIiwiaWF0IjoxMjM0NTY3OCwiZXhwIjoxMjM0NjI3OCwiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.C5sY_WCnSjYmqX-w3NZo9AmB6qVUy-Uwd6Fzz24CtbK0JWAYxgslqr6-JYjkB5O5Eu9IJYNS-1pKH-waNGGwmA"))
-        }.returns(
-                Triple(JwtHeader(alg = "ES256K-R"), payload, byteArrayOf(0, 1, 2, 3, 4))
-        )*/
+        val token = JWTTools().createJWT(map, "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed", KPSigner("0x123"))
 
         val uPortProfile = Credentials("did:ethr:0x3ff25117c0e170ca530bd5891899c183944db431", KPSigner("0x1234")).verifyDisclosure(token)
 
         assert(uPortProfile).isNotNull()
-        assert(uPortProfile?.did).isEqualTo("did:ethr:0x3ff25117c0e170ca530bd5891899c183944db431")
-        assert(uPortProfile?.networkId).isEqualTo("0x4")
-        assert(uPortProfile?.name).isEqualTo("Mike Gunn")
-        assert(uPortProfile?.email).isEqualTo("mgunn@uport.me")
+        assert(uPortProfile.did).isEqualTo("did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed")
+        assert(uPortProfile.networkId).isEqualTo("0x4")
+        assert(uPortProfile.name).isEqualTo("Mike Gunn")
+        assert(uPortProfile.email).isEqualTo("mgunn@uport.me")
+        assert(uPortProfile.invalid.size + uPortProfile.valid.size).isEqualTo((map.get("verified") as List<String>?)?.size)
     }
+
+    @Test
+    fun `can return uport profile from jwt payload without all params`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "type" to "shareReq",
+                "own" to mapOf(
+                        "name" to "Mike Gunn"
+                ),
+                "requested" to listOf("name", "phone", "country", "avatar"),
+                "permissions" to listOf("notifications")
+        )
+
+        val token = JWTTools().createJWT(map, "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed", KPSigner("0x123"))
+
+        val uPortProfile = Credentials("did:ethr:0x3ff25117c0e170ca530bd5891899c183944db431", KPSigner("0x1234")).verifyDisclosure(token)
+
+        assert(uPortProfile).isNotNull()
+        assert(uPortProfile.did).isEqualTo("did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed")
+        assert(uPortProfile.name).isEqualTo("Mike Gunn")
+    }
+
 }
