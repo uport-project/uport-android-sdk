@@ -231,19 +231,17 @@ class CredentialsTest {
                 "iat" to 1556541978,
                 "exp" to 1556628378,
                 "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
-                "callback" to "https://chasqui.uport.me/api/v1/topic/XnHfyev51xsdkDtu",
-                "type" to "shareReq",
                 "net" to "0x4",
                 "own" to mapOf(
                         "name" to "Mike Gunn",
                         "email" to "mgunn@uport.me"
                 ),
-                "requested" to listOf("name", "phone", "country", "avatar"),
                 "verified" to listOf(
                         "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTU1NjcwMTA3NCwiZXhwIjoxNzIwMzY2NDMyLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEifQ.PjsCopgtHxfTkGrQUT1ID7P8bfXyeCZoy0GnHw5p8xv6mJYDE9MAVQK6sjEivXyOQhb2bWs4Pm9vWl4dFEhpGwE",
                         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQiLCJsb2NhdGlvbiI6IlRleGFzIiwiaWF0IjoxNTE2MjM5MDIyfQ.O2oqY4pgmAmWqeOt76PTiB3y9jEGf2ZaXEhIReM9ILU"
                 ),
-                "permissions" to listOf("notifications")
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiXSwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NjcyMTQxMywiZXhwIjoxNTU2NzIyMDEzLCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.KfDgkaOWZxxfprgBxPvC2wSd-BrhdjN-gTf7br5Li4LtTgSmk9I55dE2xWekSSWTaQxC74DDRCxrEsVH3I1bWwE"
         )
 
         val token = JWTTools().createJWT(map, "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed", KPSigner("0x123"))
@@ -263,12 +261,11 @@ class CredentialsTest {
 
         val map = mapOf<String, Any>(
                 "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
-                "type" to "shareReq",
                 "own" to mapOf(
                         "name" to "Mike Gunn"
                 ),
-                "requested" to listOf("name", "phone", "country", "avatar"),
-                "permissions" to listOf("notifications")
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiXSwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NjcyMTQxMywiZXhwIjoxNTU2NzIyMDEzLCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.KfDgkaOWZxxfprgBxPvC2wSd-BrhdjN-gTf7br5Li4LtTgSmk9I55dE2xWekSSWTaQxC74DDRCxrEsVH3I1bWwE"
         )
 
         val token = JWTTools().createJWT(map, "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed", KPSigner("0x123"))
