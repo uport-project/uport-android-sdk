@@ -50,5 +50,5 @@ data class UportProfile(
          * This can hold extra fields for the uPort profile.
          * Use this to provide any extra fields that are not covered by the current version of the SDK
          */
-        val extras: Map<String, Any>? = null
+        val extras: Map<String, Any?>? = null
 )

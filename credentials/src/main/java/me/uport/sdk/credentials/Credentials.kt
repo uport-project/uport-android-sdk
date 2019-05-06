@@ -6,6 +6,7 @@ import com.uport.sdk.signer.Signer
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.jwt.InvalidJWTException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
@@ -156,10 +157,9 @@ class Credentials(
      *
      * @return a [UportProfile] object
      */
-    @Suppress("TooGenericExceptionCaught")
     suspend fun verifyDisclosure(token: String): UportProfile {
 
-        val (_, payload, _) = JWTTools().decode(token)
+        val payload = JWTTools().verify(token)
 
         val valid = mutableListOf<JwtPayload>()
         val invalid = mutableListOf<String>()
@@ -167,19 +167,22 @@ class Credentials(
         payload.verified?.forEach {
             try {
                 valid.add(JWTTools().verify(it))
-            } catch (e: Exception) {
+            } catch (e: InvalidJWTException) {
                 e.printStackTrace()
                 invalid.add(it)
             }
         }
 
+        val networkId = payload.net ?: JWTTools().decode(payload.req ?: "").second.net
+
         return UportProfile(
                 payload.iss,
-                payload.net,
+                networkId,
                 valid,
                 invalid,
                 payload.own?.get("email"),
-                payload.own?.get("name")
+                payload.own?.get("name"),
+                JWTTools().decodeRaw(token).second
         )
     }
 
