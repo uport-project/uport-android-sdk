@@ -6,7 +6,7 @@ import com.uport.sdk.signer.Signer
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.jwt.InvalidJWTException
+import me.uport.sdk.jwt.JWTAuthenticationException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
@@ -157,24 +157,24 @@ class Credentials(
      *
      * @param token **REQUIRED** a valid JWT response token
      * @returns  a verified [JWTPayload]
-     * @throws [InvalidJWTException] when the challenge is failed or when the request token is unavailable
+     * @throws [JWTAuthenticationException] when the challenge is failed or when the request token is unavailable
      *
      */
     suspend fun authenticateDisclosure(token: String): JwtPayload {
         val payload = JWTTools().verify(token)
 
         if (payload.req == null) {
-            throw InvalidJWTException("Challenge was not included in response")
+            throw JWTAuthenticationException("Challenge was not included in response")
         }
 
         val challenge = JWTTools().verify(payload.req ?: "")
 
         if (challenge.iss != payload.iss) {
-            throw InvalidJWTException("Challenge issuer does not match current identity: ${challenge.iss} != ${payload.iss}")
+            throw JWTAuthenticationException("Challenge issuer does not match current identity: ${challenge.iss} != ${payload.iss}")
         }
 
         if (challenge.type != JWTTypes.shareReq.name) {
-            throw InvalidJWTException("Challenge payload type invalid: ${challenge.type}")
+            throw JWTAuthenticationException("Challenge payload type invalid: ${challenge.type}")
         }
 
         return payload
