@@ -6,9 +6,11 @@ import com.uport.sdk.signer.Signer
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.jwt.InvalidJWTException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
+import me.uport.sdk.jwt.model.JwtPayload
 
 /**
  * The [Credentials] class should allow you to create the signed payloads used in uPort including
@@ -128,9 +130,9 @@ class Credentials(
      * @param callbackUrl **OPTIONAL** the URL that receives the response
      * @param expiresInSeconds **OPTIONAL** number of seconds of validity of the claim.
      * @param verifiedClaims **OPTIONAL** a list of verified claims which can be about anything
- *                          related to the claim and in most cases it is related to the issuer
+     *                          related to the claim and in most cases it is related to the issuer
      *
-     *  ```
+     *
      */
     suspend fun createVerification(sub: String,
                                    claim: Map<String, Any>,
@@ -144,6 +146,38 @@ class Credentials(
         payload["vc"] = verifiedClaims ?: emptyList<String>()
         payload["callback"] = callbackUrl ?: ""
         return this.signJWT(payload, expiresInSeconds ?: 600L)
+    }
+
+
+    /**
+     * Authenticates [Selective Disclosure Response JWT](https://github.com/uport-project/specs/blob/develop/messages/shareresp.md) from uPort
+     * client as part of the [Selective Disclosure Flow](https://github.com/uport-project/specs/blob/develop/flows/selectivedisclosure.md).
+     *
+     * It Verifies and parses the given response token and verifies the challenge response flow.
+     *
+     * @param token **REQUIRED** a valid JWT response token
+     * @returns  a verified [JWTPayload]
+     * @throws [InvalidJWTException] when the challenge is failed or when the request token is unavailable
+     *
+     */
+    suspend fun authenticateDisclosure(token: String): JwtPayload {
+        val payload = JWTTools().verify(token)
+
+        if (payload.req == null) {
+            throw InvalidJWTException("Challenge was not included in response")
+        }
+
+        val challenge = JWTTools().verify(payload.req ?: "")
+
+        if (challenge.iss != payload.iss) {
+            throw InvalidJWTException("Challenge issuer does not match current identity: ${challenge.iss} != ${payload.iss}")
+        }
+
+        if (challenge.type != JWTTypes.shareReq.name) {
+            throw InvalidJWTException("Challenge payload type invalid: ${challenge.type}")
+        }
+
+        return payload
     }
 
 
