@@ -334,7 +334,7 @@ class CredentialsTest {
                         "email" to "mgunn@uport.me"
                 ),
                 "permissions" to listOf("notifications"),
-                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwic3ViIjoiZGlkOmV0aHI6MHgzZmYyNTExN2MwZTE3MGNhNTMwYmQ1ODkxODk5YzE4Mzk0NGRiNDMxIiwidHlwZSI6InZlclJlcSIsInVuc2lnbmVkQ2xhaW0iOnsiY2l0aXplbiBvZiBDbGV2ZXJsYW5kIjp0cnVlfSwiaWF0IjoxNTU3NDA5ODYyLCJleHAiOjE1NTc0MTA0NjIsImlzcyI6ImRpZDpldGhyOjB4Y2YwM2RkMGE4OTRlZjc5Y2I1YjYwMWE0M2M0YjI1ZTNhZTRjNjdlZCJ9.EMK2EwA269enwVYA9Nxm8pbfKoyrKOkawlSL5ggK6ISUPOql7ebxDw2vwU8_ebpUq-E6xsp7uEm5ey7nduLxiAE"
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwic3ViIjoiZGlkOmV0aHI6MHgzZmYyNTExN2MwZTE3MGNhNTMwYmQ1ODkxODk5YzE4Mzk0NGRiNDMxIiwidHlwZSI6InZlclJlcSIsInVuc2lnbmVkQ2xhaW0iOnsiY2l0aXplbiBvZiBDbGV2ZXJsYW5kIjp0cnVlfSwiaWF0IjoxNTU3NDE3MTczLCJleHAiOjkwMDAwMDAwMDE1NTc0MTcxNzMsImlzcyI6ImRpZDpldGhyOjB4Y2YwM2RkMGE4OTRlZjc5Y2I1YjYwMWE0M2M0YjI1ZTNhZTRjNjdlZCJ9.hR0hmw-63WrTK-dsdzfdGhnleDY59zTIbFYk-V-L2yEoe4fn6piFBbkGeBBfVwxs7iTi679BtY8jA3pDl3OLdwA"
         )
 
         val signer = KPSigner("0x1234")
