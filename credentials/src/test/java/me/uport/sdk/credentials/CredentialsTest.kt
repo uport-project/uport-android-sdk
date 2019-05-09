@@ -1,17 +1,22 @@
 package me.uport.sdk.credentials
 
 import assertk.assert
-import assertk.assertions.isEmpty
-import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThanOrEqualTo
-import assertk.assertions.isNotNull
+import assertk.assertions.*
 import com.uport.sdk.signer.KPSigner
+import io.mockk.coEvery
+import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.ethrdid.EthrDIDDocument
+import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.jsonrpc.JsonRPC
+import me.uport.sdk.jwt.JWTAuthenticationException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.testhelpers.TestTimeProvider
+import me.uport.sdk.testhelpers.coAssert
+import me.uport.sdk.universaldid.UniversalDID
 import org.junit.Test
 
 class CredentialsTest {
@@ -223,4 +228,143 @@ class CredentialsTest {
         assert(load["rexp"]).isEqualTo(1234L)
     }
 
+
+    @Test
+    fun `successfully authenticates selective disclosure response`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1656628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "net" to "0x4",
+                "own" to mapOf(
+                        "name" to "Mike Gunn",
+                        "email" to "mgunn@uport.me"
+                ),
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiXSwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NzM5NTExOCwiZXhwIjo5MDAwMDAwMDAxNTU3Mzk1MTE4LCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.6UVkmO5vXyNtn6gy_RKz1Wjx1eWqik_124aBfcmKFr_jv6T96xxPKIda8AMxFWvaqQ0BJo6rec-S-USBBhYFcgA"
+        )
+
+        val signer = KPSigner("0x1234")
+        val issuer = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$issuer",
+              "publicKey": [{
+                   "id": "$issuer#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$issuer",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$issuer#owner"}]
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(map, issuer, signer)
+
+        val authenticatedPayload = Credentials(issuer, signer).authenticateDisclosure(token)
+
+        assert(authenticatedPayload).isNotNull()
+    }
+
+    @Test
+    fun `throws error when req token is missing`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1656628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "net" to "0x4",
+                "own" to mapOf(
+                        "name" to "Mike Gunn",
+                        "email" to "mgunn@uport.me"
+                ),
+                "permissions" to listOf("notifications")
+        )
+
+        val signer = KPSigner("0x1234")
+        val issuer = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$issuer",
+              "publicKey": [{
+                   "id": "$issuer#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$issuer",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$issuer#owner"}]
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(map, issuer, signer)
+
+        coAssert {
+            Credentials(issuer, signer).authenticateDisclosure(token)
+        }.thrownError {
+            isInstanceOf(JWTAuthenticationException::class)
+        }
+    }
+
+
+    @Test
+    fun `throws error when request type is not a shareReq`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1656628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "net" to "0x4",
+                "own" to mapOf(
+                        "name" to "Mike Gunn",
+                        "email" to "mgunn@uport.me"
+                ),
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwic3ViIjoiZGlkOmV0aHI6MHgzZmYyNTExN2MwZTE3MGNhNTMwYmQ1ODkxODk5YzE4Mzk0NGRiNDMxIiwidHlwZSI6InZlclJlcSIsInVuc2lnbmVkQ2xhaW0iOnsiY2l0aXplbiBvZiBDbGV2ZXJsYW5kIjp0cnVlfSwiaWF0IjoxNTU3NDA5ODYyLCJleHAiOjE1NTc0MTA0NjIsImlzcyI6ImRpZDpldGhyOjB4Y2YwM2RkMGE4OTRlZjc5Y2I1YjYwMWE0M2M0YjI1ZTNhZTRjNjdlZCJ9.EMK2EwA269enwVYA9Nxm8pbfKoyrKOkawlSL5ggK6ISUPOql7ebxDw2vwU8_ebpUq-E6xsp7uEm5ey7nduLxiAE"
+        )
+
+        val signer = KPSigner("0x1234")
+        val issuer = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$issuer",
+              "publicKey": [{
+                   "id": "$issuer#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$issuer",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$issuer#owner"}]
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(map, issuer, signer)
+
+        coAssert {
+            Credentials(issuer, signer).authenticateDisclosure(token)
+        }.thrownError {
+            isInstanceOf(JWTAuthenticationException::class)
+        }
+    }
 }

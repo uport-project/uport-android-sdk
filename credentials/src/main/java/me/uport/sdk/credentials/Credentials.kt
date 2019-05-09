@@ -161,7 +161,7 @@ class Credentials(
      *
      */
     suspend fun authenticateDisclosure(token: String): JwtPayload {
-        val payload = JWTTools().verify(token)
+        val payload = JWTTools().verify(token, true)
 
         if (payload.req == null) {
             throw JWTAuthenticationException("Challenge was not included in response")
@@ -169,8 +169,8 @@ class Credentials(
 
         val challenge = JWTTools().verify(payload.req ?: "")
 
-        if (challenge.iss != payload.iss) {
-            throw JWTAuthenticationException("Challenge issuer does not match current identity: ${challenge.iss} != ${payload.iss}")
+        if (challenge.iss != this.did) {
+            throw JWTAuthenticationException("Challenge issuer does not match current identity: ${challenge.iss} != ${this.did}")
         }
 
         if (challenge.type != JWTTypes.shareReq.name) {
