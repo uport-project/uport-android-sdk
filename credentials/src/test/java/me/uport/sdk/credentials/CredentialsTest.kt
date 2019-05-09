@@ -367,4 +367,81 @@ class CredentialsTest {
             isInstanceOf(JWTAuthenticationException::class)
         }
     }
+
+    @Test
+    fun `throws error when request issuer did in the request does not match issuer in the credentials`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1656628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "net" to "0x4",
+                "own" to mapOf(
+                        "name" to "Mike Gunn",
+                        "email" to "mgunn@uport.me"
+                ),
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbXMiOnsibmFtZSI6IlIgRGFuZWVsIE9saXZhdyJ9LCJpYXQiOjE1NDgxNjM2ODgsImV4cCI6MjE3ODg4MzY4OCwiaXNzIjoiZGlkOmV0aHI6MHg0MTIzY2JkMTQzYjU1YzA2ZTQ1MWZmMjUzYWYwOTI4NmI2ODdhOTUwIn0.Tral9PIGcNIH-3LrC9sAasPokbtnny3LPw9wrEGPqARXLQREGH6l8GI9JXL3o6_qjY3KF9Nbz0wi7g-pdlC-rgA"
+        )
+
+        val signer = KPSigner("0x1234")
+        val issuer = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        // Mock [EtherDIDDocument] for credentials issuer DID
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$issuer",
+              "publicKey": [{
+                   "id": "$issuer#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$issuer",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$issuer#owner"}]
+            }
+        """.trimIndent())
+
+
+        // Mock [EtherDIDDocument] for issuer DID in the request token embeded in the response map above
+        coEvery { resolver.resolve("did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950") } returns EthrDIDDocument.fromJson("""
+            {
+                "id": "did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950",
+                "publicKey": [
+                    {
+                        "id": "did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950#owner",
+                        "type": "Secp256k1VerificationKey2018",
+                        "owner": "did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950",
+                        "ethereumAddress": "0x4123cbd143b55c06e451ff253af09286b687a950",
+                        "publicKeyHex": null,
+                        "publicKeyBase64": null,
+                        "publicKeyBase58": null,
+                        "value": null
+                    }
+                ],
+                "authentication": [
+                    {
+                        "type": "Secp256k1SignatureAuthentication2018",
+                        "publicKey": "did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950#owner"
+                    }
+                ],
+                "service": [
+                ],
+                "@context": "https://w3id.org/did/v1"
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(map, issuer, signer)
+
+        coAssert {
+            Credentials(issuer, signer).authenticateDisclosure(token)
+        }.thrownError {
+            isInstanceOf(JWTAuthenticationException::class)
+        }
+    }
 }
