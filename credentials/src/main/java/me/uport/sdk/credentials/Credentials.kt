@@ -4,9 +4,11 @@ import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.signer.Signer
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.jwt.InvalidJWTException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
+import me.uport.sdk.jwt.model.JwtPayload
 
 /**
  * The [Credentials] class should allow you to create the signed payloads used in uPort including
@@ -142,6 +144,44 @@ class Credentials(
         payload["vc"] = verifiedClaims ?: emptyList<String>()
         payload["callback"] = callbackUrl ?: ""
         return this.signJWT(payload, expiresInSeconds ?: 600L)
+    }
+
+
+    /**
+     * Verify and return profile from a
+     * [Selective Disclosure Response JWT](https://github.com/uport-project/specs/blob/develop/messages/shareresp.md).
+     *
+     * @param token **REQUIRED** The JWT response token from a selective disclosure request
+     *
+     * @return a [UportProfile] object
+     */
+    suspend fun verifyDisclosure(token: String): UportProfile {
+
+        val payload = JWTTools().verify(token)
+
+        val valid = mutableListOf<JwtPayload>()
+        val invalid = mutableListOf<String>()
+
+        payload.verified?.forEach {
+            try {
+                valid.add(JWTTools().verify(it))
+            } catch (e: InvalidJWTException) {
+                e.printStackTrace()
+                invalid.add(it)
+            }
+        }
+
+        val networkId = payload.net ?: JWTTools().decode(payload.req ?: "").second.net
+
+        return UportProfile(
+                payload.iss,
+                networkId,
+                valid,
+                invalid,
+                payload.own?.get("email"),
+                payload.own?.get("name"),
+                JWTTools().decodeRaw(token).second
+        )
     }
 
 

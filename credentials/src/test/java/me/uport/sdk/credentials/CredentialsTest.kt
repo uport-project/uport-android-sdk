@@ -5,13 +5,19 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThanOrEqualTo
 import assertk.assertions.isNotNull
-import kotlinx.coroutines.runBlocking
 import me.uport.sdk.signer.KPSigner
+import io.mockk.coEvery
+import io.mockk.spyk
+import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.ethrdid.EthrDIDDocument
+import me.uport.sdk.ethrdid.EthrDIDResolver
+import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.testhelpers.TestTimeProvider
+import me.uport.sdk.universaldid.UniversalDID
 import org.junit.Test
 
 class CredentialsTest {
@@ -221,6 +227,148 @@ class CredentialsTest {
         assertThat(load["sub"]).isEqualTo("did:ethr:0xFFEEDDCCBBAA9988776655443322110099887766")
         assertThat(load["issc"]).isEqualTo(mapOf("dappName" to "testing"))
         assertThat(load["rexp"]).isEqualTo(1234L)
+    }
+
+    @Test
+    @Suppress("UNCHECKED_CAST")
+    fun `can return uport profile from jwt payload`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1656628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "net" to "0x4",
+                "own" to mapOf(
+                        "name" to "Mike Gunn",
+                        "email" to "mgunn@uport.me"
+                ),
+                "verified" to listOf(
+                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpc3MiOiIyb2VYdWZIR0RwVTUxYmZLQnNaRGR1N0plOXdlSjNyN3NWRyIsImlhdCI6MTU1NjcwMTA3NCwiZXhwIjoxNzIwMzY2NDMyLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEifQ.PjsCopgtHxfTkGrQUT1ID7P8bfXyeCZoy0GnHw5p8xv6mJYDE9MAVQK6sjEivXyOQhb2bWs4Pm9vWl4dFEhpGwE",
+                        "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbXMiOnsibmFtZSI6IlIgRGFuZWVsIE9saXZhdyJ9LCJpYXQiOjEyMzQ1Njc4LCJleHAiOjEyMzQ1OTc4LCJpc3MiOiJkaWQ6ZXRocjoweDQxMjNjYmQxNDNiNTVjMDZlNDUxZmYyNTNhZjA5Mjg2YjY4N2E5NTAifQ.o6eDKYjHJnak1ylkpe9g8krxvK9UEhKf-1T0EYhH8pGyb8MjOEepRJi8DYlVEnZno0DkVYXQCf3u1i_HThBKtAA"
+                ),
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiXSwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NjcyMTQxMywiZXhwIjoxNTU2NzIyMDEzLCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.KfDgkaOWZxxfprgBxPvC2wSd-BrhdjN-gTf7br5Li4LtTgSmk9I55dE2xWekSSWTaQxC74DDRCxrEsVH3I1bWwE"
+        )
+
+        val signer = KPSigner("0x1234")
+        val issuer = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$issuer",
+              "publicKey": [{
+                   "id": "$issuer#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$issuer",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$issuer#owner"}]
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(map, issuer, signer)
+
+        val uPortProfile = Credentials(issuer, signer).verifyDisclosure(token)
+
+        assertThat(uPortProfile).isNotNull()
+        assertThat(uPortProfile.did).isEqualTo(issuer)
+        assertThat(uPortProfile.networkId).isEqualTo("0x4")
+        assertThat(uPortProfile.name).isEqualTo("Mike Gunn")
+        assertThat(uPortProfile.email).isEqualTo("mgunn@uport.me")
+        assertThat(uPortProfile.invalid.size + uPortProfile.valid.size).isEqualTo((map.get("verified") as List<String>?)?.size)
+    }
+
+    @Test
+    @Suppress("UNCHECKED_CAST")
+    fun `can fetch networkId from request token`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1656628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "own" to mapOf(
+                        "name" to "Mike Gunn",
+                        "email" to "mgunn@uport.me"
+                ),
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiLCJib3hQdWIiLCJuZXQiXSwibmV0IjoiMHg0IiwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NzEzNzczMCwiZXhwIjoxNTU3MTM4MzMwLCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.xPnTKcFsE3MRxkm6I__xSRVSFQgIT5tUgfL_O7q0hfPTNxnA8DM53yqMdl_1stqzoIv2VKgMC40oFfYh9Ql-TAA"
+        )
+
+        val signer = KPSigner("0x1234")
+        val issuer = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$issuer",
+              "publicKey": [{
+                   "id": "$issuer#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$issuer",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$issuer#owner"}]
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(map, issuer, signer)
+
+        val uPortProfile = Credentials(issuer, signer).verifyDisclosure(token)
+
+        assertThat(uPortProfile).isNotNull()
+        assertThat(uPortProfile.networkId).isEqualTo("0x4")
+    }
+
+    @Test
+    fun `can return uport profile from jwt payload without all properties`() = runBlocking {
+
+        val map = mapOf<String, Any>(
+                "iat" to 1556541978,
+                "exp" to 1656628378,
+                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+                "permissions" to listOf("notifications"),
+                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiXSwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NjcyMTQxMywiZXhwIjoxNTU2NzIyMDEzLCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.KfDgkaOWZxxfprgBxPvC2wSd-BrhdjN-gTf7br5Li4LtTgSmk9I55dE2xWekSSWTaQxC74DDRCxrEsVH3I1bWwE"
+        )
+
+        val signer = KPSigner("0x1234")
+        val issuer = "did:ethr:${signer.getAddress()}"
+
+        val resolver = spyk(EthrDIDResolver(JsonRPC("")))
+
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+            {
+              "@context": "https://w3id.org/did/v1",
+              "id": "$issuer",
+              "publicKey": [{
+                   "id": "$issuer#owner",
+                   "type": "Secp256k1VerificationKey2018",
+                   "owner": "$issuer",
+                   "ethereumAddress": "${signer.getAddress()}"}],
+              "authentication": [{
+                   "type": "Secp256k1SignatureAuthentication2018",
+                   "publicKey": "$issuer#owner"}]
+            }
+        """.trimIndent())
+
+        UniversalDID.registerResolver(resolver)
+
+        val token = JWTTools().createJWT(map, issuer, signer)
+
+        val uPortProfile = Credentials(issuer, signer).verifyDisclosure(token)
+
+        assertThat(uPortProfile).isNotNull()
+        assertThat(uPortProfile.did).isEqualTo(issuer)
     }
 
 }
