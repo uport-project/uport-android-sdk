@@ -1,7 +1,7 @@
 package me.uport.sdk
 
 import assertk.all
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.*
 import me.uport.sdk.fakes.InMemorySharedPrefs
 import me.uport.sdk.identity.HDAccount
@@ -14,7 +14,7 @@ class AccountStorageTest {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
         val newAcc = HDAccount("0xnewaccount", "", "", "")
         storage.upsert(newAcc)
-        assert(storage.get("0xnewaccount")).isEqualTo(newAcc)
+        assertThat(storage.get("0xnewaccount")).isEqualTo(newAcc)
     }
 
     @Test
@@ -30,7 +30,7 @@ class AccountStorageTest {
 
         val allAccounts = storage.all()
 
-        assert(allAccounts.containsAll(accounts))
+        assertThat(allAccounts.containsAll(accounts))
     }
 
     @Test
@@ -45,12 +45,12 @@ class AccountStorageTest {
         )
 
         storage.upsert(refAccount)
-        assert(storage.get(refAccount.handle)).isEqualTo(refAccount)
+        assertThat(storage.get(refAccount.handle)).isEqualTo(refAccount)
 
         storage.delete(refAccount.handle)
 
-        assert(storage.get(refAccount.handle)).isNull()
-        assert(storage.all()).doesNotContain(refAccount)
+        assertThat(storage.get(refAccount.handle)).isNull()
+        assertThat(storage.all()).doesNotContain(refAccount)
     }
 
     @Test
@@ -70,11 +70,11 @@ class AccountStorageTest {
 
         storage.upsert(newAccount)
 
-        assert(storage.get(refAccount.handle)).all {
+        assertThat(storage.get(refAccount.handle)).all {
             isNotEqualTo(refAccount)
             isEqualTo(newAccount)
         }
-        assert(storage.all()).all {
+        assertThat(storage.all()).all {
             doesNotContain(refAccount)
             contains(newAccount)
         }
@@ -92,7 +92,7 @@ class AccountStorageTest {
 
         val allAccounts = storage.all()
 
-        assert(allAccounts.containsAll(accounts))
+        assertThat(allAccounts.containsAll(accounts))
     }
 
     @Test
@@ -110,7 +110,7 @@ class AccountStorageTest {
 
         storage.setAsDefault(acc.handle)
 
-        assert(storage.getDefaultAccount()).isEqualTo(acc)
+        assertThat(storage.getDefaultAccount()).isEqualTo(acc)
     }
 
 
@@ -129,7 +129,7 @@ class AccountStorageTest {
 
         val fetchedAcc = storage.get(savedAcc.handle)
 
-        assert(savedAcc).isEqualTo(fetchedAcc)
+        assertThat(savedAcc).isEqualTo(fetchedAcc)
     }
 
 }

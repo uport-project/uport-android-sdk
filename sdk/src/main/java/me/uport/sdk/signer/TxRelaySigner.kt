@@ -1,10 +1,10 @@
 @file:Suppress("DEPRECATION")
+
 package me.uport.sdk.signer
 
 import me.uport.sdk.DEFAULT_GAS_LIMIT
 import me.uport.sdk.DEFAULT_GAS_PRICE
 import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.core.Signer
 import me.uport.sdk.signer.TxRelayHelper.Companion.ZERO_ADDRESS
 import org.kethereum.extensions.toBytesPadded
 import org.kethereum.functions.encodeRLP
@@ -87,7 +87,7 @@ class TxRelaySigner(private val wrappedSigner: Signer,
 
     companion object {
         //for the moment, the whitelist owner is all zeroes
-        private const val whitelistOwner: String = TxRelayHelper.ZERO_ADDRESS
+        private const val whitelistOwner: String = ZERO_ADDRESS
     }
 
 

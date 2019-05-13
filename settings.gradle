@@ -1,5 +1,5 @@
 include ':demoapp'
-include ':signer'
+//include ':signer'
 include ':credentials'
 include ':transport'
 include ':identity'

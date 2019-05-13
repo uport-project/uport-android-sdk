@@ -1,8 +1,8 @@
 @file:Suppress("DEPRECATION")
+
 package me.uport.sdk.signer
 
 import me.uport.sdk.MetaIdentityManager
-import me.uport.sdk.core.Signer
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
 import org.kethereum.model.SignatureData

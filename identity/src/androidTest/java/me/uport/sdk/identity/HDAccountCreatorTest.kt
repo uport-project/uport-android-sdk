@@ -3,7 +3,7 @@ package me.uport.sdk.identity
 import android.content.Context
 import android.support.test.InstrumentationRegistry
 import assertk.all
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
@@ -28,14 +28,14 @@ class HDAccountCreatorTest {
         runBlocking {
             val account = HDAccountCreator(appContext).createAccount(Networks.rinkeby.networkId)
 
-            assert(account).all {
+            assertThat(account).all {
                 isNotNull()
                 isNotEqualTo(HDAccount.blank)
             }
 
-            assert(account.address).isNotEmpty()
-            assert(account.publicAddress).isNotEmpty()
-            assert(account.deviceAddress).isNotEmpty()
+            assertThat(account.address).isNotEmpty()
+            assertThat(account.publicAddress).isNotEmpty()
+            assertThat(account.deviceAddress).isNotEmpty()
         }
     }
 
@@ -46,14 +46,14 @@ class HDAccountCreatorTest {
 
         runBlocking {
             val account = HDAccountCreator(appContext).importAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
-            assert(account).all {
+            assertThat(account).all {
                 isNotNull()
                 isNotEqualTo(HDAccount.blank)
             }
-            assert(account.address).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
-            assert(account.publicAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
-            assert(account.deviceAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
-            assert(account.handle).isEqualTo("0x794adde0672914159c1b77dd06d047904fe96ac8")
+            assertThat(account.address).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
+            assertThat(account.publicAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
+            assertThat(account.deviceAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
+            assertThat(account.handle).isEqualTo("0x794adde0672914159c1b77dd06d047904fe96ac8")
         }
     }
 }

@@ -2,8 +2,8 @@ package me.uport.sdk.identity
 
 import android.content.Context
 import kotlinx.serialization.Transient
-import me.uport.sdk.core.KPSigner
-import me.uport.sdk.core.Signer
+import me.uport.sdk.signer.KPSigner
+import me.uport.sdk.signer.Signer
 
 /**
  * This is an [Account] implementation that is backed by a KeyPair Signer.

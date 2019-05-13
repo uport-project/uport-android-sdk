@@ -9,7 +9,7 @@ import com.uport.sdk.signer.importHDSeed
 import kotlinx.android.synthetic.main.simple_result_layout.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import me.uport.sdk.core.Signer
+import me.uport.sdk.signer.Signer
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools

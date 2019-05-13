@@ -31,11 +31,6 @@ android {
 
 }
 
-//XXX: this is needed until https://github.com/komputing/KEthereum/issues/65 is fixed
-configurations.all {
-    exclude group: "com.github.walleth", module: "sha3"
-}
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
@@ -44,7 +39,7 @@ dependencies {
 
     api "com.github.komputing.KEthereum:model:$kethereum_version"
     api "com.github.uport-project.kotlin-common:core:$kotlin_common_version"
-    api project(path: ':signer')
+    api "com.github.uport-project:uport-android-signer:$uport_signer_version"
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"

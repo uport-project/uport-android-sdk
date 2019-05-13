@@ -3,7 +3,7 @@
 package me.uport.sdk.identity
 
 import android.content.Context
-import me.uport.sdk.core.Signer
+import me.uport.sdk.signer.Signer
 
 /**
  * Abstraction of the common properties and methods for various account types

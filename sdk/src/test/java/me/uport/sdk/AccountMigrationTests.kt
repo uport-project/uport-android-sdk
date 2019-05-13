@@ -1,6 +1,6 @@
 package me.uport.sdk
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import me.uport.sdk.fakes.InMemorySharedPrefs
@@ -80,15 +80,15 @@ class AccountMigrationTests {
     fun old_storage_has_data_new_storage_is_empty() {
 
         val accountSet = oldPrefs.getStringSet(KEY_ACCOUNTS, null)
-        assert(accountSet?.size).isEqualTo(4)
+        assertThat(accountSet?.size).isEqualTo(4)
 
         val defaultAccountHandle = oldPrefs.getString(KEY_DEFAULT_HANDLE, "")
-        assert(defaultAccountHandle).isEqualTo("0x64d13f1dba46a91c85509c60d8a7fc72ea7fcb74")
+        assertThat(defaultAccountHandle).isEqualTo("0x64d13f1dba46a91c85509c60d8a7fc72ea7fcb74")
 
         val storage = SharedPrefsAccountStorage(InMemorySharedPrefs())
-        assert(storage.all().size).isEqualTo(0)
+        assertThat(storage.all().size).isEqualTo(0)
 
-        assert(storage.getDefaultAccount()).isNull()
+        assertThat(storage.getDefaultAccount()).isNull()
     }
 
     @Test
@@ -98,10 +98,10 @@ class AccountMigrationTests {
         Uport.migrateAccounts(oldPrefs, storage)
 
         val accountSet = oldPrefs.getStringSet(KEY_ACCOUNTS, null)
-        assert(accountSet?.size).isNull()
+        assertThat(accountSet?.size).isNull()
 
         val defaultAccountHandle = oldPrefs.getString(KEY_DEFAULT_HANDLE, "")
-        assert(defaultAccountHandle).isEqualTo("")
+        assertThat(defaultAccountHandle).isEqualTo("")
     }
 
     @Test
@@ -110,9 +110,9 @@ class AccountMigrationTests {
         val storage = SharedPrefsAccountStorage(InMemorySharedPrefs())
         Uport.migrateAccounts(oldPrefs, storage)
 
-        assert(storage.all().size).isEqualTo(4)
+        assertThat(storage.all().size).isEqualTo(4)
 
-        assert(storage.getDefaultAccount()?.handle).isEqualTo("0x64d13f1dba46a91c85509c60d8a7fc72ea7fcb74")
+        assertThat(storage.getDefaultAccount()?.handle).isEqualTo("0x64d13f1dba46a91c85509c60d8a7fc72ea7fcb74")
     }
 
     @Test
@@ -149,12 +149,12 @@ class AccountMigrationTests {
                 "0x85ffef1627c80df773081a4967f27bbbb732a8ad"
         )
 
-        assert(storage.all().contains(account1))
+        assertThat(storage.all().contains(account1))
 
-        assert(storage.all().contains(account2))
+        assertThat(storage.all().contains(account2))
 
-        assert(storage.all().contains(account3))
+        assertThat(storage.all().contains(account3))
 
-        assert(storage.all().contains(account4))
+        assertThat(storage.all().contains(account4))
     }
 }

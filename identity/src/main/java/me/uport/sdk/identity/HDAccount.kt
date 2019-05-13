@@ -8,7 +8,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
-import me.uport.sdk.core.Signer
+import me.uport.sdk.signer.Signer
 
 /**
  * This is an [Account] implementation that is backed by a key pair derived from a seed.

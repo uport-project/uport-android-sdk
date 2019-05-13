@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.uport.sdk.core.KPSigner
+import me.uport.sdk.signer.KPSigner
 import me.uport.sdk.core.Networks
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials

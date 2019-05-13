@@ -1,7 +1,7 @@
 package me.uport.sdk.demoapp
 
 import android.support.test.rule.ActivityTestRule
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isNotEqualTo
 import me.uport.sdk.demoapp.managing_jwt.SignJWTUportHDSignerActivity
 import org.junit.Rule
@@ -17,6 +17,6 @@ class SignJWTUportHDTest {
 
         Thread.sleep(1000)
 
-        assert(activityRule.activity.issuerDID).isNotEqualTo("")
+        assertThat(activityRule.activity.issuerDID).isNotEqualTo("")
     }
 }

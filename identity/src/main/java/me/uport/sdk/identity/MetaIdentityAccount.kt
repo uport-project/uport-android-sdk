@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import me.uport.mnid.MNID
-import me.uport.sdk.core.Signer
+import me.uport.sdk.signer.Signer
 
 
 /**

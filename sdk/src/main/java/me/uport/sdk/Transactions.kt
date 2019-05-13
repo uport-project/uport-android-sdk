@@ -4,8 +4,8 @@ package me.uport.sdk
 
 import android.content.Context
 import me.uport.sdk.core.Networks
-import me.uport.sdk.core.Signer
-import me.uport.sdk.core.signRawTx
+import me.uport.sdk.signer.Signer
+import me.uport.sdk.signer.signRawTx
 import me.uport.sdk.endpoints.Sensui
 import me.uport.sdk.extensions.waitForTransactionToMine
 import me.uport.sdk.identity.Account

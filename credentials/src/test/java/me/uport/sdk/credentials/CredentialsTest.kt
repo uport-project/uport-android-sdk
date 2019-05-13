@@ -6,7 +6,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThanOrEqualTo
 import assertk.assertions.isNotNull
 import kotlinx.coroutines.runBlocking
-import me.uport.sdk.core.KPSigner
+import me.uport.sdk.signer.KPSigner
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K

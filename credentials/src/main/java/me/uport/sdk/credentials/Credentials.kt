@@ -2,7 +2,7 @@ package me.uport.sdk.credentials
 
 import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
-import me.uport.sdk.core.Signer
+import me.uport.sdk.signer.Signer
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS

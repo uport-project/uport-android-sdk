@@ -1,6 +1,6 @@
 package me.uport.sdk.identity
 
-import me.uport.sdk.core.KPSigner
+import me.uport.sdk.signer.KPSigner
 
 /**
  * [KeyPairAccountCreator] backed by a [KPSigner] that creates a [KeyPairAccount]
@@ -9,7 +9,7 @@ import me.uport.sdk.core.KPSigner
  *
  * API volatility: __high__
  */
-class KeyPairAccountCreator(private val privateKey: String) : AccountCreator {
+class KeyPairAccountCreator(privateKey: String) : AccountCreator {
 
     private val signer = KPSigner(privateKey)
 
