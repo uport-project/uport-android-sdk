@@ -2,19 +2,8 @@ package me.uport.sdk.jwt
 
 import android.content.Context
 import com.squareup.moshi.JsonAdapter
-import com.uport.sdk.signer.Signer
-import com.uport.sdk.signer.UportHDSigner
-import com.uport.sdk.signer.decodeJose
-import com.uport.sdk.signer.getJoseEncoded
-import com.uport.sdk.signer.normalize
-import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.core.ITimeProvider
-import me.uport.sdk.core.Networks
-import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.core.decodeBase64
-import me.uport.sdk.core.toBase64
-import me.uport.sdk.core.toBase64UrlSafe
-import me.uport.sdk.core.utf8
+import com.uport.sdk.signer.*
+import me.uport.sdk.core.*
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.httpsdid.HttpsDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -257,7 +246,6 @@ class JWTTools(
         } else {
             throw InvalidJWTException("Signature invalid for JWT. DID document for ${payload.iss} does not have any matching public keys")
         }
-
     }
 
     /**
