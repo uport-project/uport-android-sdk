@@ -7,6 +7,7 @@ import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.InvalidJWTException
+import me.uport.sdk.jwt.JWTAuthenticationException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.model.JwtHeader
@@ -184,6 +185,37 @@ class Credentials(
                 payload.own?.get("name"),
                 JWTTools().decodeRaw(token).second
         )
+    }
+
+    /**
+     * Authenticates [Selective Disclosure Response JWT](https://github.com/uport-project/specs/blob/develop/messages/shareresp.md) from uPort
+     * client as part of the [Selective Disclosure Flow](https://github.com/uport-project/specs/blob/develop/flows/selectivedisclosure.md).
+     *
+     * It Verifies and parses the given response token and verifies the challenge response flow.
+     *
+     * @param token **REQUIRED** a valid JWT response token
+     * @returns  a verified [JWTPayload]
+     * @throws [JWTAuthenticationException] when the challenge is failed or when the request token is unavailable
+     *
+     */
+    suspend fun authenticateDisclosure(token: String): JwtPayload {
+        val payload = JWTTools().verify(token, true)
+
+        if (payload.req == null) {
+            throw JWTAuthenticationException("Challenge was not included in response")
+        }
+
+        val challenge = JWTTools().verify(payload.req ?: "")
+
+        if (challenge.iss != this.did) {
+            throw JWTAuthenticationException("Challenge issuer does not match current identity: ${challenge.iss} != ${this.did}")
+        }
+
+        if (challenge.type != JWTTypes.shareReq.name) {
+            throw JWTAuthenticationException("Challenge payload type invalid: ${challenge.type}")
+        }
+
+        return payload
     }
 
 
