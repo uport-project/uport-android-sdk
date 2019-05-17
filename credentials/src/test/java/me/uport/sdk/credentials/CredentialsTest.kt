@@ -1,11 +1,7 @@
 package me.uport.sdk.credentials
 
 import assertk.assertThat
-import assertk.assertions.isEmpty
-import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThanOrEqualTo
-import assertk.assertions.isNotNull
-import com.uport.sdk.signer.KPSigner
+import assertk.assertions.*
 import io.mockk.coEvery
 import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
@@ -13,7 +9,6 @@ import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.ethrdid.EthrDIDDocument
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
-import me.uport.sdk.jwt.JWTAuthenticationException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
@@ -242,7 +237,7 @@ class CredentialsTest {
     @Suppress("UNCHECKED_CAST")
     fun `can return uport profile from jwt payload`() = runBlocking {
 
-        val map = mapOf<String, Any>(
+        val map = mapOf(
             "iat" to 1556541978,
             "exp" to 1656628378,
             "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
@@ -283,14 +278,14 @@ class CredentialsTest {
         assertThat(uPortProfile.networkId).isEqualTo("0x4")
         assertThat(uPortProfile.name).isEqualTo("Mike Gunn")
         assertThat(uPortProfile.email).isEqualTo("mgunn@uport.me")
-        assertThat(uPortProfile.invalid.size + uPortProfile.valid.size).isEqualTo((map.get("verified") as List<String>?)?.size)
+        assertThat(uPortProfile.invalid.size + uPortProfile.valid.size).isEqualTo((map["verified"] as List<String>?)?.size)
     }
 
     @Test
     @Suppress("UNCHECKED_CAST")
     fun `can fetch networkId from request token`() = runBlocking {
 
-        val map = mapOf<String, Any>(
+        val map = mapOf(
             "iat" to 1556541978,
             "exp" to 1656628378,
             "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
@@ -337,7 +332,7 @@ class CredentialsTest {
     @Test
     fun `can return uport profile from jwt payload without all properties`() = runBlocking {
 
-        val map = mapOf<String, Any>(
+        val map = mapOf(
             "iat" to 1556541978,
             "exp" to 1656628378,
             "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
@@ -380,17 +375,17 @@ class CredentialsTest {
     @Test
     fun `successfully authenticates selective disclosure response`() = runBlocking {
 
-        val map = mapOf<String, Any>(
-                "iat" to 1556541978,
-                "exp" to 1656628378,
-                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
-                "net" to "0x4",
-                "own" to mapOf(
-                        "name" to "Mike Gunn",
-                        "email" to "mgunn@uport.me"
-                ),
-                "permissions" to listOf("notifications"),
-                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiXSwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NzM5NTExOCwiZXhwIjo5MDAwMDAwMDAxNTU3Mzk1MTE4LCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.6UVkmO5vXyNtn6gy_RKz1Wjx1eWqik_124aBfcmKFr_jv6T96xxPKIda8AMxFWvaqQ0BJo6rec-S-USBBhYFcgA"
+        val map = mapOf(
+            "iat" to 1556541978,
+            "exp" to 1656628378,
+            "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
+            "net" to "0x4",
+            "own" to mapOf(
+                "name" to "Mike Gunn",
+                "email" to "mgunn@uport.me"
+            ),
+            "permissions" to listOf("notifications"),
+            "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwicmVxdWVzdGVkIjpbIm5hbWUiXSwiYWN0IjoiZ2VuZXJhbCIsInR5cGUiOiJzaGFyZVJlcSIsImlhdCI6MTU1NzM5NTExOCwiZXhwIjo5MDAwMDAwMDAxNTU3Mzk1MTE4LCJpc3MiOiJkaWQ6ZXRocjoweGNmMDNkZDBhODk0ZWY3OWNiNWI2MDFhNDNjNGIyNWUzYWU0YzY3ZWQifQ.6UVkmO5vXyNtn6gy_RKz1Wjx1eWqik_124aBfcmKFr_jv6T96xxPKIda8AMxFWvaqQ0BJo6rec-S-USBBhYFcgA"
         )
 
         val signer = KPSigner("0x1234")
@@ -398,7 +393,8 @@ class CredentialsTest {
 
         val resolver = spyk(EthrDIDResolver(JsonRPC("")))
 
-        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson(
+            """
             {
               "@context": "https://w3id.org/did/v1",
               "id": "$issuer",
@@ -411,7 +407,8 @@ class CredentialsTest {
                    "type": "Secp256k1SignatureAuthentication2018",
                    "publicKey": "$issuer#owner"}]
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         UniversalDID.registerResolver(resolver)
 
@@ -419,22 +416,22 @@ class CredentialsTest {
 
         val authenticatedPayload = Credentials(issuer, signer).authenticateDisclosure(token)
 
-        assert(authenticatedPayload).isNotNull()
+        assertThat(authenticatedPayload).isNotNull()
+        Unit
     }
 
     @Test
     fun `throws error when req token is missing`() = runBlocking {
 
-        val map = mapOf<String, Any>(
-                "iat" to 1556541978,
-                "exp" to 1656628378,
-                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
-                "net" to "0x4",
-                "own" to mapOf(
-                        "name" to "Mike Gunn",
-                        "email" to "mgunn@uport.me"
-                ),
-                "permissions" to listOf("notifications")
+        val map = mapOf(
+            "iat" to 1556541978,
+            "exp" to 1656628378,
+            "net" to "0x4",
+            "own" to mapOf(
+                "name" to "Mike Gunn",
+                "email" to "mgunn@uport.me"
+            ),
+            "permissions" to listOf("notifications")
         )
 
         val signer = KPSigner("0x1234")
@@ -442,7 +439,8 @@ class CredentialsTest {
 
         val resolver = spyk(EthrDIDResolver(JsonRPC("")))
 
-        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson(
+            """
             {
               "@context": "https://w3id.org/did/v1",
               "id": "$issuer",
@@ -455,7 +453,8 @@ class CredentialsTest {
                    "type": "Secp256k1SignatureAuthentication2018",
                    "publicKey": "$issuer#owner"}]
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         UniversalDID.registerResolver(resolver)
 
@@ -472,17 +471,16 @@ class CredentialsTest {
     @Test
     fun `throws error when request type is not a shareReq`() = runBlocking {
 
-        val map = mapOf<String, Any>(
-                "iat" to 1556541978,
-                "exp" to 1656628378,
-                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
-                "net" to "0x4",
-                "own" to mapOf(
-                        "name" to "Mike Gunn",
-                        "email" to "mgunn@uport.me"
-                ),
-                "permissions" to listOf("notifications"),
-                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwic3ViIjoiZGlkOmV0aHI6MHgzZmYyNTExN2MwZTE3MGNhNTMwYmQ1ODkxODk5YzE4Mzk0NGRiNDMxIiwidHlwZSI6InZlclJlcSIsInVuc2lnbmVkQ2xhaW0iOnsiY2l0aXplbiBvZiBDbGV2ZXJsYW5kIjp0cnVlfSwiaWF0IjoxNTU3NDE3MTczLCJleHAiOjkwMDAwMDAwMDE1NTc0MTcxNzMsImlzcyI6ImRpZDpldGhyOjB4Y2YwM2RkMGE4OTRlZjc5Y2I1YjYwMWE0M2M0YjI1ZTNhZTRjNjdlZCJ9.hR0hmw-63WrTK-dsdzfdGhnleDY59zTIbFYk-V-L2yEoe4fn6piFBbkGeBBfVwxs7iTi679BtY8jA3pDl3OLdwA"
+        val map = mapOf(
+            "iat" to 1556541978,
+            "exp" to 1656628378,
+            "net" to "0x4",
+            "own" to mapOf(
+                "name" to "Mike Gunn",
+                "email" to "mgunn@uport.me"
+            ),
+            "permissions" to listOf("notifications"),
+            "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjYWxsYmFjayI6Imh0dHBzOi8vdXBvcnQtcHJvamVjdC5naXRodWIuaW8vdXBvcnQtYW5kcm9pZC1zZGsvY2FsbGJhY2tzIiwic3ViIjoiZGlkOmV0aHI6MHgzZmYyNTExN2MwZTE3MGNhNTMwYmQ1ODkxODk5YzE4Mzk0NGRiNDMxIiwidHlwZSI6InZlclJlcSIsInVuc2lnbmVkQ2xhaW0iOnsiY2l0aXplbiBvZiBDbGV2ZXJsYW5kIjp0cnVlfSwiaWF0IjoxNTU3NDE3MTczLCJleHAiOjkwMDAwMDAwMDE1NTc0MTcxNzMsImlzcyI6ImRpZDpldGhyOjB4Y2YwM2RkMGE4OTRlZjc5Y2I1YjYwMWE0M2M0YjI1ZTNhZTRjNjdlZCJ9.hR0hmw-63WrTK-dsdzfdGhnleDY59zTIbFYk-V-L2yEoe4fn6piFBbkGeBBfVwxs7iTi679BtY8jA3pDl3OLdwA"
         )
 
         val signer = KPSigner("0x1234")
@@ -490,7 +488,8 @@ class CredentialsTest {
 
         val resolver = spyk(EthrDIDResolver(JsonRPC("")))
 
-        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson(
+            """
             {
               "@context": "https://w3id.org/did/v1",
               "id": "$issuer",
@@ -503,7 +502,8 @@ class CredentialsTest {
                    "type": "Secp256k1SignatureAuthentication2018",
                    "publicKey": "$issuer#owner"}]
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         UniversalDID.registerResolver(resolver)
 
@@ -519,17 +519,16 @@ class CredentialsTest {
     @Test
     fun `throws error when request issuer did in the request does not match issuer in the credentials`() = runBlocking {
 
-        val map = mapOf<String, Any>(
-                "iat" to 1556541978,
-                "exp" to 1656628378,
-                "aud" to "did:ethr:0xcf03dd0a894ef79cb5b601a43c4b25e3ae4c67ed",
-                "net" to "0x4",
-                "own" to mapOf(
-                        "name" to "Mike Gunn",
-                        "email" to "mgunn@uport.me"
-                ),
-                "permissions" to listOf("notifications"),
-                "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbXMiOnsibmFtZSI6IlIgRGFuZWVsIE9saXZhdyJ9LCJpYXQiOjE1NDgxNjM2ODgsImV4cCI6MjE3ODg4MzY4OCwiaXNzIjoiZGlkOmV0aHI6MHg0MTIzY2JkMTQzYjU1YzA2ZTQ1MWZmMjUzYWYwOTI4NmI2ODdhOTUwIn0.Tral9PIGcNIH-3LrC9sAasPokbtnny3LPw9wrEGPqARXLQREGH6l8GI9JXL3o6_qjY3KF9Nbz0wi7g-pdlC-rgA"
+        val map = mapOf(
+            "iat" to 1556541978,
+            "exp" to 1656628378,
+            "net" to "0x4",
+            "own" to mapOf(
+                "name" to "Mike Gunn",
+                "email" to "mgunn@uport.me"
+            ),
+            "permissions" to listOf("notifications"),
+            "req" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJjbGFpbXMiOnsibmFtZSI6IlIgRGFuZWVsIE9saXZhdyJ9LCJpYXQiOjE1NDgxNjM2ODgsImV4cCI6MjE3ODg4MzY4OCwiaXNzIjoiZGlkOmV0aHI6MHg0MTIzY2JkMTQzYjU1YzA2ZTQ1MWZmMjUzYWYwOTI4NmI2ODdhOTUwIn0.Tral9PIGcNIH-3LrC9sAasPokbtnny3LPw9wrEGPqARXLQREGH6l8GI9JXL3o6_qjY3KF9Nbz0wi7g-pdlC-rgA"
         )
 
         val signer = KPSigner("0x1234")
@@ -538,7 +537,8 @@ class CredentialsTest {
         val resolver = spyk(EthrDIDResolver(JsonRPC("")))
 
         // Mock [EtherDIDDocument] for credentials issuer DID
-        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson("""
+        coEvery { resolver.resolve(eq(issuer)) } returns EthrDIDDocument.fromJson(
+            """
             {
               "@context": "https://w3id.org/did/v1",
               "id": "$issuer",
@@ -551,11 +551,13 @@ class CredentialsTest {
                    "type": "Secp256k1SignatureAuthentication2018",
                    "publicKey": "$issuer#owner"}]
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
 
         // Mock [EtherDIDDocument] for issuer DID in the request token embeded in the response map above
-        coEvery { resolver.resolve("did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950") } returns EthrDIDDocument.fromJson("""
+        coEvery { resolver.resolve("did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950") } returns EthrDIDDocument.fromJson(
+            """
             {
                 "id": "did:ethr:0x4123cbd143b55c06e451ff253af09286b687a950",
                 "publicKey": [
@@ -580,7 +582,8 @@ class CredentialsTest {
                 ],
                 "@context": "https://w3id.org/did/v1"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         UniversalDID.registerResolver(resolver)
 
