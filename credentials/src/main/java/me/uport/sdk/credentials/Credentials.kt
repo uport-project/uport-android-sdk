@@ -157,14 +157,14 @@ class Credentials(
      */
     suspend fun verifyDisclosure(token: String): UportProfile {
 
-        val payload = JWTTools().verify(token)
+        val payload = JWTTools().verify(token, aud = this.did)
 
         val valid = mutableListOf<JwtPayload>()
         val invalid = mutableListOf<String>()
 
         payload.verified?.forEach {
             try {
-                valid.add(JWTTools().verify(it))
+                valid.add(JWTTools().verify(it, aud = this.did))
             } catch (e: InvalidJWTException) {
                 e.printStackTrace()
                 invalid.add(it)

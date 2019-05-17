@@ -27,7 +27,7 @@ buildscript {
         mockito_version = "2.23.0"
         mockito_kotlin_version = "2.0.0"
         robolectric_version = "4.1"
-        mockk_version = "1.9.3"
+        mockk_version = "1.9.2"
         assertk_version = "0.14"
         detekt_version = "1.0.0-RC14"
 
@@ -38,7 +38,7 @@ buildscript {
         kmnid_version = "0.3.2"
         kethereum_version = "0.75.1"
         tweetnacl_k_version = "0.0.1"
-        did_jwt_version = "0.1.1"
+        did_jwt_version = "0.1.2"
         kotlin_common_version = "0.1.1"
         uport_signer_version = "0.3.0"
 
