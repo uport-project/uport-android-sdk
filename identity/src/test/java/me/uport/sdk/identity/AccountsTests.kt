@@ -1,6 +1,6 @@
 package me.uport.sdk.identity
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isTrue
@@ -25,7 +25,7 @@ class AccountsTests {
 
         val other = HDAccount.fromJson(serialized)
 
-        assert(other).isEqualTo(refAccount)
+        assertThat(other).isEqualTo(refAccount)
     }
 
     @Test
@@ -43,7 +43,7 @@ class AccountsTests {
 
         val account = HDAccount.fromJson(serializedAccount)
 
-        assert(account).isNotNull()
+        assertThat(account).isNotNull()
     }
 
     @Test
@@ -64,7 +64,7 @@ class AccountsTests {
 
         val account = HDAccount.fromJson(serializedAccount)
 
-        assert(account).isNotNull()
+        assertThat(account).isNotNull()
     }
 
     @Test
@@ -85,7 +85,7 @@ class AccountsTests {
 
         val account = MetaIdentityAccount.fromJson(serializedAccount)
 
-        assert(account).isNotNull()
+        assertThat(account).isNotNull()
     }
 
     @Test
@@ -103,7 +103,7 @@ class AccountsTests {
         val account = HDAccount.fromJson(serializedAccount)
         val defaultRPC = JsonRPC(Networks.mainnet.rpcUrl)
         val canResolve = EthrDIDResolver(defaultRPC).canResolve(account!!.getDID())
-        assert(canResolve)
+        assertThat(canResolve)
     }
 
     @Test
@@ -123,6 +123,6 @@ class AccountsTests {
 
         val account = MetaIdentityAccount.fromJson(serializedAccount)
         val tested = UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl))
-        assert(tested.canResolve(account!!.getDID())).isTrue()
+        assertThat(tested.canResolve(account!!.getDID())).isTrue()
     }
 }

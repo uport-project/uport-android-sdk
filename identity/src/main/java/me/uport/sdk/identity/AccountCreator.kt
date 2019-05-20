@@ -1,7 +1,5 @@
 package me.uport.sdk.identity
 
-typealias AccountCreatorCallback = (err: Exception?, acc: Account) -> Unit
-
 /**
  * Interface describing an account manager that can create, import and delete accounts
  */

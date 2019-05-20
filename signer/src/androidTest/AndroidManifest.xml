@@ -1,7 +1,0 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.uport.sdk.signer">
-
-    <application android:theme="@style/noTransitions">
-        <activity android:name=".TestDummyActivity" />
-    </application>
-</manifest>

@@ -1,17 +1,14 @@
 package me.uport.sdk.credentials
 
-import android.support.annotation.VisibleForTesting
-import android.support.annotation.VisibleForTesting.PRIVATE
-import com.uport.sdk.signer.Signer
-import me.uport.mnid.MNID
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
 import me.uport.sdk.jwt.InvalidJWTException
-import me.uport.sdk.jwt.JWTAuthenticationException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
+import me.uport.sdk.jwt.JWTUtils.Companion.normalizeKnownDID
 import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtPayload
+import me.uport.sdk.signer.Signer
 
 /**
  * The [Credentials] class should allow you to create the signed payloads used in uPort including
@@ -19,9 +16,9 @@ import me.uport.sdk.jwt.model.JwtPayload
  * for user data). It should also provide signature verification over signed payloads.
  */
 class Credentials(
-        private val did: String,
-        private val signer: Signer,
-        private val clock: ITimeProvider = SystemTimeProvider
+    private val did: String,
+    private val signer: Signer,
+    private val clock: ITimeProvider = SystemTimeProvider
 ) {
 
     /**
@@ -63,8 +60,10 @@ class Credentials(
      */
     suspend fun createPersonalSignRequest(params: PersonalSignRequestParams): String {
         val payload = buildPayloadForPersonalSignReq(params)
-        return this.signJWT(payload, params.expiresInSeconds
-                ?: DEFAULT_PERSONAL_SIGN_REQ_VALIDITY_SECONDS)
+        return this.signJWT(
+            payload,
+            params.expiresInSeconds ?: DEFAULT_PERSONAL_SIGN_REQ_VALIDITY_SECONDS
+        )
     }
 
     /**
@@ -91,8 +90,10 @@ class Credentials(
      */
     suspend fun createVerificationSignatureRequest(params: VerifiedClaimRequestParams): String {
         val payload = buildPayloadForVerifiedClaimReq(params)
-        return this.signJWT(payload, params.expiresInSeconds
-                ?: DEFAULT_VERIFIED_CLAIM_REQ_VALIDITY_SECONDS)
+        return this.signJWT(
+            payload,
+            params.expiresInSeconds ?: DEFAULT_VERIFIED_CLAIM_REQ_VALIDITY_SECONDS
+        )
     }
 
     /**
@@ -117,8 +118,10 @@ class Credentials(
      */
     suspend fun createEthereumTransactionRequest(params: EthereumTransactionRequestParams): String {
         val payload = buildPayloadForEthereumTransactionReq(params)
-        return this.signJWT(payload, params.expiresInSeconds
-                ?: DEFAULT_ETHEREUM_TRANSACTION_REQ_VALIDITY_SECONDS)
+        return this.signJWT(
+            payload,
+            params.expiresInSeconds ?: DEFAULT_ETHEREUM_TRANSACTION_REQ_VALIDITY_SECONDS
+        )
     }
 
 
@@ -135,11 +138,13 @@ class Credentials(
      *
      *  ```
      */
-    suspend fun createVerification(sub: String,
-                                   claim: Map<String, Any>,
-                                   callbackUrl: String? = null,
-                                   verifiedClaims: Collection<String>? = null,
-                                   expiresInSeconds: Long? = 600L): String {
+    suspend fun createVerification(
+        sub: String,
+        claim: Map<String, Any>,
+        callbackUrl: String? = null,
+        verifiedClaims: Collection<String>? = null,
+        expiresInSeconds: Long? = 600L
+    ): String {
 
         val payload = mutableMapOf<String, Any>()
         payload["sub"] = sub
@@ -160,14 +165,14 @@ class Credentials(
      */
     suspend fun verifyDisclosure(token: String): UportProfile {
 
-        val payload = JWTTools().verify(token)
+        val payload = JWTTools().verify(token, aud = this.did)
 
         val valid = mutableListOf<JwtPayload>()
         val invalid = mutableListOf<String>()
 
         payload.verified?.forEach {
             try {
-                valid.add(JWTTools().verify(it))
+                valid.add(JWTTools().verify(it, aud = this.did))
             } catch (e: InvalidJWTException) {
                 e.printStackTrace()
                 invalid.add(it)
@@ -177,13 +182,13 @@ class Credentials(
         val networkId = payload.net ?: JWTTools().decode(payload.req ?: "").second.net
 
         return UportProfile(
-                payload.iss,
-                networkId,
-                valid,
-                invalid,
-                payload.own?.get("email"),
-                payload.own?.get("name"),
-                JWTTools().decodeRaw(token).second
+            payload.iss,
+            networkId,
+            valid,
+            invalid,
+            payload.own?.get("email"),
+            payload.own?.get("name"),
+            JWTTools().decodeRaw(token).second
         )
     }
 
@@ -194,12 +199,12 @@ class Credentials(
      * It Verifies and parses the given response token and verifies the challenge response flow.
      *
      * @param token **REQUIRED** a valid JWT response token
-     * @returns  a verified [JWTPayload]
+     * @returns  a verified [JwtPayload]
      * @throws [JWTAuthenticationException] when the challenge is failed or when the request token is unavailable
      *
      */
     suspend fun authenticateDisclosure(token: String): JwtPayload {
-        val payload = JWTTools().verify(token, true)
+        val payload = JWTTools().verify(token, auth = true, aud = this.did)
 
         if (payload.req == null) {
             throw JWTAuthenticationException("Challenge was not included in response")
@@ -230,36 +235,13 @@ class Credentials(
     suspend fun signJWT(payload: Map<String, Any>, expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS): String {
         val normDID = normalizeKnownDID(this.did)
         val alg = if (normDID.startsWith("did:uport:")) JwtHeader.ES256K else JwtHeader.ES256K_R
-        return JWTTools(clock).createJWT(payload, normDID, this.signer, expiresInSeconds = expiresInSeconds, algorithm = alg)
-    }
-
-    companion object {
-
-        /**
-         * Attempts to normalize a [potentialDID] to a known format.
-         *
-         * This will transform an ethereum address into an ethr-did and an MNID string into a uport-did
-         */
-        @VisibleForTesting(otherwise = PRIVATE)
-        internal fun normalizeKnownDID(potentialDID: String): String {
-
-            //ignore if it's already a did
-            if (potentialDID.matches("^did:(.*)?:.*".toRegex()))
-                return potentialDID
-
-            //match an ethereum address
-            "^(0[xX])*([0-9a-fA-F]{40})".toRegex().find(potentialDID)?.let {
-                val (_, hexDigits) = it.destructured
-                return "did:ethr:0x$hexDigits"
-            }
-
-            //match an MNID
-            if (MNID.isMNID(potentialDID)) {
-                return "did:uport:$potentialDID"
-            }
-
-            return potentialDID
-        }
+        return JWTTools(clock).createJWT(
+            payload,
+            normDID,
+            this.signer,
+            expiresInSeconds = expiresInSeconds,
+            algorithm = alg
+        )
     }
 
 }

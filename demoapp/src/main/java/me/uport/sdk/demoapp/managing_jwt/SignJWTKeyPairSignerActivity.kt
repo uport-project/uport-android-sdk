@@ -2,10 +2,10 @@ package me.uport.sdk.demoapp.managing_jwt
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.simple_result_layout.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import me.uport.sdk.signer.KPSigner
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools

@@ -1,11 +1,8 @@
 package me.uport.sdk.credentials
 
-import android.support.annotation.Keep
-
 /**
  * Supported (known) types of JWT requests/responses
  */
-@Keep
 @Suppress("EnumEntryName")
 enum class JWTTypes {
     /**

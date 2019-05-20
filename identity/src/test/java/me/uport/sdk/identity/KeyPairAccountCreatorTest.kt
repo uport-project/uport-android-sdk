@@ -1,7 +1,7 @@
 package me.uport.sdk.identity
 
 import assertk.all
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isNotEmpty
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
@@ -16,14 +16,14 @@ class KeyPairAccountCreatorTest {
         runBlocking {
             val account = KeyPairAccountCreator("0x1234").createAccount(Networks.rinkeby.networkId)
 
-            assert(account).all {
+            assertThat(account).all {
                 isNotNull()
                 isNotEqualTo(HDAccount.blank)
             }
 
-            assert(account.address).isNotEmpty()
-            assert(account.publicAddress).isNotEmpty()
-            assert(account.deviceAddress).isNotEmpty()
+            assertThat(account.address).isNotEmpty()
+            assertThat(account.publicAddress).isNotEmpty()
+            assertThat(account.deviceAddress).isNotEmpty()
         }
     }
 }

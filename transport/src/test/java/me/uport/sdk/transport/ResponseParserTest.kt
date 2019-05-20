@@ -1,6 +1,6 @@
 package me.uport.sdk.transport
 
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import org.junit.Test
@@ -39,14 +39,14 @@ class ResponseParserTest {
     fun `parse jwt from URL with access_token key`() {
         validAccessTokenTypeURLs.forEach { redirect ->
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNotNull()
+            assertThat(token).isNotNull()
         }
     }
 
     @Test
     fun `reject invalid URIs with access_token key`() {
         invalidAccessTokenTypeURLs.forEach { redirect ->
-            assert {
+            assertThat {
                 ResponseParser.extractTokenFromRedirectUri(redirect)
             }.thrownError {
                 isInstanceOf(IllegalArgumentException::class)
@@ -87,14 +87,14 @@ class ResponseParserTest {
     fun `parse jwt from URL with verification key`() {
         validVerificationTypeURLs.forEach { redirect ->
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNotNull()
+            assertThat(token).isNotNull()
         }
     }
 
     @Test
     fun `reject invalid URIs with verification key`() {
         invalidVerificationTypeURLs.forEach { redirect ->
-            assert {
+            assertThat {
                 ResponseParser.extractTokenFromRedirectUri(redirect)
             }.thrownError {
                 isInstanceOf(IllegalArgumentException::class)
@@ -135,14 +135,14 @@ class ResponseParserTest {
     fun `parse jwt from URL with typedDataSig key`() {
         validTypedDataSigTypeURLs.forEach { redirect ->
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNotNull()
+            assertThat(token).isNotNull()
         }
     }
 
     @Test
     fun `reject invalid URIs with typedDataSig key`() {
         invalidTypedDataSigTypeURLs.forEach { redirect ->
-            assert {
+            assertThat {
                 ResponseParser.extractTokenFromRedirectUri(redirect)
             }.thrownError {
                 isInstanceOf(IllegalArgumentException::class)
@@ -183,14 +183,14 @@ class ResponseParserTest {
     fun `parse jwt from URL with personalSig key`() {
         validPersonalSigTypeURLs.forEach { redirect ->
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNotNull()
+            assertThat(token).isNotNull()
         }
     }
 
     @Test
     fun `reject invalid URIs with personalSig key`() {
         invalidPersonalSigTypeURLs.forEach { redirect ->
-            assert {
+            assertThat {
                 ResponseParser.extractTokenFromRedirectUri(redirect)
             }.thrownError {
                 isInstanceOf(IllegalArgumentException::class)
@@ -231,14 +231,14 @@ class ResponseParserTest {
     fun `parse jwt from URL with tx key`() {
         validTxTypeURLs.forEach { redirect ->
             val token = ResponseParser.extractTokenFromRedirectUri(redirect)
-            assert(token).isNotNull()
+            assertThat(token).isNotNull()
         }
     }
 
     @Test
     fun `reject invalid URIs with tx key`() {
         invalidTxTypeURLs.forEach { redirect ->
-            assert {
+            assertThat {
                 ResponseParser.extractTokenFromRedirectUri(redirect)
             }.thrownError {
                 isInstanceOf(IllegalArgumentException::class)

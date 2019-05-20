@@ -87,28 +87,6 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    @Suppress("TooGenericExceptionCaught")
-    @Deprecated("use the suspend variant of this method")
-    fun createAccount(network: EthNetwork, seedPhrase: String? = null, completion: AccountCreatorCallback) {
-        GlobalScope.launch {
-            try {
-                val account = createAccount(network.networkId, seedPhrase)
-                completion(null, account)
-            } catch (ex: Exception) {
-                completion(ex, HDAccount.blank)
-            }
-        }
-    }
-
-    /**
-     * Creates an account (the [defaultAccount])..
-     * For v1 of this SDK, there's only one account supported.
-     * If an account has already been created, that one will be returned.
-     * If the process has already been started before, it will continue where it left off.
-     * The created account is saved as [defaultAccount] before calling back with the result
-     *
-     * To really create a new account, call [deleteAccount] first.
-     */
     suspend fun createAccount(networkId: String, seedPhrase: String? = null): HDAccount {
         if (!initialized) {
             throw UportNotInitializedException()
@@ -135,7 +113,7 @@ object Uport {
     /**
      * Fetches all saved accounts
      */
-    fun allAccounts() = accountStorage.all() ?: emptyList()
+    fun allAccounts() = accountStorage.all()
 
     fun deleteAccount(rootHandle: String) {
         if (!initialized) {

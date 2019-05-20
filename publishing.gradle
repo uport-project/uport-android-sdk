@@ -12,7 +12,7 @@ subprojects { subproject ->
 
     afterEvaluate {
 
-        if (subproject.plugins.hasPlugin('com.github.dcendents.android-maven')) {
+        if (subproject.plugins.hasPlugin('com.github.dcendents.android-maven') || subproject.plugins.hasPlugin('maven')) {
 
             subproject.group = groupID
             subproject.version = uport_sdk_version
@@ -22,7 +22,9 @@ subprojects { subproject ->
             install {
                 repositories.mavenInstaller {
                     pom.project {
-                        packaging 'aar'
+                        if (subproject.hasProperty("android")) {
+                            packaging 'aar'
+                        }
                         groupId subproject.group
                         artifactId subproject.name
 
@@ -72,6 +74,7 @@ subprojects { subproject ->
                     user = getBintrayUser()
                     key = getBintrayApiKey()
 
+                    //noinspection GroovyAccessibility
                     configurations = ['archives']
 
                     pkg {

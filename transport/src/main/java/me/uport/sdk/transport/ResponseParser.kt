@@ -133,7 +133,7 @@ object ResponseParser {
         }
         val redirectUri = data?.getStringExtra(RequestDispatchActivity.EXTRA_REDIRECT_URI) ?: ""
         return try {
-            ResponseParser.extractTokenFromRedirectUri(redirectUri)
+            extractTokenFromRedirectUri(redirectUri)
         } catch (err: IllegalArgumentException) {
             null
         }

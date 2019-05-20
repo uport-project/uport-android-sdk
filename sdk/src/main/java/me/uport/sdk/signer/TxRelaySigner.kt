@@ -1,7 +1,9 @@
 @file:Suppress("DEPRECATION")
+
 package me.uport.sdk.signer
 
-import com.uport.sdk.signer.Signer
+import me.uport.sdk.DEFAULT_GAS_LIMIT
+import me.uport.sdk.DEFAULT_GAS_PRICE
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.signer.TxRelayHelper.Companion.ZERO_ADDRESS
 import org.kethereum.extensions.toBytesPadded
@@ -45,7 +47,7 @@ class TxRelaySigner(private val wrappedSigner: Signer,
 
         val nonce = unsignedTx.nonce ?: 0.toBigInteger()
         val to = unsignedTx.to ?: Address(ZERO_ADDRESS)
-        val data = unsignedTx.input.toByteArray()
+        val data = unsignedTx.input
 
         val sender = wrappedSigner.getAddress() // device address
 
@@ -68,13 +70,13 @@ class TxRelaySigner(private val wrappedSigner: Signer,
                     .hexToByteArray()
 
             val wrapperTx = createTransactionWithDefaults(
-                    gasPrice = unsignedTx.gasPrice,
-                    gasLimit = unsignedTx.gasLimit,
+                    gasPrice = unsignedTx.gasPrice ?: DEFAULT_GAS_PRICE,
+                    gasLimit = unsignedTx.gasLimit ?: DEFAULT_GAS_LIMIT,
                     value = BigInteger.ZERO,
                     to = Address(network.txRelayAddress),
                     nonce = nonce,
                     from = Address(sender),
-                    input = rawMetaTxData.toList()
+                    input = rawMetaTxData
             )
 
             return@signETH callback(null, wrapperTx.encodeRLP())
@@ -85,7 +87,7 @@ class TxRelaySigner(private val wrappedSigner: Signer,
 
     companion object {
         //for the moment, the whitelist owner is all zeroes
-        private const val whitelistOwner: String = TxRelayHelper.ZERO_ADDRESS
+        private const val whitelistOwner: String = ZERO_ADDRESS
     }
 
 

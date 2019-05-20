@@ -4,16 +4,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.uport.sdk.signer.KPSigner
 import kotlinx.android.synthetic.main.request_flow.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.uport.sdk.signer.KPSigner
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.EthereumTransactionRequestParams
 import me.uport.sdk.demoapp.R
-import me.uport.sdk.transport.*
+import me.uport.sdk.transport.ErrorUriResponse
+import me.uport.sdk.transport.HashCodeUriResponse
+import me.uport.sdk.transport.ResponseParser
+import me.uport.sdk.transport.Transports
+import me.uport.sdk.transport.UriResponse
 import java.math.BigInteger
 
 /**
