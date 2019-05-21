@@ -16,28 +16,28 @@ import me.uport.sdk.credentials.RequestAccountType.*
  */
 class SelectiveDisclosureRequestParams(
     /**
-         * [**required**]
-         * a simple_list of attributes for which you are requesting credentials.
-         * Ex. [ 'name', 'country' ]
-         */
-        val requested: List<String>,
+     * [**required**]
+     * a simple_list of attributes for which you are requesting credentials.
+     * Ex. [ 'name', 'country' ]
+     */
+    val requested: List<String>,
 
     /**
-         * [**required**]
-         * the url that can receive the response to this request.
-         * TODO: detail how that URL should be handled by the APP implementing this SDK
-         *
-         * This gets encoded as `callback` in the JWT payload
-         */
-        val callbackUrl: String,
+     * [**required**]
+     * the url that can receive the response to this request.
+     * TODO: detail how that URL should be handled by the APP implementing this SDK
+     *
+     * This gets encoded as `callback` in the JWT payload
+     */
+    val callbackUrl: String,
 
     /**
-         * [**optional**]
-         * A simple_list of signed claims being requested.
-         * This is semantically similar to the [requested] field
-         * but the response should contain signatures as well.
-         */
-        val verified: List<String>? = null,
+     * [**optional**]
+     * A simple_list of signed claims being requested.
+     * This is semantically similar to the [requested] field
+     * but the response should contain signatures as well.
+     */
+    val verified: List<String>? = null,
 
     /**
      * [**optional**]
@@ -48,56 +48,56 @@ class SelectiveDisclosureRequestParams(
      * [specs](https://github.com/uport-project/specs/blob/develop/messages/sharereq.md#claims-spec)
      *
      */
-    val claims: Map<String, Any>? = null,
+    val claims: Map<String, Any?>? = null,
 
     /**
-         * [**optional**]
-         * The Ethereum network ID if it is relevant for this request.
-         *
-         * This gets encoded as `net` in the JWT payload
-         *
-         * Examples: `"0x4"`, [Networks.mainnet.networkId]
-         */
-        val networkId: String? = null,
+     * [**optional**]
+     * The Ethereum network ID if it is relevant for this request.
+     *
+     * This gets encoded as `net` in the JWT payload
+     *
+     * Examples: `"0x4"`, [Networks.mainnet.networkId]
+     */
+    val networkId: String? = null,
 
 
     /**
-         * [**optional**]
-         * If this request implies a particular kind of account.
-         * This defaults to [RequestAccountType.general] (user choice)
-         *
-         * This gets encoded as `act` in the JWT payload
-         *
-         * @see [RequestAccountType]
-         */
-        val accountType: RequestAccountType? = general,
+     * [**optional**]
+     * If this request implies a particular kind of account.
+     * This defaults to [RequestAccountType.general] (user choice)
+     *
+     * This gets encoded as `act` in the JWT payload
+     *
+     * @see [RequestAccountType]
+     */
+    val accountType: RequestAccountType? = general,
 
     /**
-         * [**optional**]
-         * A list of signed claims about the issuer, usually signed by 3rd parties.
-         */
-        val vc: List<String>? = null,
+     * [**optional**]
+     * A list of signed claims about the issuer, usually signed by 3rd parties.
+     */
+    val vc: List<String>? = null,
 
     /**
-         * [**optional**] defaults to [DEFAULT_SHARE_REQ_VALIDITY_SECONDS]
-         * The validity interval of this request, measured in seconds since the moment it is issued.
-         */
-        val expiresInSeconds: Long? = DEFAULT_SHARE_REQ_VALIDITY_SECONDS,
+     * [**optional**] defaults to [DEFAULT_SHARE_REQ_VALIDITY_SECONDS]
+     * The validity interval of this request, measured in seconds since the moment it is issued.
+     */
+    val expiresInSeconds: Long? = DEFAULT_SHARE_REQ_VALIDITY_SECONDS,
 
 
-        //omitting the "notifications" permission because it has no relevance on android.
-        // It may be worth adding for direct interop with iOS but that is unclear now
+    //omitting the "notifications" permission because it has no relevance on android.
+    // It may be worth adding for direct interop with iOS but that is unclear now
 
     /**
-         * [**optional**]
-         * This can hold extra fields for the JWT payload representing the request.
-         * Use this to provide any of the extra fields described in the
-         * [specs](https://github.com/uport-project/specs/blob/develop/messages/sharereq.md)
-         *
-         * The fields contained in [extras] will get overwritten by the named parameters
-         * in this class in case of a name collision.
-         */
-        val extras: Map<String, Any>? = null
+     * [**optional**]
+     * This can hold extra fields for the JWT payload representing the request.
+     * Use this to provide any of the extra fields described in the
+     * [specs](https://github.com/uport-project/specs/blob/develop/messages/sharereq.md)
+     *
+     * The fields contained in [extras] will get overwritten by the named parameters
+     * in this class in case of a name collision.
+     */
+    val extras: Map<String, Any>? = null
 )
 
 /**
@@ -128,6 +128,7 @@ internal fun buildPayloadForShareReq(params: SelectiveDisclosureRequestParams): 
     val payload = params.extras.orEmpty().toMutableMap()
 
     payload["callback"] = params.callbackUrl
+    payload["claims"] = params.claims.orEmpty().toMutableMap()
     payload["requested"] = params.requested
     params.verified?.let { payload["verified"] = it }
     params.vc?.let { payload["vc"] = it }

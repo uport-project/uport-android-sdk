@@ -8,17 +8,13 @@ import kotlinx.android.synthetic.main.activity_uport_login.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.uport.sdk.signer.KPSigner
 import me.uport.sdk.core.UI
 import me.uport.sdk.credentials.Credentials
 import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
-import me.uport.sdk.transport.ErrorUriResponse
-import me.uport.sdk.transport.JWTUriResponse
-import me.uport.sdk.transport.ResponseParser
-import me.uport.sdk.transport.Transports
-import me.uport.sdk.transport.UriResponse
+import me.uport.sdk.signer.KPSigner
+import me.uport.sdk.transport.*
 
 /**
  * This allows the users initiate a uPort login using [SelectiveDisclosureRequest]
@@ -36,11 +32,48 @@ class uPortLoginActivity : AppCompatActivity() {
         // create a DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+        val claim = mapOf(
+            "verifiable" to mapOf(
+                "email" to mapOf(
+                    "iss" to listOf(
+                        mapOf(
+                            "did" to "did:web:uport.claims",
+                            "url" to "https://uport.claims/email"
+                        ),
+                        mapOf(
+                            "did" to "did:web:sobol.io",
+                            "url" to "https://sobol.io/verify"
+                        )
+                    ),
+                    "reason" to "Whe need to be able to email you",
+                    "essential" to false
+                ),
+                "nationalIdentity" to mapOf(
+                    "iss" to listOf(
+                        mapOf(
+                            "did" to "did:web:idverifier.claims",
+                            "url" to "https://idverifier.example"
+                        )
+                    ),
+                    "reason" to "To legally be able to open your account",
+                    "essential" to true
+                ),
+                "user_info" to mapOf(
+                    "name" to mapOf(
+                        "essential" to true,
+                        "reason" to "Show your name to other users"
+                    ),
+                    "country" to null
+                )
+            )
+        )
+
         // create the request JWT
         val cred = Credentials(issuerDID, signer)
         val params = SelectiveDisclosureRequestParams(
-                requested = listOf("name"),
-                callbackUrl = "https://uport-project.github.io/uport-android-sdk/callbacks"
+            requested = listOf("name"),
+            callbackUrl = "https://uport-project.github.io/uport-android-sdk/callbacks",
+            claims = claim
         )
 
         request_details.text = """
