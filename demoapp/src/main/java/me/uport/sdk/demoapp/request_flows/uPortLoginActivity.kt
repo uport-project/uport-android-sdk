@@ -32,6 +32,7 @@ class uPortLoginActivity : AppCompatActivity() {
         // create a DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
+        @Suppress("StringLiteralDuplication")
         val claim = mapOf(
             "verifiable" to mapOf(
                 "email" to mapOf(
@@ -45,7 +46,7 @@ class uPortLoginActivity : AppCompatActivity() {
                             "url" to "https://sobol.io/verify"
                         )
                     ),
-                    "reason" to "Whe need to be able to email you",
+                    "reason" to "We need to be able to email you",
                     "essential" to false
                 ),
                 "nationalIdentity" to mapOf(
