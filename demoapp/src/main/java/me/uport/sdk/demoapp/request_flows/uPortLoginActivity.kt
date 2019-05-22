@@ -9,15 +9,14 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.uport.sdk.core.UI
-import me.uport.sdk.credentials.Credentials
-import me.uport.sdk.credentials.SelectiveDisclosureRequestParams
+import me.uport.sdk.credentials.*
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.signer.KPSigner
 import me.uport.sdk.transport.*
 
 /**
- * This allows the users initiate a uPort login using [SelectiveDisclosureRequest]
+ * This allows the users initiate a uPort login using SelectiveDisclosureRequest
  * and then receive the deeplink response via [onActivityResult]
  */
 class uPortLoginActivity : AppCompatActivity() {
@@ -32,7 +31,7 @@ class uPortLoginActivity : AppCompatActivity() {
         // create a DID
         val issuerDID = "did:ethr:${signer.getAddress()}"
 
-        @Suppress("StringLiteralDuplication")
+        /*@Suppress("StringLiteralDuplication")
         val claim = mapOf(
             "verifiable" to mapOf(
                 "email" to mapOf(
@@ -67,7 +66,28 @@ class uPortLoginActivity : AppCompatActivity() {
                     "country" to null
                 )
             )
-        )
+        )*/
+
+        val claim = ClaimsRequestParams()
+            .addVerifiable(
+                "email",
+                VerifiableParams(
+                    "We need to be able to email you",
+                    true
+                )
+                    .addIssuer("did:web:uport.claims", "https://uport.claims/email")
+                    .addIssuer("did:web:sobol.io", "https://sobol.io/verify")
+            )
+            .addVerifiable(
+                "nationalIdentity",
+                VerifiableParams(
+                    "To legally be able to open your account"
+                )
+                    .addIssuer("did:web:idverifier.claims", "https://idverifier.example")
+            )
+            .addUserInfo("name", UserInfoParams("Show your name to other users", true))
+            .addUserInfo("country", UserInfoParams("Show your country to other users", true))
+            .build()
 
         // create the request JWT
         val cred = Credentials(issuerDID, signer)

@@ -566,4 +566,52 @@ class CredentialsTest {
             isInstanceOf(JWTAuthenticationException::class)
         }
     }
+
+    @Test
+    fun `claims request params builds request successfully`() = runBlocking {
+        val claim = ClaimsRequestParams()
+            .addVerifiable(
+                "email",
+                VerifiableParams(
+                    "We need to be able to email you",
+                    true
+                )
+                    .addIssuer("did:web:uport.claims", "https://uport.claims/email")
+                    .addIssuer("did:web:sobol.io", "https://sobol.io/verify")
+            )
+            .addVerifiable(
+                "nationalIdentity",
+                VerifiableParams(
+                    "To legally be able to open your account"
+                )
+                    .addIssuer("did:web:idverifier.claims", "https://idverifier.example")
+            )
+            .addUserInfo("name", UserInfoParams("Show your name to other users", true))
+            .addUserInfo("country", UserInfoParams("Show your country to other users", true))
+            .build()
+
+        val params = SelectiveDisclosureRequestParams(
+            requested = listOf("name", "country"),
+            callbackUrl = "myapp://get-back-to-me-with-response.url",
+            claims = claim
+        )
+
+        val load = buildPayloadForShareReq(params)
+
+        assertThat((load.get("claims") as Map<*, *>).containsKey("verifiable")).isEqualTo(true)
+        assertThat((load.get("claims") as Map<*, *>).containsKey("user_info")).isEqualTo(true)
+
+        assertThat(((load.get("claims") as Map<*, *>).get("verifiable") as Map<*, *>).containsKey("email")).isEqualTo(
+            true
+        )
+        assertThat(((load.get("claims") as Map<*, *>).get("verifiable") as Map<*, *>).containsKey("nationalIdentity")).isEqualTo(
+            true
+        )
+
+        assertThat(((load.get("claims") as Map<*, *>).get("user_info") as Map<*, *>).containsKey("name")).isEqualTo(true)
+        assertThat(((load.get("claims") as Map<*, *>).get("user_info") as Map<*, *>).containsKey("country")).isEqualTo(
+            true
+        )
+
+    }
 }
