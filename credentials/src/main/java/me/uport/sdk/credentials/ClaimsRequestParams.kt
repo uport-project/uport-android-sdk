@@ -9,8 +9,8 @@ package me.uport.sdk.credentials
  */
 class ClaimsRequestParams {
 
-    private val verifiableMap: MutableMap<String, Any> = mutableMapOf()
-    private val userInfoMap: MutableMap<String, Any> = mutableMapOf()
+    private val verifiableMap: MutableMap<String, Any?> = mutableMapOf()
+    private val userInfoMap: MutableMap<String, Any?> = mutableMapOf()
 
     /**
      * This adds a unique record in the verifiable object
@@ -18,8 +18,8 @@ class ClaimsRequestParams {
      * Values will be overwritten if this method is called more than once with the same type
      *
      */
-    fun addVerifiable(type: String, params: VerifiableParams): ClaimsRequestParams {
-        verifiableMap.put(type, params.getMap())
+    fun addVerifiable(type: String, params: VerifiableParams?): ClaimsRequestParams {
+        verifiableMap.put(type, params?.getMap())
         return this
     }
 
@@ -29,8 +29,8 @@ class ClaimsRequestParams {
      * Values will be overwritten if this method is called more than once with the same type
      *
      */
-    fun addUserInfo(type: String, params: UserInfoParams): ClaimsRequestParams {
-        userInfoMap.put(type, params.getMap())
+    fun addUserInfo(type: String, params: UserInfoParams?): ClaimsRequestParams {
+        userInfoMap.put(type, params?.getMap())
         return this
     }
 
@@ -38,8 +38,8 @@ class ClaimsRequestParams {
      * Returns the final map which can be used in a selective disclosure request
      *
      */
-    fun build(): Map<String, Any?>? {
-        val payload: MutableMap<String, Any> = mutableMapOf()
+    fun build(): Map<String, Any?> {
+        val payload: MutableMap<String, Any?> = mutableMapOf()
         payload["verifiable"] = verifiableMap
         payload["user_info"] = userInfoMap
         return payload
@@ -57,7 +57,7 @@ data class VerifiableParams(
      * Short string explaining why you need this
      *
      */
-    private val reason: String,
+    private val reason: String? = null,
 
     /**
      * [**optional**]
@@ -67,8 +67,8 @@ data class VerifiableParams(
     private val essential: Boolean = false
 ) {
 
-    private val params: MutableMap<String, Any> = mutableMapOf()
-    private val issuers: MutableList<Issuer> = mutableListOf()
+    private val params: MutableMap<String, Any?> = mutableMapOf()
+    private val issuers: MutableList<Issuer?> = mutableListOf()
 
     /**
      * This adds records to the array of issuers
@@ -83,7 +83,7 @@ data class VerifiableParams(
      * Returns a Mutable map of the a verifiable's params
      *
      */
-    fun getMap(): MutableMap<String, Any> {
+    fun getMap(): MutableMap<String, Any?> {
         params["iss"] = issuers
         params["reason"] = reason
         params["essential"] = essential
@@ -102,7 +102,7 @@ data class UserInfoParams(
      * Short string explaining why you need this
      *
      */
-    private val reason: String,
+    private val reason: String? = null,
 
     /**
      * [**optional**]
@@ -113,13 +113,13 @@ data class UserInfoParams(
 
 ) {
 
-    private val params: MutableMap<String, Any> = mutableMapOf()
+    private val params: MutableMap<String, Any?> = mutableMapOf()
 
     /**
      * Returns a Mutable map of the user_info params
      *
      */
-    fun getMap(): MutableMap<String, Any> {
+    fun getMap(): MutableMap<String, Any?> {
         params["reason"] = reason
         params["essential"] = essential
         return params
