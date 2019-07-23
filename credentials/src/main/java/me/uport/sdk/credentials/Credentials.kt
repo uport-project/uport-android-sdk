@@ -2,11 +2,13 @@ package me.uport.sdk.credentials
 
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.credentials.model.VerifiableCredentialParams
 import me.uport.sdk.jwt.InvalidJWTException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.JWTUtils.Companion.normalizeKnownDID
 import me.uport.sdk.jwt.model.JwtHeader
+import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.signer.Signer
 
@@ -151,7 +153,58 @@ class Credentials(
         payload["claim"] = claim
         payload["vc"] = verifiedClaims ?: emptyList<String>()
         payload["callback"] = callbackUrl ?: ""
+
         return this.signJWT(payload, expiresInSeconds ?: 600L)
+    }
+
+    /**
+     * Creates a W3C compliant verifiable credential serialized as a JWT ().
+     *
+     * @param subject the subject of the claim in the [credential]
+     *      This becomes the `sub` field in the JWT
+     * @param credential the credential details; contains the claim being made about the [subject]
+     *      This becomes the `vc` field in the JWT
+     * @param notValidBefore [**optional**] the UNIX timestamp that marks the beginning of the validity period.
+     *      If this is not specified, the current timestamp is used as given by [clock]
+     *      This becomes the `nbf` field of the JWT. It is measured in seconds.
+     * @param validityPeriod [**optional**] the number of seconds of validity of this credential.
+     *      This influences the `exp` field in the JWT
+     *      If this is negative, there will be no expiry date set on the credential.
+     * @param audience [**optional**] the intended audience of this credential.
+     *      This results in the `aud` field of the JWT. If it is `null`, no audience will be set for the JWT.
+     * @param credentialId [**optional**] the ID of this credential.
+     *      This becomes the `jti` field in the resulting JWT.
+     */
+    suspend fun createVerifiableCredential(
+        subject: String,
+        credential: VerifiableCredentialParams,
+        notValidBefore: Long = clock.nowMs() / 1000L,
+        validityPeriod: Long = -1L,
+        audience: String? = null,
+        credentialId: String? = null
+    ): String {
+
+        val payload = mutableMapOf<String, Any>()
+        payload["sub"] = subject
+        payload["vc"] = credential
+        payload["nbf"] = notValidBefore
+        payload["iat"] = notValidBefore //for backward compatibility
+        if (validityPeriod >= 0) {
+            val exp = notValidBefore + validityPeriod
+            payload["exp"] = exp
+        }
+        if (audience != null) {
+            payload["aud"] = audience
+        }
+        if (credentialId != null) {
+            payload["jti"] = credentialId
+        }
+
+        return this.signJWT(
+            payload = payload,
+            expiresInSeconds = validityPeriod,
+            algorithm = ES256K
+        )
     }
 
 
@@ -165,14 +218,14 @@ class Credentials(
      */
     suspend fun verifyDisclosure(token: String): UportProfile {
 
-        val payload = JWTTools().verify(token, aud = this.did)
+        val payload = JWTTools().verify(token, audience = this.did)
 
         val valid = mutableListOf<JwtPayload>()
         val invalid = mutableListOf<String>()
 
         payload.verified?.forEach {
             try {
-                valid.add(JWTTools().verify(it, aud = this.did))
+                valid.add(JWTTools().verify(it, audience = this.did))
             } catch (e: InvalidJWTException) {
                 e.printStackTrace()
                 invalid.add(it)
@@ -204,7 +257,7 @@ class Credentials(
      *
      */
     suspend fun authenticateDisclosure(token: String): JwtPayload {
-        val payload = JWTTools().verify(token, auth = true, aud = this.did)
+        val payload = JWTTools().verify(token, auth = true, audience = this.did)
 
         if (payload.req == null) {
             throw JWTAuthenticationException("Challenge was not included in response")
@@ -232,9 +285,13 @@ class Credentials(
      *  @param expiresInSeconds _optional_ number of seconds of validity of the JWT. This parameter
      *              is ignored if the [payload] already contains an `exp` field
      */
-    suspend fun signJWT(payload: Map<String, Any>, expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS): String {
+    suspend fun signJWT(
+        payload: Map<String, Any>,
+        expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS,
+        algorithm: String? = null
+    ): String {
         val normDID = normalizeKnownDID(this.did)
-        val alg = if (normDID.startsWith("did:uport:")) JwtHeader.ES256K else JwtHeader.ES256K_R
+        val alg = algorithm ?: if (normDID.startsWith("did:uport:")) JwtHeader.ES256K else JwtHeader.ES256K_R
         return JWTTools(clock).createJWT(
             payload,
             normDID,
@@ -245,3 +302,4 @@ class Credentials(
     }
 
 }
+

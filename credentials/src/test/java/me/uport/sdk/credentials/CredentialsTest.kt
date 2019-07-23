@@ -5,7 +5,9 @@ import assertk.assertions.*
 import io.mockk.coEvery
 import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
+import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
+import me.uport.sdk.credentials.model.VerifiableCredentialParams
 import me.uport.sdk.ethrdid.EthrDIDDocument
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -19,6 +21,7 @@ import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDDocument
 import me.uport.sdk.uportdid.UportDIDResolver
 import org.junit.Test
+import kotlin.math.floor
 
 class CredentialsTest {
 
@@ -84,6 +87,39 @@ class CredentialsTest {
     }
 
     @Test
+    fun `create basic verifiable credential`() = runBlocking {
+
+        val signer = KPSigner("74894f8853f90e6e3d6dfdd343eb0eb70cca06e552ed8af80adadcc573b35da3")
+        val did = "did:ethr:${signer.getAddress()}"
+
+        val cred = Credentials(did, signer, clock = object : ITimeProvider {
+            override fun nowMs() = 1485321133000L
+        })
+        val jwt = cred.createVerifiableCredential(
+            subject = "did:ethr:0x12345678",
+            credential = VerifiableCredentialParams(
+                context = listOf(
+                    "https://www.w3.org/2018/credentials/v1",
+                    "https://www.w3.org/2018/credentials/examples/v1"
+                ),
+                type = listOf(
+                    "VerifiableCredential", "UniversityDegreeCredential"
+                ),
+                credentialSubject = mapOf(
+                    "degree" to mapOf(
+                        "type" to "BachelorDegree",
+                        "name" to "Baccalauréat en musiques numériques"
+                    )
+                )
+            ),
+            notValidBefore = 1562950282801L,
+            credentialId = "http://example.edu/credentials/3732"
+        )
+
+        assertThat(jwt).isEqualTo("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJkaWQ6ZXRocjoweDEyMzQ1Njc4IiwidmMiOnsidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsIlVuaXZlcnNpdHlEZWdyZWVDcmVkZW50aWFsIl0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7ImRlZ3JlZSI6eyJ0eXBlIjoiQmFjaGVsb3JEZWdyZWUiLCJuYW1lIjoiQmFjY2FsYXVyw6lhdCBlbiBtdXNpcXVlcyBudW3DqXJpcXVlcyJ9fSwiQGNvbnRleHQiOlsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy9leGFtcGxlcy92MSJdfSwibmJmIjoxNTYyOTUwMjgyODAxLCJpYXQiOjE0ODUzMjExMzMsImp0aSI6Imh0dHA6Ly9leGFtcGxlLmVkdS9jcmVkZW50aWFscy8zNzMyIiwiaXNzIjoiZGlkOmV0aHI6MHhiYzNhZTU5YmM3NmY4OTQ4MjI2MjJjZGVmN2EyMDE4ZGJlMzUzODQwIn0.P2sVUSe9-CJ20iFyT57xG05TEf2fEbmZmb7n6yWEnyhaHxGBf6LvTUohwxNhEqqciagbIanCwBrQijbXN9Qa8Q")
+    }
+
+    @Test
     fun `signJWT uses the correct algorithm for non-uport did`() = runBlocking {
 
         val cred = Credentials("0xf3beac30c498d9e26865f34fcaa57dbb935b0d74", KPSigner("0x1234"))
@@ -96,7 +132,7 @@ class CredentialsTest {
 
     @Test
     fun `selective disclosure request contains required fields`() = runBlocking {
-        val nowSeconds = Math.floor(SystemTimeProvider.nowMs() / 1000.0).toLong()
+        val nowSeconds = floor(SystemTimeProvider.nowMs() / 1000.0).toLong()
         val cred = Credentials("did:example:issuer", KPSigner("0x1234"))
 
         val jwt = cred.createDisclosureRequest(SelectiveDisclosureRequestParams(emptyList(), ""))
