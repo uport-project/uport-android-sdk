@@ -208,6 +208,34 @@ class Credentials(
         )
     }
 
+    suspend fun createPresentation(
+        vp: PresentationParams,
+        notValidBefore: Long = clock.nowMs() / 1000L,
+        validityPeriod: Long = -1L,
+        audience: String? = null
+    ): String {
+        val payload = mutableMapOf<String, Any>()
+        payload["vp"] = vp
+        payload["nbf"] = notValidBefore
+        payload["iat"] = notValidBefore //for backward compatibility
+        if (validityPeriod >= 0) {
+            val exp = notValidBefore + validityPeriod
+            payload["exp"] = exp
+        }
+        if (audience != null) {
+            payload["aud"] = audience
+        }
+        if (vp.id != null) {
+            payload["jti"] = vp.id
+        }
+
+        return this.signJWT(
+            payload = payload,
+            expiresInSeconds = validityPeriod,
+            algorithm = ES256K
+        )
+    }
+
 
     /**
      * Verify and return profile from a
