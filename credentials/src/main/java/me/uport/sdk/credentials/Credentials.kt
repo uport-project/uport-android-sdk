@@ -159,7 +159,8 @@ class Credentials(
     }
 
     /**
-     * Creates a W3C compliant verifiable credential serialized as a JWT ().
+     * Creates a W3C compliant [verifiable credential](https://w3c.github.io/vc-data-model/#credentials)
+     * serialized as a JWT.
      *
      * @param subject the subject of the claim in the [credential]
      *      This becomes the `sub` field in the JWT
@@ -215,6 +216,17 @@ class Credentials(
         )
     }
 
+    /**
+     * Creates a W3C compliant [verifiable presentation](https://w3c.github.io/vc-data-model/#presentations)
+     * serialized as a JWT.
+     *
+     * @param vp encapsulates the core presentation parameters
+     * @param notValidBefore the `issuanceDate` as a unix timestamp (seconds). Defaults to the clock time
+     * (translates to `nbf` and `iat`)
+     * @param validityPeriod the number of seconds of validity of the resulting JWT. (influences `exp`)
+     * @param audience the intended audience of the resulting JWT (translates to `aud`)
+     * @param id an optional ID of the presentation (translates to `jti`)
+     */
     suspend fun createPresentation(
         vp: PresentationParams,
         notValidBefore: Long = clock.nowMs() / 1000L,
