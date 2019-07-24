@@ -219,14 +219,14 @@ class Credentials(
         vp: PresentationParams,
         notValidBefore: Long = clock.nowMs() / 1000L,
         validityPeriod: Long = -1L,
-        audience: String? = null
+        audience: String? = null,
+        id: String? = null
     ): String {
         val payload = mutableMapOf<String, Any>()
 
         val processedPresentation = vp.copy(
             context = vp.context.toMutableSet().apply { add("https://www.w3.org/2018/credentials/v1") }.toList(),
-            type = vp.type.toMutableSet().apply { add("VerifiablePresentation") }.toList(),
-            id = null
+            type = vp.type.toMutableSet().apply { add("VerifiablePresentation") }.toList()
         )
         payload["vp"] = processedPresentation
         payload["nbf"] = notValidBefore
@@ -238,8 +238,8 @@ class Credentials(
         if (audience != null) {
             payload["aud"] = audience
         }
-        if (vp.id != null) {
-            payload["jti"] = vp.id
+        if (id != null) {
+            payload["jti"] = id
         }
 
         return this.signJWT(

@@ -17,7 +17,5 @@ data class PresentationParams(
 
     @Required
     @SerialName("@context")
-    val context: List<String> = emptyList(),
-
-    val id: String? = null
+    val context: List<String> = emptyList()
 )
