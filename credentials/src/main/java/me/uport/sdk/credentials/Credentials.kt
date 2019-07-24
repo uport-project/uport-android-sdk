@@ -2,8 +2,8 @@ package me.uport.sdk.credentials
 
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.credentials.model.PresentationParams
 import me.uport.sdk.credentials.model.CredentialParams
+import me.uport.sdk.credentials.model.PresentationParams
 import me.uport.sdk.jwt.InvalidJWTException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
@@ -187,7 +187,14 @@ class Credentials(
 
         val payload = mutableMapOf<String, Any>()
         payload["sub"] = subject
-        payload["vc"] = credential
+
+        //add defaults if they are not set
+        val processedCredential = credential.copy(
+            context = credential.context.toMutableSet().apply { add("https://www.w3.org/2018/credentials/v1") }.toList(),
+            type = credential.type.toMutableSet().apply { add("VerifiableCredential") }.toList()
+        )
+
+        payload["vc"] = processedCredential
         payload["nbf"] = notValidBefore
         payload["iat"] = notValidBefore //for backward compatibility
         if (validityPeriod >= 0) {
@@ -215,7 +222,13 @@ class Credentials(
         audience: String? = null
     ): String {
         val payload = mutableMapOf<String, Any>()
-        payload["vp"] = vp
+
+        val processedPresentation = vp.copy(
+            context = vp.context.toMutableSet().apply { add("https://www.w3.org/2018/credentials/v1") }.toList(),
+            type = vp.type.toMutableSet().apply { add("VerifiablePresentation") }.toList(),
+            id = null
+        )
+        payload["vp"] = processedPresentation
         payload["nbf"] = notValidBefore
         payload["iat"] = notValidBefore //for backward compatibility
         if (validityPeriod >= 0) {

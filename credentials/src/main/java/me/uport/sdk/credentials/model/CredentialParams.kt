@@ -10,7 +10,7 @@ data class CredentialParams(
 
     @Required
     @SerialName("type")
-    val type: List<String> = listOf("VerifiableCredential"),
+    val type: List<String> = emptyList(),
 
     @Required
     @SerialName("credentialSubject")
@@ -19,6 +19,6 @@ data class CredentialParams(
 
     @Required
     @SerialName("@context")
-    val context: List<String> = listOf("https://www.w3.org/2018/credentials/v1")
+    val context: List<String> = emptyList()
 
 )

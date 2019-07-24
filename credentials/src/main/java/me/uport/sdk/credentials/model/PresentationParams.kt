@@ -13,11 +13,11 @@ data class PresentationParams(
 
     @Required
     @SerialName("type")
-    val type: List<String> = listOf("VerifiablePresentation"),
+    val type: List<String> = emptyList(),
 
     @Required
     @SerialName("@context")
-    val context: List<String> = listOf("https://www.w3.org/2018/credentials/v1"),
+    val context: List<String> = emptyList(),
 
     val id: String? = null
 )
