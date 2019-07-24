@@ -3,14 +3,14 @@ package me.uport.sdk
 import android.annotation.SuppressLint
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
-import me.uport.sdk.httpsdid.HttpsDIDResolver
-import me.uport.sdk.identity.*
+import me.uport.sdk.httpsdid.WebDIDResolver
+import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.AccountType
+import me.uport.sdk.identity.HDAccount
+import me.uport.sdk.identity.HDAccountCreator
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
@@ -62,15 +62,21 @@ object Uport {
 
         accountStorage = SharedPrefsAccountStorage(prefs)
 
-        UniversalDID.registerResolver(UportDIDResolver(JsonRPC(configuration.network?.rpcUrl
-                ?: Networks.rinkeby.rpcUrl)))
+        UniversalDID.registerResolver(
+            UportDIDResolver(
+                JsonRPC(
+                    configuration.network?.rpcUrl
+                        ?: Networks.rinkeby.rpcUrl
+                )
+            )
+        )
 
         val ethrDidRpcUrl = configuration.network?.rpcUrl ?: Networks.mainnet.rpcUrl
         val ethrDidRegistry = configuration.network?.ethrDidRegistry
-                ?: Networks.mainnet.ethrDidRegistry
+            ?: Networks.mainnet.ethrDidRegistry
         UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(ethrDidRpcUrl), ethrDidRegistry))
 
-        UniversalDID.registerResolver(HttpsDIDResolver())
+        UniversalDID.registerResolver(WebDIDResolver())
 
         migrateAccounts(oldPrefs, accountStorage)
 
@@ -94,8 +100,7 @@ object Uport {
 
         val newAccount = if (seedPhrase.isNullOrBlank()) {
             accountCreator.createAccount(networkId)
-        }
-        else {
+        } else {
             accountCreator.importAccount(networkId, seedPhrase)
         }
         accountStorage.upsert(newAccount)
@@ -141,27 +146,27 @@ object Uport {
 
         // convert all accounts to HDAccount and save in new account manager
         oldPrefs.getStringSet(KEY_ACCOUNTS, emptySet())
-                .orEmpty()
-                .forEach { serialized ->
-                    val account = try {
-                        HDAccount.fromJson(serialized)
-                    } catch (ex: Exception) {
-                        null
-                    }
-
-                    account?.let {
-                        val accountCopy = it.copy(type = AccountType.HDKeyPair)
-                        accountStorage.upsert(accountCopy)
-                    }
+            .orEmpty()
+            .forEach { serialized ->
+                val account = try {
+                    HDAccount.fromJson(serialized)
+                } catch (ex: Exception) {
+                    null
                 }
+
+                account?.let {
+                    val accountCopy = it.copy(type = AccountType.HDKeyPair)
+                    accountStorage.upsert(accountCopy)
+                }
+            }
 
         // save old default account handle to new storage
         accountStorage.setAsDefault(oldPrefs.getString(KEY_DEFAULT_ACCOUNT, "") ?: "")
 
         // remove keys from the old prefs
         oldPrefs.edit()
-                .remove(KEY_ACCOUNTS)
-                .remove(KEY_DEFAULT_ACCOUNT)
-                .apply()
+            .remove(KEY_ACCOUNTS)
+            .remove(KEY_DEFAULT_ACCOUNT)
+            .apply()
     }
 }
