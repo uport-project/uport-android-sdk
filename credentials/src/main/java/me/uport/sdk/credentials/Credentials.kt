@@ -2,13 +2,14 @@ package me.uport.sdk.credentials
 
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.credentials.model.VerifiableCredentialParams
+import me.uport.sdk.credentials.model.PresentationParams
+import me.uport.sdk.credentials.model.CredentialParams
 import me.uport.sdk.jwt.InvalidJWTException
 import me.uport.sdk.jwt.JWTTools
 import me.uport.sdk.jwt.JWTTools.Companion.DEFAULT_JWT_VALIDITY_SECONDS
 import me.uport.sdk.jwt.JWTUtils.Companion.normalizeKnownDID
-import me.uport.sdk.jwt.model.JwtHeader
 import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K
+import me.uport.sdk.jwt.model.JwtHeader.Companion.ES256K_R
 import me.uport.sdk.jwt.model.JwtPayload
 import me.uport.sdk.signer.Signer
 
@@ -172,16 +173,16 @@ class Credentials(
      *      If this is negative, there will be no expiry date set on the credential.
      * @param audience [**optional**] the intended audience of this credential.
      *      This results in the `aud` field of the JWT. If it is `null`, no audience will be set for the JWT.
-     * @param credentialId [**optional**] the ID of this credential.
+     * @param id [**optional**] the ID of this credential.
      *      This becomes the `jti` field in the resulting JWT.
      */
     suspend fun createVerifiableCredential(
         subject: String,
-        credential: VerifiableCredentialParams,
+        credential: CredentialParams,
         notValidBefore: Long = clock.nowMs() / 1000L,
         validityPeriod: Long = -1L,
         audience: String? = null,
-        credentialId: String? = null
+        id: String? = null
     ): String {
 
         val payload = mutableMapOf<String, Any>()
@@ -196,8 +197,8 @@ class Credentials(
         if (audience != null) {
             payload["aud"] = audience
         }
-        if (credentialId != null) {
-            payload["jti"] = credentialId
+        if (id != null) {
+            payload["jti"] = id
         }
 
         return this.signJWT(
@@ -291,7 +292,7 @@ class Credentials(
         algorithm: String? = null
     ): String {
         val normDID = normalizeKnownDID(this.did)
-        val alg = algorithm ?: if (normDID.startsWith("did:uport:")) JwtHeader.ES256K else JwtHeader.ES256K_R
+        val alg = algorithm ?: if (normDID.startsWith("did:uport:")) ES256K else ES256K_R
         return JWTTools(clock).createJWT(
             payload,
             normDID,

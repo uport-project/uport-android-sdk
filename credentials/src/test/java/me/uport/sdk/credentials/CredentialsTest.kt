@@ -7,7 +7,8 @@ import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.ITimeProvider
 import me.uport.sdk.core.SystemTimeProvider
-import me.uport.sdk.credentials.model.VerifiableCredentialParams
+import me.uport.sdk.credentials.model.PresentationParams
+import me.uport.sdk.credentials.model.CredentialParams
 import me.uport.sdk.ethrdid.EthrDIDDocument
 import me.uport.sdk.ethrdid.EthrDIDResolver
 import me.uport.sdk.jsonrpc.JsonRPC
@@ -97,7 +98,7 @@ class CredentialsTest {
         })
         val jwt = cred.createVerifiableCredential(
             subject = "did:ethr:0x12345678",
-            credential = VerifiableCredentialParams(
+            credential = CredentialParams(
                 context = listOf(
                     "https://www.w3.org/2018/credentials/v1",
                     "https://www.w3.org/2018/credentials/examples/v1"
@@ -112,11 +113,10 @@ class CredentialsTest {
                     )
                 )
             ),
-            notValidBefore = 1562950282801L,
-            credentialId = "http://example.edu/credentials/3732"
+            id = "http://example.edu/credentials/3732"
         )
 
-        assertThat(jwt).isEqualTo("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJkaWQ6ZXRocjoweDEyMzQ1Njc4IiwidmMiOnsidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsIlVuaXZlcnNpdHlEZWdyZWVDcmVkZW50aWFsIl0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7ImRlZ3JlZSI6eyJ0eXBlIjoiQmFjaGVsb3JEZWdyZWUiLCJuYW1lIjoiQmFjY2FsYXVyw6lhdCBlbiBtdXNpcXVlcyBudW3DqXJpcXVlcyJ9fSwiQGNvbnRleHQiOlsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy9leGFtcGxlcy92MSJdfSwibmJmIjoxNTYyOTUwMjgyODAxLCJpYXQiOjE0ODUzMjExMzMsImp0aSI6Imh0dHA6Ly9leGFtcGxlLmVkdS9jcmVkZW50aWFscy8zNzMyIiwiaXNzIjoiZGlkOmV0aHI6MHhiYzNhZTU5YmM3NmY4OTQ4MjI2MjJjZGVmN2EyMDE4ZGJlMzUzODQwIn0.P2sVUSe9-CJ20iFyT57xG05TEf2fEbmZmb7n6yWEnyhaHxGBf6LvTUohwxNhEqqciagbIanCwBrQijbXN9Qa8Q")
+        assertThat(jwt).isEqualTo("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJkaWQ6ZXRocjoweDEyMzQ1Njc4IiwidmMiOnsidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCIsIlVuaXZlcnNpdHlEZWdyZWVDcmVkZW50aWFsIl0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7ImRlZ3JlZSI6eyJ0eXBlIjoiQmFjaGVsb3JEZWdyZWUiLCJuYW1lIjoiQmFjY2FsYXVyw6lhdCBlbiBtdXNpcXVlcyBudW3DqXJpcXVlcyJ9fSwiQGNvbnRleHQiOlsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy9leGFtcGxlcy92MSJdfSwibmJmIjoxNDg1MzIxMTMzLCJpYXQiOjE0ODUzMjExMzMsImp0aSI6Imh0dHA6Ly9leGFtcGxlLmVkdS9jcmVkZW50aWFscy8zNzMyIiwiaXNzIjoiZGlkOmV0aHI6MHhiYzNhZTU5YmM3NmY4OTQ4MjI2MjJjZGVmN2EyMDE4ZGJlMzUzODQwIn0.W0TMJElntSsdxTIFZvDerihBY15e7jbRGs8dSo9pSmpwR67Xe83X7dY0WhuufADc06Cg2cxAk17ayLWQ7M2Vrw")
     }
 
     @Test
