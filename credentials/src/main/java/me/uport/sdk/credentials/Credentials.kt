@@ -186,7 +186,7 @@ class Credentials(
         id: String? = null
     ): String {
 
-        val payload = mutableMapOf<String, Any>()
+        val payload = mutableMapOf<String, Any?>()
         payload["sub"] = subject
 
         //add defaults if they are not set
@@ -197,7 +197,7 @@ class Credentials(
 
         payload["vc"] = processedCredential
         payload["nbf"] = notValidBefore
-        payload["iat"] = notValidBefore //for backward compatibility
+        payload["iat"] = null
         if (validityPeriod >= 0) {
             val exp = notValidBefore + validityPeriod
             payload["exp"] = exp
@@ -234,7 +234,7 @@ class Credentials(
         audience: String? = null,
         id: String? = null
     ): String {
-        val payload = mutableMapOf<String, Any>()
+        val payload = mutableMapOf<String, Any?>()
 
         val processedPresentation = vp.copy(
             context = vp.context.toMutableSet().apply { add("https://www.w3.org/2018/credentials/v1") }.toList(),
@@ -340,7 +340,7 @@ class Credentials(
      *              is ignored if the [payload] already contains an `exp` field
      */
     suspend fun signJWT(
-        payload: Map<String, Any>,
+        payload: Map<String, Any?>,
         expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS,
         algorithm: String? = null
     ): String {
