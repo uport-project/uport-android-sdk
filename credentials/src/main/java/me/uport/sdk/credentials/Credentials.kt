@@ -242,7 +242,7 @@ class Credentials(
         )
         payload["vp"] = processedPresentation
         payload["nbf"] = notValidBefore
-        payload["iat"] = notValidBefore //for backward compatibility
+        payload["iat"] = null
         if (validityPeriod >= 0) {
             val exp = notValidBefore + validityPeriod
             payload["exp"] = exp
