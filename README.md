@@ -35,7 +35,7 @@ allprojects {
 In your application `build.gradle` file, add:
 
 ```groovy
-def uport_sdk_version = "v0.4.2"
+def uport_sdk_version = "v0.5.0"
 dependencies {
     //...
     // core SDK
@@ -146,7 +146,7 @@ val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 ### off-chain interaction
 
-Off-chain interaction is essentially signing and verifying JWTs using uport-specific JWT algorithms.
+Off-chain interaction is essentially signing and verifying JWTs using specific JWT algorithms.
 Verification of such tokens implies resolving a 
 [Decentralized Identity (DID) document](https://github.com/uport-project/specs/blob/develop/pki/diddocument.md)
 that will contain the keys or address that should match a JWT signature.
@@ -212,11 +212,11 @@ val decryptedMessage = Crypto.decrypt(receivedBundle, recipientSecretKey)
 
 ## Dependencies
 
-This library uses [KEthereum](https://github.com/komputing/KEthereum) for a lot of the 
-ethereum related work.
+* These libraries use [KEthereum](https://github.com/komputing/KEthereum) for a lot of the ethereum related work.
+* The smart-contract binding code is generated using [bivrost-kotlin](https://github.com/gnosis/bivrost-kotlin)
+* The off-chain/JWT interactions rely on [kotlin-did-jwt](https://github.com/uport-project/kotlin-did-jwt)
+* Protected Key management is done by [uport-android-signer](https://github.com/uport-project/uport-android-signer) 
 
-The smart-contract binding code is generated using
-[bivrost-kotlin](https://github.com/gnosis/bivrost-kotlin)
 
 Currently there is a transient dependency on [spongycastle](https://rtyley.github.io/spongycastle/)
 but that may be removed when pure kotlin implementations of the required cryptographic
@@ -230,9 +230,15 @@ we use for making changes to this repo.
 
 
 ## Changelog
-* 0.5.x - upcoming
-    * separated signer, common, jwt, did-resolvers
-    * `Account` is now an interface and the default implementation used is `HDAccount`
+* 0.5.0
+    * [breaking][bugfix] align JWT signature to spec (#93)
+    * [breaking][support] externalized did-jwt and signer modules (#97)
+    * [breaking][feature]`Account` is now an interface and the default implementation used is `HDAccount` (#89)
+    * [feature] easier configuration of JsonRPC endpoints (#91)
+    * [feature] add `verifyDisclosure()` method (#96)
+    * [feature] add `authenticateDisclosureResponse()` (#98)
+    * [feature] add W3C methods to create Verifiable Credential and Presentation (#100)
+    * [support] reduce UI test flakyness (#92)
 
 * 0.4.2
     * updated infura JsonRPC endpoint URLs.
