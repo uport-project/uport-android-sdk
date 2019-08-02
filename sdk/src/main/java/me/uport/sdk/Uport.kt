@@ -1,21 +1,16 @@
 package me.uport.sdk
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import me.uport.sdk.core.EthNetwork
-import me.uport.sdk.core.IFuelTokenProvider
 import me.uport.sdk.core.Networks
 import me.uport.sdk.ethrdid.EthrDIDResolver
-import me.uport.sdk.httpsdid.HttpsDIDResolver
+import me.uport.sdk.httpsdid.WebDIDResolver
 import me.uport.sdk.identity.Account
-import me.uport.sdk.identity.AccountCreator
-import me.uport.sdk.identity.AccountCreatorCallback
-import me.uport.sdk.identity.KPAccountCreator
+import me.uport.sdk.identity.AccountType
+import me.uport.sdk.identity.HDAccount
+import me.uport.sdk.identity.HDAccountCreator
 import me.uport.sdk.jsonrpc.JsonRPC
 import me.uport.sdk.universaldid.UniversalDID
 import me.uport.sdk.uportdid.UportDIDResolver
@@ -27,35 +22,24 @@ object Uport {
 
     private lateinit var config: Configuration
 
+    private lateinit var oldPrefs: SharedPreferences
+
     private lateinit var prefs: SharedPreferences
 
-    private lateinit var accountCreator: AccountCreator
+    private lateinit var accountCreator: HDAccountCreator
 
-    private var defaultAccountHandle = ""
+    private lateinit var accountStorage: SharedPrefsAccountStorage
 
-    var defaultAccount: Account?
-        get() = accountStorage?.get(defaultAccountHandle)
+    @Suppress("UnsafeCast")
+    var defaultAccount: HDAccount?
+        get() = accountStorage.getDefaultAccount() as HDAccount?
         set(value) {
-            val newDefault = value?.copy(isDefault = true)
-            @Suppress("LiftReturnOrAssignment")
-            if (newDefault == null) {
-                accountStorage?.delete(defaultAccountHandle)
-                defaultAccountHandle = ""
-            } else {
-                val oldAccounts = accountStorage
-                        ?.all()
-                        ?.map { it.copy(isDefault = false) }
-                        ?: emptyList()
-                accountStorage?.upsertAll(oldAccounts + newDefault)
-                defaultAccountHandle = newDefault.handle
-            }
+            accountStorage.setAsDefault(value?.handle ?: "")
         }
 
-    private var accountStorage: AccountStorage? = null
+    private const val OLD_UPORT_CONFIG: String = "uport_sdk_prefs"
 
-    private const val UPORT_CONFIG: String = "uport_sdk_prefs"
-
-    private const val OLD_DEFAULT_ACCOUNT: String = "default_account"
+    private const val UPORT_CONFIG: String = "uport_sdk_prefs_new"
 
     /**
      * Initialize the Uport SDK.
@@ -70,28 +54,31 @@ object Uport {
 
         val context = config.applicationContext
 
-        accountCreator = KPAccountCreator(context)
+        accountCreator = HDAccountCreator(context)
+
+        oldPrefs = context.getSharedPreferences(OLD_UPORT_CONFIG, MODE_PRIVATE)
 
         prefs = context.getSharedPreferences(UPORT_CONFIG, MODE_PRIVATE)
 
-        accountStorage = SharedPrefsAccountStorage(prefs).apply {
-            this.all().forEach {
-                if (it.isDefault == true) {
-                    defaultAccountHandle = it.handle
-                }
-            }
-        }
+        accountStorage = SharedPrefsAccountStorage(prefs)
 
-        prefs.getString(OLD_DEFAULT_ACCOUNT, "")
-                ?.let { Account.fromJson(it) }
-                ?.let {
-                    accountStorage?.upsert(it.copy(isDefault = true))
-                    prefs.edit().remove(OLD_DEFAULT_ACCOUNT).apply()
-                }
+        UniversalDID.registerResolver(
+            UportDIDResolver(
+                JsonRPC(
+                    configuration.network?.rpcUrl
+                        ?: Networks.rinkeby.rpcUrl
+                )
+            )
+        )
 
-        UniversalDID.registerResolver(UportDIDResolver(JsonRPC(Networks.rinkeby.rpcUrl)))
-        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(Networks.mainnet.rpcUrl)))
-        UniversalDID.registerResolver(HttpsDIDResolver())
+        val ethrDidRpcUrl = configuration.network?.rpcUrl ?: Networks.mainnet.rpcUrl
+        val ethrDidRegistry = configuration.network?.ethrDidRegistry
+            ?: Networks.mainnet.ethrDidRegistry
+        UniversalDID.registerResolver(EthrDIDResolver(JsonRPC(ethrDidRpcUrl), ethrDidRegistry))
+
+        UniversalDID.registerResolver(WebDIDResolver())
+
+        migrateAccounts(oldPrefs, accountStorage)
 
         //TODO: weak, make Configuration into a builder and actually make methods fail when not configured
         initialized = true
@@ -106,30 +93,7 @@ object Uport {
      *
      * To really create a new account, call [deleteAccount] first.
      */
-    @Suppress("TooGenericExceptionCaught")
-    @Deprecated("use the suspend variant of this method")
-    fun createAccount(network: EthNetwork, seedPhrase: String? = null, completion: AccountCreatorCallback) {
-        GlobalScope.launch {
-            try {
-                val account = createAccount(network.networkId, seedPhrase)
-                completion(null, account)
-            } catch (ex: Exception) {
-                completion(ex, Account.blank)
-            }
-
-        }
-    }
-
-    /**
-     * Creates an account (the [defaultAccount])..
-     * For v1 of this SDK, there's only one account supported.
-     * If an account has already been created, that one will be returned.
-     * If the process has already been started before, it will continue where it left off.
-     * The created account is saved as [defaultAccount] before calling back with the result
-     *
-     * To really create a new account, call [deleteAccount] first.
-     */
-    suspend fun createAccount(networkId: String, seedPhrase: String? = null): Account {
+    suspend fun createAccount(networkId: String, seedPhrase: String? = null): HDAccount {
         if (!initialized) {
             throw UportNotInitializedException()
         }
@@ -139,19 +103,22 @@ object Uport {
         } else {
             accountCreator.importAccount(networkId, seedPhrase)
         }
-        accountStorage?.upsert(newAccount)
+        accountStorage.upsert(newAccount)
+
         defaultAccount = defaultAccount ?: newAccount
-        val result = if (newAccount.handle == defaultAccount?.handle) {
-            defaultAccount ?: newAccount
-        } else {
-            newAccount
-        }
-        return result
+
+        return newAccount
     }
 
-    fun getAccount(handle: String) = accountStorage?.get(handle)
+    /**
+     * Fetches the account based on the provided handle
+     */
+    fun getAccount(handle: String) = accountStorage.get(handle)
 
-    fun allAccounts() = accountStorage?.all() ?: emptyList()
+    /**
+     * Fetches all saved accounts
+     */
+    fun allAccounts() = accountStorage.all()
 
     fun deleteAccount(rootHandle: String) {
         if (!initialized) {
@@ -166,21 +133,40 @@ object Uport {
 
     fun deleteAccount(acc: Account) = deleteAccount(acc.handle)
 
-    class Configuration {
+    internal fun migrateAccounts(oldPrefs: SharedPreferences, accountStorage: AccountStorage) {
 
-        lateinit var fuelTokenProvider: IFuelTokenProvider
-        lateinit var applicationContext: Context
+        //declare keys for the old account storage
+        val KEY_ACCOUNTS = "accounts"
+        val KEY_DEFAULT_ACCOUNT = "default_account"
 
-        @Suppress("unused")
-        fun setFuelTokenProvider(provider: IFuelTokenProvider): Configuration {
-            this.fuelTokenProvider = provider
-            return this
+        // only run when associated keys are available
+        if (!oldPrefs.contains(KEY_ACCOUNTS) || !oldPrefs.contains(KEY_DEFAULT_ACCOUNT)) {
+            return
         }
 
-        fun setApplicationContext(context: Context): Configuration {
-            this.applicationContext = context.applicationContext
-            return this
-        }
+        // convert all accounts to HDAccount and save in new account manager
+        oldPrefs.getStringSet(KEY_ACCOUNTS, emptySet())
+            .orEmpty()
+            .forEach { serialized ->
+                val account = try {
+                    HDAccount.fromJson(serialized)
+                } catch (ex: Exception) {
+                    null
+                }
 
+                account?.let {
+                    val accountCopy = it.copy(type = AccountType.HDKeyPair)
+                    accountStorage.upsert(accountCopy)
+                }
+            }
+
+        // save old default account handle to new storage
+        accountStorage.setAsDefault(oldPrefs.getString(KEY_DEFAULT_ACCOUNT, "") ?: "")
+
+        // remove keys from the old prefs
+        oldPrefs.edit()
+            .remove(KEY_ACCOUNTS)
+            .remove(KEY_DEFAULT_ACCOUNT)
+            .apply()
     }
 }

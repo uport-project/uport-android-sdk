@@ -22,7 +22,7 @@ class MainListActivity : AppCompatActivity() {
 
 
     private val features = arrayOf(
-            "Create an Account",
+            "Create an HDAccount",
             "Create a Key",
             "Import a Key",
             "Key Protection",

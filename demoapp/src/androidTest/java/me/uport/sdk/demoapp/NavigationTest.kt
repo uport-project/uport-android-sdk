@@ -33,53 +33,53 @@ class NavigationTest {
     @Test
     fun navigateAllActivities() {
 
-        // check if Create Account Activity is launched
+        // check if CreateAccountActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(0).perform(click())
         intended(hasComponent(CreateAccountActivity::class.java.name))
         pressBack()
 
-        // check if Create Key Activity is launched
+        // check if CreateKeyActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(1).perform(click())
         intended(hasComponent(CreateKeyActivity::class.java.name))
         pressBack()
 
-        // check if Import Key Activity is launched
+        // check if ImportKeyActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(2).perform(click())
         intended(hasComponent(ImportKeyActivity::class.java.name))
         pressBack()
 
-        // check if Key Protection Activity is launched
+        // check if KeyProtectionListActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(3).perform(click())
         intended(hasComponent(KeyProtectionListActivity::class.java.name))
 
-        // check if KeyGuard Protection Activity is launched
+        // check if KeyGuardProtectionActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(0).perform(click())
         intended(hasComponent(KeyGuardProtectionActivity::class.java.name))
         pressBack()
 
-        // check if FingerPrint Protection Activity is launched
+        // check if FingerPrintProtectionActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(1).perform(click())
         intended(hasComponent(FingerPrintProtectionActivity::class.java.name))
         pressBack()
 
-        // back to Main List Activity
+        // back to MainListActivity
         pressBack()
 
-        // check if Sign JWT List Activity is launched
+        // check if SignJWTListActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(4).perform(click())
         intended(hasComponent(SignJWTListActivity::class.java.name))
 
-        // check if Sign JWT with KeyPairSigner Activity is launched
+        // check if SignJWTKeyPairSignerActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(0).perform(click())
         intended(hasComponent(SignJWTKeyPairSignerActivity::class.java.name))
         pressBack()
 
-        // check if Sign JWT with UportHDSigner Activity is launched
+        // check if SignJWTUportHDSignerActivity is launched
         onData(anything()).inAdapterView(withId(R.id.item_list)).atPosition(1).perform(click())
         intended(hasComponent(SignJWTUportHDSignerActivity::class.java.name))
         pressBack()
 
-        // back to Main List Activity
+        // back to MainListActivity
         pressBack()
     }
 }

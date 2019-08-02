@@ -21,7 +21,7 @@ fun getNetworkAndAddressFromDID(did: String?): Pair<String, String> {
     if (did.isNullOrBlank()) { return ("" to "") }
 
     // converts possible ethr DIDs to a Pair of Network and Address
-    val ethrMatchResult = EthrDIDResolver.identityExtractPattern.find(did)
+    val ethrMatchResult =  ethrDIDAddress().find(did)
     if (ethrMatchResult != null) {
         val (address,_) = ethrMatchResult.destructured
         // This demo app only uses the rinkeby network. It is not safe to assume that all `ethrDID`s are used on rinkeby
@@ -38,3 +38,5 @@ fun getNetworkAndAddressFromDID(did: String?): Pair<String, String> {
 
     throw IllegalArgumentException("The provided did ($did) is not valid for this operation")
 }
+
+private fun ethrDIDAddress() = "^did:ethr:(0x[0-9a-fA-F]{40})".toRegex()

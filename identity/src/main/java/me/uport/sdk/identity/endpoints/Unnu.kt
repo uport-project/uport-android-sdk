@@ -85,7 +85,7 @@ class Unnu(private val httpClient: HttpClient = HttpClient()) {
             /**
              * parses a JsonRPC response into an [IdentityInfoJRPCResponse] object
              */
-            fun fromJson(json: String): IdentityInfoJRPCResponse = Json.nonstrict.parse(IdentityInfoJRPCResponse.serializer(), json)
+            fun fromJson(json: String): IdentityInfoJRPCResponse = Json.nonstrict.parse(serializer(), json)
         }
     }
 

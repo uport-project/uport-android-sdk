@@ -1,6 +1,7 @@
+@file:Suppress("DEPRECATION")
+
 package me.uport.sdk.signer
 
-import com.uport.sdk.signer.Signer
 import me.uport.sdk.MetaIdentityManager
 import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.model.Address
@@ -10,6 +11,10 @@ import pm.gnosis.model.Solidity
 import pm.gnosis.utils.hexToByteArray
 import java.math.BigInteger
 
+/**
+ * A signer implementation that can wrap a transaction into a meta transaction
+ */
+@Deprecated("uPort meta transactions are no longer supported")
 class MetaIdentitySigner(
         private val wrappedSigner: TxRelaySigner, //this may become more generic
         private val proxyAddress: String,
@@ -48,11 +53,11 @@ class MetaIdentitySigner(
                 wrappedSigner.getAddress(),
                 proxyAddress,
                 finalDestination,
-                unsignedTx.value,
-                unsignedTx.input.toByteArray()
+                unsignedTx.value ?: BigInteger.ZERO,
+                unsignedTx.input
         )
 
-        txCopy.input = newInput.hexToByteArray().toList()
+        txCopy.input = newInput.hexToByteArray()
 
         return wrappedSigner.signRawTx(txCopy, callback)
     }

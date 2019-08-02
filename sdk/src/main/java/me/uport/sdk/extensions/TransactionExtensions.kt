@@ -1,11 +1,7 @@
 package me.uport.sdk.extensions
 
 import android.content.Context
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import me.uport.sdk.Transactions
 import me.uport.sdk.core.EthNetwork
 import me.uport.sdk.core.Networks
@@ -20,7 +16,7 @@ import org.walleth.khex.prepend0xPrefix
 import java.math.BigInteger
 
 /**
- * fetches the ETH balance of this [Account]s deviceAddress
+ * fetches the ETH balance of this Account's deviceAddress
  */
 suspend fun Account.getBalance(): BigInteger {
     val network = Networks.get(this.network)
@@ -51,7 +47,7 @@ suspend fun Account.send(context: Context, destinationAddress: String, value: Bi
  */
 suspend fun Account.send(context: Context, contractAddress: String, data: ByteArray): String {
     val rawTransaction = createTransactionWithDefaults(
-            input = data.toList(),
+            input = data,
             to = Address(contractAddress),
             from = Address(this.publicAddress),
             value = BigInteger.ZERO

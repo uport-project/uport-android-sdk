@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package me.uport.sdk.identity
 
 import android.content.Context
@@ -18,14 +19,14 @@ import me.uport.sdk.identity.ProgressPersistence.PersistentBundle
 import me.uport.sdk.identity.endpoints.Unnu
 
 /**
- * [Account] manager backed by a [UportHDSigner] that controls a
+ * [MetaIdentityAccount] manager backed by a [UportHDSigner] that controls a
  * [uPort proxy account](https://github.com/uport-project/uport-identity).
  *
  * This type of account supports meta-transactions but require fuel-tokens
  *
- * **Work on this identity model is on hold and no support is available. Please use [KPAccountCreator]**
+ * **Work on this identity model is on hold and no support is available. Please use [HDAccountCreator]**
  */
-@Deprecated("Work on this identity model is on hold and no support is available. Please use [KPAccountCreator]")
+@Deprecated("Work on this identity model is on hold and no support is available. Please use [HDAccountCreator]")
 class MetaIdentityAccountCreator(
         private val context: Context,
         private val fuelTokenProvider: IFuelTokenProvider) : AccountCreator {
@@ -45,7 +46,7 @@ class MetaIdentityAccountCreator(
      * To force the creation of a new identity, use [forceRestart]
      */
     @Suppress("LabeledExpression", "ComplexMethod")
-    private fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean): Account = runBlocking {
+    private fun createOrImportAccount(networkId: String, phrase: String?, forceRestart: Boolean): MetaIdentityAccount = runBlocking {
 
         var (state, oldBundle) = if (forceRestart) {
             (AccountCreationState.NONE to PersistentBundle())
@@ -113,15 +114,14 @@ class MetaIdentityAccountCreator(
 
                         if (identityInfo != Unnu.IdentityInfo.blank) {
                             val proxyAddress = identityInfo.proxyAddress ?: ""
-                            val acc = Account(
+                            val acc = MetaIdentityAccount(
                                     oldBundle.rootAddress,
                                     oldBundle.deviceAddress,
                                     networkId,
                                     proxyAddress,
                                     identityInfo.managerAddress,
                                     Networks.get(networkId).txRelayAddress,
-                                    oldBundle.fuelToken,
-                                    AccountType.MetaIdentityManager
+                                    oldBundle.fuelToken
                             )
                             state = AccountCreationState.COMPLETE
                             progress.save(state, oldBundle.copy(partialAccount = acc))
@@ -148,11 +148,11 @@ class MetaIdentityAccountCreator(
      */
     class AccountCreationError(state: AccountCreationState) : RuntimeException("Exhausted account creation options, ${state.name}")
 
-    override suspend fun createAccount(networkId: String, forceRecreate: Boolean): Account {
+    override suspend fun createAccount(networkId: String, forceRecreate: Boolean): MetaIdentityAccount {
         return createOrImportAccount(networkId, null, forceRecreate)
     }
 
-    override suspend fun importAccount(networkId: String, seedPhrase: String, forceRecreate: Boolean): Account {
+    override suspend fun importAccount(networkId: String, seedPhrase: String, forceRecreate: Boolean): MetaIdentityAccount {
         return createOrImportAccount(networkId, seedPhrase, forceRecreate)
     }
 

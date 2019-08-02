@@ -3,10 +3,9 @@
 package me.uport.sdk
 
 import android.content.Context
-import android.os.Looper
 import android.support.test.InstrumentationRegistry
 import assertk.all
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
@@ -15,11 +14,9 @@ import assertk.assertions.isNull
 import com.uport.sdk.signer.UportHDSigner
 import kotlinx.coroutines.runBlocking
 import me.uport.sdk.core.Networks
-import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.HDAccount
 import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class UportTest {
 
@@ -28,7 +25,7 @@ class UportTest {
     @Before
     fun run_before_every_test() {
         context = InstrumentationRegistry.getTargetContext()
-        val config = Uport.Configuration()
+        val config = Configuration()
                 .setApplicationContext(context)
 
         Uport.initialize(config)
@@ -44,51 +41,15 @@ class UportTest {
         runBlocking {
             val acc = tested.createAccount(Networks.rinkeby.networkId)
 
-            assert(acc).all {
+            assertThat(acc).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
 
-            assert(tested.defaultAccount).isNotNull()
+            assertThat(tested.defaultAccount).isNotNull()
         }
     }
 
-    @Test
-    fun there_can_be_only_one_default_account() {
-
-        val tested = Uport
-
-        tested.defaultAccount?.let { tested.deleteAccount(it) }
-
-        runBlocking {
-
-            val acc1 = tested.createAccount(Networks.rinkeby.networkId)
-
-            assert(tested.defaultAccount).isEqualTo(acc1) //first account gets to be default
-            assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1)
-
-            val acc2 = tested.createAccount(Networks.rinkeby.networkId)
-
-            assert(tested.defaultAccount).isNotEqualTo(acc2) //default isn't overwritten
-            assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1) //still one default
-
-            tested.defaultAccount = acc2
-
-            assert(tested.allAccounts().filter { it.isDefault == true }.size).isEqualTo(1) //still one default
-        }
-    }
-
-    @Test
-    fun account_completion_called_on_main_thread() {
-        val latch = CountDownLatch(1)
-        Uport.createAccount(Networks.rinkeby) { _, _ ->
-
-            assert(Looper.getMainLooper().isCurrentThread)
-
-            latch.countDown()
-        }
-        latch.await(15, TimeUnit.SECONDS)
-    }
 
     @Test
     fun account_can_be_imported() {
@@ -99,14 +60,14 @@ class UportTest {
 
         runBlocking {
             val account = tested.createAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
-            assert(account).all {
+            assertThat(account).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
-            assert(account.address).isEqualTo("2opxPamUQoLarQHAoVDKo2nDNmfQLNCZif4")
-            assert(account.publicAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
-            assert(account.deviceAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
-            assert(account.handle).isEqualTo("0x794adde0672914159c1b77dd06d047904fe96ac8")
+            assertThat(account.address).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
+            assertThat(account.publicAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
+            assertThat(account.deviceAddress).isEqualTo("0x847e5e3e8b2961c2225cb4a2f719d5409c7488c6")
+            assertThat(account.handle).isEqualTo("0x794adde0672914159c1b77dd06d047904fe96ac8")
         }
     }
 
@@ -117,7 +78,7 @@ class UportTest {
 
         runBlocking {
             val refAccount = tested.createAccount(Networks.rinkeby.networkId, referenceSeedPhrase)
-            assert(tested.getAccount("0x794adde0672914159c1b77dd06d047904fe96ac8")).isEqualTo(refAccount)
+            assertThat(tested.getAccount("0x794adde0672914159c1b77dd06d047904fe96ac8")).isEqualTo(refAccount)
         }
     }
 
@@ -129,17 +90,16 @@ class UportTest {
 
         runBlocking {
             val account = tested.createAccount(Networks.rinkeby.networkId)
-            assert(account).all {
+            assertThat(account).all {
                 isNotNull()
-                isNotEqualTo(Account.blank)
+                isNotEqualTo(HDAccount.blank)
             }
 
             val root = account.handle
             tested.deleteAccount(root)
 
-            assert(UportHDSigner().allHDRoots(context)).doesNotContain(root)
-            assert(tested.defaultAccount).isNull()
+            assertThat(UportHDSigner().allHDRoots(context)).doesNotContain(root)
+            assertThat(tested.defaultAccount).isNull()
         }
     }
-
 }

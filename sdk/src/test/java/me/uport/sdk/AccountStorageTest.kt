@@ -1,10 +1,10 @@
 package me.uport.sdk
 
 import assertk.all
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.*
 import me.uport.sdk.fakes.InMemorySharedPrefs
-import me.uport.sdk.identity.Account
+import me.uport.sdk.identity.HDAccount
 import org.junit.Test
 
 class AccountStorageTest {
@@ -12,9 +12,9 @@ class AccountStorageTest {
     @Test
     fun `can add and retrieve new account`() {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
-        val newAcc = Account("0xnewaccount", "", "", "", "", "", "")
+        val newAcc = HDAccount("0xnewaccount", "", "", "")
         storage.upsert(newAcc)
-        assert(storage.get("0xnewaccount")).isEqualTo(newAcc)
+        assertThat(storage.get("0xnewaccount")).isEqualTo(newAcc)
     }
 
     @Test
@@ -22,7 +22,7 @@ class AccountStorageTest {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val accounts = (0..10).map {
-            Account("0x$it", "", "", "", "", "", "")
+            HDAccount("0x$it", "", "", "")
         }.map {
             storage.upsert(it)
             it
@@ -30,57 +30,51 @@ class AccountStorageTest {
 
         val allAccounts = storage.all()
 
-        assert(allAccounts.containsAll(accounts))
+        assertThat(allAccounts.containsAll(accounts))
     }
 
     @Test
     fun `can delete account`() {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
-        val refAccount = Account(
+        val refAccount = HDAccount(
                 "0xmyAccount",
                 "device",
                 "0x1",
-                "0xpublic",
-                "",
-                "",
-                ""
+                "0xpublic"
         )
 
         storage.upsert(refAccount)
-        assert(storage.get(refAccount.handle)).isEqualTo(refAccount)
+        assertThat(storage.get(refAccount.handle)).isEqualTo(refAccount)
 
         storage.delete(refAccount.handle)
 
-        assert(storage.get(refAccount.handle)).isNull()
-        assert(storage.all()).doesNotContain(refAccount)
+        assertThat(storage.get(refAccount.handle)).isNull()
+        assertThat(storage.all()).doesNotContain(refAccount)
     }
 
     @Test
     fun `can overwrite account`() {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
-        val refAccount = Account(
+        val refAccount = HDAccount(
                 "0xmyAccount",
                 "device",
                 "0x1",
-                "0xpublic",
-                "",
-                "",
-                ""
+                "0xpublic"
         )
 
         storage.upsert(refAccount)
 
-        val newAccount = refAccount.copy(isDefault = true)
+        val newAccount = refAccount.copy(network = "0x4")
 
         storage.upsert(newAccount)
 
-        assert(storage.get(refAccount.handle)).all {
+        assertThat(storage.get(refAccount.handle)).all {
             isNotEqualTo(refAccount)
             isEqualTo(newAccount)
         }
-        assert(storage.all()).all {
+        assertThat(storage.all()).all {
             doesNotContain(refAccount)
             contains(newAccount)
         }
@@ -91,14 +85,51 @@ class AccountStorageTest {
         val storage: AccountStorage = SharedPrefsAccountStorage(InMemorySharedPrefs())
 
         val accounts = (0..10).map {
-            Account("0x$it", "", "", "", "", "", "")
+            HDAccount("0x$it", "", "", "")
         }
 
         storage.upsertAll(accounts)
 
         val allAccounts = storage.all()
 
-        assert(allAccounts.containsAll(accounts))
+        assertThat(allAccounts.containsAll(accounts))
+    }
+
+    @Test
+    fun `can set default account`() {
+        val storage = SharedPrefsAccountStorage(InMemorySharedPrefs())
+
+        val acc = HDAccount(
+                "0xroot",
+                "0xdevice",
+                "0x1",
+                "0xpublic"
+        )
+
+        storage.upsert(acc)
+
+        storage.setAsDefault(acc.handle)
+
+        assertThat(storage.getDefaultAccount()).isEqualTo(acc)
+    }
+
+
+    @Test
+    fun `can save and fetch an account`() {
+        val storage = SharedPrefsAccountStorage(InMemorySharedPrefs())
+
+        val savedAcc = HDAccount(
+                "0xroot",
+                "0xdevice",
+                "0x1",
+                "0xpublic"
+        )
+
+        storage.upsert(savedAcc)
+
+        val fetchedAcc = storage.get(savedAcc.handle)
+
+        assertThat(savedAcc).isEqualTo(fetchedAcc)
     }
 
 }

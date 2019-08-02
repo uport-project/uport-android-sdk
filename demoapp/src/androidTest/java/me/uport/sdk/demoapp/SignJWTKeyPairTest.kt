@@ -4,7 +4,7 @@ import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
-import assertk.assert
+import assertk.assertThat
 import assertk.assertions.isNotNull
 import me.uport.sdk.demoapp.managing_jwt.SignJWTKeyPairSignerActivity
 import org.junit.Rule
@@ -20,6 +20,6 @@ class SignJWTKeyPairTest {
 
         onView(withId(R.id.submit_btn_one)).perform(click())
 
-        assert(activityRule.activity.signedJWT).isNotNull()
+        assertThat(activityRule.activity.signedJWT).isNotNull()
     }
 }

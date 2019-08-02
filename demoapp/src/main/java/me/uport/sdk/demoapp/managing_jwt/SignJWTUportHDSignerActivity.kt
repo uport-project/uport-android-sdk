@@ -2,7 +2,6 @@ package me.uport.sdk.demoapp.managing_jwt
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.uport.sdk.signer.Signer
 import com.uport.sdk.signer.UportHDSigner
 import com.uport.sdk.signer.UportHDSignerImpl
 import com.uport.sdk.signer.encryption.KeyProtection
@@ -10,6 +9,7 @@ import com.uport.sdk.signer.importHDSeed
 import kotlinx.android.synthetic.main.simple_result_layout.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import me.uport.sdk.signer.Signer
 import me.uport.sdk.core.UI
 import me.uport.sdk.demoapp.R
 import me.uport.sdk.jwt.JWTTools
@@ -62,7 +62,7 @@ class SignJWTUportHDSignerActivity : AppCompatActivity() {
             GlobalScope.launch(UI) {
 
                 val signedJWT: String? = try {
-                    JWTTools().createJWT(payload, issuerDID!!, signer!!,5000)
+                    JWTTools().createJWT(payload, issuerDID!!, signer!!, 5000)
                 } catch (exception: Exception) {
                     null
                 }

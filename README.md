@@ -35,7 +35,7 @@ allprojects {
 In your application `build.gradle` file, add:
 
 ```groovy
-def uport_sdk_version = "v0.4.2"
+def uport_sdk_version = "v0.5.0"
 dependencies {
     //...
     // core SDK
@@ -62,7 +62,8 @@ override fun onCreate() {
 
 ### defaultAccount
 
-This preview version of the SDK has the concept of `defaultAccount` as a nullable field in the `Uport` object.
+This preview version of the SDK has the concept of `defaultAccount` as a nullable field in the
+`Uport` object.
 If there is no default account when a new one is created, it becomes the default.
 
 ```kotlin
@@ -94,18 +95,20 @@ if (Uport.defaultAccount == null) {
 }
 ```
 
-In case the app gets killed during the account creation process, the `createAccount` method will try to resume the process where it left off.
-It can be instructed to start from scratch, but that may cost additional fuel.
+In case the app gets killed during the account creation process, the `createAccount` method will
+try to resume the process where it left off. It can be instructed to start from scratch, but that
+may cost additional fuel.
 
 ### Account management
 
 `Account` objects have a `handle` field that can be used to refer to them in the future.
-The handle right now is an ethereum address but it should be treated as an opaque string, as it will change in a future release.
-You should not send funds to that address.
+The handle right now is an ethereum address but it should be treated as an opaque string,
+as it will change in a future release. You should not send funds to that address.
 
 ### Key management
 
-The `signer` library is used to create and manage keys for uport accounts. Read full details in [key management documentation](./docs/overview/key_management.md)
+The `signer` library is used to create and manage keys for uport accounts.
+Read full details in [key management documentation](./docs/overview/key_management.md)
 
 ### Ethereum interaction
 
@@ -143,7 +146,7 @@ val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 ### off-chain interaction
 
-Off-chain interaction is essentially signing and verifying JWTs using uport-specific JWT algorithms.
+Off-chain interaction is essentially signing and verifying JWTs using specific JWT algorithms.
 Verification of such tokens implies resolving a 
 [Decentralized Identity (DID) document](https://github.com/uport-project/specs/blob/develop/pki/diddocument.md)
 that will contain the keys or address that should match a JWT signature.
@@ -194,7 +197,7 @@ val jwt : String = JWTTools().create(payload, issuer, signer)
 
 ```kotlin
 //compute an encryption publicKey starting from a private key (can be an ethereum private key) 
-val publicKey = Crypto.getEncryptionPublicKey(privateKeyBytes).
+val publicKey = Crypto.getEncryptionPublicKey(privateKeyBytes)
 
 //encrypt a message with an intended recipient
 val encryptedBundle = Crypto.encrypt("hello world", recipientPublicKeyBase64)
@@ -209,19 +212,34 @@ val decryptedMessage = Crypto.decrypt(receivedBundle, recipientSecretKey)
 
 ## Dependencies
 
-This library uses [kethereum](https://github.com/walleth/kethereum) for a lot of ethereum related work.
+* These libraries use [KEthereum](https://github.com/komputing/KEthereum) for a lot of the ethereum related work.
+* The smart-contract binding code is generated using [bivrost-kotlin](https://github.com/gnosis/bivrost-kotlin)
+* The off-chain/JWT interactions rely on [kotlin-did-jwt](https://github.com/uport-project/kotlin-did-jwt)
+* Protected Key management is done by [uport-android-signer](https://github.com/uport-project/uport-android-signer) 
 
-The smart-contract binding code is generated using [bivrost-kotlin](https://github.com/gnosis/bivrost-kotlin)
 
 Currently there is a transient dependency on [spongycastle](https://rtyley.github.io/spongycastle/)
-but that may be removed when pure kotlin implementations of the required cryptographic primitives become available. 
+but that may be removed when pure kotlin implementations of the required cryptographic
+primitives become available. 
 
 
 ## Contributing
-Want to contribute to uport-android-sdk? Cool, please read our [contribution guidelines](./docs/guides/CONTRIBUTING.md) to get an understanding of the process we use for making changes to this repo.
+Want to contribute to uport-android-sdk? Cool, please read our
+[contribution guidelines](./docs/guides/CONTRIBUTING.md) to get an understanding of the process
+we use for making changes to this repo.
 
 
 ## Changelog
+* 0.5.0
+    * [breaking][bugfix] align JWT signature to spec (#93)
+    * [breaking][support] externalized did-jwt and signer modules (#97)
+    * [breaking][feature]`Account` is now an interface and the default implementation used is `HDAccount` (#89)
+    * [feature] easier configuration of JsonRPC endpoints (#91)
+    * [feature] add `verifyDisclosure()` method (#96)
+    * [feature] add `authenticateDisclosureResponse()` (#98)
+    * [feature] add W3C methods to create Verifiable Credential and Presentation (#100)
+    * [support] reduce UI test flakyness (#92)
+
 * 0.4.2
     * updated infura JsonRPC endpoint URLs.
     To avoid sudden disconnect you are strongly encouraged to use your own project on
