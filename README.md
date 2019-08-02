@@ -9,39 +9,15 @@ type: "content"
 
 Identity for your Android dApps.
 
+[![](https://jitpack.io/v/uport-project/uport-android-sdk.svg)](https://jitpack.io/#uport-project/uport-android-sdk)
+[![CircleCI](https://circleci.com/gh/uport-project/uport-android-sdk.svg?style=svg)](https://circleci.com/gh/uport-project/uport-android-sdk)
+[![Twitter Follow](https://img.shields.io/twitter/follow/uport_me.svg?style=social&label=Follow)](https://twitter.com/uport_me)
+
 **This is a preview version of the uPort android SDK.
 Many intended features are still missing, and the ones already present are under heavy development.
 Expect some breaking changes**
 
 Development planning is done at https://www.pivotaltracker.com/n/projects/2198688
-
-## Installation
-
-This SDK is available through [jitpack](https://jitpack.io/)
-
-[![](https://jitpack.io/v/uport-project/uport-android-sdk.svg)](https://jitpack.io/#uport-project/uport-android-sdk)
-
-In your main `build.gradle` file, add:
-
-```groovy
-allprojects {
-    repositories {
-        maven { url 'https://jitpack.io' }
-        //...
-    }
-}
-```
-
-In your application `build.gradle` file, add:
-
-```groovy
-def uport_sdk_version = "0.5.1"
-dependencies {
-    //...
-    // core SDK
-    implementation "com.github.uport-project.uport-android-sdk:sdk:$uport_sdk_version"
-}
-```
 
 ## Usage
 
@@ -137,7 +113,7 @@ Uport.defaultAccount?.send(activity, destination, amountInWei) { err, txHash ->
 
 //call contract
 val contractAddress = "0x010101..."
-val data : ByteArray = <ABI encoded contract method call>
+val data : ByteArray = `<ABI encoded contract method call>`
 
 val txHash : String = Uport.defaultAccount?.send(activity, contractAddress, data)
 val receipt = Networks.rinkeby.awaitConfirmation(txHash)
@@ -208,7 +184,49 @@ val receivedBundle = EncryptedMessage.fromJson(serializedMessage)
 val decryptedMessage = Crypto.decrypt(receivedBundle, recipientSecretKey)
 ```
 
+## Installation
 
+This SDK is available through [jitpack](https://jitpack.io/)
+
+In your main `build.gradle` file, add:
+
+```groovy
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+        //...
+    }
+}
+```
+
+In your application `build.gradle` file, add:
+
+```groovy
+def uport_sdk_version = "0.5.1"
+dependencies {
+    //...
+    // core SDK
+    implementation "com.github.uport-project.uport-android-sdk:sdk:$uport_sdk_version"
+}
+```
+
+The `sdk` artifact transitively includes and exposes the other libraries produced by this repository.
+These libraries can be used independently as well:
+
+```groovy
+dependencies {
+    //...
+    
+    // definitions and implementations for various Account types
+    implementation "com.github.uport-project.uport-android-sdk:identity:$uport_sdk_version"
+    
+    // creates and verifies Verifiable Credentials, Presentations as well as several uport-specific JWT types
+    implementation "com.github.uport-project.uport-android-sdk:credentials:$uport_sdk_version"
+    
+    // message encryption and communication with the uPort app and browser dApps through deep-links
+    implementation "com.github.uport-project.uport-android-sdk:transport:$uport_sdk_version"
+}
+```
 
 ## Dependencies
 
