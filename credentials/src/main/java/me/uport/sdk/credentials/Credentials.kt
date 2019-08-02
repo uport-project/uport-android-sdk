@@ -339,7 +339,7 @@ class Credentials(
      *  @param expiresInSeconds _optional_ number of seconds of validity of the JWT. This parameter
      *              is ignored if the [payload] already contains an `exp` field
      */
-    suspend fun signJWT(
+    internal suspend fun signJWT(
         payload: Map<String, Any?>,
         expiresInSeconds: Long = DEFAULT_JWT_VALIDITY_SECONDS,
         algorithm: String? = null
