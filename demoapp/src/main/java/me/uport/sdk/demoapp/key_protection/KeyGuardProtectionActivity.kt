@@ -9,7 +9,7 @@ import me.uport.sdk.core.decodeBase64
 import me.uport.sdk.core.padBase64
 import me.uport.sdk.core.toBase64
 import me.uport.sdk.demoapp.R
-import me.uport.sdk.demoapp.formatExecption
+import me.uport.sdk.demoapp.formatException
 import org.walleth.khex.toHexString
 import java.util.*
 
@@ -40,7 +40,7 @@ class KeyGuardProtectionActivity : AppCompatActivity() {
                     key_details.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                     address = rootAddress
                 } else {
-                    error.text = formatExecption(err)
+                    error.text = formatException(err)
                 }
             }
         }
@@ -56,7 +56,7 @@ class KeyGuardProtectionActivity : AppCompatActivity() {
                 if (err == null) {
                     signed_string_details.text = "Signed Successfully : $sig"
                 } else {
-                    error.text = formatExecption(err)
+                    error.text = formatException(err)
                 }
             }
         }

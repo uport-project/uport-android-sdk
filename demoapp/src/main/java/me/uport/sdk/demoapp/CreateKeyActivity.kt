@@ -24,7 +24,7 @@ class CreateKeyActivity : AppCompatActivity() {
                     item_details_one.text = "publicKey: ${pubKey.decodeBase64().toHexString()}"
                     item_details_two.text = "address: $rootAddress"
                 } else {
-                    error_details.text = formatExecption(err)
+                    error_details.text = formatException(err)
                 }
             }
         }
