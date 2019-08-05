@@ -43,6 +43,8 @@ buildscript {
         uport_signer_version = "0.3.0"
 
         uport_sdk_version = "0.5.1"
+
+        jacoco_version = "0.8.4"
     }
 
     repositories {
@@ -92,6 +94,13 @@ detekt {
 }
 
 allprojects {
+
+    apply plugin: 'jacoco'
+
+    jacoco {
+        toolVersion = jacoco_version
+    }
+
     repositories {
         google()
         jcenter()
@@ -153,4 +162,23 @@ apply from: "publishing.gradle"
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+task jacocoReport(type: JacocoReport) {
+    subprojects { sub ->
+        afterEvaluate {
+            //subproject tasks can only be gathered after evaluation
+            def testTasks = sub.tasks.withType(Test)
+            dependsOn testTasks
+            executionData testTasks
+        }
+        classDirectories.from(file("${sub.buildDir}/classes/java/main"))
+        classDirectories.from(file("${sub.buildDir}/classes/kotlin/main"))
+    }
+
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+    }
 }

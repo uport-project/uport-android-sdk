@@ -58,4 +58,8 @@ dependencies {
     androidTestImplementation "com.github.mirceanis:view-matching-idler:0.1"
     androidTestImplementation "io.mockk:mockk-android:$mockk_version"
     androidTestImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
+
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:$assertk_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
 }
