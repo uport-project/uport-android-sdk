@@ -19,6 +19,8 @@ Expect some breaking changes**
 
 Development planning is done at https://www.pivotaltracker.com/n/projects/2198688
 
+[FAQ and helpdesk support](http://bit.ly/uPort_helpdesk)
+
 ## Usage
 
 
