@@ -1,5 +1,6 @@
 package me.uport.sdk.credentials.model
 
+import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -27,7 +28,7 @@ data class CredentialParams(
     @Required
     @SerialName("credentialSubject")
     @Serializable(with = ArbitraryMapSerializer::class)
-    val credentialSubject: Map<String, Any>,
+    val credentialSubject: Map<String, @ContextualSerialization Any>,
 
     /**
      * The LD context hooks.

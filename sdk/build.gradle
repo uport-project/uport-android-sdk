@@ -36,6 +36,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     implementation "com.github.gnosis.bivrost-kotlin:bivrost-solidity-types:$bivrost_version"
 
+    implementation "com.github.komputing.kethereum:functions:$kethereum_version"
     api "com.github.uport-project.kotlin-did-jwt:jwt:$did_jwt_version"
     api project(":credentials")
     api project(":transport")

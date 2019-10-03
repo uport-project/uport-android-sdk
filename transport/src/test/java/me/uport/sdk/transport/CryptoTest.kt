@@ -6,7 +6,7 @@ import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isZero
 import org.junit.Test
-import org.walleth.khex.hexToByteArray
+import org.komputing.khex.extensions.hexToByteArray
 
 
 class CryptoTest {
