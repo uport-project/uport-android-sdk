@@ -3,11 +3,11 @@
 buildscript {
 
     ext {
-        kotlin_version = '1.3.41'
-        kotlin_serialization_version = '0.11.0'
-        coroutines_version = "1.2.1"
+        kotlin_version = '1.3.50'
+        kotlin_serialization_version = '0.12.0'
+        coroutines_version = "1.3.1"
 
-        android_tools_version = '3.4.2'
+        android_tools_version = '3.5.1'
 
         build_tools_version = "28.0.3"
 
@@ -35,12 +35,12 @@ buildscript {
         okhttp_version = "3.14.1"
 
         bivrost_version = "v0.7.1"
-        kmnid_version = "0.3.2"
-        kethereum_version = "0.75.1"
+        kmnid_version = "0.4.2"
+        kethereum_version = "0.76.2"
         tweetnacl_k_version = "0.0.1"
-        did_jwt_version = "0.3.1"
-        kotlin_common_version = "0.1.1"
-        uport_signer_version = "0.3.0"
+        did_jwt_version = "0.3.3"
+        kotlin_common_version = "0.3.2"
+        uport_signer_version = "0.3.6"
 
         uport_sdk_version = "0.5.1"
 
@@ -126,9 +126,6 @@ allprojects {
                 details.useVersion kotlin_version
             }
         }
-
-        //XXX: this is needed until https://github.com/komputing/KEthereum/issues/65 is fixed
-        exclude group: "com.github.walleth"
     }
 }
 
@@ -141,6 +138,14 @@ subprojects { subproject ->
                 packagingOptions {
                     exclude "META-INF/main.kotlin_module"
                     exclude "META-INF/atomicfu.kotlin_module"
+                    pickFirst "META-INF/kotlinx-io.kotlin_module"
+                    pickFirst "META-INF/kbignumbers.kotlin_module"
+                    pickFirst "META-INF/ripemd160.kotlin_module"
+                    pickFirst "META-INF/extensions.kotlin_module"
+                    pickFirst "META-INF/core.kotlin_module"
+                    pickFirst "META-INF/keccak.kotlin_module"
+                    pickFirst "META-INF/sha256.kotlin_module"
+                    pickFirst "META-INF/khash-extensions.kotlin_module"
                 }
 
                 compileOptions {

@@ -37,9 +37,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlin_serialization_version"
     implementation "com.android.support:support-annotations:$support_lib_version"
 
-    api "com.github.komputing.KEthereum:model:$kethereum_version"
+    api "com.github.komputing.kethereum:model:$kethereum_version"
     api "com.github.uport-project.kotlin-common:core:$kotlin_common_version"
     api "com.github.uport-project:uport-android-signer:$uport_signer_version"
+    api "com.github.uport-project:kmnid:$kmnid_version"
 
     androidTestImplementation "com.android.support.test:runner:$test_runner_version"
     androidTestImplementation "com.android.support.test:rules:$test_runner_version"

@@ -25,7 +25,7 @@ import org.kethereum.functions.encodeRLP
 import org.kethereum.model.Address
 import org.kethereum.model.Transaction
 import org.kethereum.model.createTransactionWithDefaults
-import org.walleth.khex.toHexString
+import org.komputing.khex.extensions.toHexString
 import java.math.BigInteger
 
 val DEFAULT_GAS_LIMIT = 3_000_000L.toBigInteger()

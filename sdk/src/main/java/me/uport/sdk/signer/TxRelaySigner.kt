@@ -12,9 +12,9 @@ import org.kethereum.model.Address
 import org.kethereum.model.SignatureData
 import org.kethereum.model.Transaction
 import org.kethereum.model.createTransactionWithDefaults
-import org.walleth.khex.clean0xPrefix
-import org.walleth.khex.hexToByteArray
-import org.walleth.khex.toNoPrefixHexString
+import org.komputing.khex.extensions.clean0xPrefix
+import org.komputing.khex.extensions.hexToByteArray
+import org.komputing.khex.extensions.toNoPrefixHexString
 import java.math.BigInteger
 
 /**

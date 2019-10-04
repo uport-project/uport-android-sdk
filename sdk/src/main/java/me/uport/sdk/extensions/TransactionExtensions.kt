@@ -12,7 +12,7 @@ import org.kethereum.extensions.hexToBigInteger
 import org.kethereum.extensions.toHexStringNoPrefix
 import org.kethereum.model.Address
 import org.kethereum.model.createTransactionWithDefaults
-import org.walleth.khex.prepend0xPrefix
+import org.komputing.khex.extensions.prepend0xPrefix
 import java.math.BigInteger
 
 /**

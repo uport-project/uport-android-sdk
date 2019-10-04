@@ -122,7 +122,7 @@ val receipt = Networks.rinkeby.awaitConfirmation(txHash)
 
 ```
 
-### off-chain interaction
+### Off-chain interaction
 
 Off-chain interaction is essentially signing and verifying JWTs using specific JWT algorithms.
 Verification of such tokens implies resolving a 
@@ -141,7 +141,7 @@ Registering a new resolver that resolves the same DID method will override the p
 
 These `DIDDocument`s are used during verification of compatible JWT tokens.
 
-#### verify a JWT token
+#### Verify a JWT token
 
 ```kotlin
 
@@ -157,7 +157,7 @@ if (tokenPayload != null) {
 ```
 
 
-#### create a JWT token
+#### Create a JWT token
 
 ```kotlin
 
