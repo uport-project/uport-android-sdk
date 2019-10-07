@@ -12,6 +12,7 @@ Identity for your Android dApps.
 [![](https://jitpack.io/v/uport-project/uport-android-sdk.svg)](https://jitpack.io/#uport-project/uport-android-sdk)
 [![CircleCI](https://circleci.com/gh/uport-project/uport-android-sdk.svg?style=svg)](https://circleci.com/gh/uport-project/uport-android-sdk)
 [![Twitter Follow](https://img.shields.io/twitter/follow/uport_me.svg?style=social&label=Follow)](https://twitter.com/uport_me)
+[![DepShield Badge](https://depshield.sonatype.org/badges/owner/repository/depshield.svg)](https://depshield.github.io)
 
 **This is a preview version of the uPort android SDK.
 Many intended features are still missing, and the ones already present are under heavy development.
